@@ -1,6 +1,3 @@
-
-
-
 #ANDROID
 /platforms/android/build
 /platforms/android/ant-build
@@ -27,3 +24,7 @@ out
 
 /hooks/celepar*
 /hooks/*.sh
+
+
+/www/*
+!/www/.empty
