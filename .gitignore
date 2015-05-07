@@ -21,11 +21,9 @@ out
 *.pbxuser
 .DS_Store
 /platforms/ios/build
-/platforms/ios/wwww
 /platforms/ios/CordovaLib/build
 
-#DISTRIBUIÇÃO
-/www/*
+/source/servers.json
 
 /hooks/celepar*
 /hooks/*.sh
