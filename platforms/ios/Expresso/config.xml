@@ -1,0 +1,64 @@
+<?xml version='1.0' encoding='utf-8'?>
+<widget android-packageName="com.celepar.expresso" id="com.celepar.pr.gov.br.Expresso" ios-CFBundleIdentifier="com.celepar.pr.gov.br.Expresso" ios-CFBundleVersion="1.2" version="1.2" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    <preference name="BackupWebStorage" value="cloud" />
+    <feature name="LocalStorage">
+        <param name="ios-package" value="CDVLocalStorage" />
+    </feature>
+    <feature name="Camera">
+        <param name="ios-package" value="CDVCamera" />
+    </feature>
+    <preference name="CameraUsesGeolocation" value="false" />
+    <feature name="NetworkStatus">
+        <param name="ios-package" value="CDVConnection" />
+    </feature>
+    <feature name="ExternalFileUtil">
+        <param name="ios-package" value="CDVExternalFileUtil" />
+    </feature>
+    <content src="index_ios.html" />
+    <icon height="180" src="www/imgs/app-icons/icon-152.png" width="180" />
+    <icon height="60" src="www/imgs/app-icons/icon-58.png" width="60" />
+    <icon height="120" src="www/imgs/app-icons/icon-120.png" width="120" />
+    <icon height="76" src="www/imgs/app-icons/icon-76.png" width="76" />
+    <icon height="152" src="www/imgs/app-icons/icon-152.png" width="152" />
+    <icon height="40" src="www/imgs/app-icons/icon-40.png" width="40" />
+    <icon height="80" src="www/imgs/app-icons/icon-80.png" width="80" />
+    <icon height="57" src="www/imgs/app-icons/icon-57.png" width="57" />
+    <icon height="114" src="www/imgs/app-icons/icon-114.png" width="114" />
+    <icon height="72" src="www/imgs/app-icons/icon-72.png" width="72" />
+    <icon height="144" src="www/imgs/app-icons/icon-144.png" width="144" />
+    <icon height="29" src="www/imgs/app-icons/icon-29.png" width="29" />
+    <icon height="58" src="www/imgs/app-icons/icon-58.png" width="58" />
+    <icon height="50" src="www/imgs/app-icons/icon-50.png" width="50" />
+    <icon height="100" src="www/imgs/app-icons/icon-100.png" width="100" />
+    <splash height="480" src="www/imgs/splash-screens/Default~iphone.png" width="320" />
+    <splash height="960" src="www/imgs/splash-screens/Default@2x~iphone.png" width="640" />
+    <splash height="1024" src="www/imgs/splash-screens/Default-Portrait~ipad.png" width="768" />
+    <splash height="2048" src="www/imgs/splash-screens/Default-Portrait@2x~ipad.png" width="1536" />
+    <splash height="768" src="www/imgs/splash-screens/Default-Landscape~ipad.png" width="1024" />
+    <splash height="1536" src="www/imgs/splash-screens/Default-Landscape@2x~ipad.png" width="2048" />
+    <splash height="1136" src="www/imgs/splash-screens/640x1136.png" width="640" />
+    <name>Expresso</name>
+    <description>
+            Expresso Mobile
+        </description>
+    <author email="developercoser@celepar.pr.gov.br" href="http://cordova.io">
+            Expresso Mobile
+        </author>
+    <access origin="*" />
+    <preference name="AllowInlineMediaPlayback" value="false" />
+    <preference name="AutoHideSplashScreen" value="true" />
+    <preference name="BackupWebStorage" value="local" />
+    <preference name="DisallowOverscroll" value="false" />
+    <preference name="EnableViewportScale" value="false" />
+    <preference name="FadeSplashScreen" value="true" />
+    <preference name="FadeSplashScreenDuration" value=".25" />
+    <preference name="KeyboardDisplayRequiresUserAction" value="true" />
+    <preference name="MediaPlaybackRequiresUserAction" value="false" />
+    <preference name="ShowSplashScreenSpinner" value="true" />
+    <preference name="SuppressesIncrementalRendering" value="false" />
+    <preference name="TopActivityIndicator" value="gray" />
+    <preference name="GapBetweenPages" value="0" />
+    <preference name="PageLength" value="0" />
+    <preference name="PaginationBreakingMode" value="page" />
+    <preference name="PaginationMode" value="unpaginated" />
+</widget>

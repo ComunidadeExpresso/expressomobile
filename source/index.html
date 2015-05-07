@@ -1,0 +1,70 @@
+<!doctype html>
+<!--[if lt IE 7]> <html class="no-js ie6 oldie" lang="en"> <![endif]-->
+<!--[if IE 7]>    <html class="no-js ie7 oldie" lang="en"> <![endif]-->
+<!--[if IE 8]>    <html class="no-js ie8 oldie" lang="en"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+  <title>Expresso</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+  <meta charset="UTF-8" />
+  <meta name="google" content="notranslate">
+  <meta http-equiv="Content-Language" content="pt-br" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+  <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
+  <link rel="shortcut icon" href="./imgs/favicon.png" type="image/ico"/>
+
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+
+  <meta name="author" content="Equipe Expresso Livre" />
+  <meta name="keywords" content="rest, json, javascript" />
+  <meta name="description" content="" />
+  <link href="./imgs/favicon.png" rel="icon" type="image/png" />
+
+  <!-- non-retina iPhone pre iOS 7 -->
+  <link rel="apple-touch-icon" href="./imgs/app-icons/icon-57.png" sizes="57x57">
+  <!-- non-retina iPad pre iOS 7 -->
+  <link rel="apple-touch-icon" href="./imgs/app-icons/icon-72.png" sizes="72x72">
+  <!-- non-retina iPad iOS 7 -->
+  <link rel="apple-touch-icon" href="./imgs/app-icons/icon-76.png" sizes="76x76">
+  <!-- retina iPhone pre iOS 7 -->
+  <link rel="apple-touch-icon" href="./imgs/app-icons/icon-114.png" sizes="114x114">
+  <!-- retina iPhone iOS 7 -->
+  <link rel="apple-touch-icon" href="./imgs/app-icons/icon-120.png" sizes="120x120">
+  <!-- retina iPad pre iOS 7 -->
+  <link rel="apple-touch-icon" href="./imgs/app-icons/icon-144.png" sizes="144x144">
+  <!-- retina iPad iOS 7 -->
+  <link rel="apple-touch-icon" href="./imgs/app-icons/icon-152.png" sizes="152x152">
+ 
+  <link rel="stylesheet" href="./css/styles.css">  
+
+  <script type="text/javascript">
+    if ((/iphone|ipad/gi).test(navigator.appVersion)) {
+      document.write('<link rel="stylesheet" href="./css/ios_7.css">');
+    }
+
+    setTimeout(function() {
+      var navTest = document.getElementById("navigatorTest"); 
+      if (navTest != undefined) {
+
+        document.getElementById("mainAppPageContent").innerHTML = '<div class="login-center" style="width: 245px; margin-top: 0px;"><div class="product-logo"></div><br><br><br><span style="color: #000; font-size: 14px;">Não foi possível carregar o Expresso Mobile para este navegador, por favor instale um navegador compatível para acessar esta versão.<br><br>O Expresso Mobile é compatível com as ultimas versões dos navegadores: Chrome, Firefox e Safari.<br><br></span></div>';
+
+      }
+    },30000);
+  </script>
+
+  <script>
+  
+  </script>
+
+  <script data-main="js/main" src="./js/libs/require/require.js"></script>
+</head>
+<div id="results"></div>
+<body id="mainAppPageContent" >
+  <div id="navigatorTest"></div>
+  <div class="spinner"></div>
+</body>
+</html>

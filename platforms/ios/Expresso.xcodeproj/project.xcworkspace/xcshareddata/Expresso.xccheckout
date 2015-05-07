@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>EF856F74-0B2B-43F0-B1CC-8562344B21E9</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>1317E4A597B7AC74495A7054B099BC8D9DBCB811</key>
+		<string>pereira.jair@git.expresso.celepar.parana:/var/git/repositories/expresso-mobile-dist.git</string>
+	</dict>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>1317E4A597B7AC74495A7054B099BC8D9DBCB811</key>
+		<string>www/</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>pereira.jair@git.expresso.celepar.parana:/var/git/repositories/expresso-mobile-dist.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>111</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>1317E4A597B7AC74495A7054B099BC8D9DBCB811</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>1317E4A597B7AC74495A7054B099BC8D9DBCB811</string>
+			<key>IDESourceControlWCCName</key>
+			<string>www</string>
+		</dict>
+	</array>
+</dict>
+</plist>

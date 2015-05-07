@@ -1,0 +1,56 @@
+<% _.each(parentFolders, function(folder){ %>
+  <li>
+    <a href="<%=folder.route()%>" name="<%=folder.route()%>" data-toggle="collapse" data-target="#menu" class="listFolderItemLink">
+      <% if (folder.get("folderType") == 0) { %>
+        <div class="folder-icon  folder-inbox"></div>
+      <% } %>
+      <% if (folder.get("folderType") == 4) { %>
+        <div class="folder-icon folder-drafts"></div>
+      <% } %>
+      <% if (folder.get("folderType") == 1) { %>
+        <div class="folder-icon  folder-sent"></div>
+      <% } %>
+      <% if (folder.get("folderType") == 2) { %>
+        <div class="folder-icon  folder-blue"></div>
+      <% } %>
+      <% if (folder.get("folderType") == 3) { %>
+        <div class="folder-icon  folder-trash-full"></div>
+      <% } %>
+      <% if (folder.get("folderType") == 5) { %>
+        <div class="folder-icon  folder-blue"></div>
+      <% } %>
+      <% if (folder.get("folderType") == 6) { %>
+        <div class="folder-icon  folder-shared"></div>
+      <% } %>
+      <% if (folder.get("qtdUnreadMessages") != 0) { %><strong class="badge badge-info" style="float: right; margin-top: 20px; margin-right: 10px;"><%=folder.get("qtdUnreadMessages")%></strong><% } %>
+      <h3 class="ellipsis20" style="margin-left: 40px;"><%=folder.get("folderName")%></h3>
+    </a>
+  </li>
+<% }); %>
+<% 
+
+  _.each(messages, function(message){ 
+   %>
+  <li id="<%=message.listItemID()%>" <% if (message.get("msgID") == msgIDSelected) { %>class="selected"<%} %>> 
+    <a href="<%=message.route()%>" class="listItemLink">
+      <div class="msg-list-images">
+        <span class="ellipsis14" style="text-align: right; margin: 5px; font-size: 10px;"><%=message.getTimeAgo()%></span>
+        <% if (message.get("msgHasAttachments") == '1') { %>
+        <div class="msg-attachments"></div>
+        <% } %>
+        <% if (message.get("msgFlagged") == '1') { %>
+        <div class="msg-flagged"></div>
+        <% } %>
+        <% if (message.get("msgForwarded") == '1') { %>
+        <div class="msg-forwarded"></div>
+        <% } %>
+        <div class="clear"></div>
+      </div>
+      <% if ((message.get("msgSeen") == '0') && (message.get("msgID") != msgIDSelected)) { %>
+        <div id="<%=message.listItemID()%>_unread" class="msg-unread"></div>
+      <% } %>
+      <h3 class="ellipsis20"><%= message.get("msgSubject") %></h3>
+      <span class="ellipsis14"><%= message.get("msgFrom").mailAddress %></span>
+    </a>
+  </li>
+<% }); %>

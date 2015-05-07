@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="gson-2.2.4">
+    <CLASSES>
+      <root url="jar:///projeto/frameworks/android-sdk-mac_x86/extras/android/m2repository/com/google/code/gson/gson/2.2.4/gson-2.2.4.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
