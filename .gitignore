@@ -6,6 +6,10 @@
 /platforms/android/expressoAuthenticator/ant-build
 /platforms/android/expressoAuthenticator/build
 /platforms/android/assets/wwww
+platforms/android/.idea/workspace.xml
+
+*.bin
+*.lock
 *.apk
 ant-gen
 *.class
@@ -19,8 +23,11 @@ out
 .DS_Store
 /platforms/ios/build
 /platforms/ios/CordovaLib/build
+/platforms/ios/www/*
+/platforms/ios/cordova/console.log
 
 /source/servers.json
+/source/plugins/*
 
 /hooks/celepar*
 /hooks/*.sh
@@ -28,3 +35,7 @@ out
 
 /www/*
 !/www/.empty
+
+platforms/ios/cordova/console.log
+
+platforms/android/.idea/workspace.xml

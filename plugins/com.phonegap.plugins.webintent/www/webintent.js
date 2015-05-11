@@ -1,4 +1,3 @@
-cordova.define("com.phonegap.plugins.webintent.WebIntent", function(require, exports, module) {
 
 // function WebIntentFactory() { }
 
@@ -95,4 +94,4 @@ cordova.define("com.phonegap.plugins.webintent.WebIntent", function(require, exp
 // };
 
 module.exports = new WebIntent();
-});
+

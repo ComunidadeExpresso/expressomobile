@@ -1,6 +1,6 @@
 {
     "version": "2.0.0",
-    "name": "com.phonegap.plugins.webintent",
+    "name": "com.phonegap.plugins.webintent.WebIntent",
     "cordova_name": "WebIntent Plugin",
     "description": "\r\n        Plugin to Interact with Android Intents.\r\n    ",
     "license": "Apache 2.0 License",

@@ -622,7 +622,6 @@ document.addEventListener('deviceready', function () {
   Shared.api.phoneGap(true);
   Shared.api.android(Shared.isAndroid());
 
-
   if (Shared.isAndroid()) {
 
       document.addEventListener("backbutton", function(e){
@@ -702,23 +701,29 @@ document.addEventListener('deviceready', function () {
 
       if (window.plugins.webintent != undefined) {
 
-        window.plugins.webintent.getExtra("android.intent.extra.STREAM", function (files) {
+        window.plugins.webintent.hasExtra("android.intent.extra.STREAM", function (hasExtra) {
 
-          var arquivos = [];
+          window.plugins.webintent.getExtra("android.intent.extra.STREAM", function (files) {
 
-          if (files.indexOf("[") != -1) {
-            files = files.replace("[","").replace("]","");
-            arquivos = files.split(",");
-          } else {
-            arquivos.push(files);
-          }
+            var arquivos = [];
 
-          for (var i=0; i<arquivos.length; i++) {
-             arquivos[i] = decodeURI(arquivos[i].replace("file://","").trim());
-          }
+            if (files.indexOf("[") != -1) {
+              files = files.replace("[","").replace("]","");
+              arquivos = files.split(",");
+            } else {
+              arquivos.push(files);
+            }
 
-          Shared.newMessageIntent = true;
-          Shared.newMessageFiles = arquivos;
+            for (var i=0; i<arquivos.length; i++) {
+               arquivos[i] = decodeURI(arquivos[i].replace("file://","").trim());
+            }
+
+            Shared.newMessageIntent = true;
+            Shared.newMessageFiles = arquivos;
+
+          }, function(error) {
+            // console.log(error);
+          });
 
         }, function(error) {
           // console.log(error);
@@ -726,12 +731,14 @@ document.addEventListener('deviceready', function () {
 
         window.plugins.webintent.onNewIntent(function(newURL) {
 
+          //alert('onNewIntent');
+
           if (newURL != null) {
+           // alert(newURL);
             Shared.router.navigate(newURL,{ trigger: true});
           }
 
         });
-
 
         window.plugins.webintent.hasExtra("ROUTE", function (hasExtra) {
 

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        id="com.phonegap.plugins.expresso"
+        version="2.0.0">
+
+    <name>Expresso Plugin</name>
+
+    <description>
+        Plugin to Interact with Expresso
+    </description>
+
+    <license>Apache 2.0 License</license>
+
+    <engines>
+        <engine name="cordova" version=">=3.0.0"/>
+    </engines>
+    
+    <!-- android -->
+    <platform name="android">
+
+	    <js-module src="www/ExpressoPlugin.js" name="ExpressoPlugin">
+		</js-module>
+
+        <config-file target="res/xml/config.xml" parent="/*">
+            <feature name="ExpressoPlugin">
+                <param name="android-package" value="com.phonegap.plugins.expresso.ExpressoPlugin" />
+            </feature>
+    
+        </config-file>
+        
+		
+        <source-file src="src/android/ExpressoPlugin.java" target-dir="src/com/phonegap/plugins/expresso" />
+		
+    </platform>
+</plugin>

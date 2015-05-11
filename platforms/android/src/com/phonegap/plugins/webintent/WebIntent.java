@@ -52,6 +52,12 @@ public class WebIntent extends CordovaPlugin {
 	
 	private AccountManager mAccountManager;
 
+    public void invalidAction(CallbackContext callbackContext) {
+        PluginResult result = new PluginResult(PluginResult.Status.INVALID_ACTION, "INVALID ACTION");
+        result.setKeepCallback(true);
+        callbackContext.sendPluginResult(result);
+    }
+
 	@SuppressWarnings("deprecation")
 	@Override
 	public boolean execute(String action, JSONArray args, CallbackContext callbackContext) {
@@ -60,7 +66,7 @@ public class WebIntent extends CordovaPlugin {
 
 	        if (action.equals("startActivity")) {
 	            if (args.length() != 1) {
-	                callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.INVALID_ACTION));
+                    this.invalidAction(callbackContext);
 	                return false;
 	            }
 
@@ -87,9 +93,8 @@ public class WebIntent extends CordovaPlugin {
 	            
 	        }  else if (action.equals("hasExtra")) {
 	            if (args.length() != 1) {
-	                //return new PluginResult(PluginResult.Status.INVALID_ACTION);
-	                callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.INVALID_ACTION));
-	                return false;
+                    this.invalidAction(callbackContext);
+                    return false;
 	            }
 	            Intent i = ((CordovaActivity)this.cordova.getActivity()).getIntent();
 	            String extraName = args.getString(0);
@@ -108,9 +113,8 @@ public class WebIntent extends CordovaPlugin {
 	        	
 	        } else if (action.equals("getExtra")) {
 	            if (args.length() != 1) {
-	                //return new PluginResult(PluginResult.Status.INVALID_ACTION);
-	                callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.INVALID_ACTION));
-	                return false;
+                    this.invalidAction(callbackContext);
+                    return false;
 	            }
 	            Intent i = ((CordovaActivity)this.cordova.getActivity()).getIntent();
 	            
@@ -150,9 +154,8 @@ public class WebIntent extends CordovaPlugin {
 	            }
 	        } else if (action.equals("getUri")) {
 	            if (args.length() != 0) {
-	                //return new PluginResult(PluginResult.Status.INVALID_ACTION);
-	                callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.INVALID_ACTION));
-	                return false;
+                    this.invalidAction(callbackContext);
+                    return false;
 	            }
 
 	            Intent i = ((CordovaActivity)this.cordova.getActivity()).getIntent();
@@ -165,7 +168,7 @@ public class WebIntent extends CordovaPlugin {
 	        	this.onNewIntentCallbackContext = callbackContext;
         
                 if (args.length() != 0) {
-                    callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.INVALID_ACTION));
+                    this.invalidAction(callbackContext);
                     return false;
                 }
                 
@@ -178,9 +181,8 @@ public class WebIntent extends CordovaPlugin {
 	        } else if (action.equals("sendBroadcast")) 
 	        {
 	            if (args.length() != 1) {
-	                //return new PluginResult(PluginResult.Status.INVALID_ACTION);
-	                callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.INVALID_ACTION));
-	                return false;
+                    this.invalidAction(callbackContext);
+                    return false;
 	            }
 
 	            // Parse the arguments
@@ -204,13 +206,14 @@ public class WebIntent extends CordovaPlugin {
 	            callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK));
 	            return true;
 	        }
-	        //return new PluginResult(PluginResult.Status.INVALID_ACTION);
-	        callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.INVALID_ACTION));
-	        return false;
+            this.invalidAction(callbackContext);
+            return false;
 	    } catch (JSONException e) {
 	        e.printStackTrace();
 	        //return new PluginResult(PluginResult.Status.JSON_EXCEPTION);
-	        callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.JSON_EXCEPTION));
+            PluginResult result = new PluginResult(PluginResult.Status.JSON_EXCEPTION, "JSON_EXCEPTION");
+            result.setKeepCallback(true);
+	        callbackContext.sendPluginResult(result);
 	        return false;
 	    }
 	}
