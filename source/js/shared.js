@@ -553,31 +553,40 @@ define([
   Shared.userHasModule = function(moduleName) {
     var retVal = false;
     var module = moduleName;
-    var a = Shared.profile.contactApps;
-    a.push("settings"); //EVERYONE HAS ACCESS TO SETTINGS.
-
-    //CHECK IF THE CHAT SERVICE IS AVAILABLE AND ADD CHAT AS A MODULE.
-    if (Shared.profile.contactServices != undefined) {
-      if (Shared.profile.contactServices.chat != undefined) {
-        a.push("chat");
+    if (Shared.profile != undefined) {
+      var a = Shared.profile.contactApps;
+      if (a == undefined) {
+        a = [];
       }
-    }
-    //a = ["settings"]; //USE THIS IF YOU WANT TO TEST SPECIFC MODULES WILL WORK INDIVIDUALY
-    for (var i = 0; i < a.length; i++) {
-      if (a[i] === moduleName) {
+      a.push("settings"); //EVERYONE HAS ACCESS TO SETTINGS.
+
+      //CHECK IF THE CHAT SERVICE IS AVAILABLE AND ADD CHAT AS A MODULE.
+      if (Shared.profile.contactServices != undefined) {
+        if (Shared.profile.contactServices.chat != undefined) {
+          a.push("chat");
+        }
+      }
+      //a = ["settings"]; //USE THIS IF YOU WANT TO TEST SPECIFC MODULES WILL WORK INDIVIDUALY
+      for (var i = 0; i < a.length; i++) {
+        if (a[i] === moduleName) {
+          retVal = true;
+        }
+      }
+      if (Shared.apiVersion == "1.0") {
+        if ((module == 'calendar') || (module == 'chat')) {
+          retVal = false;
+        }
+      }
+      for (var i = 0; i < Shared.disabledModules.length; i++) {
+        if (module == Shared.disabledModules[i]) {
+          retVal = false;
+        }
+
+      }
+    } else {
+      if (moduleName == "settings") {
         retVal = true;
       }
-    }
-    if (Shared.apiVersion == "1.0") {
-      if ((module == 'calendar') || (module == 'chat')) {
-        retVal = false;
-      }
-    }
-    for (var i = 0; i < Shared.disabledModules.length; i++) {
-      if (module == Shared.disabledModules[i]) {
-        retVal = false;
-      }
-
     }
     return retVal;
     
@@ -616,160 +625,168 @@ define([
 
 document.addEventListener('touchmove', function (e) { e.preventDefault(); }, false);
 
-  // deviceready is PhoneGap's init event
-document.addEventListener('deviceready', function () {
+Shared.deviceReady = function() {
 
   Shared.api.phoneGap(true);
   Shared.api.android(Shared.isAndroid());
 
-  if (Shared.isAndroid()) {
 
-      document.addEventListener("backbutton", function(e){
-        
-        // console.log("BACKBUTTON:" + window.location.href);
+      if (Shared.isAndroid()) {
 
-        var exitURLs = [
-          "file:///Mail/Messages/1/0/INBOX#",
-          "file:///Mail/Messages/1/0/INBOX",
-          "file:///Mail/Messages/0/0/INBOX",
-          "file:///Home",
-          "file:///Login",
-        ];
-         
-        if ($.inArray( window.location.href, exitURLs ) >= 0){
-          e.preventDefault();
-          navigator.app.exitApp();
-        } else {
-          e.preventDefault();
-          window.history.back();
-        }
-      }, false);
+          document.addEventListener("backbutton", function(e){
+            
+            // console.log("BACKBUTTON:" + window.location.href);
 
-      var serviceName = 'com.celepar.expresso.ExpressoService';
-      var factory = cordova.require('com.phonegap.plugins.backgroundservice.BackgroundService')
-      Shared.service.service = factory.create(serviceName);
+            var exitURLs = [
+              "file:///Mail/Messages/1/0/INBOX#",
+              "file:///Mail/Messages/1/0/INBOX",
+              "file:///Mail/Messages/0/0/INBOX",
+              "file:///Home",
+              "file:///Login",
+            ];
+             
+            if ($.inArray( window.location.href, exitURLs ) >= 0){
+              e.preventDefault();
+              navigator.app.exitApp();
+            } else {
+              e.preventDefault();
+              window.history.back();
+            }
+          }, false);
 
-      window.plugins = {};
-      window.plugins.webintent = cordova.require('com.phonegap.plugins.webintent.WebIntent');
+          var serviceName = 'com.celepar.expresso.ExpressoService';
+          var factory = cordova.require('com.phonegap.plugins.backgroundservice.BackgroundService')
+          Shared.service.service = factory.create(serviceName);
 
-      window.plugins.expresso = cordova.require('com.phonegap.plugins.expresso.ExpressoPlugin');
-      
-      Shared.api.createPhoneGapDatabase();
+          window.plugins = {};
+          window.plugins.webintent = cordova.require('com.phonegap.plugins.webintent.WebIntent');
 
-      if (window.plugins != undefined) {
+          window.plugins.expresso = cordova.require('com.phonegap.plugins.expresso.ExpressoPlugin');
+          
+          Shared.api.createPhoneGapDatabase();
 
-      if (window.plugins.expresso != undefined) {
+          // Shared.router.navigate("Login",{ trigger: true });
+
+          if (window.plugins != undefined) {
+
+          if (window.plugins.expresso != undefined) {
 
 
-          //VERIFICAÇÃO DE CONTAS AUTOMÁTICAS E INÍCIO DO SERVIÇO EM BACKGROUND.
-          window.plugins.expresso.getAccounts("", function (accounts) {
+              //VERIFICAÇÃO DE CONTAS AUTOMÁTICAS E INÍCIO DO SERVIÇO EM BACKGROUND.
+              window.plugins.expresso.getAccounts("", function (accounts) {
 
-            Shared.automaticLoginAccounts = JSON.parse(accounts);
+                Shared.automaticLoginAccounts = JSON.parse(accounts);
 
-            var JsonAccounts = Shared.automaticLoginAccounts;
+                var JsonAccounts = Shared.automaticLoginAccounts;
 
-            if (Shared.automaticLoginAccounts.accounts.length >= 1) {
+                if (Shared.automaticLoginAccounts.accounts.length >= 1) {
 
-                if ((Shared.forceAutomaticLoginInAccountName == false) || (Shared.automaticLoginAccounts.accounts.length == 1)) {
-                  Shared.forceAutomaticLoginInAccountName = JsonAccounts.accounts[0].accountName;
+                    if ((Shared.forceAutomaticLoginInAccountName == false) || (Shared.automaticLoginAccounts.accounts.length == 1)) {
+                      Shared.forceAutomaticLoginInAccountName = JsonAccounts.accounts[0].accountName;
+                    }
+
+                    for (var i=0;i<JsonAccounts.accounts.length;i++) {
+                      if (JsonAccounts.accounts[i] != undefined) {
+                        if (Shared.forceAutomaticLoginInAccountName == JsonAccounts.accounts[i].accountName) {
+
+                          var Account = JsonAccounts.accounts[i];
+
+                          Shared.service.setConfig(Account.accountAPIURL,Shared.api.auth(),Account.accountName,Account.accountPassword);
+                          Shared.service.startService();
+                          setTimeout(function() {
+                            Shared.service.setConfig(Account.accountAPIURL,Shared.api.auth(),Account.accountName,Account.accountPassword);
+                            Shared.service.enableTimer();
+                          },10000);
+
+                        }
+                      
+                      }
+                    }      
+                  
                 }
 
-                for (var i=0;i<JsonAccounts.accounts.length;i++) {
-                  if (JsonAccounts.accounts[i] != undefined) {
-                    if (Shared.forceAutomaticLoginInAccountName == JsonAccounts.accounts[i].accountName) {
-
-                      var Account = JsonAccounts.accounts[i];
-
-                      Shared.service.setConfig(Account.accountAPIURL,Shared.api.auth(),Account.accountName,Account.accountPassword);
-                      Shared.service.startService();
-                      setTimeout(function() {
-                        Shared.service.setConfig(Account.accountAPIURL,Shared.api.auth(),Account.accountName,Account.accountPassword);
-                        Shared.service.enableTimer();
-                      },10000);
-
-                    }
-                  
-                  }
-                }      
-              
-            }
-
-          }, function() {
-           // alert("sem Contas");
-          });
-      }
-
-      if (window.plugins.webintent != undefined) {
-
-        window.plugins.webintent.hasExtra("android.intent.extra.STREAM", function (hasExtra) {
-
-          window.plugins.webintent.getExtra("android.intent.extra.STREAM", function (files) {
-
-            var arquivos = [];
-
-            if (files.indexOf("[") != -1) {
-              files = files.replace("[","").replace("]","");
-              arquivos = files.split(",");
-            } else {
-              arquivos.push(files);
-            }
-
-            for (var i=0; i<arquivos.length; i++) {
-               arquivos[i] = decodeURI(arquivos[i].replace("file://","").trim());
-            }
-
-            Shared.newMessageIntent = true;
-            Shared.newMessageFiles = arquivos;
-
-          }, function(error) {
-            // console.log(error);
-          });
-
-        }, function(error) {
-          // console.log(error);
-        });
-
-        window.plugins.webintent.onNewIntent(function(newURL) {
-
-          //alert('onNewIntent');
-
-          if (newURL != null) {
-           // alert(newURL);
-            Shared.router.navigate(newURL,{ trigger: true});
+              }, function() {
+               // alert("sem Contas");
+              });
           }
 
-        });
+          if (window.plugins.webintent != undefined) {
 
-        window.plugins.webintent.hasExtra("ROUTE", function (hasExtra) {
+            window.plugins.webintent.hasExtra("android.intent.extra.STREAM", function (hasExtra) {
 
-          window.plugins.webintent.getExtra("ROUTE", function (url) {
+              window.plugins.webintent.getExtra("android.intent.extra.STREAM", function (files) {
 
-            if (Shared.isTabletResolution()) {
-              url = url.replace("{:TABLET}","1");
-            } else {
-              url = url.replace("{:TABLET}","0");
-            }
+                var arquivos = [];
 
-            Shared.gotoRoute = url;
+                if (files.indexOf("[") != -1) {
+                  files = files.replace("[","").replace("]","");
+                  arquivos = files.split(",");
+                } else {
+                  arquivos.push(files);
+                }
 
-          }, function(error) {
-            // console.log(error);
-          });
+                for (var i=0; i<arquivos.length; i++) {
+                   arquivos[i] = decodeURI(arquivos[i].replace("file://","").trim());
+                }
 
-        }, function(error) {
-          // console.log(error);
-        });
+                Shared.newMessageIntent = true;
+                Shared.newMessageFiles = arquivos;
+
+              }, function(error) {
+                // console.log(error);
+              });
+
+            }, function(error) {
+              // console.log(error);
+            });
+
+            window.plugins.webintent.onNewIntent(function(newURL) {
+
+              //alert('onNewIntent');
+
+              if (newURL != null) {
+               // alert(newURL);
+                Shared.router.navigate(newURL,{ trigger: true});
+              }
+
+            });
+
+            window.plugins.webintent.hasExtra("ROUTE", function (hasExtra) {
+
+              window.plugins.webintent.getExtra("ROUTE", function (url) {
+
+                if (Shared.isTabletResolution()) {
+                  url = url.replace("{:TABLET}","1");
+                } else {
+                  url = url.replace("{:TABLET}","0");
+                }
+
+                Shared.gotoRoute = url;
+
+              }, function(error) {
+                // console.log(error);
+              });
+
+            }, function(error) {
+              // console.log(error);
+            });
 
 
-      } else {
-        //SEM WEBINTENT
+          } else {
+            //SEM WEBINTENT
+          }
+
+          } else {
+            //SEM PLUGINS
+          }
+
       }
+};
 
-      } else {
-        //SEM PLUGINS
-      }
-
-  }
+  // deviceready is PhoneGap's init event
+document.addEventListener('deviceready', function () {
+  
+  Shared.deviceReady();
 
 });
 

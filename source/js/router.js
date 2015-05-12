@@ -200,6 +200,7 @@ define([
             if ((Shared.api.auth())) {
               app_router.navigate("Home",{ trigger: true });
             } else {
+              //Shared.gotoRoute
               app_router.navigate("Login",{ trigger: true });
             }
 

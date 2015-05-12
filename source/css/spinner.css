@@ -8,7 +8,9 @@
 .spinner > div {
   width: 18px;
   height: 18px;
-  background-color: #333;
+  
+  background-color: #006DCC;
+    background-image: linear-gradient(to bottom, #0088CC, #0044CC);
 
   border-radius: 100%;
   display: inline-block;

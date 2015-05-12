@@ -8,11 +8,23 @@ define([
 ], function($, _, Backbone, Shared, AppRouter){
   var initialize = function(){
 
-    Shared.router = new AppRouter();
+    var startApp = function() {
+       Shared.router = new AppRouter();
 
-    Shared.router.setupRouter();
+      Shared.router.setupRouter();
 
-    Shared.router.start();
+      Shared.router.start();
+    };
+
+    if (IS_PHONEGAP) {
+      document.addEventListener('deviceready', function () {
+        startApp();
+      });
+
+    } else {
+      startApp();
+    }
+
 
   };
 
