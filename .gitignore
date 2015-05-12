@@ -39,3 +39,11 @@ out
 platforms/ios/cordova/console.log
 
 platforms/android/.idea/workspace.xml
+
+platforms/android/.gradle/2.2.1/taskArtifacts/taskArtifacts.bin
+
+platforms/android/.gradle/2.2.1/taskArtifacts/fileSnapshots.bin
+
+platforms/android/.gradle/2.2.1/taskArtifacts/fileHashes.bin
+
+platforms/android/.gradle/2.2.1/taskArtifacts/cache.properties.lock
