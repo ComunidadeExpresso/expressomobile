@@ -5,16 +5,14 @@
 /platforms/android/CordovaLib/build
 /platforms/android/expressoAuthenticator/ant-build
 /platforms/android/expressoAuthenticator/build
-/platforms/android/assets/wwww
-platforms/android/.idea/workspace.xml
+/platforms/android/assets/wwww/*
+/platforms/android/.idea/workspace.xml
+/platforms/android/.gradle/2.2.1/taskArtifacts/taskArtifacts.bin
+/platforms/android/.gradle/2.2.1/taskArtifacts/fileSnapshots.bin
+/platforms/android/.gradle/2.2.1/taskArtifacts/fileHashes.bin
+/platforms/android/.gradle/2.2.1/taskArtifacts/cache.properties.lock
 
-*.bin
-*.lock
-*.apk
-ant-gen
-*.class
-gen
-out
+
 
 #IOS
 *.mode1v3
@@ -26,24 +24,18 @@ out
 /platforms/ios/www/*
 /platforms/ios/cordova/console.log
 
+platforms/ios/cordova/console.log
+
 /source/servers.json
 /source/plugins/*
 
-/hooks/celepar*
-/hooks/*.sh
-
+*.bin
+*.lock
+*.apk
+ant-gen
+*.class
+gen
+out
 
 /www/*
 !/www/.empty
-
-platforms/ios/cordova/console.log
-
-platforms/android/.idea/workspace.xml
-
-platforms/android/.gradle/2.2.1/taskArtifacts/taskArtifacts.bin
-
-platforms/android/.gradle/2.2.1/taskArtifacts/fileSnapshots.bin
-
-platforms/android/.gradle/2.2.1/taskArtifacts/fileHashes.bin
-
-platforms/android/.gradle/2.2.1/taskArtifacts/cache.properties.lock

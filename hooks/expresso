@@ -1,0 +1,86 @@
+#!/bin/bash 
+
+PLATFORM=$1
+ACTION=$2
+EXTRA=$3
+
+if [ "$1" = "" ]
+then
+  clear
+  echo "Expresso"
+  echo "----------------------------------------"
+  echo ""
+  echo "Exemplos de uso"
+
+    echo "  - expresso android debug"
+	echo "  - expresso android run "
+	echo "  - expresso android release 1.x"
+	echo "  - expresso web dist"
+	echo "  - expresso web release 1.x"
+	echo "  - expresso web publish Teste"
+	echo " "
+	echo " "
+fi
+# expresso android debug
+# expresso android run 
+# expresso android release 1.0.2
+# expresso web dist
+# expresso web release 1.0.2
+# expresso web publish "Teste"
+
+if [ "$1" = "android" ]
+then
+
+	if [ "$2" = "run" ]
+	then
+		echo "EXPRESSO - ANDROID - RUN"
+		./hookgs/gen_dist.sh
+		cordova run android
+	fi
+
+	if [ "$2" = "build" ]
+	then
+		echo "EXPRESSO - ANDROID - BUILD"
+		cordova build android
+	fi
+
+	if [ "$2" = "debug" ]
+	then
+		echo "EXPRESSO - ANDROID - DEBUG"
+		echo "COPIANDO A PASTA SOURCE PARA A WWW"
+		rm -rf ./www/
+		mkdir ./www
+		touch ./www/.empty
+		cp -R ./source/ ./www/
+		echo "COMPILANDO PROJETO ANDROID"
+		cordova run android
+	fi
+    
+    if [ "$2" = "release" ]
+	then
+
+		echo "EXPRESSO - ANDROID - RELEASE"
+		cordova build android --release
+		mkdir ./releases/android/$EXTRA
+		cp -R ./platforms/android/ant-build/com.celepar.expresso.MainActivity-release.apk ./releases/android/$EXTRA/Expresso.apk
+
+		echo "ARQUIVO APK DA RELEASE $EXTRA NA PASTA:"
+		echo "./releases/android/$EXTRA/Expresso.apk"
+	fi
+    
+fi
+
+if [ "$1" = "web" ]
+then
+	if [ "$2" = "dist" ]
+	then
+		echo "EXPRESSO - WEB - DIST"
+		./hooks/gen_dist.sh
+	fi
+
+	if [ "$2" = "publish" ]
+	then
+		echo "EXPRESSO - WEB - PUBLISH"
+		./hooks/publish_release.sh $EXTRA
+	fi
+fi

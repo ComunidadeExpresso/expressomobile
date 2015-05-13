@@ -1,0 +1,4 @@
+#!/bin/bash -x
+
+echo "BUILD RELEASE"
+./hooks/gen_dist.sh
