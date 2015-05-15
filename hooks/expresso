@@ -81,6 +81,14 @@ then
 	if [ "$2" = "publish" ]
 	then
 		echo "EXPRESSO - WEB - PUBLISH"
-		./hooks/publish_release.sh $EXTRA
+		./hooks/publish_release.sh "$EXTRA"
+	fi
+
+	if [ "$2" = "release" ]
+	then
+		echo "EXPRESSO - WEB - RELEASE"
+		./hooks/gen_dist.sh
+		mkdir ./releases/web/$EXTRA
+		cp -R ./www/ ./releases/web/$EXTRA/
 	fi
 fi
