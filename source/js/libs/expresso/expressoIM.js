@@ -495,5 +495,3 @@ define([
   	return ExpressoIM;
   
 });
-
-

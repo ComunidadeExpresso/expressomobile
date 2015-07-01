@@ -29,7 +29,11 @@ define([
       };
 
       var compiledTemplate = _.template( chatListItemsTemplate, data );
-      $("#scrollerList").html( compiledTemplate );
+      var elementID = "#scrollerList";
+      if (Shared.isDesktop()) {
+         elementID = "#scrollerListCHAT";
+      } 
+      $(elementID).html( compiledTemplate );
 
        if (!isConnected) {
           Shared.menuView.renderContextMenu('chatOffline',{});

@@ -67,7 +67,11 @@ define([
 
     },
     start: function() {
-      Backbone.history.start({pushState: true});
+      if (Shared.isBuiltInExpresso()) {
+        Backbone.history.start({pushState: true,root: "/email/"});
+      } else {
+        Backbone.history.start({pushState: true});
+      }
     },
 
     setupRouter: function() {

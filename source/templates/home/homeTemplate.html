@@ -1,15 +1,27 @@
+<% if (Shared.isDesktop()) { %>
+    <% if (Shared.userHasModule("chat")) { %>
+    <div id="chatContactsWindow"><div id="chat_toggleRoster" class="toggleRightDiv"></div><div id="chatDesktop"></div></div>
+    <% } %>
+<% } %>
 <div id="menu" class="left expanded">
   <div id="scrollerMenu">
   </div>
+  <div id="menu_toggle" class="toggleLeftDiv"></div>
 </div>
+<div id="status-bar"></div>
+<div id="modalWindows" style="z-index: 2000;"></div>
 <!-- fim menu -->
   <div id="page" class="left">
-    <div id="pageSwipe" style=""></div>
-    <header id="pageHeader" class="topHeader">
+    
+    <!-- <div id="pageSwipe" style=""></div>     -->
+    <div class="main">
+
+      <header id="pageHeader" class="topHeader">
       <div id="isOffline" style="display: none; position: absolute; margin-left: 50px; margin-top: -10px;"><div style="padding-right: 0px; padding-top: 15px; margin: 0px; margin-top: 10px; height: 27px;" class="message error">Voc&ecirc; est&aacute; trabalhando OFF-LINE.</div></div>
       <div id="pageMessage"></div>
       <div style="margin-left: -3px; margin-top: 50px; z-index: 5000;" id="beta" class="hidden"></div>
       <ul class="left topButtons">
+        
         <li><a id="menuButton" href="#" class="menu">Menu</a></li>
       </ul> 
       
@@ -19,13 +31,11 @@
 
     </header>
 
-    <div class="main">
-
-      <div id="content" class="left">
+      <div id="content" class="left nonborderbox">
         
       </div>
 
-      <div id="contentDetail" class="left">
+      <div id="contentDetail" class="left nonborderbox">
         
       </div>
     </div>

@@ -32,6 +32,7 @@ platforms/ios/cordova/console.log
 *.bin
 *.lock
 *.apk
+!/releases/android/1.2/Expresso.apk
 ant-gen
 *.class
 gen

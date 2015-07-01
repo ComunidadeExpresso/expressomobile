@@ -27,7 +27,13 @@ define([
   Shared.apiVersion = '';
   Shared.expressoVersion = '';
 
-  Shared.context = "/api/";
+  if ((IS_BUILTINEXPRESSO == undefined) || (IS_BUILTINEXPRESSO == false)) {
+    Shared.serverContext = "";
+  } else {
+    Shared.serverContext = "/email";
+  }
+
+  Shared.context = Shared.serverContext + "/api/";
 
   Shared.ComunityServerURL = "http://api.expressolivre.org/";
 
@@ -36,7 +42,7 @@ define([
   Shared.settings.resultsPerPage = 25;
   Shared.settings.mailSignature = "Mensagem enviada pelo Expresso Mobile.";
 
-  Shared.timeoutDelay = 500;
+  Shared.timeoutDelay = 0;
 
   Shared.scrollDetail = null;
   Shared.scroll = null;
@@ -79,13 +85,18 @@ define([
 
   Shared.isBuiltInExpresso =  function() {
 
-    return false;
-    // if (Shared.isDesktop()) {
-    //   Shared.forceSmartPhoneResolution = true;
-    //   return true;
-    // } else {
-    //   return false;
-    // }
+    if (IS_BUILTINEXPRESSO) {
+      if (Shared.isDesktop()) {
+        //Shared.forceSmartPhoneResolution = true;
+        return true;
+      } else {
+        return false;
+      }
+    } else {
+      return false;
+    }
+
+    
   }
 
 
@@ -796,10 +807,11 @@ document.addEventListener('deviceready', function () {
       Shared.im.disconnect();
     }
 
-    window.location.href = "/";
+    window.location.href = Shared.serverContext + "/";
     
   };
 
+  if (!IS_BUILTINEXPRESSO) {
     if(window.onpagehide || window.onpagehide === null){
        window.addEventListener('pagehide', exitFunction, false);
     } else {
@@ -813,6 +825,7 @@ document.addEventListener('deviceready', function () {
       exitFunction();
 
     }; 
+  }
 
 
   //Shared.router is created in App.js

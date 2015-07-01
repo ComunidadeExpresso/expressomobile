@@ -84,22 +84,33 @@ body div #page .main dl#chatHelp dd { font-size: 14px; color: #777777; padding: 
 
 .triangle-right.left {
   margin-left:20px;
-  background:#5A8F00;
+  background-color: #f6f7f8;
+  background-image: -moz-linear-gradient(center bottom , #f2f2f2, #fff);
+
   max-width: 70%;
   margin-right: 0%;
   margin-top: 0px;
   margin-bottom: 20px;
+  color: #373e4d;
+  border-color: rgba(0, 0, 0, 0.18) rgba(0, 0, 0, 0.18) rgba(0, 0, 0, 0.29);
+  border-radius: 4px;
+  border-width: 1px;
 }
 
 
 .triangle-right.right {
-  margin-right:20px;
-  background:#075698;
+  margin-right:10px;
+  background-color: #dbedfe;
+  background-image: -moz-linear-gradient(center bottom , #c7defe, #e7f1fe);
   max-width: 70%;
   margin-left: 0%;
   margin-top: 0px;
-  margin-bottom: 20px;
+  margin-bottom: 0px;
   float: right;
+  color: #373e4d;
+  border-color: rgba(0, 0, 0, 0.18) rgba(0, 0, 0, 0.18) rgba(0, 0, 0, 0.29);
+  border-radius: 4px;
+  border-width: 1px;
 }
 
 
@@ -110,7 +121,9 @@ body div #page .main dl#chatHelp dd { font-size: 14px; color: #777777; padding: 
   left:50px; 
   border-width:20px 0 0 20px;
   border-style:solid;
-  border-color:#075698 transparent; 
+  border-color:#f6f7f8 transparent; 
+  background-color: #f6f7f8;
+  background-image: -moz-linear-gradient(center bottom , #f2f2f2, #fff);
     display:block; 
     width:0;
 }

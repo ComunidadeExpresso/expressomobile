@@ -18,6 +18,7 @@ then
 	echo "  - expresso web dist"
 	echo "  - expresso web release 1.x"
 	echo "  - expresso web publish Teste"
+	echo "  - expresso inside dist"
 	echo " "
 	echo " "
 fi
@@ -91,4 +92,17 @@ then
 		mkdir ./releases/web/$EXTRA
 		cp -R ./www/ ./releases/web/$EXTRA/
 	fi
+fi
+
+if [ "$1" = "inside" ]
+then
+
+	if [ "$2" = "dist" ]
+	then
+		echo "EXPRESSO - INSIDE - DIST"
+		./hooks/gen_dist.sh
+		rm -rf /Users/jairpereira/Sites/expresso22/email
+		cp -R /Users/jairpereira/Sites/expressomobile/www/ /Users/jairpereira/Sites/expresso22/email
+	fi
+
 fi

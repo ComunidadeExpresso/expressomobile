@@ -1,6 +1,6 @@
 
 require.config({
-  //urlArgs: "bust=" + (new Date()).getTime(),
+  urlArgs: "bust=" + (new Date()).getTime(),
   waitSeconds: 200,
   paths: {
     jquery: 'libs/jquery/jquery-min',
@@ -11,12 +11,25 @@ require.config({
     expressoAPI: 'libs/expresso/expressoAPI',
     expressoIM: 'libs/expresso/expressoIM',
     expressoService: 'libs/expresso/expressoService',
-    jqueryui: 'libs/jquery-ui/js/jquery-ui-1.10.3.custom.min',
+    bootstrap: 'libs/bootstrap/js/bootstrap.min',
+    // jqueryui: 'libs/jquery-ui_old/js/jquery-ui-1.10.3.custom.min',
+    jqueryui: 'libs/jquery-ui/jquery-ui.min',
+    im: 'libs/messenger/im',
     jquery_xmpp: 'libs/jquery.xmpp/jquery.xmpp',
     moment: 'libs/moment/moment.min',
     jquery_touchwipe: 'libs/jquery.touchwipe/jquery.touchwipe.min',
     autocomplete: 'libs/jquery.backbone.widget/jquery.backbone.widgets',
-    jqueryui_datepicker_ptBR: 'libs/jquery-ui/development-bundle/ui/i18n/jquery.ui.datepicker-pt-BR',
+    jquery_migrate: 'libs/jquery-migrate/jquery-migrate-1.2.1.min',
+    jqueryui_datepicker_ptBR: 'libs/jquery-ui_old/development-bundle/ui/i18n/jquery.ui.datepicker-pt-BR',
+    jquery_scrollTo: 'libs/jquery.scrollTo/jquery.scrollTo',
+    jquery_autogrow: 'libs/jquery.autogrow/jquery.autogrowtextarea',
+    wijmo : 'libs/wijmo/jquery.wijmo.min',
+    wijdialog : 'libs/wijmo/jquery.wijmo.wijdialog',
+    linkify: 'libs/linkify/ba-linkify',
+    tinysort: 'libs/sort/jquery.tinysort.min',
+    //tinysort_char: 'libs/sort/jquery.tinysort.charorder.min',
+    tinysort_open: 'libs/sort/jquery.opensource.min',
+    contextmenu: 'libs/contextmenu/jquery.contextMenu',
     templates: '../templates'
   },
 
@@ -28,6 +41,34 @@ require.config({
       moment: {
           deps: ['jquery'],
           exports: 'moment'
+      },
+      wijmo: {
+        deps: ['jquery','jquery_migrate'],
+        exports: 'wijmo'
+      },
+      wijdialog: {
+        deps: ['jquery','jquery_migrate','wijmo'],
+        exports: 'wijdialog'
+      },
+      tinysort: {
+        deps: ['jquery','tinysort_open'],
+        exports: 'tinysort'
+      },
+      bootstrap: {
+        deps: ['jquery'],
+        exports: 'bootstrap'
+      },
+      jquery_autogrow: {
+        deps: ['jquery'],
+        exports: 'jquery_autogrow'
+      },
+      jquery_scrollTo: {
+        deps: ['jquery'],
+        exports: 'jquery_scrollTo'
+      },
+      im: {
+        deps: ['jquery','jquery_migrate','wijmo','tinysort','tinysort_open','contextmenu','linkify','jquery_autogrow','jquery_scrollTo'],
+        exports: 'im'
       },
       // expressoAPI: {
       //     deps: ['jquery','underscore','backbone','shared'],

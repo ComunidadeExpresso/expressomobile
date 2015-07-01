@@ -1,5 +1,5 @@
-<div  class="container">
-  <% if (!Shared.isBuiltInExpresso()) { %><div class="product-logo-menu"></div><% } %>
+<div class="content nonborderbox">
+  <% if (!Shared.isDesktop()) { %><div class="product-logo-menu"></div><% } %>
 
   <div id="personalInfo">
     <div id="userPicture" class="userPicture shadow"></div>
@@ -75,10 +75,20 @@
     </dd>
     
     <% } %>
+    
     <div class="menu-footer">
+      <% if (!Shared.isDesktop()) { %>
       Desenvolvido por:<br><br>
       <div class="company-logo"></div>
+      <% } %>
     </div>
+    
+
+    
+
   </dl>
+  
+   
 
 </div>
+

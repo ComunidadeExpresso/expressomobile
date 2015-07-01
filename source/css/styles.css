@@ -1,6 +1,21 @@
 
+
+@import url('../js/libs/bootstrap/css/bootstrap.css');
+
+
+@import url('../js/libs/jquery-ui/jquery-ui.min.css'); 
+
+/*@import url('../js/libs/jquery-ui_old/css/overcast/jquery-ui-1.10.3.custom.min.css'); */
+
+@import url('../js/libs/wijmo/jquery.wijmo.css');
+
+@import url('../js/libs/messenger/im.css');
+
+@import url('../js/libs/contextmenu/jquery.contextMenu.css');
+
 @import url('spinner.css');  
 
 @import url('estilo.css'); 
 
 @import url('chat.css'); 
+

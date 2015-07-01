@@ -55,12 +55,18 @@ define([
       var data = {
         chatID: this.chatID,
         contact: ThisContact,
-        _: _ 
+        _: _,
+        Shared: Shared
       };
 
       var compiledTemplate = _.template( chatWindowTemplate, data );
-      this.$el.html( compiledTemplate );
-
+      // if (Shared.isDesktop()) {
+      //   // var div = $("")
+      //   $("#mainAppPageContent").append(compiledTemplate);
+      //   //this.$el.append( compiledTemplate );
+      // } else {
+        this.$el.html( compiledTemplate );
+      // }
 
       this.renderMessages();
 
@@ -79,7 +85,37 @@ define([
     },
 
     events: {
-      "keydown #msgToSend": "sendMessage"
+      "keydown #msgToSend": "sendMessage",
+      "click .icon_close": "closeChatWindow",
+      "click .panel-heading span.icon_minim" : "minimChatWindow",
+    },
+
+    closeChatWindow: function(e) {
+      if (e != undefined) {
+        e.preventDefault();
+      }
+      $( "#chat_window_content_" + this.chatID ).remove();
+    },
+
+    minimChatWindow: function(e) {
+      if (e != undefined) {
+        e.preventDefault();
+      }
+      console.log("minimChatWindow");
+      var $this = $('#minim_chat_window_' + this.chatID);
+      console.log($this);
+      // var $this = $( "#chat_window_content_" + this.chatID );
+      if (!$this.hasClass('panel-collapsed')) {
+          $this.parents('.panel').find('.panel-body').hide();
+          $this.addClass('panel-collapsed');
+          $this.removeClass('glyphicon-minus').addClass('glyphicon-plus');
+          $('#panel_footer_' + this.chatID).hide();
+      } else {
+          $this.parents('.panel').find('.panel-body').show();
+          $this.removeClass('panel-collapsed');
+          $this.removeClass('glyphicon-plus').addClass('glyphicon-minus');
+          $('#panel_footer_' + this.chatID).show();
+      }
     },
 
     sendMessage: function (e) {
@@ -98,6 +134,7 @@ define([
       var ThisContact = Shared.im.getContactsByID(this.chatID);
 
       var data = {
+        Shared: Shared,
         messages: allMessages,
         chatID: this.chatID,
         contact: ThisContact,
@@ -106,8 +143,14 @@ define([
         $ : $
       };
 
+      var elementID = "#scrollerDetail";
+
+      if (Shared.isDesktop()) {
+        elementID = "#msgs_content_" + this.chatID;
+      }
+
       var compiledMessagesTemplate = _.template( chatWindowMessagesTemplate, data );
-      $("#scrollerDetail").html( compiledMessagesTemplate );
+      $(elementID).html( compiledMessagesTemplate );
 
       $('.myPicture').each(function() {
         $(this).css("background-image",$("#userPicture").css("background-image"));
@@ -121,17 +164,23 @@ define([
     scrollToLastMessage: function() {
       if (Shared.scrollDetail != null) {
         Shared.scrollDetail.refresh();
-        Shared.scrollDetail.scrollToElement(document.getElementById("last_message"),200);
+        Shared.scrollDetail.scrollToElement(document.getElementById("last_message_" + this.chatID),200);
+      } else {
+        var element = document.getElementById('msgs_content_' + this.chatID);
+        var maxScrollPosition = element.scrollHeight - element.clientHeight;
+        $("#msgs_content_" + this.chatID).animate({ scrollTop: maxScrollPosition }, 200);
       }
     },
 
     loaded: function() {
-      if (Shared.scrollDetail != null) {
-        Shared.scrollDetail.destroy();
-        Shared.scrollDetail = null;
-      }
-      if (Shared.scrollDetail == null) {
-        Shared.scrollDetail = new iScroll('wrapperDetail');
+      if (!Shared.isDesktop()) {
+        if (Shared.scrollDetail != null) {
+          Shared.scrollDetail.destroy();
+          Shared.scrollDetail = null;
+        }
+        if (Shared.scrollDetail == null) {
+          Shared.scrollDetail = new iScroll('wrapperDetail');
+        }
       }
     }
 

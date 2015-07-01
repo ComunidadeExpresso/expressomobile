@@ -19,12 +19,14 @@ define([
     folderMenuLV: null,
 
     initialize:function() {
+
       this.context = new ContextMenuView();
     },
 
     render: function(){
 
 
+        $(window).resize(this.refreshWindow);
         //UPDATE PROFILE
         //GERALMENTE O PROFILE É ENVIAOD PELO MENU-VIEW PORÉM SE O USUÁRIO REALIZAR O RELOAD DA PÁGINA
         //ENTÃO SERÁ NECESSÁRIO RECARREGÁ-LO DO LOCALSTORAGE
@@ -88,6 +90,7 @@ define([
         });
 
     },
+
 
     refreshFolders: function() {
       this.folderMenuLV = new FoldersMenuListView();
@@ -172,6 +175,7 @@ define([
     },
 
     toggleMenu: function () {
+      console.log(Shared.menuOpen);
       if (Shared.menuOpen) {
         this.closeMenu();
       } else {
@@ -187,7 +191,7 @@ define([
       var winWidth = $(window).width();
       var menuButtonWidth = $('.top .menu').width();
       var propWidth = Math.ceil(winWidth * 30 / 100);
-      if (Shared.isBuiltInExpresso()) {
+      if (Shared.isDesktop()) {
         propWidth = Math.ceil(winWidth * 15 / 100);
       }
       var width =  280;
@@ -200,10 +204,11 @@ define([
       $('#menu').addClass('expanded').css('width', width);
       $('#page').css('margin-left', width);
 
-      if (Shared.isBuiltInExpresso()) {
+      if (Shared.isDesktop()) {
         $('#page').css('width',winWidth - width);
       }
-      
+
+
       if (Shared.scrollMenu == null) {
         this.loaded();
       }
@@ -213,7 +218,7 @@ define([
 
     closeMenu: function()
     {
-      if (!Shared.isBuiltInExpresso()) {
+      if (!Shared.isDesktop()) {
         Shared.menuOpen = false;
         $('#menu').removeClass('expanded').removeAttr('style');
         $('#page').removeAttr('style');
@@ -228,9 +233,14 @@ define([
         Shared.scrollMenu = null;
       }
 
-      // $("#scrollerMenu").css("overflow-y","scrolling");
-      // $("#scrollerMenu").css("height","100%");
-      Shared.scrollMenu = new iScroll('menu');
+       
+      if (Shared.isDesktop()) {
+        $("#scrollerMenu").css("overflow-y","auto");
+        $("#scrollerMenu").css("height","100%");
+      } else {
+        Shared.scrollMenu = new iScroll('menu');
+      }
+      
     },
 
     setChatBadge: function(value) 

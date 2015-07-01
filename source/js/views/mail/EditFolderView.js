@@ -68,6 +68,7 @@ define([
 
       var newData = {
         _: _,
+        Shared: Shared,
         title: title,
         folderName: this.folderName,
         folderID: this.folderID,
@@ -78,15 +79,24 @@ define([
       var compiledTemplate = _.template( editFolderTemplate, newData );
       this.$el.html( compiledTemplate ); 
 
-      $(this.elementID).empty().append(this.$el);
+      
 
-      var params = {};
-      params.saveCallBack = this.saveFolder;
-      params.parentCallBack = this;
+      if (Shared.isDesktop()) {
+        $('#modalWindows').empty().append(this.$el);
+        $('#modalEditFolder').modal('show');
+      } else {
 
-      Shared.menuView.renderContextMenu('editFolder', params);
+        $(this.elementID).empty().append(this.$el);
 
-      this.loaded();
+        var params = {};
+        params.saveCallBack = this.saveFolder;
+        params.parentCallBack = this;
+
+        Shared.menuView.renderContextMenu('editFolder', params);
+        this.loaded();
+      }
+
+      
     },
 
     cleanTrash: function(folderID) {

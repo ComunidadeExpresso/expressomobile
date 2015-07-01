@@ -10,8 +10,20 @@ define([
   'views/mail/MessagesListView',
   'views/mail/DetailMessageView',
   'views/home/MenuView',
-  'text!templates/home/homeTemplate.html'
-], function($, _, iscroll,touchwipe, Backbone, Shared, MessagesCollection, ServersCollection, MessagesListView, DetailMessageView, MenuView, homeTemplate){
+  'text!templates/home/homeTemplate.html',
+  'views/chat/ChatListView',
+  'views/home/StatusBarView',
+  'views/home/PopupView',
+  'collections/home/PopupListCollection',
+  'jquery_migrate',
+  'jqueryui',
+  'wijmo',
+  'tinysort',
+  'tinysort_open',
+  'contextmenu',
+  'linkify',
+  'im',
+], function($, _, iscroll,touchwipe, Backbone, Shared, MessagesCollection, ServersCollection, MessagesListView, DetailMessageView, MenuView, homeTemplate,ChatListView,StatusBar,Popup,PopupList,jquery_migrate,jqueryui,wijmo,tinysort,tinysort_open,contextmenu,linkify,im){
 
   var HomeView = Backbone.View.extend({
 
@@ -26,13 +38,15 @@ define([
 
     initialize:function() {
       $(window).on("resize",this.refreshWindow);
-      
+
       //CARREGA A VIEW DO MENU
       var mView = new MenuView();
       this.menuView = mView;
 
       //SALVA A VIEW DO MENU NO SHARED
       Shared.menuView = mView;
+
+      Shared.Popups = new PopupList();
 
     },
 
@@ -44,7 +58,17 @@ define([
 
     render: function(){
 
-      this.$el.html(homeTemplate);
+      var newData = {
+        _: _,
+        Shared: Shared
+      };
+
+      var compiledTemplate = _.template( homeTemplate, newData );
+      this.$el.html( compiledTemplate ); 
+
+      
+
+      //this.$el.html(homeTemplate);
       this.$el.css("width","100%");
       this.$el.css("height","100%");
       $("#mainAppPageContent").empty().append(this.$el);
@@ -81,12 +105,32 @@ define([
             var im_userName = resultChat.D;
             var im_password = resultChat.E + "==";
 
-            Shared.im.resource("EXPRESSO_MOBILE").url(Shared.im_url).domain(Shared.im_domain);
+            if (Shared.isDesktop()) {
 
-            Shared.im
-            .username(im_userName)
-            .password(im_password)
-            .connect();
+              $("#chatDesktop").im({
+                "resource"  : "JABBER_IM_PR",
+                "url"   :Shared.im_url,
+                "domain"  : Shared.im_domain,
+                "username"  : im_userName,
+                "password"  : im_password,
+                "debug"   : false,
+                "soundPath" : "libs/messenger/",
+                "height"  : $("#chatContactsWindow").height() - $(".chat-title").height() - 30,
+                "minimizeZone" : "minimizedWindows",
+              });
+
+
+
+
+            } else {
+              Shared.im.resource("EXPRESSO_MOBILE").url(Shared.im_url).domain(Shared.im_domain);
+
+              Shared.im
+              .username(im_userName)
+              .password(im_password)
+              .connect();
+            }
+            
 
           }).execute();
 
@@ -105,10 +149,13 @@ define([
           that.menuView.profile = that.profile;
           that.menuView.render();
 
-          if (Shared.isBuiltInExpresso()) {
+          if (Shared.isDesktop()) {
             $("#menuButton").hide();
             that.menuView.openMenu();
+            that.refreshWindow();
           }
+
+
          
           Shared.setDefaultIMListeners();
           Shared.BlinkWindowTitle();
@@ -155,6 +202,8 @@ define([
 
             that.loaded();
           }
+
+          Shared.statusBar = new StatusBar().render();
 
           Shared.scheduleCheckForNewMessages();
 
@@ -206,7 +255,7 @@ define([
 
         }).execute();
 
-
+    
       });
 
       
@@ -228,13 +277,20 @@ define([
     },
 
     events: {
+      "click .addWindow": "addWindow",
       "click #menuButton": "toggleMenu",
+      "click #menu_toggle": "toggleMenu",
+      "click #chat_toggleRoster": "toggleChat",
       "click .listFolderItemLink": "selectFolderItem",
       "click .menuLink": "selectMenuItem",
       "click .listItemLink": "selectListItem",
       "click body": 'clickMainAppPageContent',
     },
 
+    addWindow: function(e) {
+        e.preventDefault();
+        new Popup().render();
+    },
 
 	selectListItem: function(e){
 
@@ -266,15 +322,82 @@ define([
       Shared.router.navigate(e.currentTarget.getAttribute("href"),{trigger: true});
     },
 
+    toggleMenuDesktop: function(e) {
+      if (e != undefined) {
+        e.preventDefault();
+      }
+
+      var menuWidth = 300;
+      var newPageWidth = $(window).width() - $("#chatContactsWindow").width();
+
+      if ($("#menu").width() != 0) {
+
+        Shared.menuOpen = false;
+        $("#menu").animate({width: "0px"}, 200);
+        $("#page").animate({"margin-left": "0px"}, 200);
+        $("#page").width(newPageWidth);
+      } else {
+        newPageWidth = newPageWidth - menuWidth;
+        Shared.menuOpen = true;
+        $("#menu").animate({width: menuWidth + "px"}, 200);
+        $("#page").animate({"margin-left": menuWidth}, 200);
+        $("#page").width(newPageWidth);
+      }
+
+    },
+
     toggleMenu: function(e) {
       if (e != undefined) {
         e.preventDefault();
       }
-      this.menuView.toggleMenu();
+      console.log("toggleMenu");
+      if (Shared.isDesktop()) {
+        this.toggleMenuDesktop();
+      } else {
+        this.menuView.toggleMenu();
+      }
     },
 
     toggleContextMenu: function() {
       this.menuView.context.toggleMenu();
+    },
+
+    toggleChat: function(e) {
+      if (e != undefined) {
+        e.preventDefault();
+      }
+
+      var chatWidth = 250;
+      var newPageWidth = $(window).width() - $("#menu").width();
+
+      if ($("#chatContactsWindow").width() != 0) {
+        $("#chatContactsWindow").animate({width: "0px"}, 200);
+        $("#page").animate({width: newPageWidth}, 200);
+      } else {
+        newPageWidth = newPageWidth - chatWidth;
+        $("#chatContactsWindow").animate({width: chatWidth + "px"}, 200);
+        $("#page").animate({width: newPageWidth}, 200);
+      }
+      
+
+      // .width('0');
+
+      //this.refreshWindow();
+
+      //$("#chatDesktop").toggle();
+      //$("#mainMenuChat").toggleClass("selected");
+
+      // var chatListView = new ChatListView();
+      // chatListView.secondViewName = null;
+      // chatListView.render();
+
+      // this.refreshWindow();
+
+
+
+      // Shared.menuView.selectMenu(4);
+      // Shared.deviceType(Shared.isSmartPhoneResolution());
+
     },
 
 
@@ -283,6 +406,7 @@ define([
       var that = this;
 
       var doneResizing = function() {
+        // console.log('doneResizing');
         var top = $('.topHeader').outerHeight(true);
         var chat = $('.chatArea').outerHeight(true) == null ? 0 : $('.chatArea').outerHeight(true);
 
@@ -300,6 +424,25 @@ define([
         $('body').height($(window).height() - top);
         $('#wrapper').css('top', top + search);
         $('#wrapperDetail').css('top', top + chat + searchDetail);
+
+        if (Shared.isDesktop()) {
+          $('#page').width($(window).width() - $("#menu").width() - $("#chatDesktop").width());
+        } else {
+          $('#page').width($(window).width() - $("#menu").width());
+        }
+
+        
+
+        // $("#chatMenu").css('top',$('#menu').height() - 50);
+        // $("#chatMenu").css('width',$('#menu').width());
+        // $("#chatDesktop").css('width',$('#menu').width() - 2);
+        // $("#chatDesktop").css('height',$('#menu').height() - 45);
+        // $("#chatDesktop").css('margin-top',($('#chatDesktop').height() + 67) * -1);
+        // $("#scrollerCHAT").css("height",$("#chatDesktop").height() - $("#chatTitleBar").height() - 9);
+        $("#chatDesktop").height($("#chatContactsWindow").height() - $(".chat-title").height() - 30);
+        // $("#chatDesktop").css('height',);
+        // console.log($("#chatDesktop").height());
+        
 
         $('#scrollerDetail').css('width', $("#wrapperDetail").width() );
 

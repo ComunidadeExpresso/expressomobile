@@ -4,10 +4,11 @@ define([
   'backbone',
   'shared',
   'text!templates/chat/chatListTemplate.html',
+  'text!templates/chat/chatListTemplateDesktop.html',
   'views/chat/ChatListItemsView',
   'views/chat/ChatWindowView',
   'views/home/LoadingView',
-], function($, _, Backbone, Shared, chatListTemplate,ChatListItemsView,ChatWindowView,LoadingView){
+], function($, _, Backbone, Shared, chatListTemplate, chatListTemplateDesktop,ChatListItemsView,ChatWindowView,LoadingView){
 
   var ChatListView = Backbone.View.extend({
 
@@ -24,8 +25,12 @@ define([
         detailElementID = "#content";
       }
 
-      $(detailElementID).html("");
-
+      if (Shared.isDesktop()) {
+        primaryElementID = "#chatDesktop";
+        detailElementID = "#chatDesktop";
+      } else {
+        $(detailElementID).html("");
+      }
 
       Shared.im.clearListeners();
 
@@ -106,9 +111,10 @@ define([
 
       if (this.secondViewName != null) {
 
-
-        var loadingView = new LoadingView({ el: $(detailElementID) });
-        loadingView.render();
+        if (!Shared.isDesktop()) {
+          var loadingView = new LoadingView({ el: $(detailElementID) });
+          loadingView.render();
+        }
 
         if (Shared.detailView != null) {
           Shared.detailView.undelegateEvents();
@@ -119,7 +125,17 @@ define([
           that.setChatBadge(that.secondViewName,0);
           Shared.im.setAsSeenAllMessagesFromContact(that.secondViewName);
 
-          var chatWindowView = new ChatWindowView({ el: $(detailElementID) });
+          if (Shared.isDesktop()) {
+            //$('<div/>', {id: 'chatWindows',}).appendTo('#mainAppPageContent');
+            //$("#chatWindows").appendTo('#mainAppPageContent');
+            detailElementID = "chatWindows";
+            // console.log(document.getElementById(detailElementID));
+            // if (document.getElementById(detailElementID) == null) { 
+            //   $('<div/>', {id: detailElementID,}).appendTo('#chatWindows');
+            // }
+          }
+
+          var chatWindowView = new ChatWindowView({ el: $("#" + detailElementID) });
           chatWindowView.chatID = that.secondViewName;
           chatWindowView.render();
 
@@ -137,6 +153,12 @@ define([
 
         var primaryElementID = "#content";
 
+        if (Shared.isDesktop()) {
+          primaryElementID = "#chatDesktop";
+        }
+
+        console.log(primaryElementID);
+
         var that = this;
 
         var loadingView = new LoadingView({ el: $(primaryElementID) });
@@ -151,7 +173,13 @@ define([
             _: _ 
           };
 
-          var compiledTemplate = _.template( chatListTemplate, newData );
+          var compiledTemplate;
+          if (Shared.isDesktop()) {
+            compiledTemplate = _.template( chatListTemplateDesktop, newData );
+          } else {
+            compiledTemplate = _.template( chatListTemplate, newData );
+          }
+
           $(primaryElementID).html( compiledTemplate ); 
 
           var isConnected = Shared.im.isConnected();
@@ -183,9 +211,6 @@ define([
               Shared.router.navigate("ChatReconnect",{ trigger: true });
             }
 
-
-            
-
           } else {
             renderChatList();
           }
@@ -200,7 +225,11 @@ define([
     loaded: function () 
     {
       var that = this;
-      Shared.scroll = new iScroll('wrapper');
+      if (Shared.isDesktop()) {
+        //Shared.scroll = new iScroll('wrapperCHAT');
+      } else {
+         Shared.scroll = new iScroll('wrapper');
+      }
     },
 
     setChatBadge: function(contactID,value) 

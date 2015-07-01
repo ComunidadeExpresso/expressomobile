@@ -84,7 +84,9 @@ define([
         this.add(this.getContactsMenuItem());
       }
       if (Shared.userHasModule("chat")) {
-        this.add(this.getChatMenuItem());
+        if (!Shared.isDesktop()) {
+          this.add(this.getChatMenuItem());
+        }
       }
       if (Shared.userHasModule("settings")) {
         this.add(this.getSettingsMenuItem());
