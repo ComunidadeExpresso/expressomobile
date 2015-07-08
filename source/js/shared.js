@@ -85,9 +85,10 @@ define([
 
   Shared.isBuiltInExpresso =  function() {
 
+    IS_BUILTINEXPRESSO = true; 
     if (IS_BUILTINEXPRESSO) {
       if (Shared.isDesktop()) {
-        //Shared.forceSmartPhoneResolution = true;
+        Shared.forceSmartPhoneResolution = true;
         return true;
       } else {
         return false;
@@ -115,6 +116,7 @@ define([
   //CHECKS IF THE USER IS IN A BROWSER IN A DESKTOP OR IN A PHONEGAP APPLICATION
   Shared.isDesktop = function() {
     var retVal = true;
+    retVal = true;
     if (Shared.isPhonegap() || (Shared.isAndroid()) || (Shared.isIDevice())) {
       retVal = false;
     }
@@ -133,6 +135,7 @@ define([
   };
 
   Shared.scrollerRefresh = function () {
+    console.log("Shared.scrollerRefresh");
     if (Shared.scrollDetail) {
       Shared.scrollDetail.refresh();
     }
@@ -559,6 +562,14 @@ define([
 
   Shared.api.id(0);
   Shared.api.debug(false);
+
+  if (Shared.isDesktop()) {
+    var fileref=document.createElement("link")
+        fileref.setAttribute("rel", "stylesheet")
+        fileref.setAttribute("type", "text/css")
+        fileref.setAttribute("href", './css/estilo_desktop.css');
+    document.getElementsByTagName("head")[0].appendChild(fileref);
+  }
 
 
   Shared.userHasModule = function(moduleName) {

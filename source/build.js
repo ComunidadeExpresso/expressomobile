@@ -29,7 +29,9 @@
         jquery_touchwipe: 'libs/jquery.touchwipe/jquery.touchwipe.min',
         autocomplete: 'libs/jquery.backbone.widget/jquery.backbone.widgets',
         jquery_migrate: 'libs/jquery-migrate/jquery-migrate-1.2.1.min',
-        jqueryui_datepicker_ptBR: 'libs/jquery-ui_old/development-bundle/ui/i18n/jquery.ui.datepicker-pt-BR',
+        jqueryui_datepicker_ptBR: 'libs/jquery-ui/jquery.ui.datepicker-pt-BR',
+        jquery_scrollTo: 'libs/jquery.scrollTo/jquery.scrollTo',
+        jquery_autogrow: 'libs/jquery.autogrow/jquery.autogrowtextarea',
         wijmo : 'libs/wijmo/jquery.wijmo.min',
         wijdialog : 'libs/wijmo/jquery.wijmo.wijdialog',
         linkify: 'libs/linkify/ba-linkify',
@@ -57,6 +59,10 @@
             deps: ['jquery','jquery_migrate','wijmo'],
             exports: 'wijdialog'
         },
+        jquery_autogrow: {
+            deps: ['jquery'],
+            exports: 'jquery_autogrow'
+          },
         tinysort: {
             deps: ['jquery','tinysort_open'],
             exports: 'tinysort'

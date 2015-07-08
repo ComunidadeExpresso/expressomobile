@@ -93,6 +93,8 @@ define([
 
             });
 
+            // $('#contentMessageBody').parents('detailRow').addClass('reset-this');
+
             that.loaded();
 
           },500);

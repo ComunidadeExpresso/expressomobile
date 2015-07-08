@@ -573,7 +573,9 @@ define([
 
 			// First Div - status, name
 			var _divFirst = $("<div/>")
-			.css({"vertical-align":"top", "height":"25px", "width":"95%", "border-bottom":"1px dashed #cecece"})
+
+
+			.css({"margin-top":"4px", "position":"absolute", "margin-left":"200px"})
 			.appendTo(div);
 
 			$("<span/>")
@@ -583,28 +585,28 @@ define([
 			.addClass(settings.loadClass)
 			.appendTo(_divFirst);
 
-			$("<span/>")
-			.addClass("chat-name")
-			.css({"padding-left":"10px","vertical-align":"top"})
-			.html("")
-			.appendTo(_divFirst);
+			// $("<span/>")
+			// .addClass("chat-name")
+			// .css({"padding-left":"10px","vertical-align":"top"})
+			// .html("")
+			// .appendTo(_divFirst);
 
 			// Second Div - Msg status, addContact
-			var _divSecond = $("<div/>")
-			.css({"vertical-align":"top","height":"20px !important"})			
-			.appendTo(div);
+			// var _divSecond = $("<div/>")
+			// .css({"vertical-align":"top","height":"20px !important"})			
+			// .appendTo(div);
 
 			// Add Button Contact
 			if( settings.addContact )
 			{
-				$("<span>")
-				.addClass("ui-icon ui-icon-circle-plus")
-				.attr("title", messages.pt_br.ADD_CONTACT )
-				.css({"margin-left":"10px"})
-				.attr("alt", messages.pt_br.ADD_CONTACT )
-				.appendTo(_divSecond)
-				.button()
-				.click(addContact);
+				// $("<span>")
+				// .addClass("ui-icon ui-icon-circle-plus")
+				// .attr("title", messages.pt_br.ADD_CONTACT )
+				// .css({"float":"right"})
+				// .attr("alt", messages.pt_br.ADD_CONTACT )
+				// .appendTo(_divSecond)
+				// .button()
+				// .click(addContact);
 			}			
 
 			var text = "";
@@ -636,8 +638,8 @@ define([
 				$(this).focus();
 				$(this).val(text);
 				$(this).attr("readonly", "readonly");		
-			})
-			.appendTo(_divSecond);
+			});
+			//.appendTo(_divSecond);
 
 			$("<div/>")
 			.addClass("chat-list-title")

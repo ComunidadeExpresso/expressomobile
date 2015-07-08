@@ -128,14 +128,14 @@ define([
           if (Shared.isDesktop()) {
             //$('<div/>', {id: 'chatWindows',}).appendTo('#mainAppPageContent');
             //$("#chatWindows").appendTo('#mainAppPageContent');
-            detailElementID = "chatWindows";
+            detailElementID = "#chatWindows";
             // console.log(document.getElementById(detailElementID));
             // if (document.getElementById(detailElementID) == null) { 
             //   $('<div/>', {id: detailElementID,}).appendTo('#chatWindows');
             // }
           }
 
-          var chatWindowView = new ChatWindowView({ el: $("#" + detailElementID) });
+          var chatWindowView = new ChatWindowView({ el: $(detailElementID) });
           chatWindowView.chatID = that.secondViewName;
           chatWindowView.render();
 

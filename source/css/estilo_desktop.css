@@ -1,9 +1,62 @@
+ 
+
+
+/*
+BUILTIN EXPRESSO 
+*/
+ #divAppboxHeader {
+    display: none;
+  }
+  #divAppbox {
+    border: 0px;
+    padding: 0px;
+    margin-left: -2px;
+  }
+  #sideboxdragarea {
+    display: none;
+  }
+  #hiddenButton {
+    display: none;
+  }
+  #divStatusBar {
+    display: none;
+  }
+
+
+
+/*
+DESKTOP MOBILE
+*/
 body { overflow: hidden; }
 
 body div #page .topHeader {
-	background: #f1f1f1 !important;
+	background: transparent;
+  z-index: 1000;
+  border-bottom: 0px;
 }
 
+div.chat-title { background-color: #FFF; }
+body div #menu { background-color: #FFF; border-right: 1px solid #5c9ccc; }
+body div #menu #personalInfo .personalData { color: #FFF; }
+body div #menu #personalInfo { background: none; background-color: #5c9ccc; } 
+body div #menu #personalInfo .personalData span.name { font-size: 12px; margin-bottom: 0px; }
+body div #menu #personalInfo .personalData span.email { font-size: 10px; margin-bottom: 5px; }
+body div #menu #personalInfo .personalData #quota .bar { font-size: 10px; display: inline;  height: 14px; width: 170px; border: 0px #E0E0E0 solid; display: inline-block; background-color: #FFF; }
+.userPicture { float: left; width: 48px; height: 48px; border: 0px; border-radius: 24px; background: url('../imgs/contactPhotoFrameNone.png') center center no-repeat; }
+
+
+body div #page .main h2 {
+  border-bottom: 0px;
+  box-shadow: none;
+}
+
+.shadow {
+  -moz-box-shadow: none;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+  -ms-filter: none;
+  filter: none;
+}
 
 body div #menu dl dd ul#myFolders li {
   border: 0px;
@@ -38,12 +91,14 @@ body div #menu dl dd ul#mainMenu li a .icon {
     width: 25px;
     background-size: 20px 15px;
 }
-
+body div #menu dl dd ul#mainMenu li { border: 0px; }
 body div #menu dl dd ul#mainMenu li a .icon:hover { background-size: 25px 25px;  }
 
 body div #menu dl dd ul#mainMenu {
-    background-color: #333333;
-    border: 0 solid #333333;
+  border: 0px;
+    background-color: #FFF;
+    border: 0 solid #FFF;
+    color: #333333;
     padding: 5px;
     font-size: 10px;
     margin-bottom: 0px;
@@ -51,12 +106,13 @@ body div #menu dl dd ul#mainMenu {
 
 .menu-footer {
   border: 0px;
+  background: #FFF;
   padding-bottom: 0px;
 }
 
 
 
-body div #menu dl dd ul li a { height: 20px; color: #CCCCCC; text-decoration: none; display: block; padding: 8px 10px; margin: 0 20px 0 10px; font-weight: bold; }
+body div #menu dl dd ul li a { height: 20px; color: #333; text-decoration: none; display: block; padding: 8px 10px; margin: 0 20px 0 10px; font-weight: bold; }
 body div #menu dl dd ul#mainMenuChat li a span { float: left; margin-left: 30px; height: 20px; line-height: 20px; vertical-align: top; }
 
 
@@ -85,6 +141,12 @@ body div #menu dl dd ul#mainMenuChat li a span { float: left; margin-left: 30px;
 
 
 
+body div #page .main #content ul li {
+  border-bottom: 1px solid #dfdfdf;
+}
+
+
+
 #chatMenu {
   border-top: 2px solid #2C2C2C;
   background-color: #FFF;
@@ -95,10 +157,6 @@ body div #menu dl dd ul#mainMenuChat li a span { float: left; margin-left: 30px;
 }
 
 
-body div #menu dl dd ul li a {
-
-}
-
 .badge {
 	margin: 0px;
 	font-size: 8px;
@@ -108,6 +166,26 @@ body div #menu dl dd ul li a {
 	border-radius: 2px;
   margin-top: -4px;
 }
+
+
+.badge-big {
+  border-radius: 10px;
+  border: 0px !important;
+  display: inline-block;
+  padding: 2px 4px;
+  font-size: 11.844px;
+  font-weight: normal;
+  line-height: 14px;
+  color: #ffffff;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+  white-space: nowrap;
+  vertical-align: baseline;
+  background-color: #999999;
+  padding: 5px;
+  margin: 5px;
+}
+
+
 
 .badge-chat-list {
   top: 5px;
@@ -120,20 +198,18 @@ body div #menu dl dt {
 	line-height: 15px;
 	height: 15px;
 	padding: 5px;
+  background-color: #EFEFEF; 
+  color: #2C2C2C;
 }
 
 #content {
-	margin-top: 0px;
-}
-
-#contentDetail {
-	
+	margin-top: 0px !important;
 }
 
 
 #chatContactsWindow {
 /*  background-color: #333333; */
-  border-left: 4px solid #999999;
+  border-left: 1px solid #5c9ccc;
 
   width: 250px; 
   height: 100%; 
@@ -162,6 +238,11 @@ body div #menu dl dt {
 #chatContacts ul li.selected h3 { color: #FFFFFF; }
 #chatContacts ul li.selected span { color: #FFFFFF; }
 
+body div #page .main table#messageDetails tr td.item { border-left: 0px; }
+body div #page .main table#messageDetails tr td.detailCol {
+  border-bottom: 0px;
+  border-top: 1px solid #ccc;
+}
 
 
 
@@ -415,10 +496,10 @@ body div #menu dl dt {
     width: 7px;
     z-index: 110;
 
-    background: -webkit-linear-gradient(left, transparent , rgba(153,153,153,1)); /* For Safari 5.1 to 6.0 */
-    background: -o-linear-gradient(right, transparent, rgba(153,153,153,1)); /* For Opera 11.1 to 12.0 */
-    background: -moz-linear-gradient(right, transparent, rgba(153,153,153,1)); /* For Firefox 3.6 to 15 */
-    background: linear-gradient(to right, transparent , rgba(153,153,153,1)); /* Standard syntax */
+/*    background: -webkit-linear-gradient(left, transparent , rgba(153,153,153,1)); 
+    background: -o-linear-gradient(right, transparent, rgba(153,153,153,1)); 
+    background: -moz-linear-gradient(right, transparent, rgba(153,153,153,1)); 
+    background: linear-gradient(to right, transparent , rgba(153,153,153,1)); */
 
 }
 .toggleRightDiv:hover {
@@ -439,10 +520,10 @@ body div #menu dl dt {
     width: 7px;
     z-index: 1000;
 
-    background: -webkit-linear-gradient(left,  rgba(153,153,153,1),transparent); /* For Safari 5.1 to 6.0 */
-    background: -o-linear-gradient(right, rgba(153,153,153,1),transparent); /* For Opera 11.1 to 12.0 */
-    background: -moz-linear-gradient(right, rgba(153,153,153,1),transparent); /* For Firefox 3.6 to 15 */
-    background: linear-gradient(to right , rgba(153,153,153,1),transparent); /* Standard syntax */
+   /* background: -webkit-linear-gradient(left,  rgba(153,153,153,1),transparent); 
+    background: -o-linear-gradient(right, rgba(153,153,153,1),transparent); 
+    background: -moz-linear-gradient(right, rgba(153,153,153,1),transparent); 
+    background: linear-gradient(to right , rgba(153,153,153,1),transparent); */
 
 }
 .toggleLeftDiv:hover {

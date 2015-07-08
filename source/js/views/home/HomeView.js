@@ -427,21 +427,12 @@ define([
 
         if (Shared.isDesktop()) {
           $('#page').width($(window).width() - $("#menu").width() - $("#chatDesktop").width());
+          $("#chatDesktop").height($("#chatContactsWindow").height() - $(".chat-title").height() - 30);
+          $("#page").height($("#menu").height());
         } else {
-          $('#page').width($(window).width() - $("#menu").width());
+        //  $('#page').width($(window).width() - $("#menu").width());
         }
 
-        
-
-        // $("#chatMenu").css('top',$('#menu').height() - 50);
-        // $("#chatMenu").css('width',$('#menu').width());
-        // $("#chatDesktop").css('width',$('#menu').width() - 2);
-        // $("#chatDesktop").css('height',$('#menu').height() - 45);
-        // $("#chatDesktop").css('margin-top',($('#chatDesktop').height() + 67) * -1);
-        // $("#scrollerCHAT").css("height",$("#chatDesktop").height() - $("#chatTitleBar").height() - 9);
-        $("#chatDesktop").height($("#chatContactsWindow").height() - $(".chat-title").height() - 30);
-        // $("#chatDesktop").css('height',);
-        // console.log($("#chatDesktop").height());
         
 
         $('#scrollerDetail').css('width', $("#wrapperDetail").width() );

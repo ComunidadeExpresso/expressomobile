@@ -1,7 +1,7 @@
 <% if (messages.length != 0) { %>
 <% _.each(messages, function(message){ %>
-<h2 class="ellipsis50"><span class="subtitle-detail-text"><%=message.getTimeAgo()%> (<%=message.getMessageSize()%>)</span><%= message.get("msgSubject") %></h2>
-<article id="wrapperDetail" class="content" style="overflow: auto;">
+<h2 class="ellipsis50"><% if (!Shared.isDesktop()) { %><span class="subtitle-detail-text"><%=message.getTimeAgo()%> (<%=message.getMessageSize()%>)</span><% } %><%= message.get("msgSubject") %></h2>
+<article id="wrapperDetail" class="contentScroll" style="overflow: auto;">
   <div id="scrollerDetail">
     <table id="messageDetails"> 
       <tr class="detailRow">
@@ -9,7 +9,7 @@
           De:
         </td>
         <td class="description detailCol">
-          <span class="badge badge-write-message">
+          <span class="badge-big badge-write-message">
              <%= message.get("msgFrom").mailAddress %>
           </span>
         </td>
@@ -42,7 +42,7 @@
               <% } %>
                 <% var qtdMsgTo = 1; %>
                 <% _.each(message.get("msgTo"), function(msgRecipient){ %>
-                    <span class="detailMsgTo badge badge-write-message <% if (qtdMsgTo >= 4) { %>hidden<% } %>" data-mail="<%=msgRecipient.mailAddress%>">
+                    <span class="detailMsgTo badge-big badge-write-message <% if (qtdMsgTo >= 4) { %>hidden<% } %>" data-mail="<%=msgRecipient.mailAddress%>">
                       
                     <% if ($.trim(msgRecipient.fullName) != '') { %> 
                       <%=$.trim(msgRecipient.fullName)%>
@@ -70,7 +70,7 @@
               <% } %>
               <% var qtdMsgCc = 1; %>
               <% _.each(message.get("msgCC"), function(msgRecipientCc){ %>
-                <span class="detailMsgCc badge badge-write-message <% if (qtdMsgCc >= 4) { %>hidden<% } %>">
+                <span class="detailMsgCc badge-big badge-write-message <% if (qtdMsgCc >= 4) { %>hidden<% } %>">
                 <% if ($.trim(msgRecipientCc.fullName) != '') { %> 
                   <%=$.trim(msgRecipientCc.fullName)%>
                 <% } else { %>
@@ -90,7 +90,7 @@
           </td>
           <td class="description detailCol" colspan="2">
               <% _.each(message.get("msgBcc"), function(msgRecipientBcc){ %>
-                <span class="badge badge-write-message">
+                <span class="badge-big badge-write-message">
                 <% if ($.trim(msgRecipientBcc.fullName) != '') { %> 
                   <%=$.trim(msgRecipientBcc.fullName)%>
                 <% } else { %>
