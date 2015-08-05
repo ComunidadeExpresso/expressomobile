@@ -1,0 +1,12 @@
+<div class="expresso-cards mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-grid">
+    <div id="emailSignature" class="expresso-email mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--12-col-desktop">
+      	<input type="hidden" id="typeSignature" name="typeSignature" value="<%=typeSignature%>">
+		<% if (typeSignature == 'html') { %>
+		<div id="assinaturaEmailHTML"  class="messageBodyInput" style="width: 100%; min-height: 400px; border: 0px; margin: 20px;" contenteditable="true">
+			<%=mailsignature%>
+		</div>
+		<% } else { %>
+		<textarea name="assinaturaEmail" id="assinaturaEmail" placeholder="Mensagem enviada pelo Expresso Mobile." style="border: 0px;"><%=mailsignature%></textarea>
+		<% } %>
+	</div>
+</div>
