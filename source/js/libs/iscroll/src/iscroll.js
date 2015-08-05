@@ -1,3 +1,7 @@
+define([
+  'jquery',
+], function($){
+
 /*!
  * iScroll v4.2.5 ~ Copyright (c) 2012 Matteo Spinelli, http://cubiq.org
  * Released under MIT license, http://cubiq.org/license
@@ -1134,3 +1138,6 @@ if (typeof exports !== 'undefined') exports.iScroll = iScroll;
 else window.iScroll = iScroll;
 
 })(window, document);
+
+	return window.iScroll;
+});

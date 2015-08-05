@@ -1,15 +1,17 @@
-// Filename: app.js
 define([
   'jquery', 
   'underscore', 
   'backbone',
   'shared',
-  'router', // Request router.js
-], function($, _, Backbone, Shared, AppRouter){
+  'material',
+  'router', 
+], function($, _, Backbone, Shared, Material ,AppRouter){
   var initialize = function(){
 
     var startApp = function() {
-       Shared.router = new AppRouter();
+
+      
+      Shared.router = new AppRouter();
 
       Shared.router.setupRouter();
 

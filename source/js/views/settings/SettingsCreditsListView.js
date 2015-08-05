@@ -19,6 +19,8 @@ define([
       var compiledTemplate = _.template( settingsCreditsListTemplate, newData );
       this.$el.html( compiledTemplate ); 
 
+      Shared.setCurrentPageTitle("Créditos");
+
       this.loaded();
 
     },

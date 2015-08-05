@@ -1,3 +1,6 @@
+define([
+  'jquery',
+], function(jQuery){
 /**
  * jQuery.ScrollTo
  * Copyright (c) 2007-2009 Ariel Flesler - aflesler(at)gmail(dot)com | http://flesler.blogspot.com
@@ -213,3 +216,6 @@
 	};
 
 })( jQuery );
+
+	 return jQuery.fn.scrollTo;
+});

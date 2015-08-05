@@ -81,10 +81,10 @@ define([
 
       
 
-      if (Shared.isDesktop()) {
-        $('#modalWindows').empty().append(this.$el);
-        $('#modalEditFolder').modal('show');
-      } else {
+      // if (Shared.isDesktop()) {
+      //   $('#modalWindows').empty().append(this.$el);
+      //   $('#modalEditFolder').modal('show');
+      // } else {
 
         $(this.elementID).empty().append(this.$el);
 
@@ -94,7 +94,7 @@ define([
 
         Shared.menuView.renderContextMenu('editFolder', params);
         this.loaded();
-      }
+      // }
 
       
     },

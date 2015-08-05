@@ -1,7 +1,7 @@
 define([
   'underscore', 
   'backbone', 
-  'libs/backbone/localstorage', 
+  'localstorage', 
   'models/home/ExpressoModel',
   ], function(_, Backbone, Store, ExpressoModel){
 	  

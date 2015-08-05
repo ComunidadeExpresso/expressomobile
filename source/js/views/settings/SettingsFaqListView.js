@@ -27,6 +27,8 @@ define([
       this.$el.css("height","100%");
       $(this.elementID).empty().append(this.$el);
 
+      Shared.setCurrentPageTitle("Perguntas Frequentes");
+
       that.loaded();
 
     },

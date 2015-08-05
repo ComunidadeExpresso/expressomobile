@@ -75,8 +75,8 @@ define([
       var top = $('.topHeader').outerHeight(true);
       var chat = $('.chatArea').outerHeight(true) == null ? 0 : $('.chatArea').outerHeight(true);
       
-      $('body').height($(window).height() - top);
-      $('#wrapperDetail').css('top', top + chat);
+      // $('body').height($(window).height() - top);
+      // $('#wrapperDetail').css('top', top + chat);
 
       this.scrollToLastMessage();
 

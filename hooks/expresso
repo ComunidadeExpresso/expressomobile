@@ -32,10 +32,17 @@ fi
 if [ "$1" = "android" ]
 then
 
+	if [ "$2" = "path" ]
+	then
+		ANDROID_HOME=/projeto/frameworks/android-sdk-mac_x86
+		PATH=$PATH:$ANDROID_HOME/tools/
+		PATH=$PATH:$ANDROID_HOME/platform-tools/
+	fi
+
 	if [ "$2" = "run" ]
 	then
 		echo "EXPRESSO - ANDROID - RUN"
-		./hookgs/gen_dist.sh
+		./hooks/gen_dist.sh
 		cordova run android
 	fi
 

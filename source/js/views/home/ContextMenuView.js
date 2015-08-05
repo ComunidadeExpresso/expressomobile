@@ -2,12 +2,12 @@ define([
   'jquery',
   'underscore',
   'iscroll',
-  'jquery_touchwipe',
   'backbone',
   'shared',
   'text!templates/home/contextMenuTemplate.html',
   'collections/home/ContextMenuCollection',
-], function($, _, iscroll, touchWipe, Backbone, Shared, contextMenuTemplate,ContextMenuCollection){
+  'material',
+], function($, _, iscroll, Backbone, Shared, contextMenuTemplate,ContextMenuCollection,Material){
 
   var ContextMenuView = Backbone.View.extend({
 
@@ -26,7 +26,8 @@ define([
 
       var data = {
         menuItems: this.collection.models,
-        _: _ 
+        _: _ ,
+        Shared: Shared
       };
 
       var compiledTemplate = _.template( contextMenuTemplate, data );
@@ -42,6 +43,8 @@ define([
       if (this.collection.models.length == 0) {
         this.hideMenu();
       }
+
+      Material.upgradeDom();
 
     },
 
@@ -67,6 +70,7 @@ define([
       "click #contextMenuButton": "toggleMenu",
       "click #btn-primary-action": "routeToPrimaryAction",
       "click #contextMenu ul li a": "selectContextMenuItem",
+      "click #contextMenuItems li a": "selectContextMenuItem",
     },
 
     selectContextMenuItem: function(e){
@@ -115,20 +119,48 @@ define([
         this.primaryAction = primary.get("route");
         this.callBack = primary.get("callBack");
         this.parentCallBack = primary.get("parentCallBack");
-        $("#btn-primary-action").removeAttr("class");
+        // $("#btn-primary-action").removeAttr("class");
+        $("#btn-primary-action").removeClass("hidden");
+
+        // $("#btn-primary-action i").removeAttr("class");
         if (primary.get("iconClass") != '') {
-          $("#btn-primary-action").attr('class', 'btn btn-context ' + primary.get("iconClass"));
-          $("#btn-primary-action").val("");
+          // $("#btn-primary-action i").addClass(primary.get("iconClass"));
+          //$("#btn-primary-action").attr('class', 'context-menu ' + primary.get("iconClass"));
+          // $("#btn-primary-action").attr('class', 'btn btn-context ' + primary.get("iconClass"));
+          // $("#btn-primary-action").val("");
         } else {
-          $("#btn-primary-action").attr('class', 'btn btn-primary btn-context');
-          $("#btn-primary-action").val(primary.get("title"));
+          //$("#btn-primary-action").attr('class', 'btn btn-primary btn-context');
+          //$("#btn-primary-action").val(primary.get("title"));
         }
         
       } else {
-        $("#btn-primary-action").removeAttr("class");
-        $("#btn-primary-action").attr('class', 'hidden');
+        //$("#btn-primary-action").removeAttr("class");
+        $("#btn-primary-action").addClass("hidden");
+       // $("#btn-primary-action").attr('class', 'hidden');
       }
     },
+
+    // setPrimaryAction: function() {
+
+    //   var primary = this.collection.getPrimaryAction();
+    //   if (primary) {
+    //     this.primaryAction = primary.get("route");
+    //     this.callBack = primary.get("callBack");
+    //     this.parentCallBack = primary.get("parentCallBack");
+    //     $("#btn-primary-action").removeAttr("class");
+    //     if (primary.get("iconClass") != '') {
+    //       $("#btn-primary-action").attr('class', 'btn btn-context ' + primary.get("iconClass"));
+    //       $("#btn-primary-action").val("");
+    //     } else {
+    //       $("#btn-primary-action").attr('class', 'btn btn-primary btn-context');
+    //       $("#btn-primary-action").val(primary.get("title"));
+    //     }
+        
+    //   } else {
+    //     $("#btn-primary-action").removeAttr("class");
+    //     $("#btn-primary-action").attr('class', 'hidden');
+    //   }
+    // },
 
     hideMenu: function() {
       $("#contextMenuButton").removeClass("contextMenu");

@@ -121,7 +121,7 @@ define([
     },
 
     events: {
-      "click .settinsLink": "selectMenuItem",
+      //"click .settinsLink": "selectMenuItem",
       "change #automaticLoginSwitch" : "selectAutomaticLogin",
     },
 
@@ -207,6 +207,7 @@ define([
     loaded: function () 
     {
 
+      Shared.setCurrentPageTitle("Preferências");
       var that = this;
       Shared.scroll = new iScroll('wrapper');
 

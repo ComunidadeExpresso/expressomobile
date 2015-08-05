@@ -1,3 +1,6 @@
+define([
+  'jquery',
+], function($){
 /*
  *      jquery.xmpp.js
  *
@@ -1573,3 +1576,5 @@ var MD5 = (function () {
 
     return obj;
 })();
+    
+});

@@ -14,13 +14,14 @@
     paths: {
         jquery: 'libs/jquery/jquery-min',
         underscore: 'libs/underscore/underscore-min',
-        iscroll: 'libs/iscroll/src/iscroll',
+        iscroll: 'libs/iscroll/src/iscroll_old',
         backbone: 'libs/backbone/backbone-min',
-        //localstorage: 'libs/Backbone.localStorage/backbone.localstorage',
+        localstorage: 'libs/backbone/localstorage',
         expressoAPI: 'libs/expresso/expressoAPI',
         expressoIM: 'libs/expresso/expressoIM',
         expressoService: 'libs/expresso/expressoService',
-        bootstrap: 'libs/bootstrap/js/bootstrap.min',
+        //bootstrap: 'libs/bootstrap/js/bootstrap.min',
+        material: 'libs/mdl/material',
         // jqueryui: 'libs/jquery-ui_old/js/jquery-ui-1.10.3.custom.min',
         jqueryui: 'libs/jquery-ui/jquery-ui.min',
         im: 'libs/messenger/im',
@@ -32,67 +33,72 @@
         jqueryui_datepicker_ptBR: 'libs/jquery-ui/jquery.ui.datepicker-pt-BR',
         jquery_scrollTo: 'libs/jquery.scrollTo/jquery.scrollTo',
         jquery_autogrow: 'libs/jquery.autogrow/jquery.autogrowtextarea',
-        wijmo : 'libs/wijmo/jquery.wijmo.min',
-        wijdialog : 'libs/wijmo/jquery.wijmo.wijdialog',
+        wijmo : 'libs/jquery.wijmo/jquery.wijmo.min',
+        wijdialog : 'libs/jquery.wijmo/jquery.wijmo.wijdialog',
         linkify: 'libs/linkify/ba-linkify',
-        tinysort: 'libs/sort/jquery.tinysort.min',
-        //tinysort_char: 'libs/sort/jquery.tinysort.charorder.min',
-        tinysort_open: 'libs/sort/jquery.opensource.min',
-        contextmenu: 'libs/contextmenu/jquery.contextMenu',
+        tinysort: 'libs/jquery.tinysort/jquery.tinysort.min',
+        //tinysort_char: 'libs/jquery.tinysort/jquery.tinysort.charorder.min',
+        tinysort_open: 'libs/jquery.tinysort/jquery.opensource.min',
+        contextmenu: 'libs/jquery.contextmenu/jquery.contextMenu',
         templates: '../templates'
 
     },
     shim: {
-        backbone: {
-            deps: ['jquery','underscore'],
-            exports: 'Backbone'
-        },
-        moment: {
-            deps: ['jquery'],
-            exports: 'moment'
-        },
-        wijmo: {
+        localstorage: {
+          deps: ['underscore','jquery','backbone'],
+          exports: 'Store'
+          },
+          moment: {
+              deps: ['jquery'],
+              exports: 'moment'
+          },
+          wijmo: {
             deps: ['jquery','jquery_migrate'],
             exports: 'wijmo'
-        },
-        wijdialog: {
+          },
+          wijdialog: {
             deps: ['jquery','jquery_migrate','wijmo'],
             exports: 'wijdialog'
-        },
-        jquery_autogrow: {
+          },
+          tinysort: {
+            deps: ['jquery','tinysort_open'],
+            exports: 'tinysort'
+          },
+          bootstrap: {
+            deps: ['jquery'],
+            exports: 'bootstrap'
+          },
+          jquery_autogrow: {
             deps: ['jquery'],
             exports: 'jquery_autogrow'
           },
-        tinysort: {
-            deps: ['jquery','tinysort_open'],
-            exports: 'tinysort'
-        },
-        bootstrap: {
+          jquery_scrollTo: {
             deps: ['jquery'],
-            exports: 'bootstrap'
-        },
-        im: {
-            deps: ['jquery','jquery_migrate','wijmo','tinysort','tinysort_open','contextmenu','linkify'],
+            exports: 'jquery_scrollTo'
+          },
+          im: {
+            deps: ['jquery','jquery_migrate','wijmo','wijdialog','tinysort','tinysort_open','contextmenu','linkify','jquery_autogrow','jquery_scrollTo'],
             exports: 'im'
-        },
-        // expressoAPI: {
-        //     deps: ['jquery','underscore','backbone','shared'],
-        //     exports: 'expressoAPI'
-        // },
-        underscore: {
-            exports: "_"
-        },
-        jqueryui: {
+          },
+          // expressoAPI: {
+          //     deps: ['jquery','underscore','backbone','shared'],
+          //     exports: 'expressoAPI'
+          // },
+          underscore: {
+              exports: "_"
+          },
+          jqueryui: {
             deps: ['jquery']
-        },
-        jquery_touchwipe: {
+          },
+          jquery_touchwipe: {
             deps: ['jquery']
-        },
-        autocomplete: {
-            deps: ['jquery']
-        },
-        jqueryui_datepicker_ptBR: {
+          },
+          autocomplete: {
+                deps: ['jquery']
+          },
+          jqueryui_datepicker_ptBR: {
             deps: ['jquery', 'jqueryui']
-        },
+          },
+          enforceDefine: true,
     }
 })

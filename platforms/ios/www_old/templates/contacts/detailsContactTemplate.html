@@ -1,0 +1,45 @@
+<!-- <div id="picture_contact" class="picture_image" style="margin: 0 10px;"><img src="" class="userPicture" alt="" style="height: 106px; width: 80px;" /></div> -->
+<%
+var contactID = decodeURIComponent(contact.get('contactID'));
+var id;
+
+if (parseInt(contactID) != NaN && parseInt(contactID) % 1 == 0)
+	id = contactID;
+else
+{
+	var queryUID = contactID.split(",")[0]; 
+	var uid = queryUID.split("=");
+	id = uid[1].replace(".", "___");
+}
+%>
+
+<div id="picture_contact_<%= id %>" class="details_picture_image"></div>
+<dl id="contactDetails" style="margin-left: 100px;">
+
+	<% if (!_.isEmpty(contact.get('contactMails'))) { %>
+				
+		<dt>Contas de e-mail</dt>
+		<dd>
+			<ul>
+				<% _.each(contact.get('contactMails'), function (email) { %>
+					<li><%= email %></li>
+				<% }); %>
+			</ul>
+		</dd>
+
+	<% } %>
+
+	<% if (!_.isEmpty(contact.get('contactPhones')) && !_.isEmpty(_.first(contact.get('contactPhones')))) { %>
+
+		<dt>Telefones</dt>
+		<dd>
+			<ul>
+				<% _.each(contact.get('contactPhones'), function (phone) { %>
+					<li><%= phone %></li>
+				<% }); %>
+			</ul>
+		</dd>
+
+	<% } %>
+
+</dl>

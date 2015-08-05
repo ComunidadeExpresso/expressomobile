@@ -53,7 +53,9 @@ define([
 			{
 				var firstContact = _.first(data.contacts);
 				if (firstContact != undefined) {
-					contentTitle.text(firstContact.get('contactFullName'));
+					//contentTitle.text(firstContact.get('contactFullName'));
+
+					Shared.setCurrentPageTitle(firstContact.get('contactFullName'));
 				
 					var contact = {contact: _.first(data.contacts), _: _};
 					var contactID = self.secondViewName == 'Personal' ? _.first(data.contacts).get('contactID') : _.first(data.contacts).get('contactUIDNumber');
@@ -133,24 +135,24 @@ define([
 
 		loaded: function (pEmail, pContactID) 
 		{
-			if (!Shared.isSmartPhoneResolution())
-			{
-				if (Shared.scrollDetail != null) 
-				{
-					Shared.scrollDetail.destroy();
-					Shared.scrollDetail = null;
-				}
-				Shared.scrollDetail = new iScroll('wrapperDetail');
-			}
-			else
-			{
-				if (Shared.scroll != null) 
-				{
-					Shared.scroll.destroy();
-					Shared.scroll = null;
-				}
-				Shared.scroll = new iScroll('wrapper');
-			}
+			// if (!Shared.isSmartPhoneResolution())
+			// {
+			// 	if (Shared.scrollDetail != null) 
+			// 	{
+			// 		Shared.scrollDetail.destroy();
+			// 		Shared.scrollDetail = null;
+			// 	}
+			// 	Shared.scrollDetail = new iScroll('wrapperDetail');
+			// }
+			// else
+			// {
+			// 	if (Shared.scroll != null) 
+			// 	{
+			// 		Shared.scroll.destroy();
+			// 		Shared.scroll = null;
+			// 	}
+			// 	Shared.scroll = new iScroll('wrapper');
+			// }
 
 			$('#contentDetail .searchArea').remove();
 

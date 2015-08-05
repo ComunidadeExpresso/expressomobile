@@ -3,7 +3,6 @@ define([
   'underscore',
   'backbone',
   'shared',
-  'bootstrap',
   'models/mail/MessagesModel',
   'collections/mail/MessagesCollection',
   'text!templates/login/loginTemplate.html',
@@ -12,61 +11,15 @@ define([
   'expressoIM',
   'collections/home/ExpressoCollection',
   'collections/home/ServersCollection',
-  'views/settings/SettingsFaqListView'
-], function($, _, Backbone, Shared, bootstrap, MessagesModel, MessagesCollection, loginTemplate,LoadingView,HomeView,expressoIM,ExpressoCollection,ServersCollection,SettingsFaqListView){
+  'views/settings/SettingsFaqListView',
+  'material'
+], function($, _, Backbone, Shared, MessagesModel, MessagesCollection, loginTemplate,LoadingView,HomeView,expressoIM,ExpressoCollection,ServersCollection,SettingsFaqListView,Material){
 
   var LoginView = Backbone.View.extend({
 
     errors: false,
-    /*
-    renderDialog: function() {
-
-        var div = $("<div/>");
-        div.wijdialog({ 
-            autoOpen: true, 
-            captionButtons: { 
-                refresh: { visible: false },
-                maximize: {visible: false}
-            },
-            dialogClass: "chat-conversation-dialog",
-            resizable:false,
-            minimizeZoneElementId: "conversation-bar-container",
-            open: function (e) {
-              // status
-              // .addClass("chatting");
-
-                // $(this).parent().find(".ui-dialog-titlebar").off("click").on("click", function()
-                // {
-                //   $(this).parent().find(".ui-dialog-titlebar").css({"background":"#5C9CCC", "border-color":"#5C9CCC"});
-                //     document.title = settings.defaultTitle;
-                // });
-            },
-            close: function (e) {
-              // status
-              // .removeClass("chatting");
-              // $.xmpp.isWriting({isWriting : 'gone', to:options.from});
-            },
-            focus: function(e){
-      //         $(this).find("textarea").focus().click();
-      //         document.title = settings.defaultTitle;
-      // $(this).parent().find(".ui-dialog-titlebar").css({"background":"#5C9CCC", "border-color":"#5C9CCC"});
-      // document.title = settings.defaultTitle;
-      // clearTimeout(pauseTimeOut);
-      //   $.xmpp.isWriting({isWriting : 'active', to:options.from});
-            },
-            blur: function(e){
-        //       pauseTimeOut = setTimeout(function(){
-        //   $.xmpp.isWriting({isWriting : 'inactive', to:options.from});
-        // },3000);
-
-            }
-        }); 
-        $("#mainAppPageContent").append(div); 
-    },*/
-
+    
     render: function(){
-
-
 
       var collection = new ServersCollection();
 
@@ -83,8 +36,11 @@ define([
         var compiledTemplate = _.template( loginTemplate, newData );
 
         that.$el.html(compiledTemplate);
+
         //that.$el.attr("style","top: 0px; position: relative;");
         $("#mainAppPageContent").empty().append(that.$el);
+
+        Material.upgradeDom();
 
         if (Shared.betaVersion) {
           $("#beta").removeClass("hidden");
@@ -247,7 +203,7 @@ define([
 
       if (!that.errors) {
 
-        var loadingView = new LoadingView({ el: $("#loadingLogin") });
+        var loadingView = new LoadingView({ el: $("#login-loading") });
         loadingView.render();
 
         Shared.api

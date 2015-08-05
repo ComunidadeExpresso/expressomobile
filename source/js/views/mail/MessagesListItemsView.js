@@ -3,8 +3,9 @@ define([
   'underscore',
   'backbone',
   'shared',
-  'text!templates/mail/messagesListItemsTemplate.html'
-], function($, _, Backbone, Shared, messagesListItemsTemplate){
+  'text!templates/mail/messagesListItemsTemplate.html',
+  'material'
+], function($, _, Backbone, Shared, messagesListItemsTemplate,Material){
 
   var MessagesListItemsView = Backbone.View.extend({
 
@@ -19,7 +20,8 @@ define([
         parentFolders: this.parentFolders,
         messages: this.collection.models,
         msgIDSelected : this.msgIDSelected,
-        _: _ 
+        _: _ ,
+        Shared: Shared
       };
 
       var compiledTemplate = _.template( messagesListItemsTemplate, data );
@@ -29,10 +31,12 @@ define([
         $("#scrollerList").html( compiledTemplate );
       }
 
+      Material.upgradeDom();
+
     },
 
     events: {
-      "click a.listItemLink": "selectListItem"
+      "click a.messagelistItemLink": "selectListItem"
     },
 
     selectListItem: function(e){

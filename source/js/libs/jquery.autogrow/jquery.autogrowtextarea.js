@@ -1,6 +1,6 @@
 define([
   'jquery'
-], function($){
+], function(jQuery){
 /*
  * ----------------------------------------------------------------------------
  * "THE BEER-WARE LICENSE" (Revision 42):

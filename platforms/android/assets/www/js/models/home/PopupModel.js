@@ -1,0 +1,1 @@
+define(["underscore","backbone","shared"],function(e,t,n){var r=t.Model.extend({defaults:{handle:""}});return r});

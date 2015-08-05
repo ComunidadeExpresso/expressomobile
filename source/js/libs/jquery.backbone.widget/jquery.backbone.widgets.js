@@ -1,3 +1,7 @@
+define([
+  'jquery',
+  'backbone',
+], function($,Backbone){
 // THIS AUTOCOMPLETE WIDGET WAS MODIFIED TO WORK IN OUR APPLICATION,
 // THINK TWICE BEFORE UPDATING THIS FILE TO A NEW VERSION.
 //
@@ -334,3 +338,6 @@
 	};
 
 })(jQuery);
+
+
+});

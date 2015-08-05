@@ -1,0 +1,45 @@
+
+
+/* MENU - MINHAS PASTAS */
+body div #menu dd { margin: 0px; }
+body div #menu dl dd ul#myFolders li { padding-top: 10px; height: 40px;/* border-bottom: 1px #EFEFEF solid;*/ }
+body div #menu dl dd ul#myFolders li.selected { background: rgb(68, 138, 255); }
+body div #menu dl dd ul#myFolders li.selected span { color: #FFFFFF; }
+body div #menu dl dd ul#myFolders li:hover { height: 40px; background: rgb(68, 138, 255); }
+body div #menu dl dd ul#myFolders li.selected:hover { background: rgb(68, 138, 255); }
+body div #menu dl dd ul#myFolders { background-color: #FFF; }
+body div #menu dl dd ul#myFolders li a { height: 60px; color: #333333; }
+body div #menu dl dd ul#myFolders li a .icon {    width: 30px; height: 30px; margin-left: 5px; background-size: 20px 20px; }
+body div #menu dl dd ul#myFolders li a span { line-height: 25px; vertical-align: top; margin-left: 40px; float: left; }
+/*body div #menu dl dd ul#myFolders li a span .badge.badge-info { float: right; }*/
+
+.expresso-myfolders-dropdown { 
+	height: 40px;
+    background-color: #e0e0e0;
+    line-height: 40px; 
+    margin-right: 10px; 
+}
+
+.expresso-myfolders-dropdown span {
+  margin-left: 10px;
+}
+
+.expresso-myfolders-dropdown .mdl-button--icon { margin-top: 0px; }
+
+.folder-icon {
+  width: 30px; 
+  height: 30px;
+  float: left;
+  top: 10px;
+  left: 5px;
+  position: relative;
+}
+
+.folder-inbox                     { background: url("../imgs/icon-caixa-entrada-30x30.png") no-repeat scroll center center; }
+.folder-drafts                    { background: url("../imgs/icon-rascunho-30x30.png") no-repeat scroll center center;}
+.folder-sent                      { background: url("../imgs/icon-encaminhadas-30x30.png") no-repeat scroll center center;}
+.folder-blue                      { background: url("../imgs/icon-pasta-30x30.png") no-repeat scroll center center; }
+.folder-trash                     { background: url("../imgs/icon-lixeira-vazia-30x30.png") no-repeat scroll center center; }
+.folder-trash-full                { background: url("../imgs/icon-lixeira-cheia-30x30.png") no-repeat scroll center center; }
+.folder-spam                      { background: url("../imgs/icon-pasta-spam-30x30.png") no-repeat scroll center center; }
+.folder-shared                    { background: url("../imgs/icon-pasta-compartilhada-30x30.png") no-repeat scroll center center; }

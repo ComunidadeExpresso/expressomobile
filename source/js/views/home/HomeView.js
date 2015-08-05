@@ -1,8 +1,6 @@
 define([
   'jquery',
   'underscore',
-  'iscroll',
-  'jquery_touchwipe',
   'backbone',
   'shared',
   'collections/mail/MessagesCollection',
@@ -11,10 +9,7 @@ define([
   'views/mail/DetailMessageView',
   'views/home/MenuView',
   'text!templates/home/homeTemplate.html',
-  'views/chat/ChatListView',
-  'views/home/StatusBarView',
-  'views/home/PopupView',
-  'collections/home/PopupListCollection',
+  'material',
   'jquery_migrate',
   'jqueryui',
   'wijmo',
@@ -23,8 +18,17 @@ define([
   'contextmenu',
   'linkify',
   'im',
-], function($, _, iscroll,touchwipe, Backbone, Shared, MessagesCollection, ServersCollection, MessagesListView, DetailMessageView, MenuView, homeTemplate,ChatListView,StatusBar,Popup,PopupList,jquery_migrate,jqueryui,wijmo,tinysort,tinysort_open,contextmenu,linkify,im){
+], function($, _, Backbone, Shared, MessagesCollection, ServersCollection, MessagesListView, DetailMessageView, MenuView, homeTemplate,Material,jquery_migrate,jqueryui,wijmo,tinysort,tinysort_open,contextmenu,linkify,im){
 
+/*
+  'views/chat/ChatListView',
+  'views/home/StatusBarView',
+  'views/home/PopupView',
+  'collections/home/PopupListCollection',
+    
+
+  ,ChatListView,StatusBar,Popup,PopupList,jquery_migrate,jqueryui,wijmo,tinysort,tinysort_open,contextmenu,linkify,im
+*/
   var HomeView = Backbone.View.extend({
 
     folderID: 'INBOX',
@@ -36,6 +40,8 @@ define([
     menuView: null,
     menuOpen: false,
 
+    el: $("#mainAppPageContent"),
+
     initialize:function() {
       $(window).on("resize",this.refreshWindow);
 
@@ -46,7 +52,7 @@ define([
       //SALVA A VIEW DO MENU NO SHARED
       Shared.menuView = mView;
 
-      Shared.Popups = new PopupList();
+      //Shared.Popups = new PopupList();
 
     },
 
@@ -69,9 +75,11 @@ define([
       
 
       //this.$el.html(homeTemplate);
-      this.$el.css("width","100%");
-      this.$el.css("height","100%");
-      $("#mainAppPageContent").empty().append(this.$el);
+      //this.$el.css("width","100%");
+      //this.$el.css("height","100%");
+      //$("#mainAppPageContent").empty().append(this.$el);
+
+      Material.upgradeDom();
 
       var that = this;
 
@@ -150,8 +158,9 @@ define([
           that.menuView.render();
 
           if (Shared.isDesktop()) {
-            $("#menuButton").hide();
-            that.menuView.openMenu();
+            //$("#menuButton").hide();
+            //that.menuView.openMenu();
+            //that.toggleChat();
             that.refreshWindow();
           }
 
@@ -203,55 +212,7 @@ define([
             that.loaded();
           }
 
-          Shared.statusBar = new StatusBar().render();
-
           Shared.scheduleCheckForNewMessages();
-
-          $('#pageHeader').touchwipe(
-          {
-            wipeLeft: function() 
-            {
-              that.menuView.closeMenu();
-              Shared.scrollerRefresh();
-            },
-            wipeRight: function() 
-            {
-              that.menuView.openMenu();
-              Shared.scrollerRefresh();
-            },
-            preventDefaultEvents: true
-          });
-
-
-          $('#pageSwipe').touchwipe(
-          {
-            wipeLeft: function() 
-            {
-              that.menuView.closeMenu();
-              Shared.scrollerRefresh();
-            },
-            wipeRight: function() 
-            {
-              that.menuView.openMenu();
-              Shared.scrollerRefresh();
-            },
-            preventDefaultEvents: true
-          });
-
-          $('#menu').touchwipe(
-          {
-            wipeLeft: function() 
-            {
-              that.menuView.closeMenu();
-              Shared.scrollerRefresh();
-            },
-            wipeRight: function() 
-            {
-              that.menuView.openMenu();
-              Shared.scrollerRefresh();
-            },
-            preventDefaultEvents: true
-          });
 
         }).execute();
 
@@ -277,7 +238,6 @@ define([
     },
 
     events: {
-      "click .addWindow": "addWindow",
       "click #menuButton": "toggleMenu",
       "click #menu_toggle": "toggleMenu",
       "click #chat_toggleRoster": "toggleChat",
@@ -287,28 +247,68 @@ define([
       "click body": 'clickMainAppPageContent',
     },
 
-    addWindow: function(e) {
-        e.preventDefault();
-        new Popup().render();
-    },
 
 	selectListItem: function(e){
 
       e.preventDefault();
 
+      parent = $(e.target).parent();
+
+      if (Shared.isDesktop()) {
+
+        if(parent.find(".ink").length == 0)
+          parent.prepend("<span class='ink'></span>");
+          
+        ink = parent.find(".ink");
+        //incase of quick double clicks stop the previous animation
+        ink.removeClass("animate");
+        
+        //set size of .ink
+        if(!ink.height() && !ink.width())
+        {
+          //use parent's width or height whichever is larger for the diameter to make a circle which can cover the entire element.
+          d = Math.max(parent.outerWidth(), parent.outerHeight());
+          ink.css({height: d, width: d});
+        }
+        
+        //get click coordinates
+        //logic = click coordinates relative to page - parent's position relative to page - half of self height/width to make it controllable from the center;
+        if (parent.offset() != undefined) {
+
+          x = e.pageX - parent.offset().left - ink.width()/2;
+          y = e.pageY - parent.offset().top - ink.height()/2;
+        }
+
+      }
+      //set the position and add class .animate
+      
+
       $('#scrollerList li').each(function() { 
           $(this).removeClass( 'selected' ); 
       }); 
-
-      var parent = $(e.target).parent();
 
       if (parent.hasClass("listItemLink")) {
         parent = parent.parent();
       }
 
-      parent.addClass("selected");
+      var gotoRoute = function() {
+        Shared.router.navigate(e.currentTarget.getAttribute("href"),{trigger: true});
+      };
 
-      Shared.router.navigate(e.currentTarget.getAttribute("href"),{trigger: true});
+      //if (Shared.isDesktop()) {
+        //ink.css({top: y+'px', left: x+'px'}).addClass("animate");
+        setTimeout(gotoRoute,500);
+      // } else {
+      //   var rowid = e.currentTarget.getAttribute("rowid");
+      //   $("#" + rowid).addClass("selected");
+
+      //   gotoRoute();
+      // }
+
+
+      
+
+      
 
     },
 
@@ -327,21 +327,21 @@ define([
         e.preventDefault();
       }
 
-      var menuWidth = 300;
+      var menuWidth = 0;
       var newPageWidth = $(window).width() - $("#chatContactsWindow").width();
 
       if ($("#menu").width() != 0) {
 
         Shared.menuOpen = false;
-        $("#menu").animate({width: "0px"}, 200);
-        $("#page").animate({"margin-left": "0px"}, 200);
-        $("#page").width(newPageWidth);
+        //$("#menu").animate({width: "0px"}, 200);
+        $("#mainPage").animate({"margin-left": "0px"}, 200);
+        $("#mainPage").width(newPageWidth);
       } else {
         newPageWidth = newPageWidth - menuWidth;
         Shared.menuOpen = true;
-        $("#menu").animate({width: menuWidth + "px"}, 200);
-        $("#page").animate({"margin-left": menuWidth}, 200);
-        $("#page").width(newPageWidth);
+        //$("#menu").animate({width: menuWidth + "px"}, 200);
+        $("#mainPage").animate({"margin-left": menuWidth}, 200);
+        $("#mainPage").width(newPageWidth);
       }
 
     },
@@ -350,7 +350,6 @@ define([
       if (e != undefined) {
         e.preventDefault();
       }
-      console.log("toggleMenu");
       if (Shared.isDesktop()) {
         this.toggleMenuDesktop();
       } else {
@@ -368,15 +367,19 @@ define([
       }
 
       var chatWidth = 250;
-      var newPageWidth = $(window).width() - $("#menu").width();
+      var menuWidth = $("#scrollerMenu").width();
+      var newPageWidth = $(window).width() - menuWidth;
 
       if ($("#chatContactsWindow").width() != 0) {
         $("#chatContactsWindow").animate({width: "0px"}, 200);
-        $("#page").animate({width: newPageWidth}, 200);
+        $("#content").animate({width: newPageWidth}, 200);
+        $(".expresso-fab-button").animate({ right: "16px" },200);
+        
       } else {
         newPageWidth = newPageWidth - chatWidth;
         $("#chatContactsWindow").animate({width: chatWidth + "px"}, 200);
-        $("#page").animate({width: newPageWidth}, 200);
+        $("#content").animate({width: newPageWidth}, 200);
+        $(".expresso-fab-button").animate({ right: "266px" },200);
       }
       
 
@@ -406,52 +409,70 @@ define([
       var that = this;
 
       var doneResizing = function() {
-        // console.log('doneResizing');
-        var top = $('.topHeader').outerHeight(true);
-        var chat = $('.chatArea').outerHeight(true) == null ? 0 : $('.chatArea').outerHeight(true);
 
-        var search = $('#content .searchArea').outerHeight(true) == null ? 0 : $('#content .searchArea').outerHeight(true);
-        var searchDetail = $('#contentDetail .searchArea').outerHeight(true) == null ? 0 : $('#contentDetail .searchArea').outerHeight(true);
-        
-        if (Shared.forceSmartPhoneResolution == false) {
-          if (Shared.isSmartPhoneResolution()) {
-            Shared.forceSmartPhoneResolution = true;
-          }
-        }
 
-        Shared.deviceType(Shared.forceSmartPhoneResolution);
-
-        $('body').height($(window).height() - top);
-        $('#wrapper').css('top', top + search);
-        $('#wrapperDetail').css('top', top + chat + searchDetail);
+        var menuWidth = $("#scrollerMenu").width();
+        var newPageWidth = $(window).width() - menuWidth;
+        var chatWidth = 250;
 
         if (Shared.isDesktop()) {
-          $('#page').width($(window).width() - $("#menu").width() - $("#chatDesktop").width());
-          $("#chatDesktop").height($("#chatContactsWindow").height() - $(".chat-title").height() - 30);
-          $("#page").height($("#menu").height());
-        } else {
-        //  $('#page').width($(window).width() - $("#menu").width());
+
+          if ($("#chatContactsWindow").width() == 0) {
+            $("#chatContactsWindow").animate({width: "0px"}, 200);
+            $("#content").animate({width: newPageWidth}, 200);
+            $(".expresso-fab-button").animate({ right: "16px" },200);
+            
+          } else {
+            newPageWidth = newPageWidth - chatWidth;
+            $("#chatContactsWindow").animate({width: chatWidth + "px"}, 200);
+            $("#content").animate({width: newPageWidth}, 200);
+            $(".expresso-fab-button").animate({ right: "266px" },200);
+          }
+
         }
 
+        // console.log('doneResizing');
+        // var top = $('.topHeader').outerHeight(true);
+        // var chat = $('.chatArea').outerHeight(true) == null ? 0 : $('.chatArea').outerHeight(true);
+
+        // var search = $('#content .searchArea').outerHeight(true) == null ? 0 : $('#content .searchArea').outerHeight(true);
+        // var searchDetail = $('#contentDetail .searchArea').outerHeight(true) == null ? 0 : $('#contentDetail .searchArea').outerHeight(true);
+        
+        // if (Shared.forceSmartPhoneResolution == false) {
+        //   if (Shared.isSmartPhoneResolution()) {
+        //     Shared.forceSmartPhoneResolution = true;
+        //   }
+        // }
+
+        // Shared.deviceType(Shared.forceSmartPhoneResolution);
+
+        // $('body').height($(window).height() - top);
+        // $('#wrapper').css('top', top + search);
+        // $('#wrapperDetail').css('top', top + chat + searchDetail);
+
+        // if (Shared.isDesktop()) {
+        //   $("#chatDesktop").height($("#chatContactsWindow").height() - $(".chat-title").height() - 30);
+        //   $("#mainPage").height($("#menu").height());
+        // } 
         
 
-        $('#scrollerDetail').css('width', $("#wrapperDetail").width() );
+        // $('#scrollerDetail').css('width', $("#wrapperDetail").width() );
 
-        $.each($("#contentMessageBody img"), function() {
+        // $.each($("#contentMessageBody img"), function() {
 
-          var max_width = $("#wrapperDetail").width();
-          max_width = max_width - 40;
-          var current_height = $(this).height();
-          var current_width = $(this).width();
-          var new_width = max_width;
-          var new_height = max_width * (current_height / current_width);
-          $("#contentMessageBody").width(max_width);
-          $(this).css("height",new_height);
-          $(this).css("width",new_width);
+        //   var max_width = $("#wrapperDetail").width();
+        //   max_width = max_width - 40;
+        //   var current_height = $(this).height();
+        //   var current_width = $(this).width();
+        //   var new_width = max_width;
+        //   var new_height = max_width * (current_height / current_width);
+        //   $("#contentMessageBody").width(max_width);
+        //   $(this).css("height",new_height);
+        //   $(this).css("width",new_width);
 
-        });
+        // });
 
-        Shared.scrollerRefresh();
+        // Shared.scrollerRefresh();
       }
 
       clearTimeout(this.idResize);
@@ -466,25 +487,25 @@ define([
         Shared.gotoRoute = false;
       }
 
-      var top = $('.topHeader').outerHeight(true);
+      // var top = $('.topHeader').outerHeight(true);
 
-      if (!Shared.isAndroid() && Shared.isPhonegap()) {
-        top = top + 20;
-      }
+      // if (!Shared.isAndroid() && Shared.isPhonegap()) {
+      //   top = top + 20;
+      // }
 
-      var search = $('#content .searchArea').outerHeight(true) == null ? 0 : $('#content .searchArea').outerHeight(true);
+      // var search = $('#content .searchArea').outerHeight(true) == null ? 0 : $('#content .searchArea').outerHeight(true);
 
-      var isSmartPhoneResolution = ($(window).width() < 720);
-      if (isSmartPhoneResolution) {
-        Shared.forceSmartPhoneResolution = true;
-      }
+      // var isSmartPhoneResolution = ($(window).width() < 720);
+      // if (isSmartPhoneResolution) {
+      //   Shared.forceSmartPhoneResolution = true;
+      // }
       
-      // Verify screen width to define device type
-      Shared.deviceType(Shared.forceSmartPhoneResolution);
+      // // Verify screen width to define device type
+      // Shared.deviceType(Shared.forceSmartPhoneResolution);
 
 
-      $('body').height($(window).height() - top);
-      $('#wrapper').css('top', top + search);
+      // $('body').height($(window).height() - top);
+      // $('#wrapper').css('top', top + search);
 
       if (Shared.betaVersion) {
         $("#beta").removeClass("hidden");
@@ -494,87 +515,87 @@ define([
       
     },
 
-    fillLocalStorageTest: function() {
+    // fillLocalStorageTest: function() {
 
-      var iterationsData;
-      var results = document.getElementById('textQuota');
+    //   var iterationsData;
+    //   var results = document.getElementById('textQuota');
 
-      if (!('localStorage' in window)) {
-          results.innerHTML = 'Your browser has no localStorage support.';
-          return;
-      }
+    //   if (!('localStorage' in window)) {
+    //       results.innerHTML = 'Your browser has no localStorage support.';
+    //       return;
+    //   }
 
-      var n10b =    '0123456789';
-      var n100b =   repeat(n10b, 10);
-      var n1kib =   repeat(n100b, 10);
-      var n10kib =  repeat(n1kib, 10);
-      var n100kib = repeat(n10kib, 10);
-      var n1mib =   repeat(n100kib, 10);
-      var n10mib =  repeat(n1mib, 10);
+    //   var n10b =    '0123456789';
+    //   var n100b =   repeat(n10b, 10);
+    //   var n1kib =   repeat(n100b, 10);
+    //   var n10kib =  repeat(n1kib, 10);
+    //   var n100kib = repeat(n10kib, 10);
+    //   var n1mib =   repeat(n100kib, 10);
+    //   var n10mib =  repeat(n1mib, 10);
 
-      var values = [n10b, n100b, n1kib, n10kib, n100kib, n1mib, n10mib];
+    //   var values = [n10b, n100b, n1kib, n10kib, n100kib, n1mib, n10mib];
 
-      iterationsData = [];
-      for (var majorIndex = 1; majorIndex < values.length; majorIndex++) {
-          var major = values[majorIndex];
-          var minor = values[majorIndex - 1];
-          for (var i = 1; i < 10; i++) {
-              for (var j = 0; j < 10; j++) {
-                  iterationsData.push([major, minor, i, j]);
-              }
-          }
-      }
+    //   iterationsData = [];
+    //   for (var majorIndex = 1; majorIndex < values.length; majorIndex++) {
+    //       var major = values[majorIndex];
+    //       var minor = values[majorIndex - 1];
+    //       for (var i = 1; i < 10; i++) {
+    //           for (var j = 0; j < 10; j++) {
+    //               iterationsData.push([major, minor, i, j]);
+    //           }
+    //       }
+    //   }
 
-      var index = 0;
-      var oldLength = 0;
+    //   var index = 0;
+    //   var oldLength = 0;
 
-      function iteration() {
-          var data = iterationsData[index];
+    //   function iteration() {
+    //       var data = iterationsData[index];
 
-          major = data[0];
-          minor = data[1];
-          i = data[2];
-          j = data[3];
+    //       major = data[0];
+    //       minor = data[1];
+    //       i = data[2];
+    //       j = data[3];
 
-          var string = repeat(major, i) + repeat(minor, j);
-          var length = '' + string.length;
+    //       var string = repeat(major, i) + repeat(minor, j);
+    //       var length = '' + string.length;
 
-          if (test(string)) {
-              results.innerHTML = length + ' characters were stored successfully.';
-          } else {
-              results.innerHTML = oldLength + ' characters were stored successfully,  but ' + length + ' weren\'t.';
-              return;
-          }
-          oldLength = length;
+    //       if (test(string)) {
+    //           results.innerHTML = length + ' characters were stored successfully.';
+    //       } else {
+    //           results.innerHTML = oldLength + ' characters were stored successfully,  but ' + length + ' weren\'t.';
+    //           return;
+    //       }
+    //       oldLength = length;
 
-          index++;
-          if (index < iterationsData.length) {
-              setTimeout(iteration, 0);
-          } else {
-              results.innerHTML = oldLength + ' characters were saved successfully, test is stopped.';
-          }
-      }
+    //       index++;
+    //       if (index < iterationsData.length) {
+    //           setTimeout(iteration, 0);
+    //       } else {
+    //           results.innerHTML = oldLength + ' characters were saved successfully, test is stopped.';
+    //       }
+    //   }
 
-      iteration();
+    //   iteration();
 
-      function test(value) {
-          try {
-              localStorage.test = value;
-              return true;
-          } catch (e) {
-              return false;
-          }
-      }
+    //   function test(value) {
+    //       try {
+    //           localStorage.test = value;
+    //           return true;
+    //       } catch (e) {
+    //           return false;
+    //       }
+    //   }
 
-      function repeat(string, count) {
-          var array = [];
-          while (count--) {
-              array.push(string);
-          }
-          return array.join('');
-      }
+    //   function repeat(string, count) {
+    //       var array = [];
+    //       while (count--) {
+    //           array.push(string);
+    //       }
+    //       return array.join('');
+    //   }
 
-    },
+    // },
 
 
 

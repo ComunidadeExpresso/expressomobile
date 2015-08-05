@@ -21,11 +21,26 @@ define([
 
       this.loaded();
 
+      Shared.setCurrentPageTitle("Alterar Senha");
+
       Shared.menuView.renderContextMenu('changePassword',{saveCallBack: this.SaveChangePassword, parentCallBack: this});
 
     },
 
+    events: {
+      "click #btn-changepassword": "changePassword"
+    },
+
+    changePassword: function(ev) {
+      
+
+      this.loginUser(userName,passwd,serverURL);
+
+    },
+
     SaveChangePassword: function(callBack) {
+
+
 
       var senhaAtual = $("#senhaAtual").val();
       var novaSenha = $("#novaSenha").val();

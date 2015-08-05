@@ -9,7 +9,8 @@ define([
   'collections/mail/MessagesCollection',
   'views/home/LoadingView',
   'views/mail/DetailMessageView',
-], function($, _, Backbone, Shared, messagesListTemplate, MessagesListItemsView, FoldersCollection, MessagesCollection,LoadingView,DetailMessageView){
+  'material',
+], function($, _, Backbone, Shared, messagesListTemplate, MessagesListItemsView, FoldersCollection, MessagesCollection,LoadingView,DetailMessageView,Material){
 
   var MessagesListView = Backbone.View.extend({
 
@@ -23,6 +24,7 @@ define([
     search: '',
     page: 1,
     doneRoute: '',
+    enabledDesktopVersion: false,
 
     render: function(){
 
@@ -31,12 +33,17 @@ define([
       var that = this;
 
       var beforeRenderCallback = function(colection) {
+
+        Shared.setCurrentPageTitle(that.currentFolder.get("folderName"));
+
         var newData = {
           folderID: that.folderID,
           msgID: that.msgID,
           currentFolder: that.currentFolder,
           collection: colection,
-          _: _ 
+          _: _ ,
+          Shared: Shared,
+          enabledDesktopVersion: that.enabledDesktopVersion
         };
 
         if (!colection.length) {
@@ -58,6 +65,35 @@ define([
         that.$el.html(compiledTemplate);
 
         $(that.elementID).empty().append(that.$el);
+
+
+
+        setInterval(function(){
+  
+          var totalHeight, currentScroll, visibleHeight;
+          
+          currentScroll = $("#mainPageContent").scrollTop();
+
+          if ((document.getElementById('wrapper') != null) && (document.getElementById('wrapper') != undefined)) {
+          
+            totalHeight = document.getElementById('wrapper').offsetHeight;
+            visibleHeight = document.documentElement.clientHeight;
+            
+            // $('#data').html(
+            //   'total height: ' + totalHeight + '<br />' +
+            //   'visibleHeight : ' + visibleHeight + '<br />' +
+            //   'currentScroll:' + currentScroll);
+
+            if (totalHeight <= currentScroll + visibleHeight )
+            {
+              //$('#data').addClass('hilite');
+              that.pullUpAction();
+            } 
+
+          }
+          
+        }
+        , 1000);
 
       }
       
@@ -209,11 +245,11 @@ define([
                       doneCallback();
                     }
 
-                    var top = $('.topHeader').outerHeight(true);
-                    var search = $('.searchArea').outerHeight(true) == null ? 0 : $('.searchArea').outerHeight(true);
+                    // var top = $('.topHeader').outerHeight(true);
+                    // var search = $('.searchArea').outerHeight(true) == null ? 0 : $('.searchArea').outerHeight(true);
                     
-                    $('body').height($(window).height() - top);
-                    $('#wrapper').css('top', top + search);
+                    // $('body').height($(window).height() - top);
+                    // $('#wrapper').css('top', top + search);
 
                     Shared.scrollerRefresh();
 
@@ -260,74 +296,79 @@ define([
 
     loaded: function () 
     {
-      pullDownEl = document.getElementById('pullDown');
-      pullDownOffset = pullDownEl.offsetHeight;
-      pullUpEl = document.getElementById('pullUp'); 
-      pullUpOffset = pullUpEl.offsetHeight;
+      if (!Shared.isDesktop() || (this.enabledDesktopVersion == false)) { 
+        
+        // pullDownEl = document.getElementById('pullDown');
+        // pullDownOffset = pullDownEl.offsetHeight;
+        // pullUpEl = document.getElementById('pullUp'); 
+        // pullUpOffset = pullUpEl.offsetHeight;
 
-      var that = this;
-      Shared.scroll = new iScroll('wrapper',
-      {
-        useTransition: true,
-        topOffset: pullDownOffset,
-        onRefresh: function () 
-        {
-          if (pullDownEl.className.match('loading')) 
-          {
-            pullDownEl.className = '';
-            pullDownEl.querySelector('.pullDownLabel').innerHTML = 'Puxe para baixo para atualizar...';
-          }
-          else if (pullUpEl.className.match('loading')) 
-          {
-            pullUpEl.className = '';
-            pullUpEl.querySelector('.pullUpLabel').innerHTML = 'Puxe para cima para carregar mais...';
-          }
-        },
-        onScrollMove: function () 
-        {
-          if (this.y > 5 && !pullDownEl.className.match('flip')) 
-          {
-            pullDownEl.className = 'flip';
-            pullDownEl.querySelector('.pullDownLabel').innerHTML = 'Solte para atualizar...';
-            this.minScrollY = 0;
-          } 
-          else if (this.y < 5 && pullDownEl.className.match('flip')) 
-          {
-            pullDownEl.className = '';
-            pullDownEl.querySelector('.pullDownLabel').innerHTML = 'Puxe para baixo para atualizar...';
-            this.minScrollY = -pullDownOffset;
-          } 
-          else if (this.y < (this.maxScrollY - 5) && !pullUpEl.className.match('flip')) 
-          {
-            pullUpEl.className = 'flip';
-            pullUpEl.querySelector('.pullUpLabel').innerHTML = 'Solte para carregar mais...';
-            this.maxScrollY = this.maxScrollY;
-          } 
-          else if (this.y > (this.maxScrollY + 5) && pullUpEl.className.match('flip')) 
-          {
-            pullUpEl.className = '';
-            pullUpEl.querySelector('.pullUpLabel').innerHTML = 'Puxe para cima para carregar mais...';
-            this.maxScrollY = pullUpOffset;
-          }
-        },
-        onScrollEnd: function () 
-        {
-          if (pullDownEl.className.match('flip')) 
-          {
-            pullDownEl.className = 'loading';
-            //pullDownEl.querySelector('.pullDownIcon').style = 'width: 0px; height; 0px;';
-            pullDownEl.querySelector('.pullDownLabel').innerHTML = 'Carregando...';
-            that.pullDownAction(); 
-          }
-          else if (pullUpEl.className.match('flip')) 
-          {
-            pullUpEl.className = 'loading';
-            //pullUpEl.querySelector('.pullDownIcon').style = 'width: 0px; height; 0px;';
-            pullUpEl.querySelector('.pullUpLabel').innerHTML = 'Carregando...';
-            that.pullUpAction(); 
-          }
-        } 
-      });
+      
+
+        // var that = this;
+        // Shared.scroll = new iScroll('wrapper',
+        // {
+        //   useTransition: true,
+        //   topOffset: pullDownOffset,
+        //   onRefresh: function () 
+        //   {
+        //     if (pullDownEl.className.match('loading')) 
+        //     {
+        //       pullDownEl.className = '';
+        //       pullDownEl.querySelector('.pullDownLabel').innerHTML = 'Puxe para baixo para atualizar...';
+        //     }
+        //     else if (pullUpEl.className.match('loading')) 
+        //     {
+        //       pullUpEl.className = '';
+        //       pullUpEl.querySelector('.pullUpLabel').innerHTML = 'Puxe para cima para carregar mais...';
+        //     }
+        //   },
+        //   onScrollMove: function () 
+        //   {
+        //     if (this.y > 5 && !pullDownEl.className.match('flip')) 
+        //     {
+        //       pullDownEl.className = 'flip';
+        //       pullDownEl.querySelector('.pullDownLabel').innerHTML = 'Solte para atualizar...';
+        //       this.minScrollY = 0;
+        //     } 
+        //     else if (this.y < 5 && pullDownEl.className.match('flip')) 
+        //     {
+        //       pullDownEl.className = '';
+        //       pullDownEl.querySelector('.pullDownLabel').innerHTML = 'Puxe para baixo para atualizar...';
+        //       this.minScrollY = -pullDownOffset;
+        //     } 
+        //     else if (this.y < (this.maxScrollY - 5) && !pullUpEl.className.match('flip')) 
+        //     {
+        //       pullUpEl.className = 'flip';
+        //       pullUpEl.querySelector('.pullUpLabel').innerHTML = 'Solte para carregar mais...';
+        //       this.maxScrollY = this.maxScrollY;
+        //     } 
+        //     else if (this.y > (this.maxScrollY + 5) && pullUpEl.className.match('flip')) 
+        //     {
+        //       pullUpEl.className = '';
+        //       pullUpEl.querySelector('.pullUpLabel').innerHTML = 'Puxe para cima para carregar mais...';
+        //       this.maxScrollY = pullUpOffset;
+        //     }
+        //   },
+        //   onScrollEnd: function () 
+        //   {
+        //     if (pullDownEl.className.match('flip')) 
+        //     {
+        //       pullDownEl.className = 'loading';
+        //       //pullDownEl.querySelector('.pullDownIcon').style = 'width: 0px; height; 0px;';
+        //       pullDownEl.querySelector('.pullDownLabel').innerHTML = 'Carregando...';
+        //       that.pullDownAction(); 
+        //     }
+        //     else if (pullUpEl.className.match('flip')) 
+        //     {
+        //       pullUpEl.className = 'loading';
+        //       //pullUpEl.querySelector('.pullDownIcon').style = 'width: 0px; height; 0px;';
+        //       pullUpEl.querySelector('.pullUpLabel').innerHTML = 'Carregando...';
+        //       that.pullUpAction(); 
+        //     }
+        //   } 
+        // });
+      }
     }
   });
 

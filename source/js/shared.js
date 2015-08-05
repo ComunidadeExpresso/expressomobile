@@ -85,7 +85,7 @@ define([
 
   Shared.isBuiltInExpresso =  function() {
 
-    IS_BUILTINEXPRESSO = true; 
+    //IS_BUILTINEXPRESSO = true; 
     if (IS_BUILTINEXPRESSO) {
       if (Shared.isDesktop()) {
         Shared.forceSmartPhoneResolution = true;
@@ -107,7 +107,8 @@ define([
     if (Shared.forceSmartPhoneResolution) {
       retVal = false;
     }
-    return retVal;
+    return false;
+    //return retVal;
   };
   Shared.isSmartPhoneResolution = function() {
     return !Shared.isTabletResolution();
@@ -120,6 +121,7 @@ define([
     if (Shared.isPhonegap() || (Shared.isAndroid()) || (Shared.isIDevice())) {
       retVal = false;
     }
+    return false;
     return retVal;
   };
   Shared.isPhonegap = function() {
@@ -135,16 +137,16 @@ define([
   };
 
   Shared.scrollerRefresh = function () {
-    console.log("Shared.scrollerRefresh");
-    if (Shared.scrollDetail) {
-      Shared.scrollDetail.refresh();
-    }
-    if (Shared.scroll) {
-      Shared.scroll.refresh();
-    }
-    if (Shared.scrollMenu) {
-      Shared.scrollMenu.refresh();
-    }
+    // console.log("Shared.scrollerRefresh");
+    // if (Shared.scrollDetail) {
+    //   Shared.scrollDetail.refresh();
+    // }
+    // if (Shared.scroll) {
+    //   Shared.scroll.refresh();
+    // }
+    // if (Shared.scrollMenu) {
+    //   Shared.scrollMenu.refresh();
+    // }
   };
 
   Shared.bytesToSize = function(bytes, precision) {  
@@ -193,6 +195,10 @@ define([
         Shared.detailView = view;
       }
     }
+  };
+
+  Shared.setCurrentPageTitle = function(title) {
+    $("#currentPageTitle").html(title);
   };
 
   Shared.refreshSettings = function() {
@@ -434,6 +440,11 @@ define([
           }
         }
 
+        if (qtd_mail == undefined) 
+        {
+          qtd_mail = 0;
+        }
+
         var qtd_total = qtd_chat + qtd_mail;
 
         var msg_mail = '';
@@ -645,7 +656,7 @@ define([
   Shared.userHasAuth();
 
 
-document.addEventListener('touchmove', function (e) { e.preventDefault(); }, false);
+//document.addEventListener('touchmove', function (e) { e.preventDefault(); }, false);
 
 Shared.deviceReady = function() {
 

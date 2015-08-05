@@ -1,0 +1,61 @@
+<% if (!Shared.isDesktop()) { %>
+
+<% _.each(messages, function(message){ %>
+  <% var lastMsgJID = ''; %>
+	<% if (message.jid != "me") { %>
+    <div class="fullWidth" style="text-align: left; font-size: 10px; color: #777777; margin-bottom: 10px; padding-left: 20px;">
+      <%=moment(message.date).format("hh:mm")%> - (<%=moment(message.date).fromNow()%>)
+    </div>
+		<div class="fullWidth">
+  		<img class="chat-picture left">
+  		<div class="triangle-right left">
+  			<%=message.body%>
+  		</div>
+  		<div class="clear"></div>
+  	</div>
+	<% } else { %>
+    <div class="fullWidth" style="text-align: right; font-size: 10px; color: #777777; margin-bottom: 10px; padding-right: 20px;">
+      <%=moment(message.date).format("hh:mm")%> - (<%=moment(message.date).fromNow()%>)
+    </div>
+  	<div class="fullWidth">
+  		<img class="myPicture chat-picture right">
+  		<div class="triangle-right right">
+  			<%=message.body%>
+  		</div>
+  		<div class="clear"></div>
+  	</div>
+	<% } %>
+  <% lastMsgJID = message.jid; %>
+<% }); %>
+<div id="last_message_<%=chatID%>"></div>
+
+<% } else { %>
+<% _.each(messages, function(message){ %>
+  <% if (message.jid != "me") { %>
+       <div class="fullWidth" style="text-align: left; font-size: 10px; color: #777777; margin-bottom: 10px; padding-left: 20px;">
+      <%=moment(message.date).format("hh:mm")%> - (<%=moment(message.date).fromNow()%>)
+    </div>
+    <div class="fullWidth">
+      <img class="chat-picture left">
+      <div class="triangle-right left">
+        <%=message.body%>
+      </div>
+      <div class="clear"></div>
+    </div>
+
+  <% } else { %>
+    <div class="fullWidth" style="text-align: right; font-size: 10px; color: #777777; margin-bottom: 10px; padding-right: 20px;">
+        <%=moment(message.date).format("hh:mm")%> - (<%=moment(message.date).fromNow()%>)
+      </div>
+      <div class="fullWidth">
+        <img class="myPicture chat-picture right">
+        <div class="triangle-right right">
+          <%=message.body%>
+        </div>
+        <div class="clear"></div>
+      </div>
+
+  <% } %>
+<% }); %>
+<div id="last_message_<%=chatID%>"></div>
+<% } %>

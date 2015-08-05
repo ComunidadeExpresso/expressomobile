@@ -9,7 +9,8 @@ define([
   'views/home/ContextMenuView',
   'collections/home/ContextMenuCollection',
   'collections/home/MenuItemsCollection',
-], function($, _, iscroll, Backbone, Shared, FoldersMenuListView, menuTemplate,ContextMenuView,ContextMenuCollection,MenuItemsCollection){
+  'material',
+], function($, _, iscroll, Backbone, Shared, FoldersMenuListView, menuTemplate,ContextMenuView,ContextMenuCollection,MenuItemsCollection,Material){
 
   var MenuView = Backbone.View.extend({
     el: $("#scrollerMenu"),
@@ -101,8 +102,12 @@ define([
 
       var percent = (used * 100 /  total).toFixed(0);
 
-      $("#usedQuota").width(percent + "%");
-      $("#textQuota").html(percent + "% (" + this.bytesToSize(used,0) + " / " + this.bytesToSize(total,0) + ")"  );
+      document.querySelector('#progress_bar_quota').addEventListener('mdl-componentupgraded', function() {
+        this.MaterialProgress.setProgress(percent);
+      });
+
+      //$("#usedQuota").width(percent + "%");
+      $("#progress_bar_quota_text").html(percent + "% (" + this.bytesToSize(used,0) + " / " + this.bytesToSize(total,0) + ")"  );
 
     },
 
@@ -175,7 +180,7 @@ define([
     },
 
     toggleMenu: function () {
-      console.log(Shared.menuOpen);
+      // console.log(Shared.menuOpen);
       if (Shared.menuOpen) {
         this.closeMenu();
       } else {
@@ -220,6 +225,7 @@ define([
     {
       if (!Shared.isDesktop()) {
         Shared.menuOpen = false;
+        $('#menu').removeClass('is-visible').removeAttr('style');
         $('#menu').removeClass('expanded').removeAttr('style');
         $('#page').removeAttr('style');
         $('#page').css('margin-left', '0');
@@ -234,12 +240,12 @@ define([
       }
 
        
-      if (Shared.isDesktop()) {
+      // if (Shared.isDesktop()) {
         $("#scrollerMenu").css("overflow-y","auto");
         $("#scrollerMenu").css("height","100%");
-      } else {
-        Shared.scrollMenu = new iScroll('menu');
-      }
+      // } else {
+      //   Shared.scrollMenu = new iScroll('menu');
+      // }
       
     },
 

@@ -1,21 +1,50 @@
 
+@import url('m_mdl_iconfont.css'); 
 
-@import url('../js/libs/bootstrap/css/bootstrap.css');
 
+@import url('m_globals.css'); 
+@import url('m_contactsList.css'); 
+@import url('m_messagesList.css'); 
+@import url('m_iscroll.css'); 
 
-@import url('../js/libs/jquery-ui/jquery-ui.min.css'); 
+@import url('m_login.css'); 
+@import url('m_settings.css'); 
+@import url('m_menu.css'); 
 
-/*@import url('../js/libs/jquery-ui_old/css/overcast/jquery-ui-1.10.3.custom.min.css'); */
+@import url('m_messages.css'); 
 
-@import url('../js/libs/wijmo/jquery.wijmo.css');
+@import url('m_detailMessage.css'); 
+
+@import url('../js/libs/mdl/material.min.css'); 
+
+@import url('chat.css'); 
 
 @import url('../js/libs/messenger/im.css');
 
-@import url('../js/libs/contextmenu/jquery.contextMenu.css');
+
+
+
+
+
+
+
+
+/*
+@import url('../js/libs/jquery-ui/jquery-ui.min.css'); 
+
+@import url('../js/libs/jquery.wijmo/jquery.wijmo.css');
+
+@import url('../js/libs/messenger/im.css');
+
+@import url('../js/libs/jquery.contextmenu/jquery.contextMenu.css');
 
 @import url('spinner.css');  
+
 
 @import url('estilo.css'); 
 
 @import url('chat.css'); 
 
+@import url('../js/libs/mdl/material.min.css');
+
+*/

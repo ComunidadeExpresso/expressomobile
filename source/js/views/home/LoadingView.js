@@ -3,8 +3,9 @@ define([
   'underscore',
   'backbone',
   'shared',
-  'text!templates/home/loadingTemplate.html'
-], function($, _, Backbone, Shared, loadingTemplate){
+  'text!templates/home/loadingTemplate.html',
+  'material'
+], function($, _, Backbone, Shared, loadingTemplate, Material){
 
   var LoadingView = Backbone.View.extend({
 
@@ -24,6 +25,8 @@ define([
 
       var compiledTemplate = _.template( loadingTemplate, newData );
       this.$el.html( compiledTemplate ); 
+
+      Material.upgradeDom();
 
     },
 

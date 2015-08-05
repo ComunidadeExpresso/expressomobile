@@ -1,4 +1,9 @@
 
+.loadingArea {
+  margin-top: 100px;
+  width: 100%;
+}
+
 .spinner {
   margin: 100px auto 0;
   width: 70px;

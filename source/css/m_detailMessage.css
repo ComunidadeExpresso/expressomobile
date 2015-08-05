@@ -1,0 +1,193 @@
+
+table#messageDetails { width: 99%; font-size: 16px; border-spacing: 0; margin-top: 1px; }
+table#messageDetails tr.detailRow { height: 40px; }
+table#messageDetails tr td.detailCol { /*border-bottom: 1px solid #CCCCCC;*/ border-top: 1px #FFF solid; min-height: 30px; font-size: 14px; }
+table#messageDetails tr td.item { /*border-left: 1px solid #3A87AD;*/ color: #3A87AD; width: 50px; font-weight: bold; text-align: left; padding-left: 5px; }
+table#messageDetails tr td.description { padding: 0px; padding-left: 10px; color: #777777; font-size: 14px;}
+table#messageDetails tr td.descriptionCompose { padding: 0px; color: #777777; font-size: 14px;}
+table#messageDetails tr td.itemBody { /*border-left: 1px solid #3A87AD;*/ padding-left: 5px; }
+
+.messageInput {
+  min-height: 35px; 
+  background-color: #FFFFFF; 
+  border: 0px solid #CCCCCC; 
+  padding: 0px;
+  vertical-align: center;
+  width: 100%;
+}
+
+.messageBodyInput {
+  padding-top: 15px;
+  border: 0px;
+  padding-bottom: 50px;
+}
+
+.formListItem {
+  border-bottom: 1px solid #CCCCCC;
+  width: 100%;
+}
+
+.formFieldTitle {
+  float: left;
+  line-height: 50px;
+}
+
+.formField {
+  width: 100%;
+}
+
+.inputMessage {
+  border: 0px;
+  min-width: 220px; 
+  height: 50px; 
+  font-size: 18px;
+  float: left;
+}
+
+.recipientmsgTo   { float: left; cursor: pointer; }
+.recipientmsgCc   { float: left; cursor: pointer; }
+.recipientmsgBcc  { float: left; cursor: pointer; }
+
+.badge-write-message {
+  padding: 10px;
+  margin-right: 5px;
+  font-size: 12px;
+  line-height: 20px;
+  color: #000; 
+  background-color: #EFEFEF; 
+  border-radius: 5px 5px 5px 5px; 
+}
+
+
+.attachmentImage {
+  height: 100px;
+}
+
+.drop_zone {
+  margin: 10px;
+    border: 2px dashed #BBBBBB;
+    border-radius: 5px 5px 5px 5px;
+    color: #BBBBBB;
+    padding: 5px;
+    text-align: center;
+}
+
+#drop_zone_text {
+    padding: 25px;
+    text-align: center;
+}
+
+.showMoreMsgTo {
+  text-decoration: none;
+  color: #0000FF;
+  font-weight: bold;
+}
+
+/* ANEXOS DAS MENSAGENS*/
+.attachment {
+  width: 160px;
+  height: 150px;
+  border: 1px solid #CCC;
+  margin: 10px;
+  float: left;
+}
+.attachment img {
+  height: 100%;
+}
+.attachmentPreview {
+  font-family: Verdana;
+  font-size: 12px;
+  color: #FFF;
+  position: absolute;
+  width: 160px;
+  height: 100px;
+  margin-top: 0px;
+  opacity:0.7;
+  filter:alpha(opacity=70); 
+  z-index: 200;
+}
+.attachmentTitle {
+  font-family: Verdana;
+  font-size: 12px;
+  color: #FFF;
+  background-color: #000;
+  position: absolute;
+  width: 160px;
+  height: 50px;
+  margin-top: 100px;
+  opacity:0.7;
+  filter:alpha(opacity=70);
+  z-index: 200;
+}
+.attachmentTitle .fileName { margin: 10px; text-align: left; height: 16px; overflow: hidden; }
+.attachmentTitle .fileSize { margin-top: 28px;  margin-left: 10px; font-size: 10px; position: absolute; }
+.attachmentTitle a { text-decoration: none; color: #FFF; }
+.attachment-arquivo-background { background: url('../imgs/icon-anexo-arquivo-160x150.png'); }
+/*
+.attachment-arquivo-background {
+  -webkit-transition: all 0.5s ease;
+     -moz-transition: all 0.5s ease;
+       -o-transition: all 0.5s ease;
+      -ms-transition: all 0.5s ease;
+          transition: all 0.5s ease;
+}
+ */
+.attachment-arquivo-background:hover {
+  -ms-transform: scale(1.1); 
+  -webkit-transform: scale(1.1); 
+  transform: scale(1.1);
+}
+
+.attachment-arquivo-background img:hover {
+  -webkit-filter: blur(5px);
+}
+
+.icon-attachment {
+  float: right;
+  margin-top: 10px;
+  margin-right: 10px;
+  font-size: 18px;  
+  width: 30px;
+  height: 30px;
+}
+
+.deleteAttachment                 { background: url('../imgs/icon-excluir-mensagem-30x30.png'); }
+.downloadAttachment               { background: url('../imgs/icon-download-30x30.png'); }
+
+.icon-add-attachment { 
+  border-radius: 5px;
+  background: url("../imgs/icon-adicionar-arquivo.png") no-repeat scroll center center;
+  background-size: 50px 50px;
+  float: right;
+  margin-top: 10px;
+  width: 50px;
+  height: 50px;
+  cursor: pointer;
+}
+
+.icon-add {
+  width: 40px;
+  height: 40px;
+  float: right;
+  margin-right: 25px;
+  margin-top: 5px;
+  
+  background-repeat: no-repeat;
+  border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+  color: #FFFFFF;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+  min-width: 40px;
+  height: 40px;
+
+  background-color: #006DCC;
+  background-repeat: repeat-x;
+  
+  color: #FFFFFF;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+
+  background: url("../imgs/icon-adicionar-ccbcc-30x30.png") no-repeat scroll center center;
+  border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+  border-radius: 5px;
+  background-color: #006DCC;
+
+}

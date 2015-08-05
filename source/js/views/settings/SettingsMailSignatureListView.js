@@ -36,11 +36,15 @@ define([
 
         that.loaded();
 
+        Shared.setCurrentPageTitle("Assinatura de e-mail");
+
         Shared.menuView.renderContextMenu('mailsignature',{});
 
       }).fail(function(result) {
 
       }).execute();
+
+
 
 
     },

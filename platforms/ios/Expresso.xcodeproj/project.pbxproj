@@ -5,8 +5,10 @@
 	};
 	objectVersion = 46;
 	objects = {
+
 /* Begin PBXBuildFile section */
 		0CFC4640B9E94DC4BF52CA0B /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05F9E489E31646B58B4863B2 /* CoreLocation.framework */; };
+		17E5F16E1B728E47005EE9EA /* www in Resources */ = {isa = PBXBuildFile; fileRef = 17E5F16D1B728E47005EE9EA /* www */; };
 		17EA6F211AEE7720002E82EA /* NSData+Base64.m in Sources */ = {isa = PBXBuildFile; fileRef = 17EA6F1C1AEE7720002E82EA /* NSData+Base64.m */; };
 		17EA6F221AEE7720002E82EA /* ILTranslucentView.m in Sources */ = {isa = PBXBuildFile; fileRef = 17EA6F1E1AEE7720002E82EA /* ILTranslucentView.m */; };
 		17EA6F231AEE7720002E82EA /* CDVExternalFileUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 17EA6F201AEE7720002E82EA /* CDVExternalFileUtil.m */; };
@@ -71,6 +73,7 @@
 
 /* Begin PBXFileReference section */
 		05F9E489E31646B58B4863B2 /* CoreLocation.framework */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
+		17E5F16D1B728E47005EE9EA /* www */ = {isa = PBXFileReference; lastKnownFileType = folder; path = www; sourceTree = "<group>"; };
 		17EA6F1B1AEE7720002E82EA /* NSData+Base64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSData+Base64.h"; sourceTree = "<group>"; };
 		17EA6F1C1AEE7720002E82EA /* NSData+Base64.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSData+Base64.m"; sourceTree = "<group>"; };
 		17EA6F1D1AEE7720002E82EA /* ILTranslucentView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ILTranslucentView.h; sourceTree = "<group>"; };
@@ -130,7 +133,6 @@
 		E836992BD3674F4B8EB15F45 /* CDVJpegHeaderWriter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CDVJpegHeaderWriter.m; path = org.apache.cordova.camera/CDVJpegHeaderWriter.m; sourceTree = "<group>"; };
 		E93305D221614D02A70197F0 /* CDVCamera.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CDVCamera.m; path = org.apache.cordova.camera/CDVCamera.m; sourceTree = "<group>"; };
 		EB87FDF21871DA7A0020F90C /* merges */ = {isa = PBXFileReference; lastKnownFileType = folder; name = merges; path = ../../merges; sourceTree = "<group>"; };
-		EB87FDF31871DA8E0020F90C /* www */ = {isa = PBXFileReference; lastKnownFileType = folder; name = www; path = ../../www; sourceTree = "<group>"; };
 		EB87FDF41871DAF40020F90C /* config.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = config.xml; path = ../../config.xml; sourceTree = "<group>"; };
 		F840E1F0165FE0F500CFE078 /* config.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = config.xml; path = Expresso/config.xml; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -178,8 +180,8 @@
 			isa = PBXGroup;
 			children = (
 				EB87FDF41871DAF40020F90C /* config.xml */,
-				EB87FDF31871DA8E0020F90C /* www */,
 				EB87FDF21871DA7A0020F90C /* merges */,
+				17E5F16D1B728E47005EE9EA /* www */,
 				EB87FDF11871DA420020F90C /* Staging */,
 				301BF52D109A57CC0062928A /* CordovaLib.xcodeproj */,
 				080E96DDFE201D6D7F000001 /* Classes */,
@@ -399,6 +401,7 @@
 				30B4F30019D5E07200D9F7D8 /* Default-667h.png in Resources */,
 				7E7966DE1810823500FA85AD /* icon-40.png in Resources */,
 				3088BBC1154F3926009F9C59 /* Default@2x~iphone.png in Resources */,
+				17E5F16E1B728E47005EE9EA /* www in Resources */,
 				7E7966E21810823500FA85AD /* icon-60.png in Resources */,
 				3088BBC2154F3926009F9C59 /* Default~iphone.png in Resources */,
 				D4A0D8761607E02300AEF8BB /* Default-568h@2x~iphone.png in Resources */,

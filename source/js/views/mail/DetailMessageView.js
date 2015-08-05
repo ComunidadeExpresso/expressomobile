@@ -70,6 +70,8 @@ define([
             }
           }
 
+          Shared.setCurrentPageTitle(message.get("msgSubject"));
+
           Shared.menuView.renderContextMenu('detailMessage',{folderID: that.folderID, msgID: that.msgID, folderType: folderType, qtdMessages: qtdMessages });
 
 
@@ -175,15 +177,15 @@ define([
     loaded: function () {
 
       if (Shared.scrollDetail != null) {
-        Shared.scrollDetail.destroy();
-        Shared.scrollDetail = null;
+        // Shared.scrollDetail.destroy();
+        // Shared.scrollDetail = null;
       }
 
       var top = $('.topHeader').outerHeight(true);
       var search = $('.searchArea').outerHeight(true) == null ? 0 : $('.searchArea').outerHeight(true);
       
-      $('body').height($(window).height() - top);
-      $('#wrapper').css('top', top + search);
+      // $('body').height($(window).height() - top);
+      // $('#wrapper').css('top', top + search);
 
       var contentBodyWidth = $("#contentMessageBody").width();
       var contentDetailWidth = $("#contentDetail").width();

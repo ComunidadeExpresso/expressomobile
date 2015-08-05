@@ -1,5 +1,21 @@
  
 
+@import url('../js/libs/jquery-ui/jquery-ui.min.css'); 
+
+@import url('../js/libs/jquery.wijmo/jquery.wijmo.css');
+
+@import url('../js/libs/jquery.contextmenu/jquery.contextMenu.css');
+
+/* HACK TO FORCE RIPPLE EFFECT IN MDL */
+.mdl-forced-ripple {
+  overflow: hidden; 
+  position: relative;
+}
+
+
+div.chat-title { background-color: #FFF; }
+
+
 
 /*
 BUILTIN EXPRESSO 
@@ -23,9 +39,191 @@ BUILTIN EXPRESSO
   }
 
 
+/* CHAT */
+
+#chatDesktop {
+  background-color: #FFF;
+  height: 100%;
+}
+
+#chatContactsWindow {
+
+  width: 250px; 
+  height: 100%; 
+
+  right: 0px; 
+  margin-left: -250px; 
+  position: fixed;
+   z-index: 1000;
+
+}
+
+
+.chat-conversation-box {
+  background: #e9eaed;
+  min-height: 190px;
+  height: 190px;
+}
+
+
+.pannel-footer {
+  padding: 5px;
+}
+
+
+.triangle-right {
+  padding: 5px;
+  border: 1px solid #000;
+}
+
+.triangle-right.left {
+  margin: 0 0 10px 10px;
+}
+
+.triangle-right.left:after {
+  top:6px; 
+  left:-8px; 
+  bottom:auto;
+  border-width:6px 8px 6px 0;
+  border-color: transparent; 
+  background: url("../imgs/chat_triangle_left.png") repeat scroll 8px 8px;
+}
+
+.triangle-right.right:after {
+  top:7px; 
+  right:-8px; 
+  bottom:auto;
+    left:auto;
+  border-width: 6px 0 6px 9px;
+  border-color: transparent ; 
+  background: url("../imgs/chat_triangle_right.png") repeat scroll 8px 8px;
+
+
+}
+
+
+.panel{
+    margin-bottom: 0px;
+}
+.chat-window{
+    bottom:0;
+    position:fixed;
+    float:right;
+    margin-left:10px;
+    z-index: 200;
+}
+.chat-window > div > .panel{
+    border-radius: 5px 5px 0 0;
+}
+.icon_minim{
+    padding:2px 10px;
+}
+.msg_container_base{
+  background: #e5e5e5;
+  margin: 0;
+  padding: 0 10px 10px;
+  max-height:300px;
+  overflow-x:hidden;
+  min-height: 150px;
+}
+.top-bar {
+  background: #666;
+  color: white;
+  padding: 5px;
+  position: relative;
+  overflow: hidden;
+}
+.msg_receive{
+    padding-left:0;
+    margin-left:0;
+}
+.msg_sent{
+    padding-bottom:20px !important;
+    margin-right:0;
+}
+.messages {
+  background: white;
+  padding: 10px;
+  border-radius: 2px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  max-width:100%;
+}
+.messages > p {
+    font-size: 13px;
+    margin: 0 0 0.2rem 0;
+  }
+.messages > time {
+    font-size: 11px;
+    color: #ccc;
+}
+.msg_container {
+    padding: 10px;
+    overflow: hidden;
+    display: flex;
+}
+
+.avatar {
+    position: relative;
+}
+.base_receive > .avatar:after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 0;
+    height: 0;
+    border: 5px solid #FFF;
+    border-left-color: rgba(0, 0, 0, 0);
+    border-bottom-color: rgba(0, 0, 0, 0);
+}
+
+.base_sent {
+  justify-content: flex-end;
+  align-items: flex-end;
+}
+.base_sent > .avatar:after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 0;
+    border: 5px solid white;
+    border-right-color: transparent;
+    border-top-color: transparent;
+    box-shadow: 1px 1px 2px rgba(black, 0.2); // not quite perfect but close
+}
+
+.msg_sent > time{
+    float: right;
+}
+
+
+
+.msg_container_base::-webkit-scrollbar-track
+{
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+    background-color: #F5F5F5;
+}
+
+.msg_container_base::-webkit-scrollbar
+{
+    width: 12px;
+    background-color: #F5F5F5;
+}
+
+.msg_container_base::-webkit-scrollbar-thumb
+{
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+    background-color: #555;
+}
+
 
 /*
 DESKTOP MOBILE
+*/
+
+/* 
 */
 body { overflow: hidden; }
 
@@ -35,14 +233,14 @@ body div #page .topHeader {
   border-bottom: 0px;
 }
 
-div.chat-title { background-color: #FFF; }
-body div #menu { background-color: #FFF; border-right: 1px solid #5c9ccc; }
+
+body div #menu { background-color: #FFF; }
 body div #menu #personalInfo .personalData { color: #FFF; }
 body div #menu #personalInfo { background: none; background-color: #5c9ccc; } 
 body div #menu #personalInfo .personalData span.name { font-size: 12px; margin-bottom: 0px; }
 body div #menu #personalInfo .personalData span.email { font-size: 10px; margin-bottom: 5px; }
 body div #menu #personalInfo .personalData #quota .bar { font-size: 10px; display: inline;  height: 14px; width: 170px; border: 0px #E0E0E0 solid; display: inline-block; background-color: #FFF; }
-.userPicture { float: left; width: 48px; height: 48px; border: 0px; border-radius: 24px; background: url('../imgs/contactPhotoFrameNone.png') center center no-repeat; }
+/*.userPicture { float: left; width: 48px; height: 48px; border: 0px; border-radius: 24px; background: url('../imgs/contactPhotoFrameNone.png') center center no-repeat; }*/
 
 
 body div #page .main h2 {
@@ -79,10 +277,12 @@ body div #menu dl dd ul#myFolders li a .icon {
 body div #menu dl dd ul#myFolders li a span {
 	line-height: 10px;
 	margin-left: 10px;
-	width: 100%;
+  width: 100%;
 	font-size: 10px;
 }
+*/
 
+/*
 body div #menu dl dd ul#mainMenu li a .icon {
     height: 15px;
     margin-left: 0px;
@@ -116,6 +316,8 @@ body div #menu dl dd ul li a { height: 20px; color: #333; text-decoration: none;
 body div #menu dl dd ul#mainMenuChat li a span { float: left; margin-left: 30px; height: 20px; line-height: 20px; vertical-align: top; }
 
 
+
+
 #chatDesktop dl dt { background-color: #3960a6; color: #EFEFEF; height: 20px; padding-left: 5px; line-height: 20px; font-size: 12px; }
 #chatDesktop dl dd ul li a { height: 20px; color: #CCCCCC; text-decoration: none; display: block; padding: 8px 10px; margin: 0 20px 0 10px; font-weight: bold; }
 #chatDesktop dl dd ul#mainMenuChat { background-color: #333333;
@@ -123,13 +325,13 @@ body div #menu dl dd ul#mainMenuChat li a span { float: left; margin-left: 30px;
     padding: 5px;
     font-size: 10px; }
 
-/*#chatMenu.selected { background: transparent url('../imgs/seta_down.png') no-repeat right 16px; z-index: 1000; }*/
+
 #chatMenu dl dd ul#mainMenuChat.selected { background: transparent url('../imgs/seta_down.png') no-repeat right 16px; background-position: 51px 0px; z-index: 1000; }
 #chatMenu dl dd ul#mainMenuChat li.selected { background: transparent url('../imgs/seta.png') no-repeat right 10px; }
 #chatMenu dl dd ul#mainMenuChat li.selected a { color: #EFEFEF; border: 1px solid #444444; background-color: #222222; border-radius: 5px 5px 5px 5px; }
 #chatMenu dl dd ul#mainMenuChat li:hover a { color: #EFEFEF; border: 0px solid #444444; background-color: #444444; border-radius: 5px 5px 5px 5px; }
 #chatMenu dl dd ul#mainMenuChat li.selected:hover a { color: #EFEFEF; border: 1px solid #444444; background-color: #222222; border-radius: 5px 5px 5px 5px; }
-/*#chatMenu dl dd ul#mainMenuChat li { border: 1px solid #333333; }*/
+
 #chatMenu dl dd ul#mainMenuChat li a span { float: left; margin-left: 30px; height: 20px; line-height: 20px; vertical-align: top; }
 #chatMenu dl dd ul#mainMenuChat li a .icon { height: 15px;
     margin-left: 0px;
@@ -157,6 +359,8 @@ body div #page .main #content ul li {
 }
 
 
+*/
+/*
 .badge {
 	margin: 0px;
 	font-size: 8px;
@@ -207,25 +411,10 @@ body div #menu dl dt {
 }
 
 
-#chatContactsWindow {
-/*  background-color: #333333; */
-  border-left: 1px solid #5c9ccc;
-
-  width: 250px; 
-  height: 100%; 
-
-  right: 0px; 
-  margin-left: -250px; 
-  position: fixed;
-   z-index: 1000;
-
-}
 
 
-#chatDesktop {
-  background-color: #FFF;
-  height: 100%;
-}
+
+
 
 
 #chatContacts ul { width: 100%; background-color: #FFFFFF; margin-top: 0px; margin-bottom: 0px;  }
@@ -420,46 +609,7 @@ body div #page .main table#messageDetails tr td.detailCol {
 }
 
 
-.triangle-right {
-  padding: 5px;
-  border: 1px solid #000;
-}
 
-.triangle-right.left {
-  margin: 0 0 10px 10px;
-}
-
-.triangle-right.left:after {
-  top:6px; 
-  left:-8px; 
-  bottom:auto;
-  border-width:6px 8px 6px 0;
-  border-color: transparent; 
-  background: url("../imgs/chat_triangle_left.png") repeat scroll 8px 8px;
-}
-
-.triangle-right.right:after {
-  top:7px; 
-  right:-8px; 
-  bottom:auto;
-    left:auto;
-  border-width: 6px 0 6px 9px;
-  border-color: transparent ; 
-  background: url("../imgs/chat_triangle_right.png") repeat scroll 8px 8px;
-
-
-}
-
-.chat-conversation-box {
-  background: #e9eaed;
-  min-height: 190px;
-  height: 190px;
-}
-
-
-.pannel-footer {
-  padding: 5px;
-}
 
 
 
@@ -485,7 +635,6 @@ body div #page .main table#messageDetails tr td.detailCol {
 }
 
 
-
 .toggleRightDiv {
     background-color: transparent;
     cursor: pointer;
@@ -496,10 +645,6 @@ body div #page .main table#messageDetails tr td.detailCol {
     width: 7px;
     z-index: 110;
 
-/*    background: -webkit-linear-gradient(left, transparent , rgba(153,153,153,1)); 
-    background: -o-linear-gradient(right, transparent, rgba(153,153,153,1)); 
-    background: -moz-linear-gradient(right, transparent, rgba(153,153,153,1)); 
-    background: linear-gradient(to right, transparent , rgba(153,153,153,1)); */
 
 }
 .toggleRightDiv:hover {

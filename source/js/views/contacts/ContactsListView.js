@@ -12,7 +12,8 @@ define([
 	'views/home/LoadingView',
 	'views/home/HomeView',
 	'collections/contacts/ContactsListCollection',
-], function($, _, Backbone, Shared, primaryContentTemplate, detailContentTemplate, GeneralContactsListTemplate, PersonalContactsListTemplate, ContextMenuCollection, PictureImageContactView, LoadingView, HomeView, ContactsListCollection)
+	'material',
+], function($, _, Backbone, Shared, primaryContentTemplate, detailContentTemplate, GeneralContactsListTemplate, PersonalContactsListTemplate, ContextMenuCollection, PictureImageContactView, LoadingView, HomeView, ContactsListCollection,Material)
 {
 	var ContactsListView = Backbone.View.extend(
 	{
@@ -25,8 +26,8 @@ define([
 		events: 
 		{
 			"keyup .personalContacts .searchField": "searchPersonalContacts",
-			"keypress .generalContacts .searchField": "searchGeneralContacts",
-			"click #contactsList a": "viewContact"
+			"keypress .generalContacts .searchField": "searchGeneralContacts" 
+			//"click #contactsList a": "viewContact"
 		},
 
 		render: function()
@@ -56,62 +57,65 @@ define([
 
 		loaded: function () 
 		{
-			var top = $('.topHeader').outerHeight(true);
-			var search = $('.searchArea').outerHeight(true) == null ? 0 : $('.searchArea').outerHeight(true);
 
-			$('#wrapper').css('top', top + search);
+			Material.upgradeDom();
 
-			if (Shared.scroll != null) 
-			{
-				Shared.scroll.destroy();
-				Shared.scroll = null;
-			}
+			// var top = $('.topHeader').outerHeight(true);
+			// var search = $('.searchArea').outerHeight(true) == null ? 0 : $('.searchArea').outerHeight(true);
 
-			var that = this;
+			// $('#wrapper').css('top', top + search);
 
-			pullDownEl = document.getElementById('pullDown');
-      		pullDownOffset = pullDownEl.offsetHeight;
+			// if (Shared.scroll != null) 
+			// {
+			// 	Shared.scroll.destroy();
+			// 	Shared.scroll = null;
+			// }
 
-			Shared.scroll = new iScroll('wrapper',
-		      {
-		        useTransition: true,
-		        topOffset: pullDownOffset,
-		        onRefresh: function () 
-		        {
-		          if (pullDownEl.className.match('loading')) 
-		          {
-		            pullDownEl.className = '';
-		            pullDownEl.querySelector('.pullDownLabel').innerHTML = 'Puxe para baixo para atualizar...';
-		          }
-		        },
-		        onScrollMove: function () 
-		        {
-		          if (this.y > 5 && !pullDownEl.className.match('flip')) 
-		          {
-		            pullDownEl.className = 'flip';
-		            pullDownEl.querySelector('.pullDownLabel').innerHTML = 'Solte para atualizar...';
-		            this.minScrollY = 0;
-		          } 
-		          else if (this.y < 5 && pullDownEl.className.match('flip')) 
-		          {
-		            pullDownEl.className = '';
-		            pullDownEl.querySelector('.pullDownLabel').innerHTML = 'Puxe para baixo para atualizar...';
-		            this.minScrollY = -pullDownOffset;
-		          } 
-		        },
-		        onScrollEnd: function () 
-		        {
-		          if (pullDownEl.className.match('flip')) 
-		          {
-		            pullDownEl.className = 'loading';
-		            //pullDownEl.querySelector('.pullDownIcon').style = 'width: 0px; height; 0px;';
-		            pullDownEl.querySelector('.pullDownLabel').innerHTML = 'Carregando...';
-		            that.pullDownAction(); 
-		          }
-		        } 
-		      });
+			// var that = this;
 
-			Shared.scrollerRefresh();
+			// pullDownEl = document.getElementById('pullDown');
+   //    		pullDownOffset = pullDownEl.offsetHeight;
+
+			// Shared.scroll = new iScroll('wrapper',
+		 //      {
+		 //        useTransition: true,
+		 //        topOffset: pullDownOffset,
+		 //        onRefresh: function () 
+		 //        {
+		 //          if (pullDownEl.className.match('loading')) 
+		 //          {
+		 //            pullDownEl.className = '';
+		 //            pullDownEl.querySelector('.pullDownLabel').innerHTML = 'Puxe para baixo para atualizar...';
+		 //          }
+		 //        },
+		 //        onScrollMove: function () 
+		 //        {
+		 //          if (this.y > 5 && !pullDownEl.className.match('flip')) 
+		 //          {
+		 //            pullDownEl.className = 'flip';
+		 //            pullDownEl.querySelector('.pullDownLabel').innerHTML = 'Solte para atualizar...';
+		 //            this.minScrollY = 0;
+		 //          } 
+		 //          else if (this.y < 5 && pullDownEl.className.match('flip')) 
+		 //          {
+		 //            pullDownEl.className = '';
+		 //            pullDownEl.querySelector('.pullDownLabel').innerHTML = 'Puxe para baixo para atualizar...';
+		 //            this.minScrollY = -pullDownOffset;
+		 //          } 
+		 //        },
+		 //        onScrollEnd: function () 
+		 //        {
+		 //          if (pullDownEl.className.match('flip')) 
+		 //          {
+		 //            pullDownEl.className = 'loading';
+		 //            //pullDownEl.querySelector('.pullDownIcon').style = 'width: 0px; height; 0px;';
+		 //            pullDownEl.querySelector('.pullDownLabel').innerHTML = 'Carregando...';
+		 //            that.pullDownAction(); 
+		 //          }
+		 //        } 
+		 //      });
+
+			// Shared.scrollerRefresh();
 
 			// if (this.secondViewName == 'General')
 			// 	Shared.menuView.renderContextMenu('generalContacts', {});
@@ -172,6 +176,7 @@ define([
 		{
 			var self = this;
 
+			Shared.setCurrentPageTitle('Contatos Pessoais');
 			$('#contentTitle').text('Contatos Pessoais');
 			$('#contentTitle').addClass("icon-contacts");
 			$('.searchArea').removeClass('generalContacts');
@@ -234,6 +239,8 @@ define([
 
 			this.personalContact = false;
 
+			Shared.setCurrentPageTitle('Catálogo Geral');
+			
 			$('#contentTitle').text('Catálogo Geral');
 			$('#contentTitle').addClass("icon-contacts");
 			$('.searchArea').removeClass('personalContacts');

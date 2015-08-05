@@ -1,0 +1,54 @@
+<h2 id="contentTitle" class="ellipsis50 icon-settings" style="padding-left: 50px; background-position: 10px;">Prefer&ecirc;ncias</h2>
+<div id="wrapper" class="container">
+	<div id="scroller">
+
+		<dl id="settingsList">
+			<% if (Shared.apiVersion != "1.0") { %>
+			<dt>Conta de e-mail</dt>
+			<dd>
+				<ul>
+
+					<li><% if (Shared.userHasModule("catalog")) { %>
+						<a href="/Contacts/General/<%=user.contactUIDNumber%>" class="settinsLink"><% if (!_.isNull(user.contactMails[0])) { %><%=user.contactMails[0]%><% } %></a>
+					<% } else { %>
+							<% if (!_.isNull(user.contactMails[0])) { %><%=user.contactMails[0]%><% } %>
+						<% } %>
+					</li>
+					<!-- <li>
+
+						<div id="automaticLogin" class="onoffswitch right" style="margin: 5px; margin-top: 10px;">
+						    <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="automaticLoginSwitch" <% if (automaticLogin == true) { %>checked<% } %>>
+						    <label class="onoffswitch-label" for="automaticLoginSwitch">
+						        <div id="automaticLoginSwitchInner" class="onoffswitch-inner"></div>
+						        <div class="onoffswitch-switch"></div>
+						    </label>
+						</div>
+						Login autom&aacute;tico 
+					</li> -->
+					
+					<li><a href="/Settings/ChangePassword" class="settinsLink">Alterar senha</a></li>
+					
+				</ul>
+			</dd>
+				<% if (Shared.userHasModule("mail")) { %>
+				<dt>Configura&ccedil;&otilde;es do Email</dt>
+				<dd>
+					<ul>
+						<li><a href="/Settings/ResultsPerPage" class="settinsLink">Resultados por p&aacute;gina</a></li>
+						<li><a href="/Settings/MailSignature" class="settinsLink">Assinatura de e-mail</a></li>
+					</ul>
+				</dd>
+				<% } %>
+			<% } %>
+			<dt>Expresso</dt>
+			<dd>
+				<ul>
+					<li><a href="/Settings/Support" class="settinsLink">Suporte / Sugest&otilde;es</a></li>
+					<li><a href="/Settings/About" class="settinsLink">Sobre o Expresso</a></li>
+					<li><a href="/Settings/FAQ" class="settinsLink">Perguntas Frequentes</a></li>
+					<li><a href="/Settings/Credits" class="settinsLink">Cr&eacute;ditos</a></li>
+				</ul>
+			</dd>
+		</dl>
+	</div>
+</div>
