@@ -13,6 +13,19 @@ body div #menu dl dd ul#myFolders li a .icon {    width: 30px; height: 30px; mar
 body div #menu dl dd ul#myFolders li a span { line-height: 25px; vertical-align: top; margin-left: 40px; float: left; }
 /*body div #menu dl dd ul#myFolders li a span .badge.badge-info { float: right; }*/
 
+
+.expresso-settings-button {
+    position: absolute;
+    left: 196px;
+    /*top: 5px;*/
+    width: 35px;
+    height: 35px;
+    max-width: 40px;
+    color: #FFF;
+    max-height: 30px;
+    min-width: 40px;
+}
+
 .expresso-myfolders-dropdown { 
 	height: 40px;
     background-color: #e0e0e0;
@@ -24,8 +37,12 @@ body div #menu dl dd ul#myFolders li a span { line-height: 25px; vertical-align:
   margin-left: 10px;
 }
 
+
 .expresso-myfolders-dropdown .mdl-button--icon { margin-top: 0px; }
 
+
+
+/*
 .folder-icon {
   width: 30px; 
   height: 30px;
@@ -43,3 +60,180 @@ body div #menu dl dd ul#myFolders li a span { line-height: 25px; vertical-align:
 .folder-trash-full                { background: url("../imgs/icon-lixeira-cheia-30x30.png") no-repeat scroll center center; }
 .folder-spam                      { background: url("../imgs/icon-pasta-spam-30x30.png") no-repeat scroll center center; }
 .folder-shared                    { background: url("../imgs/icon-pasta-compartilhada-30x30.png") no-repeat scroll center center; }
+*/
+
+
+
+.expresso-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 24px;
+}
+.expresso-layout .expresso-header .mdl-textfield {
+  padding-top: 27px;
+}
+.mdl-layout__drawer .avatar {
+  margin-bottom: 16px;
+}
+.expresso-drawer {
+  border: none;
+}
+/* iOS Safari specific workaround */
+.expresso-drawer .mdl-menu__container {
+/*  z-index: -1;*/
+}
+.expresso-drawer .expresso-navigation {
+  z-index: -2;
+}
+
+/* END iOS Safari specific workaround */
+.expresso-drawer .mdl-menu .mdl-menu__item{
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
+.expresso-drawer-header {
+  box-sizing: border-box;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: column;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-pack: end;
+  -webkit-justify-content: flex-end;
+      -ms-flex-pack: end;
+          justify-content: flex-end;
+  padding: 16px;
+  height: 151px;
+
+/*  
+  background: url('../imgs/bg_4.jpg');
+  background-size: cover; 
+  background-position: 50% 50%; 
+  background-repeat: no-repeat;
+  z-index: 0;*/
+
+}
+.expresso-avatar-dropdown {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  position: relative;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: row;
+      -ms-flex-direction: row;
+          flex-direction: row;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+      -ms-flex-align: center;
+          align-items: center;
+  width: 100%;
+}
+
+.expresso-myfolders-dropdown {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  position: relative;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: row;
+      -ms-flex-direction: row;
+          flex-direction: row;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+      -ms-flex-align: center;
+          align-items: center;
+  width: 100%;
+  z-index: 1;
+}
+
+.expresso-progressbar {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  position: relative;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: row;
+      -ms-flex-direction: row;
+          flex-direction: row;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+      -ms-flex-align: center;
+          align-items: center;
+  width: 100%;
+}
+
+.expresso-navigation {
+  -webkit-box-flex: 1;
+  -webkit-flex-grow: 1;
+      -ms-flex-positive: 1;
+          flex-grow: 1;
+}
+
+.expresso-layout .expresso-navigation .mdl-navigation__link {
+  display: -webkit-box !important;
+  display: -webkit-flex !important;
+  display: -ms-flexbox !important;
+  display: flex !important;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: row;
+      -ms-flex-direction: row;
+          flex-direction: row;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+      -ms-flex-align: center;
+          align-items: center;
+  color: #37474F;
+  font-weight: 500;
+}
+
+
+.expresso-layout .expresso-navigation .mdl-navigation__link:hover {
+  background-color: rgb(68, 138, 255);
+  color: #FFF;
+}
+.expresso-navigation .mdl-navigation__link .material-icons {
+  font-size: 24px;  color: rgba(255, 255, 255, 0.56);
+
+  margin-right: 10px;
+}
+
+.expresso-navigation .mdl-navigation__link .material-icons:hover {
+  font-size: 24px;  
+  color: #FFF;
+  margin-right: 10px;
+}
+
+.material-icons:hover {
+  color: #FFF;
+}
+
+
+.folder-with-subfolders {
+  float: right;
+  margin-left: 135px;
+  position: absolute;
+}
+
+.folder-badge {
+  float: right;
+  margin-left: 145px;
+  position: absolute;
+}
+

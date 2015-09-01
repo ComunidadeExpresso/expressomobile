@@ -197,6 +197,8 @@ define([
 						$('#message').empty();
 						$('#scroller').empty().append(_.template(PersonalContactsListTemplate, data));
 
+						
+
 						self.openFirstContact(data.contacts[0].get('contactID'), data.contacts[0].get('contactID'), 'Personal');
 					} 
 					else 
@@ -347,7 +349,7 @@ define([
 				}
 
 				$('#contactsList ul li').removeAttr('class');
-				$('#' + id).addClass('selected');
+				$('#contact_row_' + id).addClass('selected');
 
 				if (this.status != null)
 					Shared.router.navigate('/Contacts/' + contactType + '/' + contactUIDNumber + '/OK', {trigger: true});

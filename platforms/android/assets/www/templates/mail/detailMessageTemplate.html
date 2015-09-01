@@ -1,11 +1,11 @@
 <% if (messages.length != 0) { %>
 <% _.each(messages, function(message){ %>
-<div class="expresso-cards mdl-card mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-grid">
+<div class="expresso-email animation-fadein">
 <!-- <div class="mdl-card mdl-shadow--2dp card-detailMessage"> -->
-  <!-- <div class="mdl-card__title">
-    <h2 class="mdl-card__title-text" class="font-big"><% if (!Shared.isDesktop()) { %><span class="font-small-info"><%=message.getTimeAgo()%> (<%=message.getMessageSize()%>)</span><% } %><%= message.get("msgSubject") %></h2>
+  <div class="mdl-card__title mdl-card--expand mdl-color--blue-100">
+    <h2 class="mdl-card__title-text"><%= message.get("msgSubject") %></h2>
   </div>
- -->
+ 
 <article id="wrapperDetail" class="contentScroll" style="overflow: auto; width: 100%;">
   <div id="scrollerDetail">
     <table id="messageDetails"> 
@@ -115,14 +115,14 @@
           <%=message.get("msgDate")%>&nbsp;(<%=message.getTimeAgo()%>)
         </td>
       </tr> 
-      <tr class="detailRow">
+      <!-- <tr class="detailRow">
         <td class="item detailCol">
           Assunto:
         </td>
         <td class="description detailCol" colspan="2">
           <%= message.get("msgSubject") %>
         </td>
-      </tr>
+      </tr> -->
       <% if (message.get("msgAttachments")) {  %>
       <tr class="detailRow">
         <td class="item detailCol">
@@ -139,28 +139,30 @@
       <tr>
         <td colspan="3">
           <div class="mdl-card__actions mdl-card--border">
-            <a href="#" class="mdl-button mdl-js-button mdl-js-ripple-effect"><i class="material-icons" role="presentation">reply</i>Responder</a>
-            <a href="#" class="mdl-button mdl-js-button mdl-js-ripple-effect"><i class="material-icons" role="presentation">reply_all</i>Responder p/ Todos</a>
-            <a href="#" class="mdl-button mdl-js-button mdl-js-ripple-effect"><i class="material-icons" role="presentation">forward</i>Encaminhar</a>
-            <a href="#" class="mdl-button mdl-js-button mdl-js-ripple-effect"><i class="material-icons" role="presentation">delete</i>Apagar</a>
+            <a href="#" class="mdl-button mdl-js-button mdl-js-ripple-effect"><i class="material-icons" role="presentation">reply</i></a>
+            <a href="#" class="mdl-button mdl-js-button mdl-js-ripple-effect"><i class="material-icons" role="presentation">reply_all</i></a>
+            <a href="#" class="mdl-button mdl-js-button mdl-js-ripple-effect"><i class="material-icons" role="presentation">forward</i></a>
+            <a href="#" class="mdl-button mdl-js-button mdl-js-ripple-effect"><i class="material-icons" role="presentation">delete</i></a>
         </div>
         </td>
       </tr>
       <tr class="detailRow">
         <td id="contentMessageBody" class="itemBody detailCol" colspan="3">
+          <div id="disable-all-css">
           <%=message.getMessageBody(false)%>
+          </div>
         </td>
       </tr> 
     </table>
 
   </div>
 </article>
-  <div class="mdl-card__actions mdl-card--border">
+  <!-- <div class="mdl-card__actions mdl-card--border">
       <a href="#" class="mdl-button mdl-js-button mdl-js-ripple-effect"><i class="material-icons" role="presentation">reply</i>Responder</a>
       <a href="#" class="mdl-button mdl-js-button mdl-js-ripple-effect"><i class="material-icons" role="presentation">reply_all</i>Responder p/ Todos</a>
       <a href="#" class="mdl-button mdl-js-button mdl-js-ripple-effect"><i class="material-icons" role="presentation">forward</i>Encaminhar</a>
       <a href="#" class="mdl-button mdl-js-button mdl-js-ripple-effect"><i class="material-icons" role="presentation">delete</i>Apagar</a>
-    </div>
+    </div> -->
 </div>
 <% }); %>
 <% } else { %>

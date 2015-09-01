@@ -1,0 +1,22 @@
+
+
+/* HACK TO FORCE RIPPLE EFFECT IN MDL */
+/*.mdl-forced-ripple {
+  overflow: hidden; 
+  position: relative;
+}
+*/
+
+/*
+BUILTIN EXPRESSO 
+*/
+
+#divAppbox 			{ border: 0px; padding: 0px; margin-left: -2px; }
+#divAppboxHeader 	{ display: none; }
+#sideboxdragarea 	{ display: none; }
+#hiddenButton 		{ display: none; }
+#divStatusBar 		{ display: none; }
+
+#chatContactsWindow {
+  width: 250px; 
+}

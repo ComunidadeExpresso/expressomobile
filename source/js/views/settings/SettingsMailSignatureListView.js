@@ -36,7 +36,7 @@ define([
 
         that.loaded();
 
-        Shared.setCurrentPageTitle("Assinatura de e-mail");
+        //Shared.setCurrentPageTitle("Assinatura de e-mail");
 
         Shared.menuView.renderContextMenu('mailsignature',{});
 

@@ -27,7 +27,7 @@ define([
 
         that.$el.html( compiledTemplate ); 
 
-        Shared.setCurrentPageTitle("Sobre o Expresso");
+        //Shared.setCurrentPageTitle("Sobre o Expresso");
 
         that.loaded();
 

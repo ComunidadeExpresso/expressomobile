@@ -55,7 +55,8 @@ define([
 				if (firstContact != undefined) {
 					//contentTitle.text(firstContact.get('contactFullName'));
 
-					Shared.setCurrentPageTitle(firstContact.get('contactFullName'));
+					//Shared.setCurrentPageTitle(firstContact.get('contactFullName'));
+
 				
 					var contact = {contact: _.first(data.contacts), _: _};
 					var contactID = self.secondViewName == 'Personal' ? _.first(data.contacts).get('contactID') : _.first(data.contacts).get('contactUIDNumber');
@@ -155,8 +156,9 @@ define([
 			// }
 
 			$('#contentDetail .searchArea').remove();
+			
 
-			Shared.scrollerRefresh();
+			//Shared.scrollerRefresh();
 			Shared.menuView.renderContextMenu('detailsContact', { email: pEmail, contactID: pContactID, contactType: this.secondViewName });
 		},
 

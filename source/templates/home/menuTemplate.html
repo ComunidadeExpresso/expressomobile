@@ -3,6 +3,12 @@
 
   <div class="expresso-drawer mdl-layout__drawer mdl-color--blue-grey-900 mdl-color-text--blue-grey-50 is-visible">
     <header class="expresso-drawer-header">
+      <a class="menuLink" href="/Settings">
+        <button class="mdl-button mdl-js-button expresso-settings-button">
+          <i class="material-icons">settings</i>
+        </button>
+      </a>
+      <!-- <div class="menu-settings" style="float: right;"><i class="material-icons">settings</i></div> -->
       <img id="userPicture" class="userPicture expresso-avatar">
       
       <div class="expresso-avatar-dropdown">
@@ -22,7 +28,7 @@
             <% }); %>
           <% } %>
           <% if (Shared.isBuiltInExpresso()) { %>
-          <li class="mdl-menu__item"><a class="menuLink" href="/Settings"><i class="material-icons">settings</i>Prefer&ecirc;ncias</a></li>
+          <!-- <li class="mdl-menu__item"><a class="menuLink" href="/Settings"><i class="material-icons">settings</i>Prefer&ecirc;ncias</a></li> -->
           <% } %>
           <li class="mdl-menu__item"><a class="menuLink" href="/Logout"><i class="material-icons">exit_to_app</i>Sair</a></li>
         </ul>
@@ -38,14 +44,16 @@
       </div>
     </header>
     <nav class="expresso-navigation mdl-navigation mdl-color--white mdl-color-text--blue-grey-400">
+      <button href="/Mail/Message/New" id="btn-new-message" class="mdl-button menuLink mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" style="margin: 10px; margin-top: 0px;">
+             <i class="material-icons" role="presentation">create</i>ESCREVER
+      </button>
       <% if (!Shared.isBuiltInExpresso()) { %>
-        <a class="mdl-navigation__link menuLink" href="/Mail/Messages/1/0/INBOX"><i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">inbox</i>Caixa de Entrada</a>
+        <a class="mdl-navigation__link menuLink" href="/Mail/Messages/1/0/INBOX#"><i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">inbox</i>Caixa de Entrada</a>
         <a class="mdl-navigation__link menuLink" href="/Calendar"><i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">event</i>Agenda</a>
         <a class="mdl-navigation__link menuLink" href="/Contacts/Personal"><i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">people</i>Contatos</a>
-        <% if (!Shared.isDesktop()) { %>
-          <a class="mdl-navigation__link menuLink" href="/Chat"><i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">forum</i>Chat</a>
-        <% } %>
-        <a class="mdl-navigation__link menuLink" href="/Settings"><i class="mdl-color-text--blue-grey-400 material-icons " role="presentation">settings</i>Prefer&ecirc;ncias</a>
+        
+          <a class="mdl-navigation__link menuLink mdl-cell--hide-desktop <% if (Shared.isDesktop()) { %> mdl-cell--hide-tablet  mdl-cell--hide-phone  <% } %>" href="/Chat"><i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">forum</i>Chat</a>
+        <!-- <a class="mdl-navigation__link menuLink" href="/Settings"><i class="mdl-color-text--blue-grey-400 material-icons " role="presentation">settings</i>Prefer&ecirc;ncias</a> -->
       <% } %>
       <dl>
 
@@ -53,18 +61,20 @@
         <div class="expresso-myfolders-dropdown">
             <span>Minhas Pastas</span>
             <div class="mdl-layout-spacer"></div>
-            <button id="accbtn_folders" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon" style="float: right;">
-              <i class="material-icons" role="presentation">arrow_drop_down</i>
-              <span class="visuallyhidden">Contas</span>
-            </button>
+            <div style="float: right; margin-right: 10px; ">
+              <button id="accbtn_folders" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon" style="">
+                <i class="material-icons" role="presentation">arrow_drop_down</i>
+                <span class="visuallyhidden">Contas</span>
+              </button>
+            </div>
             <ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="accbtn_folders">
               <li class="mdl-menu__item"><a class="menuLink" href="/Mail/AddFolder/INBOX#"><i class="material-icons">add</i>Adicionar Pasta</a></li>
             </ul>
         </div>
         <dd>
-          <ul id="myFolders">
+          <nav id="myFolders" class="expresso-navigation mdl-navigation mdl-color--white mdl-color-text--blue-grey-400">
             
-          </ul>
+          </nav>
         </dd>
         
         <% } %>
@@ -75,108 +85,17 @@
         <a class="mdl-navigation__link menuLink" href="/Settings"><i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">settings</i><span class="visuallyhidden">Prefer&ecirc;ncias</span>Prefer&ecirc;ncias</a>
       <% } %>
     </nav>
-
-</div>
-
-  <!-- <div class="demo-drawer mdl-color--blue-grey-900 mdl-color-text--blue-grey-50">
-        <header class="demo-drawer-header">
-          <img id="userPicture" class="userPicture demo-avatar">
-          <div class="demo-avatar-dropdown">
-            <span></span>
-            <span><% if (!_.isNull(user.contactFullName)) { %><%=user.contactFullName%><% } %><br><% if (!_.isNull(user.contactMails[0])) { %><%=user.contactMails[0]%><% } %></span>
-            <div class="mdl-layout-spacer"></div>
-            <button id="accbtn" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
-              <i class="material-icons" role="presentation">arrow_drop_down</i>
-              <span class="visuallyhidden">Accounts</span>
-            </button>
-            <ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="accbtn">
-              <li class="mdl-menu__item">hello@example.com</li>
-              <li class="mdl-menu__item menuLink" href="/Logout"><i class="material-icons">logout</i>Sair</li>
-            </ul>
-          </div>
-        </header>
-        <nav class="demo-navigation mdl-navigation mdl-color--blue-grey-800">
-          <a class="mdl-navigation__link menuLink" href="/Mail/Messages/1/0/INBOX"><i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">inbox</i>Caixa de Entrada</a>
-          <a class="mdl-navigation__link menuLink" href="/Calendar"><i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">event</i>Agenda</a>
-          <a class="mdl-navigation__link menuLink" href="/Contacts/Personal"><i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">people</i>Contatos</a>
-          <a class="mdl-navigation__link menuLink" href="/Chat"><i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">forum</i>Chat</a>
-          <a class="mdl-navigation__link menuLink" href="/Settings"><i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">settings</i>Prefer&ecirc;ncias</a>
-          <a class="mdl-navigation__link menuLink" href="/Logout"><i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">exit_app</i>Sair</a>
-
-        </nav>
-    </div> -->
-
-<!--  
-  <% if (!Shared.isDesktop()) { %><div class="product-logo-menu"></div><% } %>
-
-  <div id="personalInfo">
-     <div id="userPicture" class="userPicture"></div> 
-    <div class="personalData">
-      <span id="userName" class="name"><% if (!_.isNull(user.contactFullName)) { %><%=user.contactFullName%><% } %></span>
-      <% if (Shared.userHasModule("mail")) { %>
-      <span id="userEmail" class="email"><% if (!_.isNull(user.contactMails[0])) { %><%=user.contactMails[0]%><% } %></span>
-      <div id="quota">
-        
-        <div class="bar"> 
-          <div id="usedQuota" class="usedQuota" style="width: 0%;"></div>
-          <span id="textQuota">Sem Quota</span>
-        </div>
-
-      </div>
-      <% } %>
-    </div>
-  </div>
-
-  <dl>
-
-    <% if (Shared.automaticLoginAccounts.accounts.length >= 2) { %>
-
-    <dt>Alterar Conta</dt>
-    <dd>
-      <ul id="mainMenu">
-      <% _.each(Shared.automaticLoginAccounts.accounts, function(account){ %>
-      <% if (Shared.forceAutomaticLoginInAccountName != account.accountName) { %>
-        <li class="account">
-          <a class="menuLink" href="/Switch/<%=account.accountName%>">
-            <span><%=account.accountName%></span>
-            <div class="userPicture icon"></div>
-          </a>
-        </li>
-      <% } %>
-      <% }); %>
-      </ul>
-    </dd>
-    <% } %>
-
-    
-    <dt<% if (Shared.isBuiltInExpresso()) { %> style="display: none;"<% } %>>Menu</dt>
-    <dd <% if (Shared.isBuiltInExpresso()) { %> style="display: none;"<% } %>>
-      <ul id="mainMenu">
-        <% _.each(menuItems, function(menuItem){ %>
-          <li class="<%=menuItem.get("menuClass")%>">
-            <a href="<%=menuItem.get("menuRoute")%>" class="menuLink">
-              <span><% if (menuItem.get("menuHasBadge")) { %><div id="badge_<%=menuItem.get("menuClass")%>" class="badge badge-chat hidden"></div><% } %><%=menuItem.get("menuTitle")%></span>
-              <div class="icon icon-mainmenu <%=menuItem.get("menuIconClass")%>"></div>
-            </a>
-          </li>
-        <% }); %>
-      </ul>
-    </dd>
-
--->
-
- 
-  
-
-  
-
-
-
-     <!--
+<!-- 
     <div class="menu-footer">
       <% if (!Shared.isDesktop()) { %>
       Desenvolvido por:<br><br>
       <div class="company-logo"></div>
       <% } %>
-    </div>
-    -->
+    </div> -->
+
+</div>
+
+
+     
+    
+    

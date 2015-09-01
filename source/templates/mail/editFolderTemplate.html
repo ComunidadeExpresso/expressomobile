@@ -1,4 +1,3 @@
-
 <!-- <div id="modalEditFolder" class="modal fade">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -25,19 +24,20 @@
     </div>
   </div>
 </div> -->
-
-<h2 class="font-big"><%=title%></h2>
-<article id="wrapperDetail" class="contentScroll">
-	<div id="scrollerDetail">
-		<form id="changePassword">
-			<ol>
-				<li>
-					<input type="text" name="folderName" id="folderName" placeholder="Nome da Pasta" value="<%=folderName%>" />
-					<input type="hidden" name="folderID" id="folderID" value="<%=folderID%>" />
-					<input type="hidden" name="parentFolderID" id="parentFolderID" value="<%=parentFolderID%>" />
-					<input type="hidden" name="folderAction" id="folderAction" value="<%=folderAction%>" />
-				</li>
-			</ol>
-		</form>
-  	</div>
-</article>
+<div class="expresso-cards mdl-card mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-grid">
+	<!-- <h2 class="font-big"><%=title%></h2> -->
+	<article id="wrapperDetail" class="contentScroll">
+		<div id="scrollerDetail">
+			<form id="changePassword">
+				<ol>
+					<li>
+						<input type="text" name="folderName" id="folderName" placeholder="Nome da Pasta" value="<%=folderName%>" />
+						<input type="hidden" name="folderID" id="folderID" value="<%=folderID%>" />
+						<input type="hidden" name="parentFolderID" id="parentFolderID" value="<%=parentFolderID%>" />
+						<input type="hidden" name="folderAction" id="folderAction" value="<%=folderAction%>" />
+					</li>
+				</ol>
+			</form>
+	  	</div>
+	</article>
+</div>

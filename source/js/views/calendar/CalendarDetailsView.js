@@ -125,30 +125,30 @@ define([
 
 		loaded: function(eventID, isOwner)
 		{
-			$('.searchArea').remove();
+			// $('.searchArea').remove();
 
-			if (!Shared.isSmartPhoneResolution())
-			{
-				if (Shared.scrollDetail != null) 
-				{
-					Shared.scrollDetail.destroy();
-					Shared.scrollDetail = null;
-				}
+			// if (!Shared.isSmartPhoneResolution())
+			// {
+			// 	if (Shared.scrollDetail != null) 
+			// 	{
+			// 		Shared.scrollDetail.destroy();
+			// 		Shared.scrollDetail = null;
+			// 	}
 
-				Shared.scrollDetail = new iScroll('wrapperDetail');
-			}
-			else
-			{
-				if (Shared.scroll != null) 
-				{
-					Shared.scroll.destroy();
-					Shared.scroll = null;
-				}
+			// 	Shared.scrollDetail = new iScroll('wrapperDetail');
+			// }
+			// else
+			// {
+			// 	if (Shared.scroll != null) 
+			// 	{
+			// 		Shared.scroll.destroy();
+			// 		Shared.scroll = null;
+			// 	}
 
-				Shared.scroll = new iScroll('wrapper');
-			}
+			// 	Shared.scroll = new iScroll('wrapper');
+			// }
 
-			Shared.scrollerRefresh();
+			// Shared.scrollerRefresh();
 			Shared.menuView.renderContextMenu('calendarDetailsEvent',{ isOwner: isOwner, eventID: eventID, year: this.year, month: this.month, day: this.day });
 		},
 

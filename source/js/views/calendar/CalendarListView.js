@@ -211,74 +211,76 @@ define([
 
 		loaded: function ()
 		{
-			if (!Shared.isSmartPhoneResolution() && this.onlyDatePicker === false)
-			{
-				if (Shared.scrollDetail != null) 
-				{
-					Shared.scrollDetail.destroy();
-					Shared.scrollDetail = null;
-				}
+			// if (!Shared.isSmartPhoneResolution() && this.onlyDatePicker === false)
+			// {
+			// 	if (Shared.scrollDetail != null) 
+			// 	{
+			// 		Shared.scrollDetail.destroy();
+			// 		Shared.scrollDetail = null;
+			// 	}
 
-				Shared.scrollDetail = new iScroll('wrapperDetail');
-			}
+			// 	Shared.scrollDetail = new iScroll('wrapperDetail');
+			// }
 			
-			if (Shared.scroll != null) 
-			{
-				Shared.scroll.destroy();
-				Shared.scroll = null;
-			}
+			// if (Shared.scroll != null) 
+			// {
+			// 	Shared.scroll.destroy();
+			// 	Shared.scroll = null;
+			// }
 
 			var that = this;
 
-			pullDownEl = document.getElementById('pullDown');
-      		pullDownOffset = pullDownEl.offsetHeight;
+			// pullDownEl = document.getElementById('pullDown');
+   //    		pullDownOffset = pullDownEl.offsetHeight;
 
-			Shared.scroll = new iScroll('wrapper',
-		      {
-		        useTransition: true,
-		        topOffset: pullDownOffset,
-		        onRefresh: function () 
-		        {
-		          if (pullDownEl.className.match('loading')) 
-		          {
-		            pullDownEl.className = '';
-		            pullDownEl.querySelector('.pullDownLabel').innerHTML = 'Puxe para baixo para atualizar...';
-		          }
-		        },
-		        onScrollMove: function () 
-		        {
-		          if (this.y > 5 && !pullDownEl.className.match('flip')) 
-		          {
-		            pullDownEl.className = 'flip';
-		            pullDownEl.querySelector('.pullDownLabel').innerHTML = 'Solte para atualizar...';
-		            this.minScrollY = 0;
-		          } 
-		          else if (this.y < 5 && pullDownEl.className.match('flip')) 
-		          {
-		            pullDownEl.className = '';
-		            pullDownEl.querySelector('.pullDownLabel').innerHTML = 'Puxe para baixo para atualizar...';
-		            this.minScrollY = -pullDownOffset;
-		          } 
-		        },
-		        onScrollEnd: function () 
-		        {
-		          if (pullDownEl.className.match('flip')) 
-		          {
-		            pullDownEl.className = 'loading';
-		            //pullDownEl.querySelector('.pullDownIcon').style = 'width: 0px; height; 0px;';
-		            pullDownEl.querySelector('.pullDownLabel').innerHTML = 'Carregando...';
-		            that.pullDownAction(); 
-		          }
-		        } 
-		      });
+			// Shared.scroll = new iScroll('wrapper',
+		 //      {
+		 //        useTransition: true,
+		 //        topOffset: pullDownOffset,
+		 //        onRefresh: function () 
+		 //        {
+		 //          if (pullDownEl.className.match('loading')) 
+		 //          {
+		 //            pullDownEl.className = '';
+		 //            pullDownEl.querySelector('.pullDownLabel').innerHTML = 'Puxe para baixo para atualizar...';
+		 //          }
+		 //        },
+		 //        onScrollMove: function () 
+		 //        {
+		 //          if (this.y > 5 && !pullDownEl.className.match('flip')) 
+		 //          {
+		 //            pullDownEl.className = 'flip';
+		 //            pullDownEl.querySelector('.pullDownLabel').innerHTML = 'Solte para atualizar...';
+		 //            this.minScrollY = 0;
+		 //          } 
+		 //          else if (this.y < 5 && pullDownEl.className.match('flip')) 
+		 //          {
+		 //            pullDownEl.className = '';
+		 //            pullDownEl.querySelector('.pullDownLabel').innerHTML = 'Puxe para baixo para atualizar...';
+		 //            this.minScrollY = -pullDownOffset;
+		 //          } 
+		 //        },
+		 //        onScrollEnd: function () 
+		 //        {
+		 //          if (pullDownEl.className.match('flip')) 
+		 //          {
+		 //            pullDownEl.className = 'loading';
+		 //            //pullDownEl.querySelector('.pullDownIcon').style = 'width: 0px; height; 0px;';
+		 //            pullDownEl.querySelector('.pullDownLabel').innerHTML = 'Carregando...';
+		 //            that.pullDownAction(); 
+		 //          }
+		 //        } 
+		 //      });
 
-			Shared.scrollerRefresh();
+			// Shared.scrollerRefresh();
 			Shared.menuView.renderContextMenu('calendar',{year: this.year, month: this.month, day: this.day});
 			Shared.setDefaultIMListeners();
 
-			$('#content .searchArea').remove();
-			$('#contentTitle').text('Agenda');
-			$('#contentTitle').addClass("icon-agenda");
+			Shared.setCurrentPageTitle("Agenda");
+
+			// $('#content .searchArea').remove();
+			// $('#contentTitle').text('Agenda');
+			// $('#contentTitle').addClass("icon-agenda");
 
 			if (this.status == 'OK')
 			{

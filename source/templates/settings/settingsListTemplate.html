@@ -7,24 +7,31 @@
 			<dt>Conta de e-mail</dt>
 			<dd>
 				<ul>
+					
+					<% if (Shared.userHasModule("catalog")) { %>
+						<a href="/Contacts/General/<%=user.contactUIDNumber%>" class="listItemLink" rowid="row_account"><% if (!_.isNull(user.contactMails[0])) { %><li id="row_account"><%=user.contactMails[0]%><% } %></li></a>
+						<% } else { %>
 
-					<li><% if (Shared.userHasModule("catalog")) { %>
-						<a href="/Contacts/General/<%=user.contactUIDNumber%>" class="listItemLink"><% if (!_.isNull(user.contactMails[0])) { %><%=user.contactMails[0]%><% } %></a>
-					<% } else { %>
-							<% if (!_.isNull(user.contactMails[0])) { %><%=user.contactMails[0]%><% } %>
-						<% } %>
-					</li>
+						<% if (!_.isNull(user.contactMails[0])) { %><li id="row_account"><%=user.contactMails[0]%></li><% } %>
+					<% } %>
+					<a href="/Settings/ChangePassword" class="listItemLink" rowid="row_changepassword">
+						<li id="row_changepassword">Alterar senha</li>
+					</a>
 					
-					<li><a href="/Settings/ChangePassword" class="listItemLink">Alterar senha</a></li>
-					
+					<!-- <li id="row_automaticLogin">
+						<label for="automaticLogin" class="mdl-switch mdl-js-switch mdl-js-ripple-effect">
+						  <input type="checkbox" id="automaticLogin" class="mdl-switch__input" />
+						  <span class="mdl-switch__label">Login Automatico</span>
+						</label>
+					</li> -->
 				</ul>
 			</dd>
 				<% if (Shared.userHasModule("mail")) { %>
 				<dt>Configura&ccedil;&otilde;es do Email</dt>
 				<dd>
 					<ul>
-						<li><a href="/Settings/ResultsPerPage" class="listItemLink">Resultados por p&aacute;gina</a></li>
-						<li><a href="/Settings/MailSignature" class="listItemLink">Assinatura de e-mail</a></li>
+						<a href="/Settings/ResultsPerPage" class="listItemLink" rowid="row_resultsperpage"><li id="row_resultsperpage">Resultados por p&aacute;gina</li></a>
+						<a href="/Settings/MailSignature" class="listItemLink" rowid="row_mailsignature"><li id="row_mailsignature">Assinatura de e-mail</li></a>
 					</ul>
 				</dd>
 				<% } %>
@@ -32,10 +39,10 @@
 			<dt>Expresso</dt>
 			<dd>
 				<ul>
-					<li><a href="/Settings/Support" class="listItemLink">Suporte / Sugest&otilde;es</a></li>
-					<li><a href="/Settings/About" class="listItemLink">Sobre o Expresso</a></li>
-					<li><a href="/Settings/FAQ" class="listItemLink">Perguntas Frequentes</a></li>
-					<li><a href="/Settings/Credits" class="listItemLink">Cr&eacute;ditos</a></li>
+					<a href="/Settings/Support" class="listItemLink" rowid="row_support"><li id="row_support">Suporte / Sugest&otilde;es</li></a>
+					<a href="/Settings/About" class="listItemLink" rowid="row_about"><li id="row_about">Sobre o Expresso</li></a>
+					<a href="/Settings/FAQ" class="listItemLink" rowid="row_faq"><li id="row_faq">Perguntas Frequentes</li></a>
+					<a href="/Settings/Credits" class="listItemLink" rowid="row_credits"><li id="row_credits">Cr&eacute;ditos</li></a>
 				</ul>
 			</dd>
 		</dl>

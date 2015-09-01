@@ -12,8 +12,10 @@ define([
   'linkify',
   'wijdialog',
   'jquery_autogrow',
+  'material',
+  'tweenmax',
   // 'jquery_scrollTo',
-], function($, _, Backbone, jquery_xmpp,jquery_migrate,jqueryui,wijmo,tinysort,tinysort_open,contextmenu,linkify,wijdialog,jquery_autogrow){
+], function($, _, Backbone, jquery_xmpp,jquery_migrate,jqueryui,wijmo,tinysort,tinysort_open,contextmenu,linkify,wijdialog,jquery_autogrow,Material,TweenMax){
 
 
 (function( $ ){
@@ -339,6 +341,10 @@ var MD5 = (function () {
 
 
 	$.fn.im = function( options ) {
+
+
+        
+
 	    var defaults = {
 	    	contactClass: "chat-contact",
 		    onlineClass : "online",
@@ -356,7 +362,8 @@ var MD5 = (function () {
 		    errorFunction: undefined,
 		    chatClass: "chat-container",
 		    chatListClass: "chat-list",
-		    loadClass : "loading-chat",
+		    loadClass : "loading-chatss",
+            loadArea: "<div id='chat-loading-area' class='expresso-loading-spacer'><div class='mdl-spinner mdl-spinner--single-color mdl-js-spinner is-active'></div></div>",
 		    defaultStatus: null,
 		    /* helps to debug some error's */
 		    debug: false,
@@ -523,8 +530,12 @@ var MD5 = (function () {
 
 		/* Conection with xmpp */
 		if($.xmpp){
+            
 			if(settings.debug)
 				debug("Connecting to xmpp");
+
+
+
 			connection_options = {
 				"resource":settings.resource, "username":settings.username, "password":settings.password, "url":settings.url, "domain" : settings.domain,				
 				onDisconnect:function(){
@@ -537,7 +548,8 @@ var MD5 = (function () {
 
 					$.xmpp.getRoster();
 					$.xmpp.setPresence(settings.defaultStatus);
-					$container.find("."+settings.loadClass).removeClass(settings.loadClass);					
+                    $("#chat-loading-area").remove();
+					// $container.find("."+settings.loadClass).removeClass(settings.loadClass);					
 
 					var statusClass = 
 						settings.defaultStatus ? 
@@ -613,6 +625,9 @@ var MD5 = (function () {
 					debug(jid);
 					var id = MD5.hexdigest(message.from);
 					debug(id);
+
+
+
 					var conversation = $("#"+id+"_chat");
 
 					debug(conversation);
@@ -621,17 +636,17 @@ var MD5 = (function () {
 						console.log("hasBody");
 						if(conversation.length == 0){
 							console.log("openChat:" + message.from);
-							conversation = openChat({title: (contacts[id] ? contacts[id]['from']:message.from) , from:message.from, id: id+"_chat", md5_id:id});
+							conversation = openChat({title: (contacts[id] ? contacts[id]['from']:message.from) , from:message.from, id: id+"_chat", md5_id:id, message: message.body});
 
-							var status = $("#"+id).find(".chat-status").clone().removeClass("chatting");
+							// var status = $("#"+id).find(".chat-status").clone().removeClass("chatting");
 
-							if(!status.length){
-								status = $("<div/>")
-								.addClass("chat-status")
-								.addClass(settings.offlineClass);
-							}
+							// if(!status.length){
+							// 	status = $("<div/>")
+							// 	.addClass("chat-status")
+							// 	.addClass(settings.offlineClass);
+							// }
 
-							conversation.parent().find(".ui-dialog-titlebar").prepend(status);
+							//conversation.parent().find(".ui-dialog-titlebar").prepend(status);
 						}else{
 							console.log("openWijDialog");
 							conversation.wijdialog("open");
@@ -644,9 +659,8 @@ var MD5 = (function () {
 					if( message.body )
 					{	
 
-						var html = '<div class="fullWidth" style="text-align: left; color: #777777; margin-bottom: 10px; padding-left: 20px;">' + date + '</div><div class="fullWidth"><img class="chat-picture left"><div class="triangle-right left">' + formatters(message.body) + '</div><div class="clear"></div></div>';
+                        receiveMessage(id,formatters(message.body));
 
-						conversation_box.append(html);
 
 						// $("<div/>")
 						// .addClass("chat-conversation-box-you")
@@ -741,29 +755,138 @@ var MD5 = (function () {
 				},
    				onComposing: function(message)
    				{
+
+                    var isFriendTyping = false;
+
+                    var friendIsTyping = function(chat_id){
+
+                        console.log("friendIsTyping");
+                         if(isFriendTyping) return;
+
+                        isFriendTyping=true;
+
+                        var infoContainer = $("#chat-info-container-"  + chat_id);
+                        var effectContainer = $("#chat-effect-container-" + chat_id);
+
+                        var bleeding = 100;
+
+                        var $dots=$("<div/>")
+                            .addClass('chat-effect-dots')
+                            .css({
+                                top:-30+bleeding,
+                                left:10
+                            })
+                            .appendTo(effectContainer)
+                        ;
+                        for (var i = 0; i < 3; i++) {
+                            var $dot=$("<div/>")
+                                .addClass("chat-effect-dot")
+                                .css({
+                                    left:i*20
+                                })
+                                .appendTo($dots)
+                            ;
+                            TweenMax.to($dot,0.3,{
+                                delay:-i*0.1,
+                                y:30,
+                                yoyo:true,
+                                repeat:-1,
+                                ease:Quad.easeInOut
+                            })
+                        };
+
+                        var $info=$("<div/>")
+                            .addClass("chat-info-typing")
+                            .text("Seu amigo está digitando...")
+                            .css({
+                                transform:"translate3d(0,30px,0)"
+                            })
+                            .appendTo(infoContainer)
+
+                        TweenMax.to($info, 0.3,{
+                            y:0,
+                            force3D:true
+                        });
+
+                        gooOn(chat_id);
+                    }
+
+                    var gooOn = function(chat_id){
+                        setFilter('url(#goo)',chat_id);
+                    }
+                    var gooOff = function(chat_id){
+                        setFilter('none',chat_id);
+                    }
+                    var setFilter = function(value,chat_id){
+                        $("#chat-effect-container-" + chat_id).css({
+                            webkitFilter:value,
+                            mozFilter:value,
+                            filter:value,
+                        });
+                    }
+
+                    var friendStoppedTyping = function(chat_id){
+
+                        var infoContainer = $("#chat-info-container-"  + chat_id);
+                        var effectContainer = $("#chat-effect-container-" + chat_id);
+                        isFriendTyping = false;
+
+                        var bleeding = 100;
+
+                        var dots=effectContainer.find(".chat-effect-dots");
+                        TweenMax.to(dots,0.3,{
+                            y:40,
+                            force3D:true,
+                            ease:Quad.easeIn,
+                        });
+
+                        var info=infoContainer.find(".chat-info-typing");
+                        TweenMax.to(info,0.3,{
+                            y:30,
+                            force3D:true,
+                            ease:Quad.easeIn,
+                            onComplete:function(){
+                                dots.remove();
+                                info.remove();
+
+                                gooOff(chat_id);
+                            }
+                        });
+                    }
+
    					message.from = message.from.match(/^[\w\W][^\/]+[^\/]/g)[0];
 					var id = MD5.hexdigest(message.from);
-					var conversation = $("#"+id+"_chat");
-					if(conversation.length){
-						var conversation_box = conversation.find(".chat-conversation-box").next();
+					// var conversation = $("#"+id+"_chat");
+					// if(conversation.length){
+						//var conversation_box = conversation.find(".chat-conversation-box").next();
 						var date = (new Date().toString("HH:mm"));
+
 						switch(message.state){
 							case 'active':
-								conversation_box.html("").html("<span class='read-icon'></span> "+messages.pt_br.SEEN+" "+date);
+                                //friendStoppedTyping(id);
+                                //friendIsTyping(id);
+								//conversation_box.html("").html("<span class='read-icon'></span> "+messages.pt_br.SEEN+" "+date);
+                                friendStoppedTyping(id);
 								break;
 							case 'composing':
-								conversation_box.html("").html("<span class='composing'></span> "+contacts[id]['from']+" "+messages.pt_br.IS_TYPING+"...");
+                                
+                                friendIsTyping(id);
+								//conversation_box.html("").html("<span class='composing'></span> "+contacts[id]['from']+" "+messages.pt_br.IS_TYPING+"...");
 								break;
 							case 'gone':
-								conversation_box.html("").html("<span class='active'></span> "+messages.pt_br.GONE+" "+date);
+                                friendStoppedTyping(id);
+								//conversation_box.html("").html("<span class='active'></span> "+messages.pt_br.GONE+" "+date);
 								break;
 							case 'paused':
-								conversation_box.html("").html("<span class='paused'></span> "+contacts[id]['from']+" "+messages.pt_br.STOPPED_TYPING+"...");
+                                friendStoppedTyping(id);
+								//conversation_box.html("").html("<span class='paused'></span> "+contacts[id]['from']+" "+messages.pt_br.STOPPED_TYPING+"...");
 								break;
 							default:
-								conversation_box.html("");
+                                friendStoppedTyping(id);
+                                //friendStoppedTyping(id);
+								//conversation_box.html("");
 						}
-					}
+					// }
    					if(settings.debug)
 						debug("onComposing : " + message);
    				},
@@ -949,11 +1072,19 @@ var MD5 = (function () {
 			$("<div/>")
 			.addClass("chat-list")
 			.addClass(settings.chatClass)
-			.addClass(settings.loadClass)
+            .append(settings.loadArea)
 			.append()
 			.append("<ul/>")
 			.append("<ul class='chat-search-result' style='display:none;'/>")
 			.appendTo(container);
+
+
+            var svgGoo = "<svg xmlns='http://www.w3.org/2000/svg' version='1.1' width='800' style='display: none;'><defs><filter id='goo'><feGaussianBlur in='SourceGraphic' stdDeviation='10' result='blur' /><feColorMatrix in='blur' mode='matrix' values='1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 19 -9' result='goo' /><feComposite in='SourceGraphic' in2='goo' /></filter></defs></svg>";
+
+            container.prepend(svgGoo);
+
+            Material.upgradeDom();
+
 
 			if (!settings.minimizeZone){
 				$("<div/>")
@@ -1123,86 +1254,309 @@ var MD5 = (function () {
 				debug("Generated contact in the list");
 	  	}
 
+        
+
+        function getFriendMessageTemplate(message) {
+            var friendMessageTemplate = "<li class='chat-message chat-message-friend'><div class='chat-message-bubble'>" + message + "</div></li>";
+
+            return friendMessageTemplate;
+        }
+
+        function getInputBarTemplate(chat_id) {
+
+            var chatInputBarTemplate = "<div id='chat-input-bar-"+ chat_id + "' class='chat-input-bar'><div id='chat-info-container-" + chat_id + "' class='chat-info-container'></div><div id='chat-effect-container-"+ chat_id + "' class='chat-effect-container'><div id='chat-effect-bar-"+ chat_id + "' class='chat-effect-bar'></div></div><div id='chat-input-wrapper-"+ chat_id + "' class='chat-input-wrapper'><div id='chat-input-"+ chat_id + "' class='chat-input' contenteditable></div><button id='chat-send-"+ chat_id + "' class='chat-send'><i class='material-icons'>send</i></button></div></div>";
+           
+            return chatInputBarTemplate;
+        }
+
+        function getChatWindow(chat_id,withMessage) {
+
+            var friendMessage = "";
+            if (withMessage != undefined) {
+                friendMessage = getFriendMessageTemplate(withMessage);
+            }
+
+            var chatWindowTemplate = "<div id='chat-messages-" + chat_id +  "' class='chat-messages'><div class='chat-messages-list-margin'><ol id='chat-messages-list-" + chat_id +  "' class='chat-messages-list'>" + friendMessage + "</ol></div></div>" + getInputBarTemplate(chat_id);
+
+            var div = document.getElementById("chat-window-" + chat_id);
+
+            if ((div == undefined) || (div == null)) {
+                div = $("<div/>",{ id: "chat-window-" + chat_id}).addClass("chat-window").append(chatWindowTemplate);
+            } else {
+                div = $("#chat-window-" + chat_id);
+            }
+            
+
+            return div;
+        }
+
+        function addMessage(chat_id,message,self){
+
+            var $messagesList = $("#chat-messages-list-" + chat_id);
+            var $messagesContainer = $("#chat-messages-" + chat_id);
+
+            var $messageContainer=$("<li/>")
+                .addClass('chat-message '+(self?'chat-message-self':'chat-message-friend'))
+                .appendTo($messagesList)
+            ;
+            var $messageBubble=$("<div/>")
+                .addClass('chat-message-bubble')
+                .appendTo($messageContainer)
+            ;
+            $messageBubble.text(message);
+
+            var oldScroll=$messagesContainer.scrollTop();
+            $messagesContainer.scrollTop(9999999);
+            var newScroll=$messagesContainer.scrollTop();
+            var scrollDiff=newScroll-oldScroll;
+            TweenMax.fromTo(
+                $messagesList,0.4,{
+                    y:scrollDiff
+                },{
+                    y:0,
+                    ease:Quint.easeOut
+                }
+            );
+
+            return {
+                $container:$messageContainer,
+                $bubble:$messageBubble
+            };
+        }
+
+        function receiveMessage(chat_id,message){
+
+            var $messagesContainer = $("#chat-messages-" + chat_id);
+
+            var messageElements=addMessage(chat_id,message,false)
+                ,$messageContainer=messageElements.$container
+                ,$messageBubble=messageElements.$bubble
+            ;
+
+            TweenMax.set($messageBubble,{
+                transformOrigin:"60px 50%"
+            })
+            TweenMax.from($messageBubble,0.4,{
+                scale:0,
+                force3D:true,
+                ease:Back.easeOut
+            })
+            TweenMax.from($messageBubble,0.4,{
+                x:-100,
+                force3D:true,
+                ease:Quint.easeOut
+            })
+        }
+
+        function gooOn(chat_id){
+            setFilter('url(#goo)',chat_id);
+        }
+        function gooOff(chat_id){
+            setFilter('none',chat_id);
+        }
+        function setFilter(value,chat_id){
+            $("#chat-effect-container-" + chat_id).css({
+                webkitFilter:value,
+                mozFilter:value,
+                filter:value,
+            });
+        }
+
+        function sendMessage(chat_id,options){
+
+            var $input = $("#chat-input-" + chat_id);
+            var message=$input.text();
+
+            message = formatters(message);
+
+            // if(settings.debug)
+            //     debug("Sending message: "+message+"\nfrom: "+options.from);
+
+            $.xmpp.sendMessage({body: message, to:options.from, resource:"Chat", otherAttr:"value"},"<error>Ocorreu um erro</error>");
+
+            var $messagesList = $("#chat-messages-list-" + chat_id);
+            var $messagesContainer = $("#chat-messages-" + chat_id);
+            var $effectContainer = $("#chat-effect-container-" + chat_id);
+            var $sendButton = $("#chat-send-"+ chat_id);
+            var bleeding=100;
+
+            if(message=="") return;
+            
+            lastMessage=message;
+
+            var messageElements=addMessage(chat_id,message,true)
+                ,$messageContainer=messageElements.$container
+                ,$messageBubble=messageElements.$bubble
+            ;
+
+            var oldInputHeight=$(".chat-input-bar").height();
+            $input.text('');
+            updateChatHeight(chat_id);
+            var newInputHeight=$(".chat-input-bar").height();
+            var inputHeightDiff=newInputHeight-oldInputHeight
+
+            var $messageEffect=$("<div/>")
+                .addClass('chat-message-effect')
+                .append($messageBubble.clone())
+                .appendTo($effectContainer)
+                .css({
+                    left:$input.position().left-12,
+                    top:$input.position().top+bleeding+inputHeightDiff
+                })
+            ;
+
+
+            var messagePos=$messageBubble.offset();
+            var effectPos=$messageEffect.offset();
+            var pos={
+                x:messagePos.left-effectPos.left,
+                y:messagePos.top-effectPos.top
+            }
+
+            var $sendIcon=$sendButton.children("i");
+            TweenMax.to(
+                $sendIcon,0.15,{
+                    x:30,
+                    y:-30,
+                    force3D:true,
+                    ease:Quad.easeOut,
+                    onComplete:function(){
+                        TweenMax.fromTo(
+                            $sendIcon,0.15,{
+                                x:-30,
+                                y:30
+                            },
+                            {
+                                x:0,
+                                y:0,
+                                force3D:true,
+                                ease:Quad.easeOut
+                            }
+                        );
+                    }
+                }
+            );
+
+            gooOn();
+
+            
+            TweenMax.from(
+                $messageBubble,0.8,{
+                    y:-pos.y,
+                    ease:Sine.easeInOut,
+                    force3D:true
+                }
+            );
+
+            var startingScroll=$messagesContainer.scrollTop();
+            var curScrollDiff=0;
+            var effectYTransition;
+            var setEffectYTransition=function(dest,dur,ease){
+                return TweenMax.to(
+                    $messageEffect,dur,{
+                        y:dest,
+                        ease:ease,
+                        force3D:true,
+                        onUpdate:function(){
+                            var curScroll=$messagesContainer.scrollTop();
+                            var scrollDiff=curScroll-startingScroll;
+                            if(scrollDiff>0){
+                                curScrollDiff+=scrollDiff;
+                                startingScroll=curScroll;
+
+                                var time=effectYTransition.time();
+                                effectYTransition.kill();
+                                effectYTransition=setEffectYTransition(pos.y-curScrollDiff,0.8-time,Sine.easeOut);
+                            }
+                        }
+                    }
+                );
+            }
+
+            effectYTransition=setEffectYTransition(pos.y,0.8,Sine.easeInOut);
+            
+            // effectYTransition.updateTo({y:800});
+
+            TweenMax.from(
+                $messageBubble,0.6,{
+                    delay:0.2,
+                    x:-pos.x,
+                    ease:Quad.easeInOut,
+                    force3D:true
+                }
+            );
+            TweenMax.to(
+                $messageEffect,0.6,{
+                    delay:0.2,
+                    x:pos.x,
+                    ease:Quad.easeInOut,
+                    force3D:true
+                }
+            );
+
+            TweenMax.from(
+                $messageBubble,0.2,{
+                    delay:0.65,
+                    opacity:0,
+                    ease:Quad.easeInOut,
+                    onComplete:function(){
+                        TweenMax.killTweensOf($messageEffect);
+                        $messageEffect.remove();
+                        // if(!isFriendTyping)
+                        //     gooOff();
+                    }
+                }
+            );
+
+            messages++;
+
+            // if(Math.random()<0.65 || lastMessage.indexOf("?")>-1 || messages==1) getReply();
+        }
+
+        function updateChatHeight(chat_id){
+            $("#chat-messages-" + chat_id).css({
+                height:280-$(".chat-input-bar").height()
+            });
+        }
+
+        
 	  	function openChat(options){
 	  		if($.fn.wijdialog){
 	  			if(settings.debug)
 					debug("Generating Dialog to "+ options.title);
-	  			var div = $("<div/>")
-	  			.addClass("chat-conversation")
-	  			.attr({"id" : options.id, title: options.title})
-	  			.append("<div class='chat-conversation-box'/>")
-	  			.append("<div class='chat-composing-box'/>");
 
-	  			var pauseTimeOut;
-	  			var composingTimeOut = true;
+                var chat_id = options.md5_id;
 
-	  			var textarea = $("<textarea/>")
-	  			.attr("placeholder", messages.pt_br.WRITE_YOUR_MESSAGE_HERE + "...")
-	  			.addClass("chat-conversation-textarea")
-	  			.appendTo(div)
-	  			.keydown(function(e){
-	  				//set a timer
-					$(this).parents(".ui-dialog").find(".ui-dialog-titlebar").css({"background":"rgb(68, 138, 255) none repeat scroll 0 0","border":"0px","box-shadow":"0 2px 2px 0 rgba(0,0,0,.14),0 3px 1px -2px rgba(0,0,0,.2),0 1px 5px 0 rgba(0,0,0,.12)"});
-					document.title = settings.defaultTitle;
+                var div = getChatWindow(chat_id,options.message);
 
-	  				if(composingTimeOut){
-	  					$.xmpp.isWriting({isWriting : 'composing', to:options.from});
-	  					composingTimeOut = false;
-	  				}
-	  				if(e.which == $.ui.keyCode.ENTER && !e.shiftKey){
-	  					var message = textarea.val();
-	  					textarea.val("");
-	  					e.preventDefault();
-	  					if(settings.debug)
-							debug("Sending message: "+message+"\nfrom: "+options.from);
-	  					$.xmpp.sendMessage({body: message, to:options.from, resource:"Chat", otherAttr:"value"},
-	   						"<error>"+messages.pt_br.AN_ERROR_HAS_OCURRED+"</error>");
+                div.attr({title: options.title});
 
-	  					var conversation_box = div.find(".chat-conversation-box");
-						var date = "<span style='font-size:9px;'>("+(new Date().toString("HH:mm"))+")</span>";
-						date = "";
+	  	 		div.append('<audio controls id="new_message_sound" style="display:none;"><source src="/js/libs/messenger/'+settings.soundName+'.mp3" type="audio/mpeg"/><source src="/js/libs/messenger/'+settings.soundName+'.ogg" type="audio/ogg"/></audio>');
+	  	 		var status = $(div).find(".chat-status");
 
-						var html = '<div class="fullWidth" style="text-align: right; color: #777777; margin-bottom: 10px; padding-right: 10px;"><div class="fullWidth"><div class="triangle-right right">' + formatters(message) + '</div><div class="clear"></div></div>';
-
-						conversation_box.append(html);
-
-						conversation_box.scrollTo("div:last");
-						conversation_box.next().html("");
-						composingTimeOut = true;
-						clearTimeout(pauseTimeOut);
-						return;	
-	  				}
-	  				clearTimeout(pauseTimeOut);
-	  				pauseTimeOut = setTimeout(function(){
-	  					if(textarea.val() != "")
-	  						$.xmpp.isWriting({isWriting : 'paused', to:options.from});
-	  					else
-	  						$.xmpp.isWriting({isWriting : 'inactive', to:options.from});
-	  					composingTimeOut = true;
-	  				},5000);
-
-	  			});
-
-				textarea.autoGrow();
-
-	  			$(div).append('<audio controls id="new_message_sound" style="display:none;"><source src="/js/libs/messenger/'+settings.soundName+'.mp3" type="audio/mpeg"/><source src="/js/libs/messenger/'+settings.soundName+'.ogg" type="audio/ogg"/></audio>');
-	  			var status = $("#"+options.md5_id).find(".chat-status");
+                var pauseTimeOut;
+                var composingTimeOut = true;
 
 	  			if(settings.debug)
 					debug("Generated Dialog to "+ options.title);
 
-	  			return div.wijdialog({ 
+	  			var retVal = div.wijdialog({ 
 	                autoOpen: true, 
 	                captionButtons: { 
-	                    refresh: { visible: false },
-	                    maximize: {visible: false}
+	                    pin: { visible: false },
+                        refresh: { visible: false },
+                        toggle: { visible: false },
+                        minimize: { visible: true },
+                        maximize: { visible: false }
 	                },
 	                dialogClass: "chat-conversation-dialog",
-	                resizable:true,
+	                resizable:false,
 	                minimizeZoneElementId: (!settings.minimizeZone ? "conversation-bar-container" : settings.minimizeZone),
 	                open: function (e) {
-	                	status
-	                	.addClass("chatting");
+	                 	status.addClass("chatting");
+
+                        
+                        
 
 	                	$(this).parent().find(".ui-dialog-titlebar").off("click").on("click", function()
 	                	{
@@ -1211,12 +1565,11 @@ var MD5 = (function () {
 						});
 	                },
 	                close: function (e) {
-	                	status
-	                	.removeClass("chatting");
-	                	$.xmpp.isWriting({isWriting : 'gone', to:options.from});
+	                	 status.removeClass("chatting");
+	                	 $.xmpp.isWriting({isWriting : 'gone', to:options.from});
 	                },
 	                focus: function(e){
-	                	$(this).find("textarea").focus().click();
+	                	//$(this).find("textarea").focus().click();
 	                	document.title = settings.defaultTitle;
 						$(this).parent().find(".ui-dialog-titlebar").css({"background":"rgb(68, 138, 255) none repeat scroll 0 0","border":"0px","box-shadow":"0 2px 2px 0 rgba(0,0,0,.14),0 3px 1px -2px rgba(0,0,0,.2),0 1px 5px 0 rgba(0,0,0,.12)"});
 						document.title = settings.defaultTitle;
@@ -1229,10 +1582,59 @@ var MD5 = (function () {
 	  					},3000);
 	                }
 	            }); 
+
+                
+
+                var KEY_ENTER = 13;
+                $("#chat-input-" + chat_id).keydown(function(event) {
+                    if(event.keyCode==KEY_ENTER){
+                        event.preventDefault();
+
+                        if(composingTimeOut){
+                            $.xmpp.isWriting({isWriting : 'composing', to:options.from});
+                            composingTimeOut = false;
+                        }
+
+                        sendMessage(chat_id,options);
+
+                        composingTimeOut = true;
+                        clearTimeout(pauseTimeOut);
+                        return; 
+
+                    }
+                    clearTimeout(pauseTimeOut);
+                    pauseTimeOut = setTimeout(function(){
+                        if($("#chat-input-" + chat_id).text() != "")
+                            $.xmpp.isWriting({isWriting : 'paused', to:options.from});
+                        else
+                            $.xmpp.isWriting({isWriting : 'inactive', to:options.from});
+                        composingTimeOut = true;
+                    },5000); 
+                });
+        
+                var $sendButton = $("#chat-send-" + chat_id);
+                $sendButton.click(function(event){
+                    event.preventDefault();
+                    sendMessage(chat_id,options);
+                    // $input.focus();
+                });
+                $sendButton.on("touchstart",function(event){
+                    event.preventDefault();
+                    sendMessage(chat_id,options);
+                    // $input.focus();
+                });
+
+                $("#chat-input-" + chat_id).on("input",function(){
+                    updateChatHeight(chat_id);
+                });
+
+                return retVal;
+
 	  		}else{
 	  			if(settings.debug)
 	  				debug("wijmo not found");
 	  		}
+
 	  	}
 
 	  	function destroy(containerList, container){

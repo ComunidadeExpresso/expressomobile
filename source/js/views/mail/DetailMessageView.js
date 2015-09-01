@@ -70,7 +70,7 @@ define([
             }
           }
 
-          Shared.setCurrentPageTitle(message.get("msgSubject"));
+          //Shared.setCurrentPageTitle(message.get("msgSubject"));
 
           Shared.menuView.renderContextMenu('detailMessage',{folderID: that.folderID, msgID: that.msgID, folderType: folderType, qtdMessages: qtdMessages });
 
@@ -147,8 +147,8 @@ define([
       'click .attachmentLink': 'openAttachment',
       'click .showMoreMsgTo' : 'showMoreMsgTo',
       'click .showMoreMsgCc' : 'showMoreMsgCc',
-      'click #scrollerDetail' : 'refreshScroll',
-      'touch #scrollerDetail' : 'refreshScroll',
+      // 'click #scrollerDetail' : 'refreshScroll',
+      // 'touch #scrollerDetail' : 'refreshScroll',
     },
 
     showMoreMsgTo: function(e) { 
@@ -169,34 +169,40 @@ define([
     },
 
     refreshScroll: function(e) {
-      if (Shared.scrollDetail != null) {
-        Shared.scrollDetail.refresh();
-      }
+      // if (Shared.scrollDetail != null) {
+      //   Shared.scrollDetail.refresh();
+      // }
     },
 
     loaded: function () {
 
-      if (Shared.scrollDetail != null) {
-        // Shared.scrollDetail.destroy();
-        // Shared.scrollDetail = null;
-      }
-
-      var top = $('.topHeader').outerHeight(true);
-      var search = $('.searchArea').outerHeight(true) == null ? 0 : $('.searchArea').outerHeight(true);
+     // $( "#disable-all-css" ).find("*").css( "all", "initial" );
       
-      // $('body').height($(window).height() - top);
-      // $('#wrapper').css('top', top + search);
 
-      var contentBodyWidth = $("#contentMessageBody").width();
-      var contentDetailWidth = $("#contentDetail").width();
 
-      if ((contentBodyWidth + 15) >= contentDetailWidth) {
-        $("#scrollerDetail").width(contentBodyWidth + 2);
-      }
 
-      Shared.scrollDetail = new iScroll('wrapperDetail',{vScroll:true, hScroll:true, hScrollBar: true, vScrollBar: true, zoom: true });
+      
+      // if (Shared.scrollDetail != null) {
+      //   // Shared.scrollDetail.destroy();
+      //   // Shared.scrollDetail = null;
+      // }
 
-      Shared.scrollerRefresh();
+      // var top = $('.topHeader').outerHeight(true);
+      // var search = $('.searchArea').outerHeight(true) == null ? 0 : $('.searchArea').outerHeight(true);
+      
+      // // $('body').height($(window).height() - top);
+      // // $('#wrapper').css('top', top + search);
+
+      // var contentBodyWidth = $("#contentMessageBody").width();
+      // var contentDetailWidth = $("#contentDetail").width();
+
+      // if ((contentBodyWidth + 15) >= contentDetailWidth) {
+      //   $("#scrollerDetail").width(contentBodyWidth + 2);
+      // }
+
+      // Shared.scrollDetail = new iScroll('wrapperDetail',{vScroll:true, hScroll:true, hScrollBar: true, vScrollBar: true, zoom: true });
+
+      // Shared.scrollerRefresh();
 
     }
 

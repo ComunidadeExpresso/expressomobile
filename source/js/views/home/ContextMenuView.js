@@ -44,6 +44,12 @@ define([
         this.hideMenu();
       }
 
+      if (($("#chatContactsWindow").width() == 0) || ($("#chatContactsWindow").width() == undefined) ){
+        $(".expresso-fab-button").animate({ right: "16px" },200);
+      } else {
+        $(".expresso-fab-button").animate({ right: "266px" },200);
+      }
+
       Material.upgradeDom();
 
     },

@@ -166,32 +166,32 @@ define([
 		{ 
 			var width = 0;
 
-			if (!Shared.isSmartPhoneResolution())
-			{
-				width = $('#contentDetail').width() - ($('body form#addEvent input[type=text]').position().left + 33);
+			// if (!Shared.isSmartPhoneResolution())
+			// {
+			// 	width = $('#contentDetail').width() - ($('body form#addEvent input[type=text]').position().left + 33);
 				
-				if (Shared.scrollDetail != null) 
-				{
-					Shared.scrollDetail.destroy();
-					Shared.scrollDetail = null;
-				}
+			// 	if (Shared.scrollDetail != null) 
+			// 	{
+			// 		Shared.scrollDetail.destroy();
+			// 		Shared.scrollDetail = null;
+			// 	}
 
-				Shared.scrollDetail = new iScroll('wrapperDetail');
-			}
-			else
-			{
-				width = $('#content').width() - ($('body form#addEvent input[type=text]').position().left + 33);
+			// 	Shared.scrollDetail = new iScroll('wrapperDetail');
+			// }
+			// else
+			// {
+			// 	width = $('#content').width() - ($('body form#addEvent input[type=text]').position().left + 33);
 
-				if (Shared.scroll != null) 
-				{
-					Shared.scroll.destroy();
-					Shared.scroll = null;
-				}
+			// 	if (Shared.scroll != null) 
+			// 	{
+			// 		Shared.scroll.destroy();
+			// 		Shared.scroll = null;
+			// 	}
 
-				Shared.scroll = new iScroll('wrapper');
-			}
+			// 	Shared.scroll = new iScroll('wrapper');
+			// }
 
-			Shared.scrollerRefresh();
+			// Shared.scrollerRefresh();
 
 			var params = {};
 				params.saveCallBack = this.saveEvent;

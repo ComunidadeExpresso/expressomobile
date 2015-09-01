@@ -191,3 +191,33 @@ table#messageDetails tr td.itemBody { /*border-left: 1px solid #3A87AD;*/ paddin
   background-color: #006DCC;
 
 }
+
+
+h3 {
+  font-family: "Helvetica","Arial",sans-serif;
+    display: block;
+    font-size: 1em;
+    -webkit-margin-before: 1em;
+    -webkit-margin-after: 1em;
+    -webkit-margin-start: 0px;
+    -webkit-margin-end: 0px;
+    font-weight: bold;
+    line-height: 1em;
+}
+
+blockquote {
+  font-family: "Helvetica","Arial",sans-serif;
+  display: block;
+  font-size: 1.17em;
+  font-weight: normal;
+  line-height: 1.17em;
+}
+
+
+blockquote:before {
+  content: '';
+}
+blockquote:after {
+    content: '';
+    margin-left: 0em;
+}

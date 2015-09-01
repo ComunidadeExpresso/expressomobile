@@ -16,7 +16,7 @@
   position: relative;
   animation: animate-bg 5s linear infinite; 
 }  
-
+/*
 .chat-message {
      background-color: #4ea5cd;
      border-color: #3b8eb5;
@@ -26,7 +26,7 @@
 .chat-message a {
      text-decoration: none;
 }
-
+*/
 .error{
      background-color: #de4343;
      border-color: #c43d3d;
@@ -72,3 +72,89 @@
     }
 }
 
+/*
+AUTO-COMPLETE
+*/
+
+ul.autocomplete {
+  position:absolute;
+  background-color:white;
+  border:1px solid #999;
+  width:100%;
+  list-style:none;
+  font-size:16px;
+  overflow-x:hidden;
+  overflow-y:auto;
+  clear:both;}
+
+ul.autocomplete li {
+  cursor:pointer;
+  margin:0;
+  padding:10px;
+  height: 30px !important;
+  color:#000000 !important;
+}
+
+ul.autocomplete li span.emailInfo {
+  cursor:pointer;
+  margin:0;
+  padding:10px;
+  font-size: 12px;
+  float: right;
+}
+
+ul.autocomplete li.selected {
+  background-color:#3A87AD; color: #FFF; font-weight: bold; 
+}
+
+ul.autocomplete li.selected:hover {
+  background-color:#3A87AD; color: #FFF !important; font-weight: bold; 
+}
+
+ul.autocomplete li.selected span.emailInfo {
+  cursor:pointer;
+  margin:0;
+  padding:10px;
+  font-size: 12px;
+  float: right;
+  color:#FFF !important;
+}
+
+
+
+div.compose-dialog-box.ui-dialog{
+  border-radius: 0 !important;
+  padding: 0 !important;
+}
+
+.compose-dialog-box{
+  font-size: 12px;
+  max-height: 500px;
+  min-width: 400px;
+  height: 500px;
+}
+
+.compose-dialog-box .ui-dialog-titlebar.ui-widget-header{
+  background-image: none;
+  border-radius: 0;
+}
+
+div.compose-dialog-box .ui-dialog-title{
+  width: 63%;
+  margin: .1em 0;
+  white-space: nowrap;
+  text-align: left;
+  text-overflow: ellipsis;
+}
+/*
+.footer-conversation-bar .compose-dialog-box .ui-dialog-title{
+  width: 53%;
+  text-align: left;
+}
+
+div.compose-dialog-box.ui-dialog div.chat-conversation.ui-dialog-content.ui-widget-content{
+  padding: 0;
+  overflow:hidden;
+  height:224px !important;
+}
+*/

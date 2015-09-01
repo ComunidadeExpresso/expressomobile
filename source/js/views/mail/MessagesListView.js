@@ -68,32 +68,32 @@ define([
 
 
 
-        setInterval(function(){
+        // setInterval(function(){
   
-          var totalHeight, currentScroll, visibleHeight;
+        //   var totalHeight, currentScroll, visibleHeight;
           
-          currentScroll = $("#mainPageContent").scrollTop();
+        //   currentScroll = $("#mainPageContent").scrollTop();
 
-          if ((document.getElementById('wrapper') != null) && (document.getElementById('wrapper') != undefined)) {
+        //   if ((document.getElementById('wrapper') != null) && (document.getElementById('wrapper') != undefined)) {
           
-            totalHeight = document.getElementById('wrapper').offsetHeight;
-            visibleHeight = document.documentElement.clientHeight;
+        //     totalHeight = document.getElementById('wrapper').offsetHeight;
+        //     visibleHeight = document.documentElement.clientHeight;
             
-            // $('#data').html(
-            //   'total height: ' + totalHeight + '<br />' +
-            //   'visibleHeight : ' + visibleHeight + '<br />' +
-            //   'currentScroll:' + currentScroll);
+        //     // $('#data').html(
+        //     //   'total height: ' + totalHeight + '<br />' +
+        //     //   'visibleHeight : ' + visibleHeight + '<br />' +
+        //     //   'currentScroll:' + currentScroll);
 
-            if (totalHeight <= currentScroll + visibleHeight )
-            {
-              //$('#data').addClass('hilite');
-              that.pullUpAction();
-            } 
+        //     if (totalHeight <= currentScroll + visibleHeight )
+        //     {
+        //       //$('#data').addClass('hilite');
+        //       that.pullUpAction();
+        //     } 
 
-          }
+        //   }
           
-        }
-        , 1000);
+        // }
+        // , 1000);
 
       }
       

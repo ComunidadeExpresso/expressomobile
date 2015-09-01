@@ -12,7 +12,8 @@ define([
   'views/settings/SettingsSupportListView',
   'views/settings/SettingsFaqListView',
   'views/home/LoadingView',
-], function($, _, Backbone, Shared, settingsListTemplate,SettingsAboutListView,SettingsChangePasswordListView,SettingsCreditsListView,SettingsMailSignatureListView,SettingsResultsPerPageListView,SettingsSupportListView,SettingsFaqListView,LoadingView){
+  'material',
+], function($, _, Backbone, Shared, settingsListTemplate,SettingsAboutListView,SettingsChangePasswordListView,SettingsCreditsListView,SettingsMailSignatureListView,SettingsResultsPerPageListView,SettingsSupportListView,SettingsFaqListView,LoadingView,Material){
 
   var SettingsListView = Backbone.View.extend({
 
@@ -182,23 +183,23 @@ define([
       
     },
 
-    selectMenuItem: function(e){
-      e.preventDefault();
+    // selectMenuItem: function(e){
+    //   e.preventDefault();
 
-      $('#settingsList li').each(function() { 
-          $(this).removeClass( 'selected' ); 
-      }); 
+    //   $('#settingsList li').each(function() { 
+    //       $(this).removeClass( 'selected' ); 
+    //   }); 
 
-      var parent = $(e.target).parent();
+    //   var parent = $(e.target).parent();
 
-      if (parent.hasClass("settinsLink")) {
-        parent = parent.parent();
-      }
+    //   if (parent.hasClass("settinsLink")) {
+    //     parent = parent.parent();
+    //   }
 
-      parent.addClass("selected");
+    //   parent.addClass("selected");
 
-      Shared.router.navigate(e.currentTarget.getAttribute("href"),{trigger: true});
-    },
+    //   Shared.router.navigate(e.currentTarget.getAttribute("href"),{trigger: true});
+    // },
 
     initialize: function() {
       this.secondViewName = "";
@@ -208,8 +209,10 @@ define([
     {
 
       Shared.setCurrentPageTitle("Preferências");
-      var that = this;
-      Shared.scroll = new iScroll('wrapper');
+      // var that = this;
+      // Shared.scroll = new iScroll('wrapper');
+
+      Material.upgradeDom();
 
     }
   });

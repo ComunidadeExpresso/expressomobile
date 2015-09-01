@@ -37,6 +37,9 @@
     <splash height="768" src="www/imgs/splash-screens/Default-Landscape~ipad.png" width="1024" />
     <splash height="1536" src="www/imgs/splash-screens/Default-Landscape@2x~ipad.png" width="2048" />
     <splash height="1136" src="www/imgs/splash-screens/640x1136.png" width="640" />
+    <splash height="1334" src="www/imgs/splash-screens/Default-667h.png" width="750" />
+    <splash height="2208" src="www/imgs/splash-screens/Default-736h.png" width="1242" />
+    <splash height="1242" src="www/imgs/splash-screens/Default-Landscape-736h.png" width="2208" />
     <name>Expresso</name>
     <description>
             Expresso Mobile

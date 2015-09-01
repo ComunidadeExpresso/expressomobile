@@ -1,10 +1,9 @@
 
-body {  background-color: #EFEFEF; }
 
-.login-center {
-  margin: 0px auto;
-  width: 260px;
-  text-align: center;
+.login-center { margin: 0px auto; width: 280px; text-align: center; }
+
+#login-card {
+  width: 250px;
 }
 
 .login-logo {
@@ -21,6 +20,7 @@ body {  background-color: #EFEFEF; }
   background-size: 150px 65px;
 }
 
-#login-loading {
-  height: 180px;
+#login-loading { 
+  height: 260px;
 }
+

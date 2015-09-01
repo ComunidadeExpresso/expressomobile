@@ -36,7 +36,7 @@ define([
     },
 
     events: {
-      "click a.messagelistItemLink": "selectListItem"
+    //  "click a.messagelistItemLink": "selectListItem"
     },
 
     selectListItem: function(e){

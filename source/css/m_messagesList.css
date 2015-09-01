@@ -1,0 +1,171 @@
+
+
+#scrollerList {
+	list-style: none;  margin: 0px; padding: 0px;
+}
+
+/*
+
+MAIL MESSAGE LIST - ITEM
+
+*/
+
+
+.messageListItem {
+  display: block;
+  background-color: #fafafa;
+  transition: max-height 200ms ease-in-out 200ms;
+  max-height: 150px; 
+
+}
+.messageListItem.selected { background: #bbdefb; }
+
+.messageListItem (.shrink) {
+  max-height: 0;
+}
+
+
+#actionicons {
+  min-width: 120px;
+  display: none;
+}
+.messageListItem ([archived][undo]) #archived {
+  opacity: 1;
+  transition: opacity 200ms ease-in-out 400ms;
+}
+.messageItemContainer {
+  position: relative;
+  z-index: 0;
+}
+#thread {
+  background-color: #fafafa;
+  padding: 16px;
+  border-top: 1px solid #e0e0e0;
+  will-change: transform, opacity;
+}
+#thread.pressing {
+  background-color: #e0e0e0;
+}
+#lastline,
+#actionicons,
+time {
+  color: #9e9e9e;
+}
+.messagecount {
+  font-weight: 400;
+  color: #9e9e9e;
+  margin-left: 5px;
+}
+.message-header {
+  margin-left: 16px;
+  font-size: 10px;
+  width: 100%;
+}
+.message-header.unread .name,
+.message-header.unread .subject,
+.message-header.unread time {
+  font-weight: 500;
+}
+.message-header.unread time {
+  color: #03a9f4;
+}
+.message-header span.name {
+  font-size: 14px;
+}
+.message-header span.subject {
+  margin: 6px 0;
+}
+.message-header span.snippet,
+.message-header span.subject,
+.message-header span.name {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  /*white-space: nowrap;*/
+  max-width: 90%;
+}
+.message-header span.name {
+  max-width: 80%;
+}
+time {
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 1px;
+  float: right;
+}
+.starred {
+  color: #ffc107;
+}
+.undo {
+  color: #ffa726;
+  text-transform: uppercase;
+}
+.undo:active {
+  background-color: #9e9e9e;
+}
+#archived {
+  color: white;
+  z-index: -1;
+  opacity: 0;
+  will-change: opacity;
+}
+#archived > * {
+  padding: 16px;
+}
+.labels label {
+  font-size: 10px;
+  background-color: #bdbdbd;
+  padding: 3px 5px;
+  color: #fff;
+  border-radius: 2px;
+  margin-right: 5px;
+}
+
+
+
+.layout.horizontal {
+    -ms-flex-direction: row;
+    -webkit-flex-direction: row;
+    flex-direction: row;
+}
+
+.layout.center-center {
+    -ms-flex-pack: center;
+    -webkit-justify-content: center;
+    justify-content: center;
+}
+
+.layout.vertical {
+    -ms-flex-direction: column;
+    -webkit-flex-direction: column;
+    flex-direction: column;
+}
+
+.layout.justified {
+    -ms-flex-pack: justify;
+    -webkit-justify-content: space-between;
+    justify-content: space-between;
+}
+
+.self-start {
+    -ms-align-self: flex-start;
+    -webkit-align-self: flex-start;
+    align-self: flex-start;
+}
+
+.flex {
+    display: flex;
+}
+
+.flex-1 {
+    -ms-flex: 1;
+    -webkit-flex: 1;
+    flex: 1;
+}
+
+.messageListItemLink {
+  padding: 0px !important;
+  width: 100%;
+  height: 100px !important;
+  text-align: left !important;
+  text-transform: none !important;
+}

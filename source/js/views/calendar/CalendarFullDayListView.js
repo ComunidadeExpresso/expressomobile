@@ -130,80 +130,80 @@ define([
 
 		getiScroll: function(wrapperID) 
 		{
-			var that = this;
+			// var that = this;
 
-			pullDownEl = document.getElementById('pullDown');
-      		pullDownOffset = pullDownEl.offsetHeight;
+			// pullDownEl = document.getElementById('pullDown');
+   //    		pullDownOffset = pullDownEl.offsetHeight;
 
-			var scroll = new iScroll(wrapperID,
-		      {
-		        useTransition: true,
-		        topOffset: pullDownOffset,
-		        onRefresh: function () 
-		        {
-		          if (pullDownEl.className.match('loading')) 
-		          {
-		            pullDownEl.className = '';
-		            pullDownEl.querySelector('.pullDownLabel').innerHTML = 'Puxe para baixo para atualizar...';
-		          }
-		        },
-		        onScrollMove: function () 
-		        {
-		          if (this.y > 5 && !pullDownEl.className.match('flip')) 
-		          {
-		            pullDownEl.className = 'flip';
-		            pullDownEl.querySelector('.pullDownLabel').innerHTML = 'Solte para atualizar...';
-		            this.minScrollY = 0;
-		          } 
-		          else if (this.y < 5 && pullDownEl.className.match('flip')) 
-		          {
-		            pullDownEl.className = '';
-		            pullDownEl.querySelector('.pullDownLabel').innerHTML = 'Puxe para baixo para atualizar...';
-		            this.minScrollY = -pullDownOffset;
-		          } 
-		        },
-		        onScrollEnd: function () 
-		        {
-		          if (pullDownEl.className.match('flip')) 
-		          {
-		            pullDownEl.className = 'loading';
-		            //pullDownEl.querySelector('.pullDownIcon').style = 'width: 0px; height; 0px;';
-		            pullDownEl.querySelector('.pullDownLabel').innerHTML = 'Carregando...';
-		            that.pullDownAction(); 
-		          }
-		        } 
-		      });
+			// var scroll = new iScroll(wrapperID,
+		 //      {
+		 //        useTransition: true,
+		 //        topOffset: pullDownOffset,
+		 //        onRefresh: function () 
+		 //        {
+		 //          if (pullDownEl.className.match('loading')) 
+		 //          {
+		 //            pullDownEl.className = '';
+		 //            pullDownEl.querySelector('.pullDownLabel').innerHTML = 'Puxe para baixo para atualizar...';
+		 //          }
+		 //        },
+		 //        onScrollMove: function () 
+		 //        {
+		 //          if (this.y > 5 && !pullDownEl.className.match('flip')) 
+		 //          {
+		 //            pullDownEl.className = 'flip';
+		 //            pullDownEl.querySelector('.pullDownLabel').innerHTML = 'Solte para atualizar...';
+		 //            this.minScrollY = 0;
+		 //          } 
+		 //          else if (this.y < 5 && pullDownEl.className.match('flip')) 
+		 //          {
+		 //            pullDownEl.className = '';
+		 //            pullDownEl.querySelector('.pullDownLabel').innerHTML = 'Puxe para baixo para atualizar...';
+		 //            this.minScrollY = -pullDownOffset;
+		 //          } 
+		 //        },
+		 //        onScrollEnd: function () 
+		 //        {
+		 //          if (pullDownEl.className.match('flip')) 
+		 //          {
+		 //            pullDownEl.className = 'loading';
+		 //            //pullDownEl.querySelector('.pullDownIcon').style = 'width: 0px; height; 0px;';
+		 //            pullDownEl.querySelector('.pullDownLabel').innerHTML = 'Carregando...';
+		 //            that.pullDownAction(); 
+		 //          }
+		 //        } 
+		 //      });
 
-			return scroll;
+			// return scroll;
 		},
 
 		loaded: function ()
 		{
-			$('#contentDetail .searchArea').remove();
+			// $('#contentDetail .searchArea').remove();
 
-			if (!Shared.isSmartPhoneResolution())
-			{
-				if (Shared.scrollDetail != null) 
-				{
-					Shared.scrollDetail.destroy();
-					Shared.scrollDetail = null;
-				}
+			// if (!Shared.isSmartPhoneResolution())
+			// {
+			// 	if (Shared.scrollDetail != null) 
+			// 	{
+			// 		Shared.scrollDetail.destroy();
+			// 		Shared.scrollDetail = null;
+			// 	}
 
-				Shared.scrollDetail = new iScroll('wrapperDetail',{}); 
-				// this.getiScroll('wrapperDetail');
-			}
-			else
-			{
-				if (Shared.scroll != null) 
-				{
-					Shared.scroll.destroy();
-					Shared.scroll = null;
-				}
+			// 	Shared.scrollDetail = new iScroll('wrapperDetail',{}); 
+			// 	// this.getiScroll('wrapperDetail');
+			// }
+			// else
+			// {
+			// 	if (Shared.scroll != null) 
+			// 	{
+			// 		Shared.scroll.destroy();
+			// 		Shared.scroll = null;
+			// 	}
 
-				Shared.scroll = this.getiScroll('wrapper');
-			}
+			// 	Shared.scroll = this.getiScroll('wrapper');
+			// }
 
-			Shared.scrollerRefresh();
+			// Shared.scrollerRefresh();
 			Shared.menuView.renderContextMenu('calendar',{year: this.year, month: this.month, day: this.day});
 		},
 

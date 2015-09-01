@@ -50,7 +50,7 @@ define([
 
   Shared.lastCheckDate = null;
 
-  Shared.forceSmartPhoneResolution = false;
+  Shared.forceSmartPhoneResolution = true;
 
   Shared.forceLogout = false;
   
@@ -88,7 +88,7 @@ define([
     //IS_BUILTINEXPRESSO = true; 
     if (IS_BUILTINEXPRESSO) {
       if (Shared.isDesktop()) {
-        Shared.forceSmartPhoneResolution = true;
+        //Shared.forceSmartPhoneResolution = true;
         return true;
       } else {
         return false;
@@ -107,8 +107,7 @@ define([
     if (Shared.forceSmartPhoneResolution) {
       retVal = false;
     }
-    return false;
-    //return retVal;
+    return retVal;
   };
   Shared.isSmartPhoneResolution = function() {
     return !Shared.isTabletResolution();
@@ -121,7 +120,7 @@ define([
     if (Shared.isPhonegap() || (Shared.isAndroid()) || (Shared.isIDevice())) {
       retVal = false;
     }
-    return false;
+    //return false;
     return retVal;
   };
   Shared.isPhonegap = function() {
@@ -578,7 +577,7 @@ define([
     var fileref=document.createElement("link")
         fileref.setAttribute("rel", "stylesheet")
         fileref.setAttribute("type", "text/css")
-        fileref.setAttribute("href", './css/estilo_desktop.css');
+        fileref.setAttribute("href", './css/m_platform_desktop.css');
     document.getElementsByTagName("head")[0].appendChild(fileref);
   }
 

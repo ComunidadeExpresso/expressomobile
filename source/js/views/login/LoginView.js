@@ -211,6 +211,8 @@ define([
         .params({user:userName,password:passwd})
         .done(function(result){
 
+
+
           if (result.profile[0].contactApps.length != 0) {
 
               var expressoValues = {
@@ -255,18 +257,27 @@ define([
 
               }
               
-              var homeView = new HomeView();
-              homeView.profile = result.profile[0];
-              homeView.render();
+              $("#login-loading").empty();
+              $("#login-loading").addClass("animation-big-scale");
 
-              Shared.showMessage({
-                type: "success",
-                icon: 'icon-expresso',
-                title: "Bem vindo ao Expresso!",
-                description: "",
-                timeout: 2000,
-                elementID: "#pageMessage",
-              });
+              setTimeout(function() {
+
+                var homeView = new HomeView();
+                homeView.profile = result.profile[0];
+                homeView.render();
+
+                // Shared.showMessage({
+                //   type: "success",
+                //   icon: 'icon-expresso',
+                //   title: "Bem vindo ao Expresso!",
+                //   description: "",
+                //   timeout: 2000,
+                //   elementID: "#pageMessage",
+                // });
+
+              },1000);
+
+              
 
               return false;
 

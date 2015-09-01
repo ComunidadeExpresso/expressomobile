@@ -1,50 +1,55 @@
 
+@import url('normalize.css'); 
+
+/* MATERIAL DESIGN */
+@import url('../js/libs/mdl/material.min.css'); 
 @import url('m_mdl_iconfont.css'); 
 
 
-@import url('m_globals.css'); 
-@import url('m_contactsList.css'); 
-@import url('m_messagesList.css'); 
-@import url('m_iscroll.css'); 
 
+/* CONFIGURAÇÕES GLOBAIS*/
+@import url('m_animations.css');
+@import url('m_globals.css');
+
+/* LOGIN */
 @import url('m_login.css'); 
-@import url('m_settings.css'); 
+
+/* MENU */ 
 @import url('m_menu.css'); 
 
-@import url('m_messages.css'); 
+/* CONTATOS*/
+@import url('m_contactsList.css'); 
 
+/* CONFIGURAÇÕES */
+@import url('m_settings.css'); 
+
+/* MENSAGENS */
+@import url('m_messages.css'); 
+@import url('m_messagesList.css'); 
 @import url('m_detailMessage.css'); 
 
-@import url('../js/libs/mdl/material.min.css'); 
+/* AGENDA */
+@import url('../js/libs/jquery-ui/jquery-ui.min.css'); 
+@import url('m_calendar.css'); 
 
-@import url('chat.css'); 
 
+
+
+/* MESSENGER */
+
+@import url('../js/libs/jquery.wijmo/jquery.wijmo.css');
+@import url('../js/libs/jquery.contextmenu/jquery.contextMenu.css');
 @import url('../js/libs/messenger/im.css');
-
-
-
-
-
-
-
+@import url('../js/libs/messenger/im_new.css');
+@import url('m_chat.css'); 
 
 
 /*
-@import url('../js/libs/jquery-ui/jquery-ui.min.css'); 
 
-@import url('../js/libs/jquery.wijmo/jquery.wijmo.css');
+CAN ALSO BE INCLUDED FOR A SPECIFIC PLATFORM 
+THEY ARE INCLUDED IN JAVASCRIPT
 
-@import url('../js/libs/messenger/im.css');
-
-@import url('../js/libs/jquery.contextmenu/jquery.contextMenu.css');
-
-@import url('spinner.css');  
-
-
-@import url('estilo.css'); 
-
-@import url('chat.css'); 
-
-@import url('../js/libs/mdl/material.min.css');
+@import url('m_platform_desktop.css'); 
+@import url('m_platform_ios.css'); 
 
 */

@@ -44,9 +44,8 @@
 
   _.each(messages, function(message){ 
    %>
-   <li id="<%=message.listItemID()%>" class="messageListItem mdl-js-ripple-effect mdl-forced-ripple <% if (message.get("msgID") == msgIDSelected) { %>selected<%} %>"> 
+   <li id="<%=message.listItemID()%>" class="messageListItem <% if (message.get("msgID") == msgIDSelected) { %>selected<%} %>"> 
     <a href="<%=message.route()%>" rowid="<%=message.listItemID()%>" class="listItemLink">
-        <span class="mdl-ripple"/></span>
         <div class="messageItemContainer">
           <div id="thread" class="layout horizontal ">
             <div class="flex layout horizontal">
@@ -58,9 +57,9 @@
                   </span>
                   <time><%=message.getTimeAgo()%></time>
                 </span>
-                <span class="subject"><%= message.get("msgFrom").fullName %></span>
+                <!-- <span class="subject"></span> -->
                 <span id="lastline" class="layout horizontal center justified">
-                  <span class="snippet flex">&lt;<%= message.get("msgFrom").mailAddress %>&gt;</span>
+                  <span class="snippet flex"><%= message.get("msgFrom").fullName %> &lt;<%= message.get("msgFrom").mailAddress %>&gt;</span>
                 </span>
               </div>
               <% if (Shared.isDesktop()) { %>

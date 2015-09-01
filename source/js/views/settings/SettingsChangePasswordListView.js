@@ -21,7 +21,7 @@ define([
 
       this.loaded();
 
-      Shared.setCurrentPageTitle("Alterar Senha");
+      //Shared.setCurrentPageTitle("Alterar Senha");
 
       Shared.menuView.renderContextMenu('changePassword',{saveCallBack: this.SaveChangePassword, parentCallBack: this});
 

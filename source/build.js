@@ -40,6 +40,7 @@
         //tinysort_char: 'libs/jquery.tinysort/jquery.tinysort.charorder.min',
         tinysort_open: 'libs/jquery.tinysort/jquery.opensource.min',
         contextmenu: 'libs/jquery.contextmenu/jquery.contextMenu',
+        tweenmax: 'libs/tweenmax/TweenMax.min',
         templates: '../templates'
 
     },
@@ -88,6 +89,9 @@
               exports: "_"
           },
           jqueryui: {
+            deps: ['jquery']
+          },
+          tweenmax: {
             deps: ['jquery']
           },
           jquery_touchwipe: {

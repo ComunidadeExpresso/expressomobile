@@ -23,9 +23,9 @@
 
 					<% } %>
 
-					<li id="<%=c.get('contactID')%>" class="mdl-js-ripple-effect mdl-forced-ripple">
+					<li id="contact_row_<%=c.get('contactID')%>" class="">
 
-						<a href="/Contacts/Personal/<%= c.get('contactID') %>" title="<%=c.get('contactFullName')%>" class="listItemLink">
+						<a href="/Contacts/Personal/<%= c.get('contactID') %>" title="<%=c.get('contactFullName')%>" class="listItemLink" rowid='contact_row_<%=c.get('contactID')%>'>
 							
 							<span class="mdl-ripple"></span>
 

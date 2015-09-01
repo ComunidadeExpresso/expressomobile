@@ -1,5 +1,3 @@
-
-
 <div id="mainPage" class="expresso-layout mdl-layout mdl-js-layout mdl-layout--fixed-drawer mdl-layout--fixed-header">
       <header class="expresso-header mdl-layout__header">
 
@@ -14,11 +12,11 @@
 
           </div>
         </div>
-<!--           <div class="mdl-layout__tab-bar mdl-js-ripple-effect">
-            <a href="#scroll-tab-1" class="mdl-layout__tab is-active">Caixa de Entrada</a>
-            <a href="#scroll-tab-2" class="mdl-layout__tab">Nova Mensagem</a>
-            <a href="#scroll-tab-3" class="mdl-layout__tab">LOAD</a>
-          </div> -->
+
+        <!-- <div class="mdl-layout__tab-bar mdl-js-ripple-effect">
+            <a href="#scroll-tab-1" class="mdl-layout__tab is-active">Pessoais</a>
+            <a href="#scroll-tab-2" class="mdl-layout__tab">Catalogo Geral</a>
+        </div>  -->
         
       </header>
 
@@ -26,26 +24,21 @@
   <div id="menu" class="mdl-layout__drawer left expanded">
     <div id="scrollerMenu">
     </div>
-
   </div>
   <main id="mainPageContent" class="mdl-layout__content">
-    <% if (Shared.isDesktop()) { %>
+    
         <% if (Shared.userHasModule("chat")) { %>
-        <div id="chatContactsWindow"><div id="chat_toggleRoster" class="toggleRightDiv"></div><div id="chatDesktop"></div></div>
+        <div id="chatContactsWindow" class="mdl-cell mdl-cell--hide-phone mdl-cell--hide-tablet"><div id="chat_toggleRoster" class="toggleRightDiv"></div><div id="chatDesktop"></div></div>
         <% } %>
-    <% } %>
-    <div class="page-content">
-        
-        <div id="content" class="left nonborderbox">
+    
+    <div id="pageContent" class="page-content mdl-cell mdl-grid">
+
+        <div id="content" class=" mdl-cell mdl-cell--12-col <% if (!Shared.forceSmartPhoneResolution) { %>mdl-cell--5-col-tablet mdl-cell--5-col-desktop<% } else { %>mdl-cell--12-col-tablet mdl-cell--12-col-desktop<% } %> mdl-card mdl-shadow--2dp">
         
         </div>
-
-        <div id="contentDetail" class="left nonborderbox hidden">
+        <div id="contentDetail" class=" mdl-cell mdl-cell--12-col  mdl-card mdl-shadow--2dp mdl-cell--hide-phone <% if (Shared.forceSmartPhoneResolution) { %>mdl-cell--hide-tablet mdl-cell--hide-desktop<% } else { %>mdl-cell--7-col-tablet mdl-cell--7-col-desktop<% } %>">
           
         </div>
-
     </div>
   </main>
 </div>
-
-

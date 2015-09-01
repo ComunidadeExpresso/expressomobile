@@ -1,1 +1,0 @@
-!function(e,t){e.ender({iScroll:function(e){return new t(this[0],e)}},!0)}(ender,require("iscroll").iScroll);

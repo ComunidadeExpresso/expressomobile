@@ -20,15 +20,7 @@ define([
   'im',
 ], function($, _, Backbone, Shared, MessagesCollection, ServersCollection, MessagesListView, DetailMessageView, MenuView, homeTemplate,Material,jquery_migrate,jqueryui,wijmo,tinysort,tinysort_open,contextmenu,linkify,im){
 
-/*
-  'views/chat/ChatListView',
-  'views/home/StatusBarView',
-  'views/home/PopupView',
-  'collections/home/PopupListCollection',
-    
 
-  ,ChatListView,StatusBar,Popup,PopupList,jquery_migrate,jqueryui,wijmo,tinysort,tinysort_open,contextmenu,linkify,im
-*/
   var HomeView = Backbone.View.extend({
 
     folderID: 'INBOX',
@@ -40,7 +32,6 @@ define([
     menuView: null,
     menuOpen: false,
 
-    el: $("#mainAppPageContent"),
 
     initialize:function() {
       $(window).on("resize",this.refreshWindow);
@@ -70,14 +61,14 @@ define([
       };
 
       var compiledTemplate = _.template( homeTemplate, newData );
-      this.$el.html( compiledTemplate ); 
+      // this.$el.html( compiledTemplate ); 
 
       
 
-      //this.$el.html(homeTemplate);
-      //this.$el.css("width","100%");
-      //this.$el.css("height","100%");
-      //$("#mainAppPageContent").empty().append(this.$el);
+      this.$el.html(compiledTemplate);
+      this.$el.css("width","100%");
+      this.$el.css("height","100%");
+      $("#mainAppPageContent").empty().append(this.$el);
 
       Material.upgradeDom();
 
@@ -238,13 +229,12 @@ define([
     },
 
     events: {
-      "click #menuButton": "toggleMenu",
-      "click #menu_toggle": "toggleMenu",
+      // "click #menuButton": "toggleMenu",
+      // "click #menu_toggle": "toggleMenu",
+      // "click .listFolderItemLink": "selectFolderItem",
       "click #chat_toggleRoster": "toggleChat",
-      "click .listFolderItemLink": "selectFolderItem",
       "click .menuLink": "selectMenuItem",
       "click .listItemLink": "selectListItem",
-      "click body": 'clickMainAppPageContent',
     },
 
 
@@ -253,37 +243,8 @@ define([
       e.preventDefault();
 
       parent = $(e.target).parent();
-
-      if (Shared.isDesktop()) {
-
-        if(parent.find(".ink").length == 0)
-          parent.prepend("<span class='ink'></span>");
-          
-        ink = parent.find(".ink");
-        //incase of quick double clicks stop the previous animation
-        ink.removeClass("animate");
-        
-        //set size of .ink
-        if(!ink.height() && !ink.width())
-        {
-          //use parent's width or height whichever is larger for the diameter to make a circle which can cover the entire element.
-          d = Math.max(parent.outerWidth(), parent.outerHeight());
-          ink.css({height: d, width: d});
-        }
-        
-        //get click coordinates
-        //logic = click coordinates relative to page - parent's position relative to page - half of self height/width to make it controllable from the center;
-        if (parent.offset() != undefined) {
-
-          x = e.pageX - parent.offset().left - ink.width()/2;
-          y = e.pageY - parent.offset().top - ink.height()/2;
-        }
-
-      }
-      //set the position and add class .animate
       
-
-      $('#scrollerList li').each(function() { 
+      $('#scroller li').each(function() { 
           $(this).removeClass( 'selected' ); 
       }); 
 
@@ -291,23 +252,13 @@ define([
         parent = parent.parent();
       }
 
-      var gotoRoute = function() {
-        Shared.router.navigate(e.currentTarget.getAttribute("href"),{trigger: true});
-      };
+      var rowid = e.currentTarget.getAttribute("rowid");
+      console.log(rowid);
+      if (rowid != undefined) {
+        $("#" + rowid).addClass("selected");
+      }
 
-      //if (Shared.isDesktop()) {
-        //ink.css({top: y+'px', left: x+'px'}).addClass("animate");
-        setTimeout(gotoRoute,500);
-      // } else {
-      //   var rowid = e.currentTarget.getAttribute("rowid");
-      //   $("#" + rowid).addClass("selected");
-
-      //   gotoRoute();
-      // }
-
-
-      
-
+      Shared.router.navigate(e.currentTarget.getAttribute("href"),{trigger: true});
       
 
     },
@@ -327,34 +278,13 @@ define([
         e.preventDefault();
       }
 
-      var menuWidth = 0;
-      var newPageWidth = $(window).width() - $("#chatContactsWindow").width();
-
-      if ($("#menu").width() != 0) {
-
-        Shared.menuOpen = false;
-        //$("#menu").animate({width: "0px"}, 200);
-        $("#mainPage").animate({"margin-left": "0px"}, 200);
-        $("#mainPage").width(newPageWidth);
-      } else {
-        newPageWidth = newPageWidth - menuWidth;
-        Shared.menuOpen = true;
-        //$("#menu").animate({width: menuWidth + "px"}, 200);
-        $("#mainPage").animate({"margin-left": menuWidth}, 200);
-        $("#mainPage").width(newPageWidth);
-      }
-
     },
 
     toggleMenu: function(e) {
       if (e != undefined) {
         e.preventDefault();
       }
-      if (Shared.isDesktop()) {
-        this.toggleMenuDesktop();
-      } else {
-        this.menuView.toggleMenu();
-      }
+
     },
 
     toggleContextMenu: function() {
@@ -367,18 +297,21 @@ define([
       }
 
       var chatWidth = 250;
-      var menuWidth = $("#scrollerMenu").width();
+      var menuWidth = 0;
+      if (!$("#mainPage").hasClass("is-small-screen")) {
+         menuWidth = $("#menu").width();
+      }
       var newPageWidth = $(window).width() - menuWidth;
 
       if ($("#chatContactsWindow").width() != 0) {
         $("#chatContactsWindow").animate({width: "0px"}, 200);
-        $("#content").animate({width: newPageWidth}, 200);
+        $("#pageContent").animate({width: newPageWidth}, 200);
         $(".expresso-fab-button").animate({ right: "16px" },200);
         
       } else {
         newPageWidth = newPageWidth - chatWidth;
         $("#chatContactsWindow").animate({width: chatWidth + "px"}, 200);
-        $("#content").animate({width: newPageWidth}, 200);
+        $("#pageContent").animate({width: newPageWidth}, 200);
         $(".expresso-fab-button").animate({ right: "266px" },200);
       }
       
@@ -410,25 +343,48 @@ define([
 
       var doneResizing = function() {
 
-
-        var menuWidth = $("#scrollerMenu").width();
+        var menuWidth = 0;
+        if (!$("#mainPage").hasClass("is-small-screen")) {
+           menuWidth = $("#menu").width();
+        }
         var newPageWidth = $(window).width() - menuWidth;
         var chatWidth = 250;
+
+        if (Shared.isSmartPhoneResolution()) {
+          $("#contentDetail").addClass("hidden");
+        } else {
+          $("#contentDetail").removeClass("hidden");
+        }
+
+        
 
         if (Shared.isDesktop()) {
 
           if ($("#chatContactsWindow").width() == 0) {
             $("#chatContactsWindow").animate({width: "0px"}, 200);
-            $("#content").animate({width: newPageWidth}, 200);
+            $("#pageContent").animate({width: newPageWidth}, 200);
             $(".expresso-fab-button").animate({ right: "16px" },200);
+
+            // $("#content").css("height",$(window).height() -  $(".mdl-layout__header-row").height()  - 16 );
+            // $("#contentDetail").css("height",$(window).height() -  $(".mdl-layout__header-row").height()  - 16 );
             
           } else {
             newPageWidth = newPageWidth - chatWidth;
             $("#chatContactsWindow").animate({width: chatWidth + "px"}, 200);
-            $("#content").animate({width: newPageWidth}, 200);
+            $("#pageContent").animate({width: newPageWidth}, 200);
             $(".expresso-fab-button").animate({ right: "266px" },200);
+
+            //$("#content").css("height",$(window).height() -  $(".mdl-layout__header-row").height());
+            //$("#contentDetail").css("height",$(window).height() -  $(".mdl-layout__header-row").height());
           }
 
+        } else {
+            $("#chatContactsWindow").animate({width: "0px"}, 200);
+            $("#pageContent").animate({width: newPageWidth}, 200);
+            $(".expresso-fab-button").animate({ right: "16px" },200);
+
+            //$("#content").css("height",$(window).height() -  $(".mdl-layout__header-row").height());
+            //$("#contentDetail").css("height",$(window).height() -  $(".mdl-layout__header-row").height());
         }
 
         // console.log('doneResizing');
@@ -503,101 +459,8 @@ define([
       // // Verify screen width to define device type
       // Shared.deviceType(Shared.forceSmartPhoneResolution);
 
-
-      // $('body').height($(window).height() - top);
-      // $('#wrapper').css('top', top + search);
-
-      if (Shared.betaVersion) {
-        $("#beta").removeClass("hidden");
-      }
-
-     // this.fillLocalStorageTest();
       
     },
-
-    // fillLocalStorageTest: function() {
-
-    //   var iterationsData;
-    //   var results = document.getElementById('textQuota');
-
-    //   if (!('localStorage' in window)) {
-    //       results.innerHTML = 'Your browser has no localStorage support.';
-    //       return;
-    //   }
-
-    //   var n10b =    '0123456789';
-    //   var n100b =   repeat(n10b, 10);
-    //   var n1kib =   repeat(n100b, 10);
-    //   var n10kib =  repeat(n1kib, 10);
-    //   var n100kib = repeat(n10kib, 10);
-    //   var n1mib =   repeat(n100kib, 10);
-    //   var n10mib =  repeat(n1mib, 10);
-
-    //   var values = [n10b, n100b, n1kib, n10kib, n100kib, n1mib, n10mib];
-
-    //   iterationsData = [];
-    //   for (var majorIndex = 1; majorIndex < values.length; majorIndex++) {
-    //       var major = values[majorIndex];
-    //       var minor = values[majorIndex - 1];
-    //       for (var i = 1; i < 10; i++) {
-    //           for (var j = 0; j < 10; j++) {
-    //               iterationsData.push([major, minor, i, j]);
-    //           }
-    //       }
-    //   }
-
-    //   var index = 0;
-    //   var oldLength = 0;
-
-    //   function iteration() {
-    //       var data = iterationsData[index];
-
-    //       major = data[0];
-    //       minor = data[1];
-    //       i = data[2];
-    //       j = data[3];
-
-    //       var string = repeat(major, i) + repeat(minor, j);
-    //       var length = '' + string.length;
-
-    //       if (test(string)) {
-    //           results.innerHTML = length + ' characters were stored successfully.';
-    //       } else {
-    //           results.innerHTML = oldLength + ' characters were stored successfully,  but ' + length + ' weren\'t.';
-    //           return;
-    //       }
-    //       oldLength = length;
-
-    //       index++;
-    //       if (index < iterationsData.length) {
-    //           setTimeout(iteration, 0);
-    //       } else {
-    //           results.innerHTML = oldLength + ' characters were saved successfully, test is stopped.';
-    //       }
-    //   }
-
-    //   iteration();
-
-    //   function test(value) {
-    //       try {
-    //           localStorage.test = value;
-    //           return true;
-    //       } catch (e) {
-    //           return false;
-    //       }
-    //   }
-
-    //   function repeat(string, count) {
-    //       var array = [];
-    //       while (count--) {
-    //           array.push(string);
-    //       }
-    //       return array.join('');
-    //   }
-
-    // },
-
-
 
 
   });

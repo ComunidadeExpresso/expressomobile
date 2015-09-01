@@ -1,11 +1,11 @@
 <div id="pageMessage"></div>
 <div class="login-center" style="width: 250px; margin-top: 20px;">
-      <div class="login-logo"></div>
+      <div class="login-logo animation-scale-fadein"></div>
 </div>
 <div class="login-center" style="width: 250px; margin-top: 20px;">
       <form method="POST" action="#/Home" onsubmit="return false;">
-            <div class="mdl-card mdl-shadow--2dp" style="width: 250px;">
-              <div id="login-loading" class="mdl-card__supporting-text" style="">
+            <div id="login-loading" class="animation-falling mdl-card mdl-shadow--2dp" style="width: 250px;">
+              <div class="mdl-card__supporting-text" style="">
                   <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label textfield-demo">
                         <% if (servers.length > 1) { %>
                         <select id="serverURL" name="serverURL" class="mdl-textfield__input" >
@@ -30,45 +30,19 @@
                   </div>
               </div>
               <div class="mdl-card__actions mdl-card--border">
-                 <button id="btn-login" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" style="width: 100%;">
-                  Conectar
-                 </button>
-              </div>
+                   <button id="btn-login" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" style="width: 100%;">
+                    Conectar
+                   </button>
+                </div>
             </div>
       </form>
 </div>
 <div class="login-center" style="width: 250px; margin-top: 20px;">
-      <div class="login-company-logo"></div>
+      <div class="login-company-logo animation-scale-fadein"></div>
       <% if (Shared.isPhonegap()) { %>
             <div id="helpLink" class="help">? Ajuda/Perguntas Frequentes</div>
       <% } %>
 </div>
-
-<!--
-<div class="login-center" style="width: 245px; margin-top: 0px;">
-
-</div>
-<form method="POST" action="#/Home" class="login-box" onsubmit="">
-      <div id="beta" class="hidden"></div>
-      <div id="loadingLogin" style="width: 100%; min-height: 140px;">
-            <% if (servers.length > 1) { %>
-            <select id="serverURL" name="serverURL" class="login-input" >
-                  <% _.each(servers, function(server){ %>
-                        <option value="<%=server.getServerURL()%>"><%=server.get("serverName")%></option>
-                  <% }); %>
-            </select>
-            <% } else { %>
-                  <% _.each(servers, function(server){ %>
-                        <input type="hidden" id="serverURL" name="serverURL" value="<%=server.getServerURL()%>" />
-                  <% }); %>
-            <% } %>
-            <input id="username" type="username" name="username" class="login-input" value="" placeholder="Usu&aacute;rio" autofocus>
-            <input id="password" type="password" name="password" class="login-input" value="" placeholder="Senha">
-
-            <input id="btn-login" type="button" value="Conectar" class="btn btn-primary"  onclick="" style="width: 100%;">
-      </div>
-</form>
--->
 
 
 

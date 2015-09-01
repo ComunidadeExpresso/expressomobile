@@ -19,6 +19,7 @@ then
 	echo "  - expresso web release 1.x"
 	echo "  - expresso web publish Teste"
 	echo "  - expresso inside dist"
+	echo "  - expresso ios dist"
 	echo " "
 	echo " "
 fi
@@ -35,8 +36,7 @@ then
 	if [ "$2" = "path" ]
 	then
 		ANDROID_HOME=/projeto/frameworks/android-sdk-mac_x86
-		PATH=$PATH:$ANDROID_HOME/tools/
-		PATH=$PATH:$ANDROID_HOME/platform-tools/
+		PATH=$PATH:$ANDROID_HOME/tools/:$ANDROID_HOME/platform-tools/
 	fi
 
 	if [ "$2" = "run" ]
@@ -110,6 +110,21 @@ then
 		./hooks/gen_dist.sh
 		rm -rf /Users/jairpereira/Sites/expresso22/email
 		cp -R /Users/jairpereira/Sites/expressomobile/www/ /Users/jairpereira/Sites/expresso22/email
+	fi
+
+fi
+
+
+if [ "$1" = "ios" ]
+then
+
+	if [ "$2" = "dist" ]
+	then
+		echo "EXPRESSO - IOS - DIST"
+		./hooks/gen_dist.sh
+		rm -rf /Users/jairpereira/Sites/expressomobile/platforms/ios/www/
+		cp -R /Users/jairpereira/Sites/expressomobile/www/* /Users/jairpereira/Sites/expressomobile/platforms/ios/www/*
+		cordova run ios
 	fi
 
 fi

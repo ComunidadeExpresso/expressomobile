@@ -21,7 +21,7 @@ define([
 
       this.loaded();
 
-      Shared.setCurrentPageTitle("Suporte / Sugestões");
+      //Shared.setCurrentPageTitle("Suporte / Sugestões");
 
       Shared.menuView.renderContextMenu('support',{saveCallBack: this.SendSupportFeedback, parentCallback: this});
 

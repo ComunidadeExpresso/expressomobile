@@ -61,7 +61,31 @@ define([
 
       this.$el.html("");
       this.$el.html(compiledTemplate);
-      $(elementID).empty().append(this.$el);
+      
+      var withDialog = false;
+
+      if (withDialog) {
+        // this.$el.wijdialog({
+        //   autoOpen: true,
+        //   title: "Nova Mensagem",
+        //   draggable: true,
+        //   dialogClass: "compose-dialog-box",
+        //   captionButtons: {
+        //       pin: { visible: false },
+        //       refresh: { visible: false },
+        //       toggle: { visible: false },
+        //       minimize: { visible: true },
+        //       maximize: { visible: false }
+        //   },
+        //   resizable: true,
+        //   position: [0,0],
+        //   close: function(){
+        //     $(this).wijdialog ("destroy");
+        //   }
+        // });
+      } else {
+        $(elementID).empty().append(this.$el);
+      }
 
       if (Shared.isDesktop()) {
         //ENABLE ATTACHMENTS, DROP ZONE AND AUTO-COMPLETE.
@@ -104,7 +128,9 @@ define([
         
         this.setupAutoComplete();
 
-      }
+      } 
+
+      
 
       this.renderContextMenu();
 

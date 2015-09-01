@@ -1,11 +1,32 @@
 <% _.each(folders, function(folder){ %>
+	<% 
+
+	folderIcon = "folder";
+	if (folder.get("folderType") == 0) { folderIcon = "inbox"; }
+	if (folder.get("folderType") == 4) { folderIcon = "drafts"; }
+	if (folder.get("folderType") == 1) { folderIcon = "send"; }
+	if (folder.get("folderType") == 2) { folderIcon = "archive"; }
+	if (folder.get("folderType") == 3) { folderIcon = "delete"; }
+	if (folder.get("folderType") == 5) { folderIcon = "folder"; }
+	if (folder.get("folderType") == 6) { folderIcon = "folder_shared"; }
+
+	%>
+	<% if (((folder.get("folderParentID") == "") || (folder.get("folderParentID") == "user")) ) { %>
+	<a class="mdl-navigation__link listFolderMenuItemLink" href="<%=folder.route()%>"><i class="mdl-color-text--blue-grey-400 material-icons" role="presentation"><%=folderIcon%></i>
+		<% if (folder.get("folderHasChildren") == 1) { %><i class="mdl-color-text--blue-grey-400 material-icons folder-with-subfolders" role="presentation">navigate_next</i><% } %>
+		<span class="material-label <% if (folder.get("qtdUnreadMessages") != 0) { %>mdl-badge<% } %>" data-badge="<%=folder.get("qtdUnreadMessages")%>"><%=folder.get("folderName")%>			
+		</span>
+	</a>
+
+	<% } %> 
+<% }); %>
+<!-- 
+<% _.each(folders, function(folder){ %>
 	<% if ((folder.get("folderParentID") == "") || (folder.get("folderParentID") == "user")) { %>
 	<li>
 		<a href="<%=folder.route()%>" name="<%=folder.route()%>" class="listFolderMenuItemLink">
 			<span class="material-label <% if (folder.get("qtdUnreadMessages") != 0) { %>mdl-badge<% } %>" data-badge="<%=folder.get("qtdUnreadMessages")%>"><%=folder.get("folderName")%><% if (folder.get("folderHasChildren") == 1) { %><strong class="badge badge-subfolders"> > </strong><% } %></span>
 
-			<!-- <span><%=folder.get("folderName")%><% if (folder.get("folderHasChildren") == 1) { %><strong class="badge badge-subfolders"> > </strong><% } %><% if (folder.get("qtdUnreadMessages") != 0) { %><strong class="badge badge-info"><%=folder.get("qtdUnreadMessages")%></strong><% } %>
-				</span> -->
 		<% if (folder.get("folderType") == 0) { %>
 			<div class="icon folder-inbox"></div>
 		<% } %>
@@ -35,4 +56,4 @@
 		</a>
 	</li>
 	<% } %> 
-<% }); %>
+<% }); %> -->

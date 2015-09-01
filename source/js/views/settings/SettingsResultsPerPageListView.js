@@ -35,7 +35,7 @@ define([
 
         $(that.elementID).empty().html(that.$el);
 
-        Shared.setCurrentPageTitle("Resultados por página");
+        //Shared.setCurrentPageTitle("Resultados por página");
 
         that.loaded();
 
