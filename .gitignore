@@ -12,7 +12,7 @@
 /platforms/android/.gradle/2.2.1/taskArtifacts/fileHashes.bin
 /platforms/android/.gradle/2.2.1/taskArtifacts/cache.properties.lock
 
-
+/node_modules/*
 
 #IOS
 *.mode1v3
