@@ -1,8 +1,9 @@
 define([
+  'webcomponents',
   'jQuery',
   'Underscore',
   'Backbone'
-], function($, _, Backbone){
+], function(webcomponents,$, _, Backbone){
 
   return {};
 });

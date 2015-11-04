@@ -12,9 +12,9 @@
     optimizeCss: 'standard',
     removeCombined: true,
     paths: {
+        webcomponents: "../bower_components/webcomponentsjs/webcomponents",
         jquery: 'libs/jquery/jquery-min',
         underscore: 'libs/underscore/underscore-min',
-        iscroll: 'libs/iscroll/src/iscroll_old',
         backbone: 'libs/backbone/backbone-min',
         localstorage: 'libs/backbone/localstorage',
         expressoAPI: 'libs/expresso/expressoAPI',

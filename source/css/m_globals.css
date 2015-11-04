@@ -21,6 +21,7 @@ a {
 
 
 
+
 .expresso-cards {
   width: 100%;
   -webkit-box-align: start;
@@ -135,11 +136,56 @@ a {
   width: 100%;
 }
 
+
+
+pull-to-action {
+  z-index: 1000; 
+  position: absolute;
+}
+
+
 /*
+::-webkit-scrollbar {
+    background: transparent;
+    border: rgba(0, 0, 0, 0.2) solid;
+}
+::-webkit-scrollbar:vertical {
+    border-width: 0 0 0 1px;
+    width: 8px;
+}
+::-webkit-scrollbar-corner {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.3) inset;
+}
+::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(0, 0, 0, 0.3);
+}
+::-webkit-scrollbar-thumb:active {
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+::-webkit-scrollbar-button:start{display:none}
+::-webkit-scrollbar-button:end{display:block}
+
+::-webkit-scrollbar-button:vertical:increment {
+    height:0px;
+}
+::-webkit-scrollbar-button:vertical:decrement {
+    border-top: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+    height: 0px;
+}
+*/
+
 
 #content {
   overflow: auto;
 }
+/*
 
 #contentDetail {
   overflow: auto;

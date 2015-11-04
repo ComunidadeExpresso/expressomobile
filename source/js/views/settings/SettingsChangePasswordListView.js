@@ -16,11 +16,11 @@ define([
         _: _ 
       };
 
-      var compiledTemplate = _.template( settingsChangePasswordListTemplate, newData );
+      var htmlTemplate = _.template(settingsChangePasswordListTemplate);
+      var compiledTemplate = htmlTemplate(newData);
+
       this.$el.html( compiledTemplate ); 
-
-      this.loaded();
-
+      
       //Shared.setCurrentPageTitle("Alterar Senha");
 
       Shared.menuView.renderContextMenu('changePassword',{saveCallBack: this.SaveChangePassword, parentCallBack: this});
@@ -151,15 +151,9 @@ define([
 
       }
 
-    },
-
-    loaded: function () 
-    {
-
-      var that = this;
-      Shared.scrollDetail = new iScroll('wrapperDetail');
-
     }
+
+
   });
 
   return SettingsChangePasswordListView;

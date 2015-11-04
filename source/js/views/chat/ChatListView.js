@@ -175,9 +175,10 @@ define([
 
           var compiledTemplate;
           if (Shared.isDesktop()) {
-            compiledTemplate = _.template( chatListTemplateDesktop, newData );
+            var htmlTemplate = _.template(chatListTemplateDesktop);
+            var compiledTemplate = htmlTemplate(newData);
           } else {
-            compiledTemplate = _.template( chatListTemplate, newData );
+            var htmlTemplate = _.template(chatListTemplate);   
           }
 
           $(primaryElementID).html( compiledTemplate ); 
@@ -187,8 +188,6 @@ define([
           var renderChatList = function() {
             var chatListView = new ChatListItemsView();
             chatListView.render();
-
-            that.loaded();
 
             Shared.setCurrentView(1,that);
 
@@ -222,15 +221,6 @@ define([
       this.secondViewName = "";
     },
 
-    loaded: function () 
-    {
-      var that = this;
-      if (Shared.isDesktop()) {
-        //Shared.scroll = new iScroll('wrapperCHAT');
-      } else {
-         Shared.scroll = new iScroll('wrapper');
-      }
-    },
 
     setChatBadge: function(contactID,value) 
     {

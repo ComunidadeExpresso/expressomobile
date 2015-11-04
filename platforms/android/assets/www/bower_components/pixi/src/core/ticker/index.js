@@ -1,0 +1,1 @@
+var Ticker=require("./Ticker"),shared=new Ticker;shared.autoStart=!0,module.exports={shared:shared,Ticker:Ticker};

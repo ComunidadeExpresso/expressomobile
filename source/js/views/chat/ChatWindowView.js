@@ -59,7 +59,9 @@ define([
         Shared: Shared
       };
 
-      var compiledTemplate = _.template( chatWindowTemplate, data );
+      var htmlTemplate = _.template(chatWindowTemplate);
+      var compiledTemplate = htmlTemplate(data);
+
       // if (Shared.isDesktop()) {
       //   // var div = $("")
       //   $("#mainAppPageContent").append(compiledTemplate);
@@ -70,7 +72,6 @@ define([
 
       this.renderMessages();
 
-      this.loaded();
       
       var top = $('.topHeader').outerHeight(true);
       var chat = $('.chatArea').outerHeight(true) == null ? 0 : $('.chatArea').outerHeight(true);
@@ -149,7 +150,9 @@ define([
         elementID = "#msgs_content_" + this.chatID;
       }
 
-      var compiledMessagesTemplate = _.template( chatWindowMessagesTemplate, data );
+      var htmlTemplate = _.template(chatWindowMessagesTemplate);
+      var compiledMessagesTemplate = htmlTemplate(data);
+
       $(elementID).html( compiledMessagesTemplate );
 
       $('.myPicture').each(function() {
@@ -169,18 +172,6 @@ define([
         var element = document.getElementById('msgs_content_' + this.chatID);
         var maxScrollPosition = element.scrollHeight - element.clientHeight;
         $("#msgs_content_" + this.chatID).animate({ scrollTop: maxScrollPosition }, 200);
-      }
-    },
-
-    loaded: function() {
-      if (!Shared.isDesktop()) {
-        if (Shared.scrollDetail != null) {
-          Shared.scrollDetail.destroy();
-          Shared.scrollDetail = null;
-        }
-        if (Shared.scrollDetail == null) {
-          Shared.scrollDetail = new iScroll('wrapperDetail');
-        }
       }
     }
 

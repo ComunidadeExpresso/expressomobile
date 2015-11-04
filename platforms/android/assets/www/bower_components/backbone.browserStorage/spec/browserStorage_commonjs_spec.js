@@ -1,0 +1,1 @@
+describe("Backbone.browserStorage in CommonJS environment",function(){var e=require("../backbone.browserStorage"),t=require("backbone");it("should be the same as the non-CommonJS usage",function(){assert.equal(t.BrowserStorage,BRowserStorage)})});

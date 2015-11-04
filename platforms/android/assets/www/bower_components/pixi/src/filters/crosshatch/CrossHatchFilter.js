@@ -1,0 +1,1 @@
+function CrossHatchFilter(){core.AbstractFilter.call(this,null,fs.readFileSync(__dirname+"/crosshatch.frag","utf8"))}var core=require("../../core"),fs=require("fs");CrossHatchFilter.prototype=Object.create(core.AbstractFilter.prototype),CrossHatchFilter.prototype.constructor=CrossHatchFilter,module.exports=CrossHatchFilter;

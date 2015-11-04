@@ -80,26 +80,7 @@ define([
 
 		loaded: function (pEmail, pContactID) 
 		{
-			if (!Shared.isSmartPhoneResolution())
-			{
-				if (Shared.scrollDetail != null) 
-				{
-					Shared.scrollDetail.destroy();
-					Shared.scrollDetail = null;
-				}
-				Shared.scrollDetail = new iScroll('wrapperDetail');
-			}
-			else
-			{
-				if (Shared.scroll != null) 
-				{
-					Shared.scroll.destroy();
-					Shared.scroll = null;
-				}
-				Shared.scroll = new iScroll('wrapper');
-			}
-
-			Shared.scrollerRefresh();
+			
 			Shared.menuView.renderContextMenu('detailsContact', { email: pEmail, contactID: pContactID });
 		},
 

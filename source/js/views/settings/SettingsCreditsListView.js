@@ -16,22 +16,15 @@ define([
         _: _ 
       };
 
-      var compiledTemplate = _.template( settingsCreditsListTemplate, newData );
+      var htmlTemplate = _.template(settingsCreditsListTemplate);
+      var compiledTemplate = htmlTemplate(newData);
+
       this.$el.html( compiledTemplate ); 
 
       //Shared.setCurrentPageTitle("Créditos");
 
-      this.loaded();
-
-    },
-
-    loaded: function () 
-    {
-
-      var that = this;
-      Shared.scrollDetail = new iScroll('wrapperDetail');
-
     }
+    
   });
 
   return SettingsCreditsListView;

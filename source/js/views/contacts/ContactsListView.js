@@ -12,8 +12,9 @@ define([
 	'views/home/LoadingView',
 	'views/home/HomeView',
 	'collections/contacts/ContactsListCollection',
+	'views/mail/PullToActionView',
 	'material',
-], function($, _, Backbone, Shared, primaryContentTemplate, detailContentTemplate, GeneralContactsListTemplate, PersonalContactsListTemplate, ContextMenuCollection, PictureImageContactView, LoadingView, HomeView, ContactsListCollection,Material)
+], function($, _, Backbone, Shared, primaryContentTemplate, detailContentTemplate, GeneralContactsListTemplate, PersonalContactsListTemplate, ContextMenuCollection, PictureImageContactView, LoadingView, HomeView, ContactsListCollection, PullToActionView,Material)
 {
 	var ContactsListView = Backbone.View.extend(
 	{
@@ -51,6 +52,19 @@ define([
 				this.listGeneralContacts('',false);
 			else 
 				this.listPersonalContacts('',false);
+
+			var that = this;
+			var refreshAction = function () {
+				$("#scroller").empty();
+				if (that.secondViewName == 'General')
+					that.listGeneralContacts($('.searchField').val(),true);
+				else 
+					that.listPersonalContacts($('.searchField').val(),true);
+	        };
+
+	        var pullToAction = new PullToActionView({ refreshAction: refreshAction, container: '#pull-to-action-loader'  });
+        	pullToAction.render();
+
 		},
 
 		initialize: function() { },
@@ -58,64 +72,14 @@ define([
 		loaded: function () 
 		{
 
-			Material.upgradeDom();
+			window.componentHandler.upgradeDom();
 
 			// var top = $('.topHeader').outerHeight(true);
 			// var search = $('.searchArea').outerHeight(true) == null ? 0 : $('.searchArea').outerHeight(true);
 
 			// $('#wrapper').css('top', top + search);
 
-			// if (Shared.scroll != null) 
-			// {
-			// 	Shared.scroll.destroy();
-			// 	Shared.scroll = null;
-			// }
-
-			// var that = this;
-
-			// pullDownEl = document.getElementById('pullDown');
-   //    		pullDownOffset = pullDownEl.offsetHeight;
-
-			// Shared.scroll = new iScroll('wrapper',
-		 //      {
-		 //        useTransition: true,
-		 //        topOffset: pullDownOffset,
-		 //        onRefresh: function () 
-		 //        {
-		 //          if (pullDownEl.className.match('loading')) 
-		 //          {
-		 //            pullDownEl.className = '';
-		 //            pullDownEl.querySelector('.pullDownLabel').innerHTML = 'Puxe para baixo para atualizar...';
-		 //          }
-		 //        },
-		 //        onScrollMove: function () 
-		 //        {
-		 //          if (this.y > 5 && !pullDownEl.className.match('flip')) 
-		 //          {
-		 //            pullDownEl.className = 'flip';
-		 //            pullDownEl.querySelector('.pullDownLabel').innerHTML = 'Solte para atualizar...';
-		 //            this.minScrollY = 0;
-		 //          } 
-		 //          else if (this.y < 5 && pullDownEl.className.match('flip')) 
-		 //          {
-		 //            pullDownEl.className = '';
-		 //            pullDownEl.querySelector('.pullDownLabel').innerHTML = 'Puxe para baixo para atualizar...';
-		 //            this.minScrollY = -pullDownOffset;
-		 //          } 
-		 //        },
-		 //        onScrollEnd: function () 
-		 //        {
-		 //          if (pullDownEl.className.match('flip')) 
-		 //          {
-		 //            pullDownEl.className = 'loading';
-		 //            //pullDownEl.querySelector('.pullDownIcon').style = 'width: 0px; height; 0px;';
-		 //            pullDownEl.querySelector('.pullDownLabel').innerHTML = 'Carregando...';
-		 //            that.pullDownAction(); 
-		 //          }
-		 //        } 
-		 //      });
-
-			// Shared.scrollerRefresh();
+			
 
 			// if (this.secondViewName == 'General')
 			// 	Shared.menuView.renderContextMenu('generalContacts', {});
@@ -123,17 +87,6 @@ define([
 			// 	Shared.menuView.renderContextMenu('personalContacts', {});
 		},
 
-		pullDownAction: function() 
-		{
-			//alert("loadContacts");
-			// var loadingView = new LoadingView({el: $('#scroller')});	
-			// 	loadingView.render();
-
-			if (this.secondViewName == 'General')
-				this.listGeneralContacts($('.searchField').val(),true);
-			else 
-				this.listPersonalContacts($('.searchField').val(),true);
-		},
 
 		searchPersonalContacts: function (e)
 		{
@@ -195,7 +148,11 @@ define([
 					if (data.contacts.length > 0) 
 					{
 						$('#message').empty();
-						$('#scroller').empty().append(_.template(PersonalContactsListTemplate, data));
+
+						var htmlTemplate = _.template(PersonalContactsListTemplate);
+       					var htmlWithData = htmlTemplate(data);
+
+						$('#scroller').empty().append(htmlWithData);
 
 						
 
@@ -258,7 +215,9 @@ define([
 				if (data.error == undefined) 
 				{
 					$('#message').empty();
-					$('#scroller').empty().append(_.template(GeneralContactsListTemplate, data));
+					var htmlTemplate = _.template(GeneralContactsListTemplate);
+       				var htmlWithData = htmlTemplate(data);
+					$('#scroller').empty().append(htmlWithData);
 
 					if (data.contacts.length > 0) 
 						self.openFirstContact(data.contacts[0].get('contactUIDNumber'), data.contacts[0].get('contactID'), 'General');

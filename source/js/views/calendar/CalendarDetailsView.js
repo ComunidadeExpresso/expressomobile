@@ -97,7 +97,10 @@ define([
 				}
 
 				contentTitle.text(data.event.get('eventName'));
-				container.empty().append(_.template(calendarDetailsTemplate, data))
+
+				var htmlTemplate = _.template(calendarDetailsTemplate);
+				var htmlWithData = htmlTemplate(data);
+				container.empty().append(htmlWithData)
 			}
 
 			this.getEvent(this.eventID, callback, callback);
@@ -125,30 +128,7 @@ define([
 
 		loaded: function(eventID, isOwner)
 		{
-			// $('.searchArea').remove();
 
-			// if (!Shared.isSmartPhoneResolution())
-			// {
-			// 	if (Shared.scrollDetail != null) 
-			// 	{
-			// 		Shared.scrollDetail.destroy();
-			// 		Shared.scrollDetail = null;
-			// 	}
-
-			// 	Shared.scrollDetail = new iScroll('wrapperDetail');
-			// }
-			// else
-			// {
-			// 	if (Shared.scroll != null) 
-			// 	{
-			// 		Shared.scroll.destroy();
-			// 		Shared.scroll = null;
-			// 	}
-
-			// 	Shared.scroll = new iScroll('wrapper');
-			// }
-
-			// Shared.scrollerRefresh();
 			Shared.menuView.renderContextMenu('calendarDetailsEvent',{ isOwner: isOwner, eventID: eventID, year: this.year, month: this.month, day: this.day });
 		},
 

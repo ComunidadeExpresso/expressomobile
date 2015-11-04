@@ -35,7 +35,9 @@ define([
         route: this.msgRoute,
       };
 
-      var compiledTemplate = _.template( userMessageTemplate, newData );
+      var htmlTemplate = _.template(userMessageTemplate);
+      var compiledTemplate = htmlTemplate(newData);
+
       this.$el.html(compiledTemplate);
 
       $(this.elementID).empty().append(this.$el);

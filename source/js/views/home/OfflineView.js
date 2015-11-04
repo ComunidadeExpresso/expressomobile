@@ -12,11 +12,7 @@ define([
 
     render: function(){
 
-      var newData = {
-        _: _ 
-      };
-
-      var compiledTemplate = _.template( offlineTemplate, newData );
+      var compiledTemplate = _.template( offlineTemplate );
       this.$el.html( compiledTemplate ); 
 
     },

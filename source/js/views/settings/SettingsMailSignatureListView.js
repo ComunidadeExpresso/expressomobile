@@ -31,10 +31,10 @@ define([
           typeSignature: type_signature
         };
 
-        var compiledTemplate = _.template( settingsMailSignatureListTemplate, newData );
-        that.$el.html( compiledTemplate ); 
+        var htmlTemplate = _.template(settingsMailSignatureListTemplate);
+        var compiledTemplate = htmlTemplate(newData);
 
-        that.loaded();
+        that.$el.html( compiledTemplate ); 
 
         //Shared.setCurrentPageTitle("Assinatura de e-mail");
 
@@ -87,13 +87,6 @@ define([
 
     },
 
-    loaded: function () 
-    {
-
-      var that = this;
-      Shared.scrollDetail = new iScroll('wrapperDetail');
-
-    }
   });
 
   return SettingsMailSignatureListView;

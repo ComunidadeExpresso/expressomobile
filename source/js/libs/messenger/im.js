@@ -561,7 +561,7 @@ var MD5 = (function () {
 					$(".chat-conversation-dialog textarea").removeAttr("disabled");
 					$container.find(".chat-status").addClass(statusClass);
 
-					settings.debug = true;
+					// settings.debug = true;
 
 					/* if need to do something after connect */ 
 					if(settings.debug)
@@ -1083,7 +1083,7 @@ var MD5 = (function () {
 
             container.prepend(svgGoo);
 
-            Material.upgradeDom();
+            window.componentHandler.upgradeDom();
 
 
 			if (!settings.minimizeZone){

@@ -19,14 +19,11 @@ define([
         //}
       }
 
-      var newData = {
-        _: _ 
-      };
 
-      var compiledTemplate = _.template( loadingTemplate, newData );
+      var compiledTemplate = _.template( loadingTemplate);
       this.$el.html( compiledTemplate ); 
 
-      Material.upgradeDom();
+      window.componentHandler.upgradeDom();
 
     },
 

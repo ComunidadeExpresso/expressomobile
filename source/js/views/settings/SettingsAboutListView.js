@@ -23,23 +23,17 @@ define([
           _: _ 
         };
 
-        var compiledTemplate = _.template( settingsAboutListTemplate, newData );
+        var htmlTemplate = _.template(settingsAboutListTemplate);
+        var compiledTemplate = htmlTemplate(newData);
 
         that.$el.html( compiledTemplate ); 
 
         //Shared.setCurrentPageTitle("Sobre o Expresso");
 
-        that.loaded();
-
       }).execute();
       
-    },
+    } 
 
-    loaded: function () 
-    {
-      Shared.scrollDetail = new iScroll('wrapperDetail');
-
-    }
   });
 
   return SettingsAboutListView;

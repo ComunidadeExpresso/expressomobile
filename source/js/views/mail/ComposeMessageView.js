@@ -57,7 +57,8 @@ define([
       };
 
       
-      var compiledTemplate = _.template( composeMessageTemplate, newData );
+      var htmlTemplate = _.template(composeMessageTemplate);
+      var compiledTemplate = htmlTemplate(newData);
 
       this.$el.html("");
       this.$el.html(compiledTemplate);
@@ -1073,16 +1074,11 @@ define([
       var search = $('#composeMessageHeader').outerHeight(true) == null ? 0 : $('#composeMessageHeader').outerHeight(true);
       $('#msgBody').height($(window).height() - top - search);
 
-      Shared.scrollerRefresh();
     },
 
     loaded: function () 
     {
 
-      if (Shared.scrollDetail != null) {
-        Shared.scrollDetail.destroy();
-        Shared.scrollDetail = null;
-      }
 
       this.refreshWindowHeight();
 
@@ -1097,8 +1093,6 @@ define([
         $("#scrollerDetail").width("100%");
       }
       
-
-      Shared.scrollDetail = new iScroll('wrapperDetail',{vScroll:true, hScroll:true, hScrollBar: true, vScrollBar: true, zoom: true });
 
     }
   });

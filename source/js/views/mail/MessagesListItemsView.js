@@ -4,8 +4,9 @@ define([
   'backbone',
   'shared',
   'text!templates/mail/messagesListItemsTemplate.html',
-  'material'
-], function($, _, Backbone, Shared, messagesListItemsTemplate,Material){
+  'material',
+  'views/mail/MessagesListItemView'
+], function($, _, Backbone, Shared, messagesListItemsTemplate,Material,MessagesListItemView){
 
   var MessagesListItemsView = Backbone.View.extend({
 
@@ -14,24 +15,98 @@ define([
 
     render: function(nextPage){
 
-      var that = this;
 
-      var data = {
-        parentFolders: this.parentFolders,
-        messages: this.collection.models,
-        msgIDSelected : this.msgIDSelected,
-        _: _ ,
-        Shared: Shared
-      };
+      var messages = this.collection.models;
 
-      var compiledTemplate = _.template( messagesListItemsTemplate, data );
-      if (nextPage) {
-        $("#scrollerList").append( compiledTemplate );
-      } else {
-        $("#scrollerList").html( compiledTemplate );
-      }
+      _.each(messages, function(message){ 
 
-      Material.upgradeDom();
+          var attrs = {};
+
+          attrs["subject"]    = message.get("msgSubject");
+          attrs["from"]       = message.get("msgFrom").fullName;
+          //attrs["unread"]     = null;
+          //attrs["narrow"]     = true;
+          attrs["date"]       = message.getTimeAgo();
+          attrs["bodyresume"] = message.get("msgBodyResume");
+          attrs["msg-id"]     = message.get("msgID");
+          attrs["folder-id"]  = message.get("folderID");
+          attrs["route"]      = message.route();
+          //attrs["starred"]    = null;
+
+          if (message.get("msgFlagged") == "1") {
+             attrs["starred"] = true;
+          }
+
+          if (message.get("msgSeen") == "0") {
+             attrs["unread"] = true;
+          }
+
+          var mailThread = new MessagesListItemView({ collection: message, attributes: attrs });
+          mailThread.render();
+          
+      });
+
+
+      
+
+       // var page = 1;
+
+       //  console.log("LOADING");
+       //  $(window).scroll(function () {
+
+       //    console.log("SCROLL");
+       //      $('#more').hide();
+       //      $('#no-more').hide();
+
+       //      if($(window).scrollTop() + $(window).height() > $(document).height() - 200) {
+       //          $('#more').css("top","400");
+       //          $('#more').show();
+       //      }
+       //      if($(window).scrollTop() + $(window).height() == $(document).height()) {
+
+       //          $('#more').hide();
+       //          $('#no-more').hide();
+
+       //          page++;
+
+       //          var data = {
+       //              page_num: page
+       //          };
+
+       //          var actual_count = "102";
+
+       //          if((page-1)* 12 > actual_count){
+       //              $('#no-more').css("top","400");
+       //              $('#no-more').show();
+       //          }else{
+
+       //            $("#scrollerList").append("CARREGOU PROXIMA PAGINA");
+
+       //          }
+
+       //      }
+
+
+       //  });
+
+      // var that = this;
+
+      // var data = {
+      //   parentFolders: this.parentFolders,
+      //   messages: this.collection.models,
+      //   msgIDSelected : this.msgIDSelected,
+      //   _: _ ,
+      //   Shared: Shared
+      // };
+
+      // var compiledTemplate = _.template( messagesListItemsTemplate, data );
+      // if (nextPage) {
+      //   $("#scrollerList").append( compiledTemplate );
+      // } else {
+      //   $("#scrollerList").html( compiledTemplate );
+      // }
+
+      // window.componentHandler.upgradeDom();
 
     },
 
@@ -39,31 +114,7 @@ define([
     //  "click a.messagelistItemLink": "selectListItem"
     },
 
-    selectListItem: function(e){
-
-      e.preventDefault();
-
-      $('#scrollerList li').each(function() { 
-        if ($(this).hasClass('listDivision').toString() == 'false') {
-          $(this).removeClass( 'selected' ); 
-        }
-      }); 
-
-      var parent = $(e.target).parent();
-
-      if (parent.hasClass("listItemLink")) {
-        parent = parent.parent();
-      }
-
-      parent.addClass("selected");
-
-      var elementID = $(parent).attr("id");
-
-      $("#" +elementID + "_unread").removeClass("msg-unread");
-
-      Shared.router.navigate(e.currentTarget.getAttribute("href"),{trigger: true});
-
-    }
+   
 
   });
 

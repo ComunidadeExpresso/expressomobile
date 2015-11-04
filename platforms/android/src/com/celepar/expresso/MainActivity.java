@@ -38,31 +38,34 @@ public class MainActivity extends CordovaActivity
     	
         super.onCreate(savedInstanceState);
         //setContentView(R.layout.activity_main);
-        super.init();
-        this.registerForContextMenu(this.appView);
-        
-        CookieSyncManager.createInstance(this);
-        CookieManager cookieManager = CookieManager.getInstance();
-        CookieManager.setAcceptFileSchemeCookies(false);
-        cookieManager.removeAllCookie();
-        cookieManager.removeSessionCookie();
-        cookieManager.setAcceptCookie(false);
-        CookieSyncManager.getInstance().sync();
+        //this.registerForContextMenu(this.appView);
+
+        // Set by <content src="index.html" /> in config.xml
+        loadUrl(launchUrl);
+
+        // super.init();
+        // CookieSyncManager.createInstance(this);
+        // CookieManager cookieManager = CookieManager.getInstance();
+        // CookieManager.setAcceptFileSchemeCookies(false);
+        // cookieManager.removeAllCookie();
+        // cookieManager.removeSessionCookie();
+        // cookieManager.setAcceptCookie(false);
+        // CookieSyncManager.getInstance().sync();
                 
-        String urlString;
-        String authString;
-        Bundle extras = getIntent().getExtras();
-        if(extras == null) {
-            urlString= null;
-            authString = null;
-        } else {
-        	urlString= extras.getString("URL");
-        	authString= extras.getString("AUTH");
-        }
+        // String urlString;
+        // String authString;
+        // Bundle extras = getIntent().getExtras();
+        // if(extras == null) {
+        //     urlString= null;
+        //     authString = null;
+        // } else {
+        // 	urlString= extras.getString("URL");
+        // 	authString= extras.getString("AUTH");
+        // }
         
-        super.loadUrl("file:///android_asset/www/index_android.html");
-        super.loadUrl("javascript:var intent_auth='" + authString + "';");
-        super.loadUrl("javascript:var intent_route='" + urlString + "';");
+        // super.loadUrl("file:///android_asset/www/index_android.html");
+        // super.loadUrl("javascript:var intent_auth='" + authString + "';");
+        // super.loadUrl("javascript:var intent_route='" + urlString + "';");
 
     }
 

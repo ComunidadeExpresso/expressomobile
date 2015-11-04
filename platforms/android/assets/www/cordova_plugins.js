@@ -54,6 +54,11 @@ module.exports = [
     {
         "file": "plugins/com.phonegap.plugins.expresso/www/ExpressoPlugin.js",
         "id": "com.phonegap.plugins.expresso.ExpressoPlugin"
+    },
+    {
+        "file": "plugins/cordova-plugin-whitelist/whitelist.js",
+        "id": "cordova-plugin-whitelist.whitelist",
+        "runs": true
     }
 ];
 module.exports.metadata = 
@@ -63,7 +68,9 @@ module.exports.metadata =
     "org.apache.cordova.network-information": "0.2.15",
     "com.phonegap.plugins.backgroundservice": "2.0.0",
     "com.phonegap.plugins.webintent": "2.0.0",
-    "com.phonegap.plugins.expresso": "2.0.0"
+    "com.phonegap.plugins.expresso": "2.0.0",
+    "cordova-plugin-whitelist": "1.1.0",
+    "cordova-plugin-crosswalk-webview": "1.3.1"
 }
 // BOTTOM OF METADATA
 });

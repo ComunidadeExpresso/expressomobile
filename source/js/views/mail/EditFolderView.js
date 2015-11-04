@@ -76,7 +76,9 @@ define([
         folderAction: this.action
       };
 
-      var compiledTemplate = _.template( editFolderTemplate, newData );
+      var htmlTemplate = _.template(editFolderTemplate);
+      var compiledTemplate = htmlTemplate(newData);
+
       this.$el.html( compiledTemplate ); 
 
       
@@ -93,7 +95,9 @@ define([
         params.parentCallBack = this;
 
         Shared.menuView.renderContextMenu('editFolder', params);
-        this.loaded();
+
+
+        Shared.deviceType(true);
       // }
 
       
@@ -263,17 +267,9 @@ define([
         
       }).execute();
 
-    },
-
-    loaded: function () 
-    {
-
-      var that = this;
-      Shared.scrollDetail = new iScroll('wrapperDetail');
-
-      Shared.deviceType(true);
-
     }
+
+    
   });
 
   return EditFolderView;

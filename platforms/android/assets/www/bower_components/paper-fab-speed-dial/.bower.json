@@ -1,0 +1,44 @@
+{
+  "name": "paper-fab-speed-dial",
+  "version": "1.0.1",
+  "authors": [
+    "collaborne"
+  ],
+  "description": "A Material Design - Floating Action Button with Speed Dial (Polymer 1.x)",
+  "main": "paper-fab-speed-dial.html",
+  "keywords": [
+    "web-components",
+    "polymer",
+    "paper",
+    "material design",
+    "FAB",
+    "speed dial",
+    "navigation"
+  ],
+  "license": "Apache 2",
+  "homepage": "http://www.apache.org/licenses/LICENSE-2.0",
+  "ignore": [
+    "**/.*"
+  ],
+  "dependencies": {
+    "polymer": "Polymer/polymer#^1.0.0",
+    "iron-icons": "PolymerElements/iron-icons#^1.0.0",
+    "iron-overlay-behavior": "PolymerElements/iron-overlay-behavior#^1.0.0",
+    "paper-fab": "PolymerElements/paper-fab#^1.0.0"
+  },
+  "devDependencies": {
+    "test-fixture": "PolymerElements/test-fixture#^1.0.0",
+    "web-component-tester": "*",
+    "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0"
+  },
+  "_release": "1.0.1",
+  "_resolution": {
+    "type": "version",
+    "tag": "1.0.1",
+    "commit": "4b16c2581488933210dcf3a47c941ced226c744c"
+  },
+  "_source": "git://github.com/Collaborne/paper-fab-speed-dial.git",
+  "_target": "~1.0.1",
+  "_originalSource": "paper-fab-speed-dial",
+  "_direct": true
+}

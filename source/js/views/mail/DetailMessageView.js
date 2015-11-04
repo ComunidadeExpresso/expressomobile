@@ -53,7 +53,8 @@ define([
             $: $
           };
 
-          var compiledTemplate = _.template( detailMessageTemplate, data );
+          var htmlTemplate = _.template(detailMessageTemplate);
+          var compiledTemplate = htmlTemplate(data);
 
           that.$el.html(compiledTemplate);
 
@@ -147,8 +148,6 @@ define([
       'click .attachmentLink': 'openAttachment',
       'click .showMoreMsgTo' : 'showMoreMsgTo',
       'click .showMoreMsgCc' : 'showMoreMsgCc',
-      // 'click #scrollerDetail' : 'refreshScroll',
-      // 'touch #scrollerDetail' : 'refreshScroll',
     },
 
     showMoreMsgTo: function(e) { 
@@ -168,24 +167,11 @@ define([
       Shared.router.navigate(e.currentTarget.getAttribute("href"),{trigger: true});
     },
 
-    refreshScroll: function(e) {
-      // if (Shared.scrollDetail != null) {
-      //   Shared.scrollDetail.refresh();
-      // }
-    },
 
     loaded: function () {
 
      // $( "#disable-all-css" ).find("*").css( "all", "initial" );
       
-
-
-
-      
-      // if (Shared.scrollDetail != null) {
-      //   // Shared.scrollDetail.destroy();
-      //   // Shared.scrollDetail = null;
-      // }
 
       // var top = $('.topHeader').outerHeight(true);
       // var search = $('.searchArea').outerHeight(true) == null ? 0 : $('.searchArea').outerHeight(true);
@@ -200,9 +186,6 @@ define([
       //   $("#scrollerDetail").width(contentBodyWidth + 2);
       // }
 
-      // Shared.scrollDetail = new iScroll('wrapperDetail',{vScroll:true, hScroll:true, hScrollBar: true, vScrollBar: true, zoom: true });
-
-      // Shared.scrollerRefresh();
 
     }
 

@@ -1,13 +1,13 @@
 define([
   'jquery',
   'underscore',
-  'iscroll',
   'backbone',
   'shared',
   'text!templates/home/contextMenuTemplate.html',
   'collections/home/ContextMenuCollection',
   'material',
-], function($, _, iscroll, Backbone, Shared, contextMenuTemplate,ContextMenuCollection,Material){
+  'views/home/SearchView',
+], function($, _, Backbone, Shared, contextMenuTemplate,ContextMenuCollection,Material,SearchView){
 
   var ContextMenuView = Backbone.View.extend({
 
@@ -30,11 +30,12 @@ define([
         Shared: Shared
       };
 
-      var compiledTemplate = _.template( contextMenuTemplate, data );
+      var htmlTemplate = _.template(contextMenuTemplate);
+      var htmlWithData = htmlTemplate(data);
 
       $('#contextMenuButton').addClass('contextMenu');
 
-      this.$el.html(compiledTemplate);
+      this.$el.html(htmlWithData);
 
       $("#rightMenu").empty().append(this.$el);
 
@@ -50,7 +51,7 @@ define([
         $(".expresso-fab-button").animate({ right: "266px" },200);
       }
 
-      Material.upgradeDom();
+      window.componentHandler.upgradeDom();
 
     },
 
@@ -77,6 +78,12 @@ define([
       "click #btn-primary-action": "routeToPrimaryAction",
       "click #contextMenu ul li a": "selectContextMenuItem",
       "click #contextMenuItems li a": "selectContextMenuItem",
+      "click #searchButton" : "showSearchView",
+    },
+
+    showSearchView: function() {
+      var searchView = new SearchView();
+      searchView.render();
     },
 
     selectContextMenuItem: function(e){

@@ -8,6 +8,7 @@ define([
   'views/mail/MessagesListView',
   'views/mail/DetailMessageView',
   'views/home/MenuView',
+  'views/mail/PullToActionView',
   'text!templates/home/homeTemplate.html',
   'material',
   'jquery_migrate',
@@ -18,7 +19,7 @@ define([
   'contextmenu',
   'linkify',
   'im',
-], function($, _, Backbone, Shared, MessagesCollection, ServersCollection, MessagesListView, DetailMessageView, MenuView, homeTemplate,Material,jquery_migrate,jqueryui,wijmo,tinysort,tinysort_open,contextmenu,linkify,im){
+], function($, _, Backbone, Shared, MessagesCollection, ServersCollection, MessagesListView, DetailMessageView, MenuView,PullToActionView, homeTemplate,Material,jquery_migrate,jqueryui,wijmo,tinysort,tinysort_open,contextmenu,linkify,im){
 
 
   var HomeView = Backbone.View.extend({
@@ -60,17 +61,23 @@ define([
         Shared: Shared
       };
 
-      var compiledTemplate = _.template( homeTemplate, newData );
+      console.log(newData);
+
+      var compiledTemplate = _.template( homeTemplate );
+
+      var html = compiledTemplate(newData);
       // this.$el.html( compiledTemplate ); 
 
       
 
-      this.$el.html(compiledTemplate);
+      this.$el.html(html);
       this.$el.css("width","100%");
       this.$el.css("height","100%");
       $("#mainAppPageContent").empty().append(this.$el);
 
-      Material.upgradeDom();
+      
+
+      window.componentHandler.upgradeDom();
 
       var that = this;
 

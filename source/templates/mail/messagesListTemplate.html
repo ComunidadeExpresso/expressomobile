@@ -1,67 +1,16 @@
-<%
+<div id="pull-to-action-loader"></div>
+<!-- <paper-fab-speed-dial>
+  <paper-fab-speed-dial-action icon="copy">Copy</paper-fab-speed-dial-action>
+  <paper-fab-speed-dial-action icon="print">Print</paper-fab-speed-dial-action>
+</paper-fab-speed-dial> -->
+<ul id="scrollerList">
 
-var folderClass = "folder-blue";
 
-if (currentFolder.get("folderType") == 0) {
-	folderClass = "folder-inbox";
-}
+</ul>
+<div id="messages-loading-area" class="expresso-loading-spacer">
+	<% if (!collection.length) { %>Esta pasta n&atilde;o cont&eacute;m mensagens.<% } else { %>
+		
+	<% } %>
+</div>
 
-if (currentFolder.get("folderType") == 4) {
-	folderClass = "folder-drafts";
-}
 
-if (currentFolder.get("folderType") == 1) {
-	folderClass = "folder-sent";
-}
-
-if (currentFolder.get("folderType") == 2) {
-	folderClass = "folder-spam";
-}
-
-if (currentFolder.get("folderType") == 3) {
-	if (currentFolder.get("qtdMessages") == "0") { 
-		folderClass = "folder-trash";
-	} else {
-		folderClass = "folder-trash-full";
-	}	
-}
-
-if (currentFolder.get("folderType") == 5) {
-	folderClass = "folder-blue";
-}
-
-if (currentFolder.get("folderType") == 6) {
-	folderClass = "folder-shared";
-}
-
-%>
-<% if ( (Shared.isBuiltInExpresso()) && (1 == 0) ) { %>
-<table class="mdl-data-table mdl-js-data-table mdl-data-table--selectable" style="width: 100%; max-width: 100%;">
-  <thead>
-    <tr>
-      <th class="mdl-data-table__cell--non-numeric">Assunto</th>
-      <th>De</th>
-      <th>Data</th>
-      <th>Tamanho</th>
-    </tr>
-  </thead>
-  <tbody id="scrollerList">
-    
-  </tbody>
-</table> 
-<% } else { %>
-<!-- <div id="wrapper" class="contentScroll" style="">
-  <div id="scroller">
- -->
-	<ul id="scrollerList">
-
-	</ul>
-	
-  <% if (!collection.length) { %>Esta pasta n&atilde;o cont&eacute;m mensagens.<% } else { %>
-		<div class="expresso-loading-spacer">
-	    	<div class="mdl-spinner mdl-spinner--single-color mdl-js-spinner is-active"></div>
-		</div>
-  <% } %>
-<!--   </div>
-</div> -->
-<% } %>

@@ -1,0 +1,97 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../bower_components/paper-styles/paper-styles.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+
+<!-- <link rel="import" href="../bower_components/iron-menu-behavior/iron-menu-behavior.html"> -->
+
+<link rel="import" href="profile-img.html">
+<link rel="import" href="swipeable-item.html">
+
+<!--
+A single GMail mail thread.
+
+##### Example
+
+    <mail-thread></mail-thread>
+-->
+<dom-module id="mail-messages">
+  <style>
+    :host {
+      display: block;
+      background-color: var(--paper-green-800);
+
+    }
+
+    
+  </style>
+  <template>
+    <template is="dom-repeat" items="{{messages}}">
+    	<mail-thread subject="{{item.subject}}" from="{{item.from}}" date="{{item.date}}" bodyresume="{{item.bodyresume}}" route="{{item.route}}">
+    	</mail-thread>
+    </template>
+  </template>
+  <script>
+  Polymer({
+    is: 'mail-messages',
+
+    properties: {
+
+
+
+      messages: {
+        type: Array,
+        value: function() { return [
+          {
+            "subject" : "Lorem Ipsum Dolor",
+            "from" : "pereira.jair@celepar.pr.gov.br",
+            "date" : "4 horas atrás",
+            "bodyresume" : "bodyresume",
+            "route" : "/Mail/New",
+            "thread-is-starred" : true
+          },{
+            "subject" : "Lorem Ipsum",
+            "from" : "pereira.jaiar@celepar.pr.gov.br",
+            "date" : "4 horas atrás",
+            "bodyresume" : "bodyresume",
+            "route" : "/Mail/New",
+            "thread-is-starred" : true
+          },{
+            "subject" : "Lorem Ipsum teste",
+            "from" : "pereira.jaidr@celepar.pr.gov.br",
+            "date" : "4 horas atrás",
+            "bodyresume" : "bodyresume",
+            "route" : "/Mail/New",
+            "thread-is-starred" : true
+          },{
+            "subject" : "Lorem Ipsum teste 2 ",
+            "from" : "pereira.jaffir@celepar.pr.gov.br",
+            "date" : "1 horas atrás",
+            "bodyresume" : "bodyresume",
+            "route" : "/Mail/New",
+            "thread-is-starred" : true
+          }
+
+         ]; }
+      },
+
+    },
+
+
+
+    created: function() {
+      // Polymer.dom(this).classList.add('swipeable-item');
+    },
+
+    ready: function() {
+
+        //this.target = this.$.thread;
+
+
+    
+    }
+
+    
+  });
+</script>
+</dom-module>

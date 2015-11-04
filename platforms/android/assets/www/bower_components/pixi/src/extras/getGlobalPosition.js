@@ -1,0 +1,1 @@
+var core=require("../core");core.DisplayObject.prototype.getGlobalPosition=function(e){return e=e||new core.Point,this.parent?(this.displayObjectUpdateTransform(),e.x=this.worldTransform.tx,e.y=this.worldTransform.ty):(e.x=this.position.x,e.y=this.position.y),e};

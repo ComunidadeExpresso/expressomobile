@@ -16,10 +16,11 @@ define([
         _: _ 
       };
 
-      var compiledTemplate = _.template( settingsSupportListTemplate, newData );
+      var htmlTemplate = _.template(settingsSupportListTemplate);
+      var compiledTemplate = htmlTemplate(newData);
+
       this.$el.html( compiledTemplate ); 
 
-      this.loaded();
 
       //Shared.setCurrentPageTitle("Suporte / Sugestões");
 
@@ -100,15 +101,8 @@ define([
 
       }
       
-    },
-
-    loaded: function () 
-    {
-
-      var that = this;
-      Shared.scrollDetail = new iScroll('wrapperDetail');
-
     }
+
   });
 
   return SettingsSupportListView;

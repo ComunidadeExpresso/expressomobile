@@ -54,14 +54,16 @@ define([
           
         that.collection = data.models;
 
-        var newData = {
+        var data = {
           folders: data.models,
           _: _
         }
 
-        var compiledTemplate = _.template( foldersMenuListTemplate, newData );
+        var htmlTemplate = _.template(foldersMenuListTemplate);
+        var htmlWithData = htmlTemplate(data);
 
-        that.$el.html(compiledTemplate);
+
+        that.$el.html(htmlWithData);
         $("#myFolders").empty().append(that.$el);
 
 

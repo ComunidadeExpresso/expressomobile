@@ -1,8 +1,7 @@
-<!-- <div id="pullDown">
-  	<span class="pullDownIcon"></span><span class="pullDownLabel"><% if (contacts.length) { %>Puxe para baixo para atualizar<% } %></span>
-</div> -->
+<div id="pull-to-action-loader"></div>
 <% if (typeof(contacts) != 'undefined' && contacts.length > 0) { %>
 	
+
 	<dl id="contactsList" class="general">
 
 		<% var summaryLetter = _.first(contacts).get('contactFirstName').charAt(0).toUpperCase(); %>

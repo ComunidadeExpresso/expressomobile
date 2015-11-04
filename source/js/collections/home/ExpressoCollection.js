@@ -9,7 +9,9 @@ define([
 
     model: ExpressoModel,
 
-    localStorage: new Store("Expresso"),
+    browserStorage: new Backbone.BrowserStorage.session("Expresso"),
+
+    // localStorage: new Backbone.BrowserStorage("Expresso"),
 
   });
   return new ExpressoCollection;

@@ -1,7 +1,6 @@
 define([
   'jquery',
   'underscore',
-  'iscroll',
   'backbone',
   'shared',
   'views/mail/FoldersMenuListView',
@@ -10,7 +9,7 @@ define([
   'collections/home/ContextMenuCollection',
   'collections/home/MenuItemsCollection',
   'material',
-], function($, _, iscroll, Backbone, Shared, FoldersMenuListView, menuTemplate,ContextMenuView,ContextMenuCollection,MenuItemsCollection,Material){
+], function($, _, Backbone, Shared, FoldersMenuListView, menuTemplate,ContextMenuView,ContextMenuCollection,MenuItemsCollection,Material){
 
   var MenuView = Backbone.View.extend({
     el: $("#scrollerMenu"),
@@ -61,9 +60,11 @@ define([
             Shared: Shared
           };
 
-          var compiledTemplate = _.template( menuTemplate, data );
+          var compiledTemplate = _.template( menuTemplate );
 
-          that.$el.html(compiledTemplate);
+          var htmlWithData = compiledTemplate(data);
+
+          that.$el.html(htmlWithData);
 
 
           Shared.api
@@ -192,60 +193,55 @@ define([
 
     openMenu: function()
     {
-      Shared.menuOpen = true;
-      var winWidth = $(window).width();
-      var menuButtonWidth = $('.top .menu').width();
-      var propWidth = Math.ceil(winWidth * 30 / 100);
-      if (Shared.isDesktop()) {
-        propWidth = Math.ceil(winWidth * 15 / 100);
-      }
-      var width =  280;
+      // Shared.menuOpen = true;
+      // var winWidth = $(window).width();
+      // var menuButtonWidth = $('.top .menu').width();
+      // var propWidth = Math.ceil(winWidth * 30 / 100);
+      // if (Shared.isDesktop()) {
+      //   propWidth = Math.ceil(winWidth * 15 / 100);
+      // }
+      // var width =  280;
 
-      if ((winWidth - menuButtonWidth) < width)
-        width = winWidth - menuButtonWidth;
-      else if (propWidth > width) 
-        width = propWidth;
+      // if ((winWidth - menuButtonWidth) < width)
+      //   width = winWidth - menuButtonWidth;
+      // else if (propWidth > width) 
+      //   width = propWidth;
 
-      $('#menu').addClass('expanded').css('width', width);
-      $('#page').css('margin-left', width);
+      // $('#menu').addClass('expanded').css('width', width);
+      // $('#page').css('margin-left', width);
 
-      if (Shared.isDesktop()) {
-        $('#page').css('width',winWidth - width);
-      }
+      // if (Shared.isDesktop()) {
+      //   $('#page').css('width',winWidth - width);
+      // }
 
 
-      if (Shared.scrollMenu == null) {
-        this.loaded();
-      }
+      // if (Shared.scrollMenu == null) {
+      //   this.loaded();
+      // }
 
-      Shared.scrollerRefresh();
     },
 
     closeMenu: function()
     {
-      if (!Shared.isDesktop()) {
-        Shared.menuOpen = false;
-        $('#menu').removeClass('is-visible').removeAttr('style');
-        $('#menu').removeClass('expanded').removeAttr('style');
-        $('#page').removeAttr('style');
-        $('#page').css('margin-left', '0');
-      } 
+      // if (!Shared.isDesktop()) {
+      //   Shared.menuOpen = false;
+      //   $('#menu').removeClass('is-visible').removeAttr('style');
+      //   $('#menu').removeClass('expanded').removeAttr('style');
+      //   $('#page').removeAttr('style');
+      //   $('#page').css('margin-left', '0');
+      // } 
     },
 
     loaded: function () 
     {
-      if (Shared.scrollMenu != null) {
-        Shared.scrollMenu.destroy();
-        Shared.scrollMenu = null;
-      }
-
-       
-      // if (Shared.isDesktop()) {
-        $("#scrollerMenu").css("overflow-y","auto");
-        $("#scrollerMenu").css("height","100%");
-      // } else {
-      //   Shared.scrollMenu = new iScroll('menu');
+      // if (Shared.scrollMenu != null) {
+      //   Shared.scrollMenu.destroy();
+      //   Shared.scrollMenu = null;
       // }
+
+      // $("#scrollerMenu").css("overflow-y","auto");
+      // $("#scrollerMenu").css("height","100%");
+
       
     },
 

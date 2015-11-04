@@ -1,11 +1,12 @@
 define([
+  'webcomponents',
   'jquery', 
   'underscore', 
   'backbone',
   'shared',
   'material',
   'router', 
-], function($, _, Backbone, Shared, Material ,AppRouter){
+], function(webcomponents,$, _, Backbone, Shared, Material ,AppRouter){
   var initialize = function(){
 
     var startApp = function() {

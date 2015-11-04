@@ -27,7 +27,11 @@ else
 				<dd>
 					<ul>
 						<% _.each(contact.get('contactMails'), function (email) { %>
-							<li><i class="material-icons">email</i>&nbsp;<%= email %></li>
+							<li>
+
+								<a href="/Mail/Message/New/<%= email %>" class="mdl-button mdl-js-button mdl-js-ripple-effect listItemLink" data-upgraded=",MaterialButton,MaterialRipple"><i class="material-icons">email</i>&nbsp;<%= email %><span class="mdl-button__ripple-container"><span class="mdl-ripple"></span></span></a>
+
+							</li>
 						<% }); %>
 					</ul>
 				</dd>
@@ -49,9 +53,9 @@ else
 
 		</dl>
   </div>
-  <div class="mdl-card__actions mdl-card--border">
+<!--   <div class="mdl-card__actions mdl-card--border">
     <a href="#" class="mdl-button mdl-js-button mdl-js-ripple-effect" data-upgraded=",MaterialButton,MaterialRipple">Enviar email<span class="mdl-button__ripple-container"><span class="mdl-ripple"></span></span></a>
-  </div>
+  </div> -->
 </div>
 
 		

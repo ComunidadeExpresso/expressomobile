@@ -1,0 +1,1 @@
+function StencilMaskStack(){this.stencilStack=[],this.reverse=!0,this.count=0}StencilMaskStack.prototype.constructor=StencilMaskStack,module.exports=StencilMaskStack;

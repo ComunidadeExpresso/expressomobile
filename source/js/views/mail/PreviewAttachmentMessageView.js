@@ -37,7 +37,9 @@ define([
         Shared: Shared,
       };
 
-      var compiledTemplate = _.template( previewAttachmentMessageTemplate, newData );
+      var htmlTemplate = _.template(previewAttachmentMessageTemplate);
+      var compiledTemplate = htmlTemplate(newData);
+
 
       this.$el.html(compiledTemplate);
 

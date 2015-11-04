@@ -106,11 +106,15 @@ define([
               Shared: Shared
             };
 
-            var compiledTemplate = _.template( settingsListTemplate, newData );
+            var htmlTemplate = _.template(settingsListTemplate);
+            var compiledTemplate = htmlTemplate(newData);
+
             that.$el.html(compiledTemplate);
             $(primaryElementID).empty().html( that.$el );
 
-            that.loaded();
+
+            Shared.setCurrentPageTitle("Preferências");
+            window.componentHandler.upgradeDom();
 
 
         },Shared.timeoutDelay);
@@ -203,18 +207,8 @@ define([
 
     initialize: function() {
       this.secondViewName = "";
-    },
-
-    loaded: function () 
-    {
-
-      Shared.setCurrentPageTitle("Preferências");
-      // var that = this;
-      // Shared.scroll = new iScroll('wrapper');
-
-      Material.upgradeDom();
-
     }
+    
   });
 
   return SettingsListView;

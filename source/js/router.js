@@ -416,12 +416,14 @@ define([
 
         app_router.on('route:chatListView', function (secondViewName) {
 
-          var chatListView = new ChatListView();
-          chatListView.secondViewName = secondViewName;
-          chatListView.render();
 
-          Shared.menuView.selectMenu(4);
-          Shared.deviceType(Shared.isSmartPhoneResolution());
+
+          // var chatListView = new ChatListView();
+          // chatListView.secondViewName = secondViewName;
+          // chatListView.render();
+
+          // Shared.menuView.selectMenu(4);
+          // Shared.deviceType(Shared.isSmartPhoneResolution());
       
         });
 

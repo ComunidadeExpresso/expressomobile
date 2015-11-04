@@ -20,7 +20,8 @@ define([
           Shared: Shared
       };
 
-      var compiledTemplate = _.template( settingsFaqListTemplate, newData );
+      var htmlTemplate = _.template(settingsFaqListTemplate);
+      var compiledTemplate = htmlTemplate(newData);
 
       this.$el.html(compiledTemplate);
       this.$el.css("width","100%");
@@ -29,15 +30,8 @@ define([
 
       //Shared.setCurrentPageTitle("Perguntas Frequentes");
 
-      that.loaded();
-
     },
 
-    loaded: function () 
-    {
-      Shared.scrollDetail = new iScroll('wrapperDetail');
-
-    },
 
     events: {
       'click #btn-back' : 'backButton',

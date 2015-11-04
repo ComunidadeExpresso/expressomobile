@@ -26,11 +26,13 @@
     </div>
   </div>
   <main id="mainPageContent" class="mdl-layout__content">
-    
+
+
         <% if (Shared.userHasModule("chat")) { %>
         <div id="chatContactsWindow" class="mdl-cell mdl-cell--hide-phone mdl-cell--hide-tablet"><div id="chat_toggleRoster" class="toggleRightDiv"></div><div id="chatDesktop"></div></div>
         <% } %>
-    
+
+   
     <div id="pageContent" class="page-content mdl-cell mdl-grid">
 
         <div id="content" class=" mdl-cell mdl-cell--12-col <% if (!Shared.forceSmartPhoneResolution) { %>mdl-cell--5-col-tablet mdl-cell--5-col-desktop<% } else { %>mdl-cell--12-col-tablet mdl-cell--12-col-desktop<% } %> mdl-card mdl-shadow--2dp">

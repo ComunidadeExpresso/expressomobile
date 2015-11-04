@@ -124,7 +124,10 @@ define([
 
 						var newData = {eventCategories: listCategorias, event: self.model, listParticipants: self.listParticipants, types: self.types, priorities: self.priorities};
 
-						container.html(_.template(calendarEditEventTemplate, newData));
+						var htmlTemplate = _.template(calendarEditEventTemplate);
+        				var htmlWithData = htmlTemplate(newData);
+
+						container.html(htmlWithData);
 						self.setElement(self.$el);
 						self.loaded();
 					}
@@ -135,7 +138,10 @@ define([
 				{
 					var newData = {eventCategories: listCategorias, event: self.model, listParticipants: self.listParticipants, types: self.types, priorities: self.priorities};
 
-					container.html(_.template(calendarEditEventTemplate, newData))
+					var htmlTemplate = _.template(calendarEditEventTemplate);
+        			var htmlWithData = htmlTemplate(newData);
+
+					container.html(htmlWithData);
 					self.setElement(self.$el);
 					self.loaded();
 				}
@@ -166,32 +172,6 @@ define([
 		{ 
 			var width = 0;
 
-			// if (!Shared.isSmartPhoneResolution())
-			// {
-			// 	width = $('#contentDetail').width() - ($('body form#addEvent input[type=text]').position().left + 33);
-				
-			// 	if (Shared.scrollDetail != null) 
-			// 	{
-			// 		Shared.scrollDetail.destroy();
-			// 		Shared.scrollDetail = null;
-			// 	}
-
-			// 	Shared.scrollDetail = new iScroll('wrapperDetail');
-			// }
-			// else
-			// {
-			// 	width = $('#content').width() - ($('body form#addEvent input[type=text]').position().left + 33);
-
-			// 	if (Shared.scroll != null) 
-			// 	{
-			// 		Shared.scroll.destroy();
-			// 		Shared.scroll = null;
-			// 	}
-
-			// 	Shared.scroll = new iScroll('wrapper');
-			// }
-
-			// Shared.scrollerRefresh();
 
 			var params = {};
 				params.saveCallBack = this.saveEvent;

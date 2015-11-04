@@ -88,6 +88,9 @@
         },
         "ExternalFileUtil": {
             "PACKAGE_NAME": "com.celepar.expresso"
+        },
+        "cordova-plugin-crosswalk-webview": {
+            "PACKAGE_NAME": "com.celepar.pr.gov.br.Expresso"
         }
     },
     "dependent_plugins": {}

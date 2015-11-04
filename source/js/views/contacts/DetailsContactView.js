@@ -61,8 +61,15 @@ define([
 					var contact = {contact: _.first(data.contacts), _: _};
 					var contactID = self.secondViewName == 'Personal' ? _.first(data.contacts).get('contactID') : _.first(data.contacts).get('contactUIDNumber');
 
-					container.empty().append(_.template(DetailsContactTemplate, contact));
-					self.loaded((_.first(data.contacts).get('contactMails'))[0], contactID);
+					var htmlTemplate = _.template(DetailsContactTemplate);
+      				var compiledTemplate = htmlTemplate(contact);
+
+					container.empty().append(compiledTemplate);
+
+					var pEmail = (_.first(data.contacts).get('contactMails'))[0];
+					var pContactID = contactID;
+
+					Shared.menuView.renderContextMenu('detailsContact', { email: pEmail, contactID: pContactID, contactType: this.secondViewName });
 
 					var pictureImageContactView = new PictureImageContactView({el: $('.details_picture_image')});
 						pictureImageContactView.render(data);
@@ -134,33 +141,6 @@ define([
 
 		initialize: function() { },
 
-		loaded: function (pEmail, pContactID) 
-		{
-			// if (!Shared.isSmartPhoneResolution())
-			// {
-			// 	if (Shared.scrollDetail != null) 
-			// 	{
-			// 		Shared.scrollDetail.destroy();
-			// 		Shared.scrollDetail = null;
-			// 	}
-			// 	Shared.scrollDetail = new iScroll('wrapperDetail');
-			// }
-			// else
-			// {
-			// 	if (Shared.scroll != null) 
-			// 	{
-			// 		Shared.scroll.destroy();
-			// 		Shared.scroll = null;
-			// 	}
-			// 	Shared.scroll = new iScroll('wrapper');
-			// }
-
-			$('#contentDetail .searchArea').remove();
-			
-
-			//Shared.scrollerRefresh();
-			Shared.menuView.renderContextMenu('detailsContact', { email: pEmail, contactID: pContactID, contactType: this.secondViewName });
-		},
 
 		getPersonalContactDetails: function (pContactID, callbackSuccess, callbackFail)
 		{

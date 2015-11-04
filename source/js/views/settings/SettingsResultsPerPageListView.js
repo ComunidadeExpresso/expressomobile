@@ -30,14 +30,14 @@ define([
           possibleValues : possibleValues,
         };
 
-        var compiledTemplate = _.template( settingsResultsPerPageListTemplate, newData );
+        var htmlTemplate = _.template(settingsResultsPerPageListTemplate);
+        var compiledTemplate = htmlTemplate(newData);
+
         that.$el.html( compiledTemplate ); 
 
         $(that.elementID).empty().html(that.$el);
 
         //Shared.setCurrentPageTitle("Resultados por página");
-
-        that.loaded();
 
       }).fail(function(result) {
 
@@ -96,18 +96,8 @@ define([
       }).execute();
 
 
-
-      
-
-    },
-
-    loaded: function () 
-    {
-
-      var that = this;
-      Shared.scrollDetail = new iScroll('wrapperDetail');
-
     }
+
   });
 
   return SettingsResultsPerPageListView;

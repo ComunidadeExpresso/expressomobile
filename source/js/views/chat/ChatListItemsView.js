@@ -28,7 +28,9 @@ define([
         Shared: Shared
       };
 
-      var compiledTemplate = _.template( chatListItemsTemplate, data );
+      var htmlTemplate = _.template(chatListItemsTemplate);
+      var compiledTemplate = htmlTemplate(data);
+
       var elementID = "#scrollerList";
       if (Shared.isDesktop()) {
          elementID = "#scrollerListCHAT";

@@ -33,14 +33,16 @@ define([
           _: _
         }
 
-        var compiledTemplate = _.template( loginTemplate, newData );
+        var htmlTemplate = _.template(loginTemplate);
+        var compiledTemplate = htmlTemplate(newData);
+
 
         that.$el.html(compiledTemplate);
 
         //that.$el.attr("style","top: 0px; position: relative;");
         $("#mainAppPageContent").empty().append(that.$el);
 
-        Material.upgradeDom();
+        window.componentHandler.upgradeDom();
 
         if (Shared.betaVersion) {
           $("#beta").removeClass("hidden");

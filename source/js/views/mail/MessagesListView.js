@@ -5,12 +5,14 @@ define([
   'shared',
   'text!templates/mail/messagesListTemplate.html',
   'views/mail/MessagesListItemsView',
+  'views/mail/MessagesListItemView',
   'collections/mail/FoldersCollection',
   'collections/mail/MessagesCollection',
   'views/home/LoadingView',
   'views/mail/DetailMessageView',
+  'views/mail/PullToActionView',
   'material',
-], function($, _, Backbone, Shared, messagesListTemplate, MessagesListItemsView, FoldersCollection, MessagesCollection,LoadingView,DetailMessageView,Material){
+], function($, _, Backbone, Shared, messagesListTemplate, MessagesListItemsView, MessagesListItemView, FoldersCollection, MessagesCollection,LoadingView,DetailMessageView,PullToActionView,Material){
 
   var MessagesListView = Backbone.View.extend({
 
@@ -60,40 +62,25 @@ define([
 
         }
 
-        var compiledTemplate = _.template( messagesListTemplate, newData );
+        var htmlTemplate = _.template(messagesListTemplate);
+        var htmlWithData = htmlTemplate(newData);
 
-        that.$el.html(compiledTemplate);
+        that.$el.html(htmlWithData);
 
         $(that.elementID).empty().append(that.$el);
 
 
+        
 
-        // setInterval(function(){
-  
-        //   var totalHeight, currentScroll, visibleHeight;
-          
-        //   currentScroll = $("#mainPageContent").scrollTop();
+        var refreshFunction = function () {
+          that.page = 1;
+          $("#scrollerList").empty();
+          that.getMessages(that.folderID,that.search,that.page,false,true);
+        };
 
-        //   if ((document.getElementById('wrapper') != null) && (document.getElementById('wrapper') != undefined)) {
-          
-        //     totalHeight = document.getElementById('wrapper').offsetHeight;
-        //     visibleHeight = document.documentElement.clientHeight;
-            
-        //     // $('#data').html(
-        //     //   'total height: ' + totalHeight + '<br />' +
-        //     //   'visibleHeight : ' + visibleHeight + '<br />' +
-        //     //   'currentScroll:' + currentScroll);
+        var pullToAction = new PullToActionView({ refreshAction: refreshFunction, container: '#pull-to-action-loader' });
+        pullToAction.render();
 
-        //     if (totalHeight <= currentScroll + visibleHeight )
-        //     {
-        //       //$('#data').addClass('hilite');
-        //       that.pullUpAction();
-        //     } 
-
-        //   }
-          
-        // }
-        // , 1000);
 
       }
       
@@ -128,7 +115,6 @@ define([
 
         Shared.setDefaultIMListeners();
 
-        that.loaded(); 
       };
 
 
@@ -157,12 +143,17 @@ define([
 
       }
 
-      
+     
 
     },
 
     events: {
-      "keydown #searchField": "searchMessage"
+      "keydown #searchField": "searchMessage",
+      "lower-trigger" : "loadNextPage",
+    },
+
+    loadNextPage: function (e) {
+      console.log("loadNextPage");
     },
 
     searchMessage: function (e) {
@@ -240,7 +231,7 @@ define([
                     messagesListItemsView.msgIDSelected = that.msgID;
 
                     messagesListItemsView.render(appendAtEnd);
-
+                    
                     if (doneCallback) {
                       doneCallback();
                     }
@@ -251,7 +242,7 @@ define([
                     // $('body').height($(window).height() - top);
                     // $('#wrapper').css('top', top + search);
 
-                    Shared.scrollerRefresh();
+                    //Shared.scrollerRefresh();
 
             })
             .fail(function(result){
@@ -282,94 +273,20 @@ define([
       
     },
 
+
     pullDownAction: function () 
     {
       this.page = 1;
-      this.getMessages(this.folderID,this.search,this.page,false,true);
+      $("#scrollerList").empty();
+      getMessages(this.folderID,this.search,this.page,false,true);
     },
 
     pullUpAction : function() 
     {
       this.page = this.page + 1;
       this.getMessages(this.folderID,this.search,this.page,true,false);
-    },
-
-    loaded: function () 
-    {
-      if (!Shared.isDesktop() || (this.enabledDesktopVersion == false)) { 
-        
-        // pullDownEl = document.getElementById('pullDown');
-        // pullDownOffset = pullDownEl.offsetHeight;
-        // pullUpEl = document.getElementById('pullUp'); 
-        // pullUpOffset = pullUpEl.offsetHeight;
-
-      
-
-        // var that = this;
-        // Shared.scroll = new iScroll('wrapper',
-        // {
-        //   useTransition: true,
-        //   topOffset: pullDownOffset,
-        //   onRefresh: function () 
-        //   {
-        //     if (pullDownEl.className.match('loading')) 
-        //     {
-        //       pullDownEl.className = '';
-        //       pullDownEl.querySelector('.pullDownLabel').innerHTML = 'Puxe para baixo para atualizar...';
-        //     }
-        //     else if (pullUpEl.className.match('loading')) 
-        //     {
-        //       pullUpEl.className = '';
-        //       pullUpEl.querySelector('.pullUpLabel').innerHTML = 'Puxe para cima para carregar mais...';
-        //     }
-        //   },
-        //   onScrollMove: function () 
-        //   {
-        //     if (this.y > 5 && !pullDownEl.className.match('flip')) 
-        //     {
-        //       pullDownEl.className = 'flip';
-        //       pullDownEl.querySelector('.pullDownLabel').innerHTML = 'Solte para atualizar...';
-        //       this.minScrollY = 0;
-        //     } 
-        //     else if (this.y < 5 && pullDownEl.className.match('flip')) 
-        //     {
-        //       pullDownEl.className = '';
-        //       pullDownEl.querySelector('.pullDownLabel').innerHTML = 'Puxe para baixo para atualizar...';
-        //       this.minScrollY = -pullDownOffset;
-        //     } 
-        //     else if (this.y < (this.maxScrollY - 5) && !pullUpEl.className.match('flip')) 
-        //     {
-        //       pullUpEl.className = 'flip';
-        //       pullUpEl.querySelector('.pullUpLabel').innerHTML = 'Solte para carregar mais...';
-        //       this.maxScrollY = this.maxScrollY;
-        //     } 
-        //     else if (this.y > (this.maxScrollY + 5) && pullUpEl.className.match('flip')) 
-        //     {
-        //       pullUpEl.className = '';
-        //       pullUpEl.querySelector('.pullUpLabel').innerHTML = 'Puxe para cima para carregar mais...';
-        //       this.maxScrollY = pullUpOffset;
-        //     }
-        //   },
-        //   onScrollEnd: function () 
-        //   {
-        //     if (pullDownEl.className.match('flip')) 
-        //     {
-        //       pullDownEl.className = 'loading';
-        //       //pullDownEl.querySelector('.pullDownIcon').style = 'width: 0px; height; 0px;';
-        //       pullDownEl.querySelector('.pullDownLabel').innerHTML = 'Carregando...';
-        //       that.pullDownAction(); 
-        //     }
-        //     else if (pullUpEl.className.match('flip')) 
-        //     {
-        //       pullUpEl.className = 'loading';
-        //       //pullUpEl.querySelector('.pullDownIcon').style = 'width: 0px; height; 0px;';
-        //       pullUpEl.querySelector('.pullUpLabel').innerHTML = 'Carregando...';
-        //       that.pullUpAction(); 
-        //     }
-        //   } 
-        // });
-      }
     }
+    
   });
 
   return MessagesListView;

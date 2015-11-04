@@ -61,9 +61,11 @@ define([
 
 			var callback = function (data)
 			{
-				if (data.error == undefined)
-					container.empty().append(_.template(calendarEditEventAddParticipantsTemplate, data));
-				else 
+				if (data.error == undefined) {
+					var htmlTemplate = _.template(calendarEditEventAddParticipantsTemplate);
+        			var htmlWithData = htmlTemplate(data);
+					container.empty().append(htmlWithData);
+				} else 
 				{
 					if (data.error.code == "1001") 
 					{
@@ -151,23 +153,11 @@ define([
 			{
 				$('#wrapperDetail').css('top', top + search);
 
-				if (Shared.scrollDetail != null) 
-				{
-					Shared.scrollDetail.destroy();
-					Shared.scrollDetail = null;
-				}
-				Shared.scrollDetail = new iScroll('wrapperDetail');
 			}
 			else
 			{
 				$('#wrapper').css('top', top + search);
 
-				if (Shared.scroll != null) 
-				{
-					Shared.scroll.destroy();
-					Shared.scroll = null;
-				}
-				Shared.scroll = new iScroll('wrapper');
 			}
 
 			Shared.scrollerRefresh();
