@@ -15,11 +15,10 @@ define([
   'jqueryui',
   'wijmo',
   'tinysort',
-  'tinysort_open',
   'contextmenu',
   'linkify',
   'im',
-], function($, _, Backbone, Shared, MessagesCollection, ServersCollection, MessagesListView, DetailMessageView, MenuView,PullToActionView, homeTemplate,Material,jquery_migrate,jqueryui,wijmo,tinysort,tinysort_open,contextmenu,linkify,im){
+], function($, _, Backbone, Shared, MessagesCollection, ServersCollection, MessagesListView, DetailMessageView, MenuView,PullToActionView, homeTemplate,Material,jquery_migrate,jqueryui,wijmo,tinysort,contextmenu,linkify,im){
 
 
   var HomeView = Backbone.View.extend({
@@ -61,16 +60,11 @@ define([
         Shared: Shared
       };
 
-      console.log(newData);
 
-      var compiledTemplate = _.template( homeTemplate );
+      var htmlTemplate = _.template( homeTemplate );
+      var compiledTemplate = htmlTemplate(newData);
 
-      var html = compiledTemplate(newData);
-      // this.$el.html( compiledTemplate ); 
-
-      
-
-      this.$el.html(html);
+      this.$el.html(compiledTemplate);
       this.$el.css("width","100%");
       this.$el.css("height","100%");
       $("#mainAppPageContent").empty().append(this.$el);
@@ -260,7 +254,7 @@ define([
       }
 
       var rowid = e.currentTarget.getAttribute("rowid");
-      console.log(rowid);
+      // console.log(rowid);
       if (rowid != undefined) {
         $("#" + rowid).addClass("selected");
       }

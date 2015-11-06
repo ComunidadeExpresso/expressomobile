@@ -12,7 +12,9 @@ define([
   'views/mail/DetailMessageView',
   'views/mail/PullToActionView',
   'material',
-], function($, _, Backbone, Shared, messagesListTemplate, MessagesListItemsView, MessagesListItemView, FoldersCollection, MessagesCollection,LoadingView,DetailMessageView,PullToActionView,Material){
+  'moment',
+  'moment_ptBR',
+], function($, _, Backbone, Shared, messagesListTemplate, MessagesListItemsView, MessagesListItemView, FoldersCollection, MessagesCollection,LoadingView,DetailMessageView,PullToActionView,Material,moment,moment_ptBR){
 
   var MessagesListView = Backbone.View.extend({
 

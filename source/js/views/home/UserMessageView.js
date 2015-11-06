@@ -42,6 +42,8 @@ define([
 
       $(this.elementID).empty().append(this.$el);
 
+      $('#toast_message').show();
+
       if (this.animate) {
         $(this.elementID).attr("style","position: absolute; top: -" + $(this.elementID).outerHeight() + "px; width: 100%;");
 

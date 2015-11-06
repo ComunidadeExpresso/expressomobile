@@ -6,6 +6,7 @@ define([
   'jquery_migrate',
   'jqueryui',
   'wijmo',
+  'tinysort_charorder',
   'tinysort',
   'tinysort_open',
   'contextmenu',
@@ -15,7 +16,7 @@ define([
   'material',
   'tweenmax',
   // 'jquery_scrollTo',
-], function($, _, Backbone, jquery_xmpp,jquery_migrate,jqueryui,wijmo,tinysort,tinysort_open,contextmenu,linkify,wijdialog,jquery_autogrow,Material,TweenMax){
+], function($, _, Backbone, jquery_xmpp,jquery_migrate,jqueryui,wijmo,tinysort_charorder,tinysort,tinysort_open,contextmenu,linkify,wijdialog,jquery_autogrow,Material,TweenMax){
 
 
 (function( $ ){
@@ -739,10 +740,25 @@ var MD5 = (function () {
 					}
 					clearTimeout(alfabetic);
 					alfabetic = setTimeout(function(){
-						$container_list.find("li").tsort("."+settings.onlineClass, "span.chat-contact-name",{charOrder:"a[����]c[�]e[����]i[����]o[����]u[����]"});
-						$container_list.find("li").tsort("."+settings.busyClass, "span.chat-contact-name",{charOrder:"a[����]c[�]e[����]i[����]o[����]u[����]"});
-						$container_list.find("li").tsort("."+settings.awayClass, "span.chat-contact-name",{charOrder:"a[����]c[�]e[����]i[����]o[����]u[����]"});
-						$container_list.find("li").tsort("."+settings.offlineClass, "span.chat-contact-name",{charOrder:"a[����]c[�]e[����]i[����]o[����]u[����]"});
+                        
+						var resultA1 = $container_list.find("li").tsort("."+settings.onlineClass);
+						var resultA2 = $container_list.find("li").tsort("."+settings.busyClass);
+						var resultA3 = $container_list.find("li").tsort("."+settings.awayClass);
+						var resultA4 = $container_list.find("li").tsort("."+settings.offlineClass);
+
+                        if (resultA1.length != 0) {
+                            resultA1.tsort("span.chat-contact-name",{charOrder:"abcdefghijklmnopqrstuvxyz1234567890"});
+                        }
+                        if (resultA2.length != 0) {
+                            resultA2.tsort("span.chat-contact-name",{charOrder:"abcdefghijklmnopqrstuvxyz1234567890"});
+                        }
+                        if (resultA3.length != 0) {
+                            resultA3.tsort("span.chat-contact-name",{charOrder:"abcdefghijklmnopqrstuvxyz1234567890"});
+                        }
+                        if (resultA4.length != 0) {
+                            resultA4.tsort("span.chat-contact-name",{charOrder:"abcdefghijklmnopqrstuvxyz1234567890"});
+                        }
+
 					},1000);
 				},
 				onError: function(error){
@@ -786,7 +802,7 @@ var MD5 = (function () {
                                 })
                                 .appendTo($dots)
                             ;
-                            TweenMax.to($dot,0.3,{
+                            window.TweenMax.to($dot,0.3,{
                                 delay:-i*0.1,
                                 y:30,
                                 yoyo:true,
@@ -803,7 +819,7 @@ var MD5 = (function () {
                             })
                             .appendTo(infoContainer)
 
-                        TweenMax.to($info, 0.3,{
+                        window.TweenMax.to($info, 0.3,{
                             y:0,
                             force3D:true
                         });
@@ -834,14 +850,14 @@ var MD5 = (function () {
                         var bleeding = 100;
 
                         var dots=effectContainer.find(".chat-effect-dots");
-                        TweenMax.to(dots,0.3,{
+                        window.TweenMax.to(dots,0.3,{
                             y:40,
                             force3D:true,
                             ease:Quad.easeIn,
                         });
 
                         var info=infoContainer.find(".chat-info-typing");
-                        TweenMax.to(info,0.3,{
+                        window.TweenMax.to(info,0.3,{
                             y:30,
                             force3D:true,
                             ease:Quad.easeIn,
@@ -1309,7 +1325,7 @@ var MD5 = (function () {
             $messagesContainer.scrollTop(9999999);
             var newScroll=$messagesContainer.scrollTop();
             var scrollDiff=newScroll-oldScroll;
-            TweenMax.fromTo(
+            window.TweenMax.fromTo(
                 $messagesList,0.4,{
                     y:scrollDiff
                 },{
@@ -1333,15 +1349,15 @@ var MD5 = (function () {
                 ,$messageBubble=messageElements.$bubble
             ;
 
-            TweenMax.set($messageBubble,{
+            window.TweenMax.set($messageBubble,{
                 transformOrigin:"60px 50%"
             })
-            TweenMax.from($messageBubble,0.4,{
+            window.TweenMax.from($messageBubble,0.4,{
                 scale:0,
                 force3D:true,
                 ease:Back.easeOut
             })
-            TweenMax.from($messageBubble,0.4,{
+            window.TweenMax.from($messageBubble,0.4,{
                 x:-100,
                 force3D:true,
                 ease:Quint.easeOut
@@ -1414,14 +1430,14 @@ var MD5 = (function () {
             }
 
             var $sendIcon=$sendButton.children("i");
-            TweenMax.to(
+            window.TweenMax.to(
                 $sendIcon,0.15,{
                     x:30,
                     y:-30,
                     force3D:true,
                     ease:Quad.easeOut,
                     onComplete:function(){
-                        TweenMax.fromTo(
+                        window.TweenMax.fromTo(
                             $sendIcon,0.15,{
                                 x:-30,
                                 y:30
@@ -1440,7 +1456,7 @@ var MD5 = (function () {
             gooOn();
 
             
-            TweenMax.from(
+            window.TweenMax.from(
                 $messageBubble,0.8,{
                     y:-pos.y,
                     ease:Sine.easeInOut,
@@ -1452,7 +1468,7 @@ var MD5 = (function () {
             var curScrollDiff=0;
             var effectYTransition;
             var setEffectYTransition=function(dest,dur,ease){
-                return TweenMax.to(
+                return window.TweenMax.to(
                     $messageEffect,dur,{
                         y:dest,
                         ease:ease,
@@ -1477,7 +1493,7 @@ var MD5 = (function () {
             
             // effectYTransition.updateTo({y:800});
 
-            TweenMax.from(
+            window.TweenMax.from(
                 $messageBubble,0.6,{
                     delay:0.2,
                     x:-pos.x,
@@ -1485,7 +1501,7 @@ var MD5 = (function () {
                     force3D:true
                 }
             );
-            TweenMax.to(
+            window.TweenMax.to(
                 $messageEffect,0.6,{
                     delay:0.2,
                     x:pos.x,
@@ -1494,13 +1510,13 @@ var MD5 = (function () {
                 }
             );
 
-            TweenMax.from(
+            window.TweenMax.from(
                 $messageBubble,0.2,{
                     delay:0.65,
                     opacity:0,
                     ease:Quad.easeInOut,
                     onComplete:function(){
-                        TweenMax.killTweensOf($messageEffect);
+                        window.TweenMax.killTweensOf($messageEffect);
                         $messageEffect.remove();
                         // if(!isFriendTyping)
                         //     gooOff();

@@ -1,6 +1,9 @@
 <% if (route != "") { %>
 <a href="<%=route%>" class="routeMessage" style="text-decoration: none;">
 <% } %>
+	<paper-toast id="toast_message" text="<%=title%>">
+	    <span role="button" class="routeMessage" tabindex="0" style="color: #eeff41;margin: 10px" href="<%=route%>" onclick="console.log('RETRY')">Abrir</span>
+	</paper-toast>
 	<div class="<%=type%> message">
 		<% if (icon != "") { %>
 			<div class="message-icon <%=icon%>"></div>

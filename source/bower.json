@@ -21,11 +21,12 @@
     "iron-elements": "PolymerElements/iron-elements#^1.0.0",
     "paper-elements": "PolymerElements/paper-elements#^1.0.0",
     "platinum-sw": "PolymerElements/platinum-sw#^1.0.1",
+    "polymer": "^1.2.0",
     "requirejs": "~2.1.18",
     "jquery": "~2.1.4",
     "jquery-migrate": "1.2.1",
     "jquery-ui": "1.11.4",
-    "underscore": "1.5.1",
+    "underscore": ">=1.7.0",
     "backbone": "1.2.1",
     "backbone.browserStorage": "*",
     "requirejs-text": "~2.0.12",
@@ -34,7 +35,9 @@
     "jquery.browser": ">=0.0.7",
     "pull-to-action": "*",
     "iron-scroll-threshold": "~1.0.2",
+    "backbone.widget.autocomplete": "https://github.com/martindrapeau/Backbone-Widgets.git",
     "htmlgl": "~0.3.1",
-    "promise-polyfill": "~2.1.0"
+    "autogrow-textarea": "*",
+    "gsap": "~1.18.0"
   }
 }
