@@ -1,1 +1,0 @@
-var interactiveTarget={interactive:!1,buttonMode:!1,interactiveChildren:!0,defaultCursor:"pointer",_over:!1,_touchDown:!1};module.exports=interactiveTarget;

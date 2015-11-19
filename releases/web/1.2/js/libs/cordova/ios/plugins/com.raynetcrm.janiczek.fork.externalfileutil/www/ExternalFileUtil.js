@@ -1,1 +1,0 @@
-cordova.define("com.raynetcrm.janiczek.fork.externalfileutil.ExternalFileUtil",function(e,t,n){window.ExternalFileUtil={openWith:function(e,t,n,r,i){return cordova.exec(r,i,"ExternalFileUtil","openWith",[e,t,n])}}});

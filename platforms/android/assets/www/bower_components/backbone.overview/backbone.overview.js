@@ -1,8 +1,0 @@
-/*!
- * Backbone.Overview 
- *
- * Copyright (c) 2014, JC Brand <jc@opkode.com>
- * Licensed under the Mozilla Public License (MPL) 
- */
-
-(function(e,t){typeof define=="function"&&define.amd?define(["underscore","backbone"],t):t(_||e._,Backbone||e.Backbone)})(this,function(e,t){"use strict";var n=t.Overview=function(n){this.views={},this.keys=e.partial(e.keys,this.views),this.getAll=e.partial(e.identity,this.views),this.get=function(e){return this.views[e]}.bind(this),this.add=function(e,t){return this.views[e]=t,t}.bind(this),this.remove=function(e){typeof e=="undefined"&&(new t.View).remove.apply(this);var n=this.views[e];if(n)return delete this.views[e],n.remove(),n}.bind(this),this.removeAll=function(){e.each(e.keys(this.views),this.remove)}.bind(this),t.View.apply(this,Array.prototype.slice.apply(arguments))},r=["forEach","each","map","collect","reduce","foldl","inject","reduceRight","foldr","find","detect","filter","select","reject","every","all","some","any","include","contains","invoke","max","min","toArray","size","first","head","take","initial","rest","tail","drop","last","without","difference","indexOf","shuffle","lastIndexOf","isEmpty","chain","sample"];return e.each(r,function(t){n.prototype[t]=function(){var n=Array.prototype.slice.call(arguments);return n.unshift(this.views),e[t].apply(e,n)}}),e.extend(n.prototype,t.View.prototype),n.extend=t.View.extend,t.Overview});

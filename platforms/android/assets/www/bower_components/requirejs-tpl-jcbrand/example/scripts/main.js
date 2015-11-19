@@ -1,1 +1,0 @@
-require({paths:{templates:"../templates",underscore:"libs/underscore",text:"libs/text",tpl:"libs/tpl"},shim:{underscore:{exports:"_"}}},["tpl!templates/message"],function(e){"use strict";console.log("template = "+e),document.body.innerHTML+=e({message:"Hello World!"})});

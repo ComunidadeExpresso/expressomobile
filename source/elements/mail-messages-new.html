@@ -1,0 +1,141 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../bower_components/iron-list/iron-list.html">
+<link rel="import" href="../bower_components/paper-styles/paper-styles.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+
+<link rel="import" href="../bower_components/iron-scroll-threshold/iron-scroll-threshold.html">
+
+<link rel="import" href="../bower_components/iron-menu-behavior/iron-menu-behavior.html">
+
+
+
+<link rel="import" href="profile-img.html">
+<link rel="import" href="swipeable-item.html">
+<link rel="import" href="mail-thread.html">
+
+<!--
+A single GMail mail thread.
+
+##### Example
+
+    <mail-thread></mail-thread>
+-->
+<dom-module id="mail-messages">
+  <style>
+    :host {
+      height: 100%;
+      overflow: hidden;
+    }
+
+    iron-list {
+
+    }
+  
+    hidden {
+      display: none;
+    }
+
+    mail-thread {
+      width: 100%;
+    }
+
+    paper-spinner.blue {
+      --paper-spinner-layer-1-color: var(--paper-light-blue-500);
+      --paper-spinner-layer-2-color: var(--paper-light-blue-500);
+      --paper-spinner-layer-3-color: var(--paper-light-blue-500);
+      --paper-spinner-layer-4-color: var(--paper-light-blue-500);
+    }
+
+    #loading-area {
+      margin-top: 20px;
+      margin-bottom: 10px;
+      margin-left: 50%;
+    }
+
+  </style>
+  <template>
+    
+    <iron-scroll-threshold id="threshold" lower-threshold="10" on-lower-trigger="loadMore" lower-triggered="{{lowerTriggered}}" fit></iron-scroll-threshold> 
+      
+      <iron-list id="scrollList" items="{{items}}" as="item">
+        <template>
+          
+           <mail-thread folderid="{{item.folderID}}" msgid='{{item.msgID}}' subject="{{item.subject}}" from="{{item.from}}" date="{{item.date}}" bodyresume="{{item.bodyresume}}" route="{{item.route}}" on-open-message="openMessage" on-starred-message="starredMessage"></mail-thread>
+            
+        </template>
+      </iron-list>
+
+      <div id='loading-area' class="layout flex center" hidden?="{{!lowerTriggered}}"><paper-spinner class="blue" alt="Carregando..." active></paper-spinner></div>
+
+      <!-- <paper-fab-speed-dial>
+        <paper-fab-speed-dial-action icon="copy">Copy</paper-fab-speed-dial-action>
+        <paper-fab-speed-dial-action icon="print">Print</paper-fab-speed-dial-action>
+      </paper-fab-speed-dial> -->
+  </template>
+  <script>
+  Polymer({
+    is: 'mail-messages',
+
+    ready: function() {
+      this.$.threshold.scrollTarget = this.$.scrollList._scroller;
+
+      // console.log(Polymer.dom(this.$.scrollList));
+      Polymer.dom(this.$.scrollList).setAttribute('style', 'height: ' + (document.body.clientHeight - 150) + 'px;');
+
+
+    },
+    loadMore: function() {
+
+      var scope = this;
+      this.fire('load-next-page');
+      scope.$.threshold.clearLower();
+      //this.isLowerTriggered = false;
+
+    },
+
+    starredMessage: function(event) {
+      var messageView = event.currentTarget;
+      var msgid = messageView.get("msgid");
+      var folderid = messageView.get("folderid");
+
+      this.currentMessage = {"msgid": msgid, "folderid": folderid };
+
+      this.fire('evt-starred-message', {thread: this});
+    },
+
+    openMessage: function(event) {
+
+      var messageView = event.currentTarget;
+      var msgid = messageView.get("msgid");
+      var folderid = messageView.get("folderid");
+
+      this.currentMessage = {"msgid": msgid, "folderid": folderid };
+
+      this.fire('evt-open-message', {thread: this});
+
+    },
+
+    resize: function() {
+      Polymer.dom(this.$.scrollList).setAttribute('style', 'height: ' + (document.body.clientHeight - 150) + 'px;');
+    },
+
+    properties: {
+      items: {
+        type: Array, 
+        value: []
+      },
+      currentMessage: {
+        type: Array,
+        value: []
+      },
+      isLowerTriggered: {
+        type: Boolean,
+        value: true,
+      }
+    }
+
+    
+  });
+</script>
+</dom-module>

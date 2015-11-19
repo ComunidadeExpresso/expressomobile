@@ -1,1 +1,0 @@
-self.custom203FetchHandler=function(e){return new Response("",{status:203,statusText:"Via customFetchHandler"})},self.custom410FetchHandler=function(e){return new Response("",{status:410,statusText:"Via customFetchHandler"})};

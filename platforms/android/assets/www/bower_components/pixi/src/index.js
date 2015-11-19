@@ -1,1 +1,0 @@
-require("./polyfill");var core=module.exports=require("./core");core.extras=require("./extras"),core.filters=require("./filters"),core.interaction=require("./interaction"),core.loaders=require("./loaders"),core.mesh=require("./mesh"),core.loader=new core.loaders.Loader,Object.assign(core,require("./deprecation")),global.PIXI=core;

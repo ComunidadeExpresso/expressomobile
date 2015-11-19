@@ -2,11 +2,20 @@
 
       <header class="expresso-header mdl-layout__header">
 
-        <div id="isOffline" style="display: none; position: absolute; margin-left: 50px; margin-top: -10px;"><div style="padding-right: 0px; padding-top: 15px; margin: 0px; margin-top: 10px; height: 27px;" class="message error">Voc&ecirc; est&aacute; trabalhando OFF-LINE.</div></div>
+        <div id="mainHeader_menuButton" class="mdl-layout__drawer-button">
+          <i class="material-icons">menu</i>
+        </div>
+         <div id="mainHeader_backButton" class="menu_backButton">
+          <button id="mainHeader_back_button" class="mdl-button mdl-js-button mdl-button--icon">
+           <i class="material-icons">arrow_back</i>
+          </button>
+        </div> 
+
+        <!-- <div id="isOffline" style="display: none; position: absolute; margin-left: 50px; margin-top: -10px;"><div style="padding-right: 0px; padding-top: 15px; margin: 0px; margin-top: 10px; height: 27px;" class="message error">Voc&ecirc; est&aacute; trabalhando OFF-LINE.</div></div> -->
         <div id="pageMessage"></div>
         <div style="margin-left: -3px; margin-top: 50px; z-index: 5000;" id="beta" class="hidden"></div>
 
-        <div class="mdl-layout__header-row">
+        <div id="mainHeader" class="mdl-layout__header-row">
           <span id="currentPageTitle" class="mdl-layout-title"></span>
           <div class="mdl-layout-spacer"></div>
           <div id="rightMenu">
@@ -36,5 +45,7 @@
           
         </div>
     </div>
+    
   </main>
+  <paper-toast id="toastMessage" text="" style="z-index: 100000;"></paper-toast>
 </div>

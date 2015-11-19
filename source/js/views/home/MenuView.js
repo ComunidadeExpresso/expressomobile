@@ -21,7 +21,10 @@ define([
     initialize:function() {
 
       this.context = new ContextMenuView();
+
+      this.enableBackButton(false);
     },
+
 
     render: function(){
 
@@ -264,6 +267,16 @@ define([
       } else {
         $("#badge_inbox").addClass("hidden");
         $("#badge_inbox").html(value);
+      }
+    },
+
+    enableBackButton: function(enabled) {
+      if (enabled) {
+        $('#mainHeader_backButton').removeClass("hidden");
+        $('#mainHeader_menuButton').addClass("hidden");
+      } else {
+        $('#mainHeader_backButton').addClass("hidden");
+        $('#mainHeader_menuButton').removeClass("hidden");
       }
     },
 

@@ -1,1 +1,0 @@
-var core=require("../core");core.DisplayObject.prototype.name=null,core.Container.prototype.getChildByName=function(e){for(var t=0;t<this.children.length;t++)if(this.children[t].name===e)return this.children[t];return null};

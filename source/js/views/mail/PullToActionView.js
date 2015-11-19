@@ -47,7 +47,7 @@ define([
 
     render: function(){
 
-      this.el.innerHTML = '<pull-to-action action="attribute.fire(\'refresh\',{})" color="blue" container="' + this.container + '"></pull-to-action><core-scroll-threshold id="threshold" lowerThreshold="500" scrollTarget="$(\'#content\')" lowerTriggered="true"></core-scroll-threshold>';
+      this.el.innerHTML = '<pull-to-action action="attribute.fire(\'refresh\',{})" color="blue" container="' + this.container + '"></pull-to-action>';
 
       $(this.container).empty().append( this.el );
       

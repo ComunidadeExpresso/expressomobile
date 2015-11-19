@@ -1,1 +1,0 @@
-function InteractionData(){this.global=new core.Point,this.target=null,this.originalEvent=null}var core=require("../core");InteractionData.prototype.constructor=InteractionData,module.exports=InteractionData,InteractionData.prototype.getLocalPosition=function(e,t,n){return e.toLocal(n?n:this.global,t)};

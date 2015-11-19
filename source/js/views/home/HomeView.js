@@ -236,7 +236,15 @@ define([
       "click #chat_toggleRoster": "toggleChat",
       "click .menuLink": "selectMenuItem",
       "click .listItemLink": "selectListItem",
+      "click #mainHeader_back_button": "backButtonClick",
     },
+
+
+    backButtonClick: function() {
+      console.log("backButton");
+      Shared.backButtonClicked();
+    },
+
 
 
 	selectListItem: function(e){

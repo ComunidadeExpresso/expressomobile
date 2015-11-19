@@ -4,114 +4,161 @@ define([
   'backbone',
   'shared',
   'text!templates/mail/messagesListItemsTemplate.html',
+  'collections/mail/MessagesCollection',
   'material',
   'views/mail/MessagesListItemView'
-], function($, _, Backbone, Shared, messagesListItemsTemplate,Material,MessagesListItemView){
+], function($, _, Backbone, Shared, messagesListItemsTemplate,MessagesCollection,Material,MessagesListItemView){
 
   var MessagesListItemsView = Backbone.View.extend({
+
+    tagName: 'mail-messages',
+    _shadow: null,
+
+    currentPageTitle: '',
+
+    messageView: null,
 
     parentFolders : [],
     msgIDSelected: "",
 
-    render: function(nextPage){
+    items: [],
 
+    initialize: function(data) {
+      this.attributes = data.attributes;
 
-      var messages = this.collection.models;
+    },
 
-      _.each(messages, function(message){ 
+    resize: function() {
+      this.el.resize();
+    },
 
-          var attrs = {};
+    render: function(nextPage,nextPageItems){
 
-          attrs["subject"]    = message.get("msgSubject");
-          attrs["from"]       = message.get("msgFrom").fullName;
-          //attrs["unread"]     = null;
-          //attrs["narrow"]     = true;
-          attrs["date"]       = message.getTimeAgo();
-          attrs["bodyresume"] = message.get("msgBodyResume");
-          attrs["msg-id"]     = message.get("msgID");
-          attrs["folder-id"]  = message.get("folderID");
-          attrs["route"]      = message.route();
-          //attrs["starred"]    = null;
+      if (nextPage) {
 
-          if (message.get("msgFlagged") == "1") {
-             attrs["starred"] = true;
-          }
+        var scope = this.el;
 
-          if (message.get("msgSeen") == "0") {
-             attrs["unread"] = true;
-          }
+        _.each(nextPageItems, function(message){ 
 
-          var mailThread = new MessagesListItemView({ collection: message, attributes: attrs });
-          mailThread.render();
-          
-      });
+          scope.push('items',message);
 
+        });
+       
 
-      
+      } else {
+        $("#messagesList").empty().append( this.el );
+      }
 
-       // var page = 1;
-
-       //  console.log("LOADING");
-       //  $(window).scroll(function () {
-
-       //    console.log("SCROLL");
-       //      $('#more').hide();
-       //      $('#no-more').hide();
-
-       //      if($(window).scrollTop() + $(window).height() > $(document).height() - 200) {
-       //          $('#more').css("top","400");
-       //          $('#more').show();
-       //      }
-       //      if($(window).scrollTop() + $(window).height() == $(document).height()) {
-
-       //          $('#more').hide();
-       //          $('#no-more').hide();
-
-       //          page++;
-
-       //          var data = {
-       //              page_num: page
-       //          };
-
-       //          var actual_count = "102";
-
-       //          if((page-1)* 12 > actual_count){
-       //              $('#no-more').css("top","400");
-       //              $('#no-more').show();
-       //          }else{
-
-       //            $("#scrollerList").append("CARREGOU PROXIMA PAGINA");
-
-       //          }
-
-       //      }
-
-
-       //  });
-
-      // var that = this;
-
-      // var data = {
-      //   parentFolders: this.parentFolders,
-      //   messages: this.collection.models,
-      //   msgIDSelected : this.msgIDSelected,
-      //   _: _ ,
-      //   Shared: Shared
-      // };
-
-      // var compiledTemplate = _.template( messagesListItemsTemplate, data );
-      // if (nextPage) {
-      //   $("#scrollerList").append( compiledTemplate );
-      // } else {
-      //   $("#scrollerList").html( compiledTemplate );
-      // }
-
-      // window.componentHandler.upgradeDom();
 
     },
 
     events: {
-    //  "click a.messagelistItemLink": "selectListItem"
+      'evt-open-message' : "_openMessage",
+      'evt-starred-message': "_starredMessage",
+      'evt-select-messages': "_selectedMessages",
+    },
+
+    _selectedMessages: function(event) {
+      var messagesView = event.currentTarget;
+
+      this.messageView = messagesView;
+
+      Shared.messagesView = messagesView;
+
+      var that = this;
+
+      var backButtonFunction = function() {
+        // DESELECT ALL MAIL-THREADS
+
+        Shared.menuView.enableBackButton(false);
+        // Shared.messagesView.selectedMessages = [];
+        // var messages = Shared.messagesView.getSelectedMessages();
+        $("#currentPageTitle").html(that.currentPageTitle);
+        $("#mainHeader").removeClass("selected-threads");
+
+        jQuery.each( $("mail-thread"), function( i, message ) {
+          if (message.selected) {
+            message.selected = false;
+            message.fire('thread-select', {thread: message});
+          }
+        });
+
+      };
+
+      Shared.backButtonClicked = backButtonFunction;
+
+      var qtdMessagesSelected = Shared.messagesView.selectedMessages.length;
+      var messages = Shared.messagesView.getSelectedMessages();
+
+      if (qtdMessagesSelected != 0) {
+        Shared.menuView.enableBackButton(true);
+        if (this.currentPageTitle == '') {
+          this.currentPageTitle = $("#currentPageTitle").html();
+        }
+        $("#currentPageTitle").html(qtdMessagesSelected);
+        $("#mainHeader").addClass("selected-threads");
+      } else {
+        Shared.menuView.enableBackButton(false);
+        $("#currentPageTitle").html(this.currentPageTitle);
+        $("#mainHeader").removeClass("selected-threads");
+      }
+      
+    },
+
+    _starredMessage: function(event) {
+      
+      var messagesView = event.currentTarget;
+      var currentMessage = messagesView.currentMessage;
+      var flagType = 2;
+      if (currentMessage.starred) {
+        flagType = 1;
+      }
+      console.log("_starredMessage");
+      console.log(currentMessage);
+
+      var callbackSuccess = function(result) {
+
+        Shared.showMessage({
+          type: "success",
+          icon: 'icon-expresso',
+          title: "Mensagem marcada como importante!",
+          description: "",
+          timeout: 3000,
+          elementID: "#pageMessage",
+        });
+
+      };
+
+      var callbackFail = function(error) {
+
+        Shared.showMessage({
+          type: "error",
+          icon: 'icon-expresso',
+          title: "Não foi possível marcar mensagem.",
+          description: "",
+          timeout: 3000,
+          elementID: "#pageMessage",
+        });
+        
+      };
+
+      var collection = new MessagesCollection();
+      collection.flagMessage(currentMessage.folderid,currentMessage.msgid, flagType,callbackSuccess,callbackFail);
+    },
+
+    _openMessage: function(event) {
+
+      Shared.menuView.enableBackButton(false);
+      $("#currentPageTitle").html(this.currentPageTitle);
+      $("#mainHeader").removeClass("selected-threads");
+
+      var messagesView = event.currentTarget;
+
+      console.log("_openMessage");
+      console.log(messagesView.currentMessage);
+
+      Shared.router.navigate(messagesView.currentMessage.route,{trigger: true});
+      
     },
 
    

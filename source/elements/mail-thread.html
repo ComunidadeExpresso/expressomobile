@@ -209,11 +209,11 @@
     is: 'mail-thread',
 
     behaviors: [
-      SwipeableBehavior
+      //SwipeableBehavior
       // Polymer.IronMenuBehavior
     ],
 
-    _HOLD_DELAY: 200, // wait delay (ms) to fire hold event.
+    _HOLD_DELAY: 400, // wait delay (ms) to fire hold event.
 
     _didUp: false, // True if the user relased the thread (up event was fired).
 
@@ -317,12 +317,12 @@
         value: '',
       },
 
-      msgId: {
+      msgid: {
         type: String,
         value: '',
       },
 
-      folderId: {
+      folderid: {
         type: String,
         value: '',
       },
@@ -413,7 +413,7 @@
 
       this.set("starred",this.thread.starred);
 
-      this.fire('message-starred', {thread: this});
+      this.fire('starred-message', {thread: this});
 
     },
 

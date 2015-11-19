@@ -11,15 +11,13 @@ define([
   'tinysort_open',
   'contextmenu',
   'linkify',
+  'jquery_linkify',
   'wijdialog',
   'jquery_autogrow',
   'material',
   'tweenmax',
   // 'jquery_scrollTo',
-], function($, _, Backbone, jquery_xmpp,jquery_migrate,jqueryui,wijmo,tinysort_charorder,tinysort,tinysort_open,contextmenu,linkify,wijdialog,jquery_autogrow,Material,TweenMax){
-
-
-(function( $ ){
+], function($, _, Backbone, jquery_xmpp,jquery_migrate,jqueryui,wijmo,tinysort_charorder,tinysort,tinysort_open,contextmenu,linkify,jquery_linkify,wijdialog,jquery_autogrow,Material,TweenMax){
 
 
 	/**
@@ -342,9 +340,6 @@ var MD5 = (function () {
 
 
 	$.fn.im = function( options ) {
-
-
-        
 
 	    var defaults = {
 	    	contactClass: "chat-contact",
@@ -1043,7 +1038,6 @@ var MD5 = (function () {
 			$("<input/>")
 			.addClass('chat-description-input')
 			.attr({type: 'text', /*placeholder*/value: messages.pt_br.YOUR_MESSAGE_TODAY , readonly: "readonly", title: messages.pt_br.DOUBLE_CLICK_TO_EDIT, alt: messages.pt_br.DOUBLE_CLICK_TO_EDIT })
-			.wijtextbox()
 			.dblclick(function(){
 				if( $.xmpp.isConnected() ){
 					text = $(this).val();
@@ -1154,7 +1148,7 @@ var MD5 = (function () {
 			.appendTo(div)
 			.val(data ? data.jid : "");
 
-			$(div).find("input").wijtextbox();
+			//$(div).find("input").wijtextbox();
 
 			var _data = data;
 			div.wijdialog({
@@ -1321,6 +1315,8 @@ var MD5 = (function () {
             ;
             $messageBubble.text(message);
 
+            $messageBubble.linkify();
+
             var oldScroll=$messagesContainer.scrollTop();
             $messagesContainer.scrollTop(9999999);
             var newScroll=$messagesContainer.scrollTop();
@@ -1395,6 +1391,8 @@ var MD5 = (function () {
             var $effectContainer = $("#chat-effect-container-" + chat_id);
             var $sendButton = $("#chat-send-"+ chat_id);
             var bleeding=100;
+
+
 
             if(message=="") return;
             
@@ -1680,14 +1678,13 @@ var MD5 = (function () {
 
 	  	function formatters(text){
 	  		var copy=text;
-	  		copy = window.linkify(copy,{callback: function(text,href){
-	  			return href ? '<a style="color:blue;" href="' + href + '" title="' + href + '" target="_blank">' + text + '</a>' : text;
-	  		}});
-	  		if(settings.emotions){
-		  		for(var i in settings.emotions){
-		  			copy = copy.replace(settings.emotions[i].emotion, "<span class='emotion "+settings.emotions[i].emotionClass+"'/>");	
-		  		}
-	  		}
+
+            if(settings.emotions){
+                for(var i in settings.emotions){
+                    copy = copy.replace(settings.emotions[i].emotion, "<span class='emotion "+settings.emotions[i].emotionClass+"'/>"); 
+                }
+            }
+            	  		
 	  		return copy;
 	  	}
 
@@ -1696,10 +1693,6 @@ var MD5 = (function () {
 				debug(this);
 	  	});
   	};
-
-  	
-
-}( jQuery ));
 
 
 });

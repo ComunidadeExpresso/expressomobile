@@ -19,6 +19,8 @@ define([
   //USE THIS IF YOU WANT TO TEMPORARIALY DISPLAY AN OUT OF SERVICE PAGE.
   Shared.versionIsActive = true;
 
+  Shared.backButtonClicked = function() {};
+
   if (Shared.betaVersion) {
     Shared.appVersion = "BETA";
   } else {

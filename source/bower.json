@@ -21,7 +21,7 @@
     "iron-elements": "PolymerElements/iron-elements#^1.0.0",
     "paper-elements": "PolymerElements/paper-elements#^1.0.0",
     "platinum-sw": "PolymerElements/platinum-sw#^1.0.1",
-    "polymer": "^1.2.0",
+    "polymer": "1.2.0",
     "requirejs": "~2.1.18",
     "jquery": "~2.1.4",
     "jquery-migrate": "1.2.1",
@@ -34,9 +34,9 @@
     "momentjs": "~2.1.0",
     "jquery.browser": ">=0.0.7",
     "pull-to-action": "*",
+    "linkifyjs": "https://github.com/nfrasser/linkify-shim.git",
     "iron-scroll-threshold": "~1.0.2",
     "backbone.widget.autocomplete": "https://github.com/martindrapeau/Backbone-Widgets.git",
-    "htmlgl": "~0.3.1",
     "autogrow-textarea": "*",
     "gsap": "~1.18.0"
   }

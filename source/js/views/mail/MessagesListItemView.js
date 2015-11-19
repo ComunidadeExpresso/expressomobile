@@ -6,8 +6,6 @@ define([
   'material'
 ], function($, _, Backbone, Shared, Material){
 
-  document.registerElement('mail-thread2', {   prototype: Object.create(HTMLElement.prototype) });
-
   var MessageListItemView = Backbone.View.extend({
 
     tagName: 'mail-thread',

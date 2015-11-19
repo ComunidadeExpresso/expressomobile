@@ -18,51 +18,58 @@ define([
 
     render: function(){
 
-      if (this.timeout == undefined) {
-        this.timeout = 3000;
+      $('#toastMessage').attr("text",this.msgTitle);
+      console.log(this.msgTitle);
+      if (document.querySelector('#toastMessage')) { 
+        document.querySelector('#toastMessage').show()
       }
 
-      if (this.msgRoute == undefined) {
-        this.msgRoute = "";
-      }
+      // if (this.timeout == undefined) {
+      //   this.timeout = 3000;
+      // }
 
-      var newData = {
-        _: _ ,
-        type: this.msgType,
-        title: this.msgTitle,
-        description: this.msgDescription,
-        icon: this.msgIcon,
-        route: this.msgRoute,
-      };
+      // if (this.msgRoute == undefined) {
+      //   this.msgRoute = "";
+      // }
 
-      var htmlTemplate = _.template(userMessageTemplate);
-      var compiledTemplate = htmlTemplate(newData);
+      // var newData = {
+      //   _: _ ,
+      //   type: this.msgType,
+      //   title: this.msgTitle,
+      //   description: this.msgDescription,
+      //   icon: this.msgIcon,
+      //   route: this.msgRoute,
+      // };
 
-      this.$el.html(compiledTemplate);
+      // var htmlTemplate = _.template(userMessageTemplate);
+      // var compiledTemplate = htmlTemplate(newData);
 
-      $(this.elementID).empty().append(this.$el);
+      // this.$el.html(compiledTemplate);
 
-      $('#toast_message').show();
+      // $(this.elementID).empty().append(this.$el);
 
-      if (this.animate) {
-        $(this.elementID).attr("style","position: absolute; top: -" + $(this.elementID).outerHeight() + "px; width: 100%;");
+      
 
-        var mTop = $('#mainAppPageContent').css("margin-top");
 
-        mTop = mTop.split("px");
+      // if (this.animate) {
+      //   $(this.elementID).attr("style","position: absolute; top: -" + $(this.elementID).outerHeight() + "px; width: 100%;");
 
-        $(this.elementID).animate({top: (parseInt(mTop[0], 0) * -1) }, 500);
-      } else {
-        $(this.elementID).attr("style","top: 0px");
-      }
+      //   var mTop = $('#mainAppPageContent').css("margin-top");
 
-      var that = this;
+      //   mTop = mTop.split("px");
 
-      if (that.timeout > 0) {
-        setTimeout(function() {
-            $(that.elementID).empty();
-        },that.timeout);
-      }
+      //   $(this.elementID).animate({top: (parseInt(mTop[0], 0) * -1) }, 500);
+      // } else {
+      //   $(this.elementID).attr("style","top: 0px");
+      // }
+
+      // var that = this;
+
+      // if (that.timeout > 0) {
+      //   setTimeout(function() {
+      //       $(that.elementID).empty();
+      //   },that.timeout);
+      // }
 
     },
 

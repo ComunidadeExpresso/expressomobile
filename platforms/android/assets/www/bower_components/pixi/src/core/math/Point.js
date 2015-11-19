@@ -1,1 +1,0 @@
-function Point(e,t){this.x=e||0,this.y=t||0}Point.prototype.constructor=Point,module.exports=Point,Point.prototype.clone=function(){return new Point(this.x,this.y)},Point.prototype.copy=function(e){this.set(e.x,e.y)},Point.prototype.equals=function(e){return e.x===this.x&&e.y===this.y},Point.prototype.set=function(e,t){this.x=e||0,this.y=t||(t!==0?this.x:0)};

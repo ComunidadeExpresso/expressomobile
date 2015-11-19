@@ -1079,7 +1079,6 @@ define([
     loaded: function () 
     {
 
-
       this.refreshWindowHeight();
 
       var msgBodyInput = $("#msgBodyInput").width();

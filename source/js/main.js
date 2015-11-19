@@ -18,10 +18,14 @@ require.config({
     tinysort_open:       "../bower_components/tinysort/dist/jquery.tinysort.min",
     jquery_autogrow:     "../bower_components/autogrow-textarea/jquery.autogrowtextarea.min",
     tweenmax:            "../bower_components/gsap/src/minified/TweenMax.min",
+    linkify:             "../bower_components/linkifyjs/src/linkified",
+    jquery_linkify:      "../bower_components/linkifyjs/src/jquery.linkify",
+    wijmo:               "../bower_components/wijmo/wijmo/jquery.wijmo.wijutil",
+    wijdialog:           "../bower_components/wijmo/wijmo/jquery.wijmo.wijdialog",
 
     //LANGUAGE FILES
     jqueryui_datepicker_ptBR: "libs/lang/jquery.ui.datepicker-pt-BR",
-    moment_ptBR:        "libs/lang/moment-pt-BR",
+    moment_ptBR:              "libs/lang/moment-pt-BR",
 
     expressoAPI:        "libs/expresso/expressoAPI",
     expressoIM:         "libs/expresso/expressoIM",
@@ -35,16 +39,11 @@ require.config({
     //LOCAL VERSION HAS CHANGES IN CODE
     autocomplete:       "libs/jquery.backbone.widget/jquery.backbone.widgets",
     
-    //CHECK VERSIONS
-    wijmo:           "libs/jquery.wijmo/jquery.wijmo.min",
-    wijdialog:       "libs/jquery.wijmo/jquery.wijmo.wijdialog",
-    linkify:         "libs/linkify/ba-linkify",
-
     //MUST BE REPLACED BY MATERIAL DESIGN
-    contextmenu:      "libs/jquery.contextmenu/jquery.contextMenu",
+    contextmenu:        "libs/jquery.contextmenu/jquery.contextMenu",
     
     //DEVELOPMENT - IN TEST
-    htmlgl:           "../bower_components/htmlgl/dist/htmlgl.min"
+    // htmlgl:           "../bower_components/htmlgl/dist/htmlgl.min"
   },
   shim: {
     jquery: {
@@ -104,6 +103,7 @@ require.config({
       deps: [
         "jquery",
         "jquery_migrate",
+        "jqueryui",
         "wijmo"
       ],
       exports: "wijdialog"
@@ -144,12 +144,24 @@ require.config({
         "tinysort_open",
         "contextmenu",
         "linkify",
+        "jquery_linkify",
         "jquery_autogrow"
       ],
       exports: "im"
     },
     underscore: {
       exports: "_"
+    },
+    linkify: {
+      deps: [
+        "jquery"
+      ]
+    },
+    jquery_linkify: {
+      deps: [
+        "jquery",
+        "linkify"
+      ]
     },
     jqueryui: {
       deps: [

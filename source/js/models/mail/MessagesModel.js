@@ -53,6 +53,7 @@ define([
 		  this.updateResource = '';
 		  this.createResource = '/Mail/Send';
 		  this.deleteResource = '/Mail/DelMessage';
+      this.flagResource = '/Mail/FlagMessage';
     },
 
     checkAttachments: function(showMessage) {
@@ -456,6 +457,27 @@ define([
         callbackFail(error);
       })
       .execute();
+    },
+
+    flagMessage: function(PfolderID,PmsgID,PflagType,callbackSuccess,callbackFail) {
+
+      var that = this;
+
+      var reqParams = {folderID:PfolderID,msgID:PmsgID,flagType: PflagType};
+
+      console.log(reqParams);
+
+      this.api
+      .resource(this.flagResource)
+      .params(reqParams)
+      .done(function(result){
+        callbackSuccess(result);
+      })
+      .fail(function(error) {
+        callbackFail(error);
+      })
+      .execute();
+
     },
 
 

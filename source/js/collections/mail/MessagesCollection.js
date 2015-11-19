@@ -37,6 +37,11 @@ define([
 
       },
 
+      flagMessage: function(PfolderID,PmsgID,pFlagType,callbackSuccess,callbackFail) {
+        this.model = new MessagesModel();
+        this.model.flagMessage(PfolderID,PmsgID,pFlagType,callbackSuccess,callbackFail);
+      },
+
       getMessagesInFolder : function(PfolderID,PmsgID,Psearch,Ppage) {
 
         var that = this;
