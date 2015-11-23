@@ -99,7 +99,7 @@
 
 	} else {
 
-		echo "<script>window.location.href='http://" . $_SERVER['HTTP_HOST'] .  "/index_mobile.html';</script>";
+		echo "<script>window.location.href='http://" . $_SERVER['HTTP_HOST'] .  "/index.html';</script>";
 	
 	}
 

@@ -1,0 +1,50 @@
+{
+  "name": "expressomobile",
+  "version": "1.0",
+  "main": [
+    "index_mobile.html"
+  ],
+  "license": "",
+  "ignore": [
+    "/.*",
+    "/test/",
+    "gen-changelog.sh"
+  ],
+  "authors": [
+    "Jair Gonçalves Pereira Junior pereira.jair@gmail.com"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ComunidadeExpresso/polymer.git"
+  },
+  "dependencies": {
+    "iron-elements": "PolymerElements/iron-elements#^1.0.0",
+    "paper-elements": "PolymerElements/paper-elements#^1.0.0",
+    "platinum-sw": "PolymerElements/platinum-sw#^1.0.1",
+    "polymer": "1.2.0",
+    "requirejs": "~2.1.18",
+    "jquery": "~2.1.4",
+    "jquery-migrate": "1.2.1",
+    "jquery-ui": "1.11.4",
+    "underscore": ">=1.7.0",
+    "backbone": "1.2.1",
+    "backbone.browserStorage": "*",
+    "requirejs-text": "~2.0.12",
+    "requirejs-tpl-jcbrand": "*",
+    "momentjs": "~2.1.0",
+    "jquery.browser": ">=0.0.7",
+    "pull-to-action": "*",
+    "wijmo": "*",
+    "paper-fab-speed-dial": "*",
+    "material-design-lite": "*",
+    "tinysort": "*",
+    "linkifyjs": "https://github.com/nfrasser/linkify-shim.git",
+    "iron-scroll-threshold": "~1.0.2",
+    "backbone.widget.autocomplete": "https://github.com/martindrapeau/Backbone-Widgets.git",
+    "autogrow-textarea": "*",
+    "gsap": "~1.18.0"
+  },
+  "resolutions": {
+    "polymer": "1.2.0"
+  }
+}

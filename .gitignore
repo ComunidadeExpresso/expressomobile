@@ -31,6 +31,10 @@ platforms/ios/cordova/console.log
 /source/plugins/*
 /source/bower_components/*
 
+stamp-bower
+stamp-npm
+
+
 *.bin
 *.lock
 *.apk

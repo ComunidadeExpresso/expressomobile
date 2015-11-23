@@ -4,9 +4,7 @@
   "description": "Expresso Mobile",
   "main": "main.js",
   "directories": {
-    "doc": "docs",
-    "locale": "locale",
-    "src": "src"
+    "src": "source"
   },
   "scripts": {
     "test": ""
@@ -22,7 +20,7 @@
     "calendar",
     "chat"
   ],
-  "author": "Jair Pereira",
+  "author": "Jair Pereira <pereira.jair@gmail.com>",
   "license": "MPL",
   "bugs": {
     "url": "https://github.com/ComunidadeExpresso/expressomobile/issues"
@@ -32,11 +30,13 @@
   },
   "devDependencies": {
     "bower": "latest",
+    "browser-sync": "^2.10.0",
     "grunt": "~0.4.4",
     "grunt-cli": "~0.1.13",
     "grunt-contrib-requirejs": "~0.4.3",
-    "http-server": "^0.7.4",
-    "po2json": "^0.3.0"
+    "gulp": "^3.9.0",
+    "gulp-connect-php": "0.0.7",
+    "proxy-middleware": "*"
   },
   "dependencies": {
     "requirejs": "~2.1.15"

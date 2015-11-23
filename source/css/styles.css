@@ -38,7 +38,8 @@
 
 /* MESSENGER */
 
-@import url('../js/libs/jquery.wijmo/jquery.wijmo.css');
+@import url('jquery.wijmo.css'); 
+
 @import url('../js/libs/jquery.contextmenu/jquery.contextMenu.css');
 @import url('../js/libs/messenger/im.css');
 @import url('../js/libs/messenger/im_new.css');

@@ -14,11 +14,12 @@ define([
   'jquery_migrate',
   'jqueryui',
   'wijmo',
+  'wijdialog',
   'tinysort',
   'contextmenu',
   'linkify',
   'im',
-], function($, _, Backbone, Shared, MessagesCollection, ServersCollection, MessagesListView, DetailMessageView, MenuView,PullToActionView, homeTemplate,Material,jquery_migrate,jqueryui,wijmo,tinysort,contextmenu,linkify,im){
+], function($, _, Backbone, Shared, MessagesCollection, ServersCollection, MessagesListView, DetailMessageView, MenuView,PullToActionView, homeTemplate,Material,jquery_migrate,jqueryui,wijmo,wijdialog,tinysort,contextmenu,linkify,im){
 
 
   var HomeView = Backbone.View.extend({

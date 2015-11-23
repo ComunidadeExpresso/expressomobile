@@ -1,18 +1,17 @@
 require.config({
   urlArgs: "bust=14411090641240",
   paths: {
-    templates:          "../templates",
-    Shared:             "shared",
-    underscore:         "../bower_components/underscore/underscore-min",
-    backbone:           "../bower_components/backbone/backbone-min",
-    webcomponents:      "../bower_components/webcomponentsjs/webcomponents",
-    jquery:             "../bower_components/jquery/dist/jquery.min",
-    jquery_migrate:     "../bower_components/jquery-migrate/jquery-migrate.min",
-    moment:             "../bower_components/momentjs/moment",
-    localstorage:       "../bower_components/backbone.browserStorage/backbone.browserStorage",
-    jqueryui:           "../bower_components/jquery-ui/jquery-ui.min",
-    material:           "../bower_components/material-design-lite/material",
-
+    templates:           "../templates",
+    Shared:              "shared",
+    underscore:          "../bower_components/underscore/underscore-min",
+    backbone:            "../bower_components/backbone/backbone-min",
+    webcomponents:       "../bower_components/webcomponentsjs/webcomponents",
+    jquery:              "../bower_components/jquery/dist/jquery.min",
+    jquery_migrate:      "../bower_components/jquery-migrate/jquery-migrate.min",
+    moment:              "../bower_components/momentjs/moment",
+    localstorage:        "../bower_components/backbone.browserStorage/backbone.browserStorage",
+    jqueryui:            "../bower_components/jquery-ui/jquery-ui.min",
+    material:            "../bower_components/material-design-lite/material",
     tinysort:            "../bower_components/tinysort/dist/tinysort.min",
     tinysort_charorder:  "../bower_components/tinysort/dist/tinysort.charorder.min",
     tinysort_open:       "../bower_components/tinysort/dist/jquery.tinysort.min",
@@ -66,6 +65,12 @@ require.config({
       ],
       exports: "Material"
     },
+    jqueryui: {
+      deps: [
+        "jquery"
+      ],
+      exports: "$",
+    },
     Shared: {
       deps: [
       'underscore',
@@ -95,7 +100,8 @@ require.config({
     wijmo: {
       deps: [
         "jquery",
-        "jquery_migrate"
+        "jquery_migrate",
+        "jqueryui"
       ],
       exports: "wijmo"
     },
@@ -161,11 +167,6 @@ require.config({
       deps: [
         "jquery",
         "linkify"
-      ]
-    },
-    jqueryui: {
-      deps: [
-        "jquery"
       ]
     },
     tweenmax: {

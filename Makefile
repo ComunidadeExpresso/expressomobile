@@ -21,20 +21,36 @@ I18NSPHINXOPTS  = $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) ./docs/source
 help:
 	@echo "Please use \`make <target>' where <target> is one of the following:"
 	@echo ""
-	@echo " all        A synonym for 'make dev'."
-	@echo " build      Create minified builds of converse.js and all its dependencies."
-	@echo " clean      Remove downloaded Node.js, bower and Ruby files."
-	@echo " release    Make a new minified release."
-	@echo " serve      Serve this directory via a webserver on port 8000."
-	@echo " watch      Tells Sass to watch the .scss files for changes and then automatically update the CSS files."
+	@echo " install    Use after download, to install all dependencies."
+	@echo " build      Create minified builds and all its dependencies."
+	@echo " clean      Remove downloaded Node.js and bower files."
+	@echo ""
+	@echo " serve 	   Create and serve the files on folder /source/"
+	@echo " serve-www  Create and serve the files on folder /www/"
+	@echo ""
+	@echo " android    build + run on android."
+	@echo " ios        build + run on ios."
+	@echo ""
+	@echo ""
+
 
 all: dev
 
 ########################################################################
 ## Miscellaneous
 
+# NOT WORKING YET
 serve: stamp-npm
-	$(HTTPSERVE) -p 8000
+	gulp serve
+
+serve-www: stamp-npm
+	gulp serve-www
+	
+#	$(HTTPSERVE) ./source/ -p 8000 --cors 
+
+#REFAZ O MOUNT DO NFS NA VM DO VIRTUALBOX (ESSA LINHA PODE SER COMENTADA)
+mount-nfs: 
+	curl http://192.168.56.109/mount_mobile.php
 
 
 ########################################################################
@@ -44,31 +60,34 @@ stamp-npm: package.json
 	npm install
 	touch stamp-npm
 
-stamp-bower: stamp-npm bower.json
+stamp-bower: stamp-npm 
 	$(BOWER) install
 	touch stamp-bower
 
-stamp-bundler:
-	mkdir -p .bundle
-	gem install --user bundler --bindir .bundle/bin
-	$(BUNDLE) install --path .bundle --binstubs .bundle/bin
-	touch stamp-bundler
-
 clean::
 	rm -f stamp-npm stamp-bower stamp-bundler
-	rm -rf node_modules components .bundle
+	rm -rf node_modules source/bower_components .bundle
+	rm -rf ./www/*
+	touch ./www/.empty
 
-dev: stamp-bower stamp-bundler build
+install: stamp-npm stamp-bower
+
+dev: stamp-bower build
+
 
 ########################################################################
 ## Builds
 
-
 build:
 	$(GRUNT) jsmin
+	rm ./www/build.txt
+	touch ./www/.empty
+
+build-web: build mount-nfs
+
+build-android: build android
 
 android:
-	make build
 	cordova run android
 
 ios:

@@ -608,11 +608,19 @@ define([
 
 		this.url = function() {
 
+			// var pos = _crossdomain.lastIndexOf('/');
+			// _crossdomain = _crossdomain.substring(0,pos);
+
+			// console.log(_crossdomain + this.resource());
+			// return _crossdomain + this.resource();
+
+			// _phoneGap = true;
+
 			if (_phoneGap) {
 				return this.context() + this.resource();
 			} else {
-				return this.context() + this.resource() + ((_crossdomain)? '?crossdomain=' + _crossdomain : '');
-			}
+				return this.context() + this.resource() + ((_crossdomain)? '?resource=' + this.resource() + '&crossdomain=' + _crossdomain : '');
+			} 
 		};
 
 		this.setCookie = function(c_name,value,exdays)

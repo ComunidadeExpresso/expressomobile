@@ -1,4 +1,7 @@
 <?php
+
+//ini_set('error_reporting','0');
+
 // Set return header to json
 header('Content-Type: application/json');
 
@@ -7,7 +10,7 @@ $crossdomain = $_GET['crossdomain'];
 unset($_GET['crossdomain']);
 
 // Get current resource
-$resource = $_GET['resource'];
+if (isset($_GET['resource'])) { $resource = $_GET['resource']; } else { $resource = ""; }
 unset($_GET['resource']);
 
 // Implode webservice url
@@ -47,8 +50,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
 			$_POST['params']['msgBody'] = mb_convert_encoding($_POST['params']['msgBody'], "ISO-8859-1","UTF-8");  
 		}
 
-		$newPost['params'] = $_POST['params'];
-
+		if (isset($_POST['params'])) { $newPost['params'] = $_POST['params']; } else { $newPost['params'] = array(); }
 
 		foreach ($newPost['params'] as $i => $value) {
             $newPost['params'][$i] = stripslashes(html_entity_decode($_POST['params'][$i]));
@@ -81,6 +83,8 @@ switch ($_SERVER['REQUEST_METHOD']) {
 		break;
 	default: break;
 }
+
+$error_code = "";
 
 if (curl_errno($curl)) { $error_code =  curl_errno($curl); } 
 
