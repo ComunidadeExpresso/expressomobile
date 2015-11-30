@@ -3,7 +3,7 @@ define([
   'underscore',
   'backbone',
   'shared',
-  'text!templates/settings/settingsFaqListTemplate.html'
+  'templates/settings/settingsFaqListTemplate.html!text'
 ], function($, _, Backbone, Shared, settingsFaqListTemplate){
 
   var SettingsFaqListView = Backbone.View.extend({

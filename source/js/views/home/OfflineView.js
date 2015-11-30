@@ -3,7 +3,7 @@ define([
   'underscore',
   'backbone',
   'shared',
-  'text!templates/home/offlineTemplate.html'
+  'templates/home/offlineTemplate.html!text'
 ], function($, _, Backbone, Shared, offlineTemplate){
 
   var OfflineView = Backbone.View.extend({

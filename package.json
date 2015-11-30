@@ -36,6 +36,7 @@
     "grunt-contrib-requirejs": "~0.4.3",
     "gulp": "^3.9.0",
     "gulp-connect-php": "0.0.7",
+    "gulp-requirejs": "^0.1.3",
     "proxy-middleware": "*"
   },
   "dependencies": {

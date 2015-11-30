@@ -3,7 +3,7 @@ define([
   'underscore',
   'backbone',
   'shared',
-  'text!templates/home/loadingTemplate.html',
+  'templates/home/loadingTemplate.html!text',
   'material'
 ], function($, _, Backbone, Shared, loadingTemplate, Material){
 

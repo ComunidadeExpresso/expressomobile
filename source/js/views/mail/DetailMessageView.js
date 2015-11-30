@@ -3,11 +3,11 @@ define([
   'underscore',
   'backbone',
   'shared',
-  'collections/mail/MessagesCollection',
-  'text!templates/mail/detailMessageTemplate.html',
-  'views/home/LoadingView',
-  'collections/home/ContextMenuCollection',
-  'views/mail/PreviewAttachmentMessageView',
+  'collections/mail/MessagesCollection.js',
+  'templates/mail/detailMessageTemplate.html!text',
+  'views/home/LoadingView.js',
+  'collections/home/ContextMenuCollection.js',
+  'views/mail/PreviewAttachmentMessageView.js',
 ], function($, _, Backbone, Shared,MessagesCollection, detailMessageTemplate, LoadingView,ContextMenuCollection,PreviewAttachmentMessageView){
 
   var DetailMessageView = Backbone.View.extend({

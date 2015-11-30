@@ -3,8 +3,8 @@ define([
 	'underscore',
 	'backbone',
 	'shared',
-	'models/calendar/EventModel',
-	'views/home/LoadingView',
+	'models/calendar/EventModel.js',
+	'views/home/LoadingView.js',
 ], function($, _, Backbone, Shared, EventModel, LoadingView)
 {
 	var CalendarDeleteEventView = Backbone.View.extend(

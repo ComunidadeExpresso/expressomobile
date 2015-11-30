@@ -2,7 +2,7 @@ define([
   'underscore', 
   'backbone', 
   'shared',
-  'models/home/MenuItemModel',
+  'models/home/MenuItemModel.js',
   ], function(_, Backbone,Shared, MenuItemModel){
 	  
   var MenuItemsCollection = Backbone.Collection.extend({

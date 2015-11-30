@@ -1,12 +1,13 @@
 define([
   'webcomponents',
   'jquery', 
+  'jqueryui',
   'underscore', 
   'backbone',
-  'shared',
+  'Shared',
   'material',
   'router', 
-], function(webcomponents,$, _, Backbone, Shared, Material ,AppRouter){
+], function(webcomponents,jQuery,$, _, Backbone, Shared, Material ,AppRouter){
   var initialize = function(){
 
     var startApp = function() {

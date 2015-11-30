@@ -3,8 +3,8 @@ define([
   'underscore',
   'backbone',
   'shared',
-  'views/home/LoadingView',
-  'text!templates/mail/previewAttachmentMessageTemplate.html'
+  'views/home/LoadingView.js',
+  'templates/mail/previewAttachmentMessageTemplate.html!text'
 ], function($, _, Backbone, Shared, LoadingView, previewAttachmentMessageTemplate){
 
   var PreviewAttachmentMessageView = Backbone.View.extend({

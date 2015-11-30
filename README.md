@@ -8,17 +8,20 @@ Este repositório é a unificação dos outros 3 repositórios seguindo o padrã
 	git clone https://github.com/ComunidadeExpresso/expressomobile.git
 	make install
 	
+## Minificação de JAVASCRIPT
+make build 
 
-## Outros comandos úteis
-	
-	### Minificação de JAVASCRIPT
-	make build 
-	
-	### Compilar app para Android.
-	make android
-	
-	### Compilar app para iOS.
-	make ios
+## Inicia um webserver na pasta ./source/
+make serve 
+
+## Inicia um webserver na pasta ./www/
+make serve-www
+
+## Compilar app para Android.
+make android
+
+## Compilar app para iOS.
+make ios
 
 # Projeto desenvolvido por:
     CELEPAR - Companhia de Tecnologia da Informação e Comunicação do Estado do Paraná

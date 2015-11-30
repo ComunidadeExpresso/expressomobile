@@ -2,8 +2,8 @@ define ([
 	'underscore',
 	'backbone',
 	'shared',
-	'models/contacts/ContactModel',
-	'collections/contacts/DetailsContactCollection',
+	'models/contacts/ContactModel.js',
+	'collections/contacts/DetailsContactCollection.js',
 ], function (_, Backbone, Shared, ContactModel, DetailsContactCollection) 
 {
 	var EventModel = Backbone.Model.extend(

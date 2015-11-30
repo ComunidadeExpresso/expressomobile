@@ -1,45 +1,51 @@
-require.config({
-  urlArgs: "bust=14411090641240",
+
+System.config({
+  map: {
+    text : "text.js"
+  },
   paths: {
     templates:           "../templates",
-    Shared:              "shared",
-    underscore:          "../bower_components/underscore/underscore-min",
-    backbone:            "../bower_components/backbone/backbone-min",
-    webcomponents:       "../bower_components/webcomponentsjs/webcomponents",
-    jquery:              "../bower_components/jquery/dist/jquery.min",
-    jquery_migrate:      "../bower_components/jquery-migrate/jquery-migrate.min",
-    moment:              "../bower_components/momentjs/moment",
-    localstorage:        "../bower_components/backbone.browserStorage/backbone.browserStorage",
-    jqueryui:            "../bower_components/jquery-ui/jquery-ui.min",
-    material:            "../bower_components/material-design-lite/material",
-    tinysort:            "../bower_components/tinysort/dist/tinysort.min",
-    tinysort_charorder:  "../bower_components/tinysort/dist/tinysort.charorder.min",
-    tinysort_open:       "../bower_components/tinysort/dist/jquery.tinysort.min",
-    jquery_autogrow:     "../bower_components/autogrow-textarea/jquery.autogrowtextarea.min",
-    tweenmax:            "../bower_components/gsap/src/minified/TweenMax.min",
-    linkify:             "../bower_components/linkifyjs/src/linkified",
-    jquery_linkify:      "../bower_components/linkifyjs/src/jquery.linkify",
-    wijmo:               "../bower_components/wijmo/wijmo/jquery.wijmo.wijutil",
-    wijdialog:           "../bower_components/wijmo/wijmo/jquery.wijmo.wijdialog",
+    Shared:              "shared.js",
+    shared:              "shared.js",
+    router:              "router.js",
+    underscore:          "../bower_components/underscore/underscore-min.js",
+    backbone:            "../bower_components/backbone/backbone-min.js",
+    webcomponents:       "../bower_components/webcomponentsjs/webcomponents.js",
+    jquery:              "../bower_components/jquery/dist/jquery.min.js",
+    jquery_migrate:      "../bower_components/jquery-migrate/jquery-migrate.min.js",
+    moment:              "../bower_components/momentjs/moment.js",
+    localstorage:        "../bower_components/backbone.browserStorage/backbone.browserStorage.js",
+    jqueryui:            "../bower_components/jquery-ui/jquery-ui.min.js",
+    material:            "../bower_components/material-design-lite/material.js",
+    tinysort:            "../bower_components/tinysort/dist/tinysort.min.js",
+    tinysort_charorder:  "../bower_components/tinysort/dist/tinysort.charorder.min.js",
+    tinysort_open:       "../bower_components/tinysort/dist/jquery.tinysort.min.js",
+    jquery_autogrow:     "../bower_components/autogrow-textarea/jquery.autogrowtextarea.min.js",
+    tweenmax:            "../bower_components/gsap/src/minified/TweenMax.min.js",
+    linkify:             "../bower_components/linkifyjs/src/linkified.js",
+    jquery_linkify:      "../bower_components/linkifyjs/src/jquery.linkify.js",
+    wijmo:               "../bower_components/wijmo/wijmo/jquery.wijmo.wijutil.js",
+    wijdialog:           "../bower_components/wijmo/wijmo/jquery.wijmo.wijdialog.js",
 
     //LANGUAGE FILES
-    jqueryui_datepicker_ptBR: "libs/lang/jquery.ui.datepicker-pt-BR",
-    moment_ptBR:              "libs/lang/moment-pt-BR",
+    jqueryui_datepicker_ptBR: "libs/lang/jquery.ui.datepicker-pt-BR.js",
+    moment_ptBR:              "libs/lang/moment-pt-BR.js",
 
-    expressoAPI:        "libs/expresso/expressoAPI",
-    expressoIM:         "libs/expresso/expressoIM",
-    expressoService:    "libs/expresso/expressoService",
-    im:                 "libs/messenger/im",
-    jquery_xmpp:        "libs/jquery.xmpp/jquery.xmpp",
-    
+    expressoAPI:        "libs/expresso/expressoAPI.js",
+    expressoIM:         "libs/expresso/expressoIM.js",
+    expressoService:    "libs/expresso/expressoService.js",
+    im:                 "libs/messenger/im.js",
+    jquery_xmpp:        "libs/jquery.xmpp/jquery.xmpp.js",
+
+
 
     //MUST BE CHANGED TO BOWER
 
     //LOCAL VERSION HAS CHANGES IN CODE
-    autocomplete:       "libs/jquery.backbone.widget/jquery.backbone.widgets",
+    autocomplete:       "libs/jquery.backbone.widget/jquery.backbone.widgets.js",
     
     //MUST BE REPLACED BY MATERIAL DESIGN
-    contextmenu:        "libs/jquery.contextmenu/jquery.contextMenu",
+    contextmenu:        "libs/jquery.contextmenu/jquery.contextMenu.js",
     
     //DEVELOPMENT - IN TEST
     // htmlgl:           "../bower_components/htmlgl/dist/htmlgl.min"
@@ -69,7 +75,7 @@ require.config({
       deps: [
         "jquery"
       ],
-      exports: "$",
+      exports: '$',
     },
     Shared: {
       deps: [
@@ -191,7 +197,7 @@ require.config({
         "moment"
       ]
     },
-    enforceDefine: true
+    enforceDefine: false
   },
   packages: [
 
@@ -200,7 +206,7 @@ require.config({
 
 require([
   // Load our app module and pass it to our definition function
-  'app',
+  'app.js'
 
 ], function(App){
   // The "app" dependency is passed in as "App"

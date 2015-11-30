@@ -3,9 +3,9 @@
 	'underscore',
 	'backbone',
 	'shared',
-	'views/home/LoadingView',
-	'models/contacts/ContactPictureImageModel',
-	'text!templates/contacts/pictureImageContactTemplate.html'
+	'views/home/LoadingView.js',
+	'models/contacts/ContactPictureImageModel.js',
+	'templates/contacts/pictureImageContactTemplate.html!text'
 ], function($, _, Backbone, Shared, LoadingView, ContactPictureImageModel, PictureImageContactTemplate)
 {
 	var PictureImageContactView = Backbone.View.extend(

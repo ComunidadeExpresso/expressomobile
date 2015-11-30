@@ -2,7 +2,7 @@ define([
   'underscore',
   'backbone',
   'shared',
-  'models/contacts/ContactModel'
+  'models/contacts/ContactModel.js'
 ], function (_, Backbone, Shared, ContactModel)
 {
 	var ContactsListCollection = Backbone.Collection.extend (

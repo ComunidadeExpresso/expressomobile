@@ -42,7 +42,8 @@
     "iron-scroll-threshold": "~1.0.2",
     "backbone.widget.autocomplete": "https://github.com/martindrapeau/Backbone-Widgets.git",
     "autogrow-textarea": "*",
-    "gsap": "~1.18.0"
+    "gsap": "~1.18.0",
+    "systemjs": "https://github.com/systemjs/systemjs.git"
   },
   "resolutions": {
     "polymer": "1.2.0"

@@ -3,7 +3,7 @@ define([
   'underscore',
   'backbone',
   'shared',
-  'text!templates/settings/settingsResultsPerPageListTemplate.html'
+  'templates/settings/settingsResultsPerPageListTemplate.html!text'
 ], function($, _, Backbone, Shared, settingsResultsPerPageListTemplate){
 
   var SettingsResultsPerPageListView = Backbone.View.extend({

@@ -3,13 +3,13 @@ define([
 	'underscore',
 	'backbone',
 	'shared',
-	'views/home/LoadingView',
-	'views/home/HomeView',
-	'text!templates/master/detailContentTemplate.html',
-	'text!templates/master/primaryContentTemplate.html',
-	'models/contacts/ContactModel',
-	'collections/contacts/DetailsContactCollection',
-	'collections/home/ContextMenuCollection',
+	'views/home/LoadingView.js',
+	'views/home/HomeView.js',
+	'templates/master/detailContentTemplate.html!text',
+	'templates/master/primaryContentTemplate.html!text',
+	'models/contacts/ContactModel.js',
+	'collections/contacts/DetailsContactCollection.js',
+	'collections/home/ContextMenuCollection.js',
 ], function($, _, Backbone, Shared, LoadingView, HomeView, detailContentTemplate, primaryContentTemplate, ContactModel, DetailsContactCollection, ContextMenuCollection)
 {
 	var AddContactView = Backbone.View.extend(

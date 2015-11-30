@@ -27,8 +27,19 @@
       var IS_BUILTINEXPRESSO = false;
     </script>
 
-    <script data-main="js/main" src="./bower_components/requirejs/require.js"></script>
-    <link rel="import" id="bundle" href="elements/elements.html" async>
+    <link rel="import" id="bundle" href="elements/elements.html">
+
+    <script src="./bower_components/systemjs/dist/system.js" type="text/javascript"></script>
+    <script>  
+        window.define = System.amdDefine; window.require = window.requirejs = System.amdRequire;
+
+        System.config({
+            baseURL: '/js'
+        });
+        System.import('main.js');
+    </script>
+
+    <!-- <script data-main="js/main" src="./bower_components/requirejs/require.js"></script> -->
     
   </head>
 <body id="mainAppPageContent" >

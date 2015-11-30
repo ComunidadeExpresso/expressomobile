@@ -3,9 +3,9 @@ define([
   'underscore',
   'backbone',
   'shared',
-  'collections/mail/FoldersCollection',
-  'text!templates/mail/foldersMenuListTemplate.html',
-  'views/home/LoadingView'
+  'collections/mail/FoldersCollection.js',
+  'templates/mail/foldersMenuListTemplate.html!text',
+  'views/home/LoadingView.js'
 ], function($, _, Backbone, Shared, FoldersCollection, foldersMenuListTemplate,LoadingView){
 
   var FoldersMenuListView = Backbone.View.extend({

@@ -5,7 +5,7 @@ define([
   'backbone',
   'expressoAPI',
   'expressoIM',
-  'views/home/UserMessageView',
+  'views/home/UserMessageView.js',
   'expressoService',
   'moment',
 ], function(_, $, Backbone,expressoAPI,expressoIM,UserMessageView,expressoService,moment) {

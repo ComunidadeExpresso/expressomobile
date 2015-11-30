@@ -1,19 +1,20 @@
 define([
+  'webcomponents',
   'jquery',
   'underscore',
   'backbone',
   'shared',
-  'models/mail/MessagesModel',
-  'collections/mail/MessagesCollection',
-  'text!templates/login/loginTemplate.html',
-  'views/home/LoadingView',
-  'views/home/HomeView',
+  'models/mail/MessagesModel.js',
+  'collections/mail/MessagesCollection.js',
+  'templates/login/loginTemplate.html!text',
+  'views/home/LoadingView.js',
+  'views/home/HomeView.js',
   'expressoIM',
-  'collections/home/ExpressoCollection',
-  'collections/home/ServersCollection',
-  'views/settings/SettingsFaqListView',
+  'collections/home/ExpressoCollection.js',
+  'collections/home/ServersCollection.js',
+  'views/settings/SettingsFaqListView.js',
   'material'
-], function($, _, Backbone, Shared, MessagesModel, MessagesCollection, loginTemplate,LoadingView,HomeView,expressoIM,ExpressoCollection,ServersCollection,SettingsFaqListView,Material){
+], function(webcomponents,$, _, Backbone, Shared, MessagesModel, MessagesCollection, loginTemplate,LoadingView,HomeView,expressoIM,ExpressoCollection,ServersCollection,SettingsFaqListView,Material){
 
   var LoginView = Backbone.View.extend({
 
@@ -268,14 +269,14 @@ define([
                 homeView.profile = result.profile[0];
                 homeView.render();
 
-                // Shared.showMessage({
-                //   type: "success",
-                //   icon: 'icon-expresso',
-                //   title: "Bem vindo ao Expresso!",
-                //   description: "",
-                //   timeout: 2000,
-                //   elementID: "#pageMessage",
-                // });
+                Shared.showMessage({
+                  type: "success",
+                  icon: 'icon-expresso',
+                  title: "Bem vindo ao Expresso!",
+                  description: "",
+                  timeout: 2000,
+                  elementID: "#pageMessage",
+                });
 
               },1000);
 

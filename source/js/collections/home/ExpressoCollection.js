@@ -2,7 +2,7 @@ define([
   'underscore', 
   'backbone', 
   'localstorage', 
-  'models/home/ExpressoModel',
+  'models/home/ExpressoModel.js',
   ], function(_, Backbone, Store, ExpressoModel){
 	  
 	var ExpressoCollection = Backbone.Collection.extend({

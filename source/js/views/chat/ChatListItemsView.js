@@ -3,7 +3,7 @@ define([
   'underscore',
   'backbone',
   'shared',
-  'text!templates/chat/chatListItemsTemplate.html',
+  'templates/chat/chatListItemsTemplate.html!text',
 ], function($, _, Backbone, Shared, chatListItemsTemplate){
 
   var ChatListItemsView = Backbone.View.extend({

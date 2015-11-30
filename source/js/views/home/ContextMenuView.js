@@ -3,10 +3,10 @@ define([
   'underscore',
   'backbone',
   'shared',
-  'text!templates/home/contextMenuTemplate.html',
-  'collections/home/ContextMenuCollection',
+  'templates/home/contextMenuTemplate.html!text',
+  'collections/home/ContextMenuCollection.js',
   'material',
-  'views/home/SearchView',
+  'views/home/SearchView.js',
 ], function($, _, Backbone, Shared, contextMenuTemplate,ContextMenuCollection,Material,SearchView){
 
   var ContextMenuView = Backbone.View.extend({

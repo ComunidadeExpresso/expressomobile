@@ -2,7 +2,7 @@ define([
   'underscore', 
   'backbone', 
   'shared',
-  'models/home/ServerModel',
+  'models/home/ServerModel.js',
   'expressoAPI',
   ], function(_, Backbone,Shared, ServerModel,expressoAPI){
 	  

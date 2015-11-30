@@ -3,10 +3,10 @@ define([
   'underscore',
   'backbone',
   'shared',
-  'text!templates/mail/messagesListItemsTemplate.html',
-  'collections/mail/MessagesCollection',
+  'templates/mail/messagesListItemsTemplate.html!text',
+  'collections/mail/MessagesCollection.js',
   'material',
-  'views/mail/MessagesListItemView'
+  'views/mail/MessagesListItemView.js'
 ], function($, _, Backbone, Shared, messagesListItemsTemplate,MessagesCollection,Material,MessagesListItemView){
 
   var MessagesListItemsView = Backbone.View.extend({

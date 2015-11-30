@@ -2,7 +2,7 @@ define([
   'underscore',
   'backbone',
   'shared',
-  'models/home/ContextMenuModel'
+  'models/home/ContextMenuModel.js'
 ], function(_, Backbone, Shared, ContextMenuModel){
 
   var ContextMenuCollection = Backbone.Collection.extend({

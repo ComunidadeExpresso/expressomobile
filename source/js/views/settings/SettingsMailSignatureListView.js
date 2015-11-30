@@ -3,7 +3,7 @@ define([
   'underscore',
   'backbone',
   'shared',
-  'text!templates/settings/settingsMailSignatureListTemplate.html'
+  'templates/settings/settingsMailSignatureListTemplate.html!text'
 ], function($, _, Backbone, Shared, settingsMailSignatureListTemplate){
 
   var SettingsMailSignatureListView = Backbone.View.extend({

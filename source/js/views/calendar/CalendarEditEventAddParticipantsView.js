@@ -3,12 +3,12 @@ define([
 	'underscore',
 	'backbone',
 	'shared',
-	'models/calendar/EventModel',
-	'views/home/LoadingView',
-	'text!templates/master/detailContentTemplate.html',
-	'text!templates/master/primaryContentTemplate.html',
-	'text!templates/calendar/calendarEditEventAddParticipantsTemplate.html',
-	'collections/contacts/ContactsListCollection',
+	'models/calendar/EventModel.js',
+	'views/home/LoadingView.js',
+	'templates/master/detailContentTemplate.html!text',
+	'templates/master/primaryContentTemplate.html!text',
+	'templates/calendar/calendarEditEventAddParticipantsTemplate.html!text',
+	'collections/contacts/ContactsListCollection.js',
 ], function($, _, Backbone, Shared, EventModel, LoadingView, detailContentTemplate, primaryContentTemplate, calendarEditEventAddParticipantsTemplate, ContactsListCollection)
 {
 	var CalendarEditEventAddParticipantsView = Backbone.View.extend(

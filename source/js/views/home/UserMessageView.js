@@ -2,7 +2,7 @@ define([
   'jquery',
   'underscore',
   'backbone',
-  'text!templates/home/userMessageTemplate.html'
+  'templates/home/userMessageTemplate.html!text'
 ], function($, _, Backbone, userMessageTemplate){
 
   var UserMessageView = Backbone.View.extend({
@@ -17,12 +17,21 @@ define([
     timeout: 3000,
 
     render: function(){
+      var that = this;
+      
 
-      $('#toastMessage').attr("text",this.msgTitle);
-      console.log(this.msgTitle);
-      if (document.querySelector('#toastMessage')) { 
-        document.querySelector('#toastMessage').show()
-      }
+      setTimeout(function() {
+         $('#toastMessage').attr("text",that.msgTitle);
+
+        //$('#toastMessage').attr("duration",that.timeout);
+        if (document.querySelector('#toastMessage')) { 
+          //console.log(document.querySelector('#toastMessage'));
+         //document.querySelector('#toastMessage').attribute('text',that.msgTitle);
+          document.querySelector('#toastMessage').show();
+        }
+      },1000);
+
+      
 
       // if (this.timeout == undefined) {
       //   this.timeout = 3000;

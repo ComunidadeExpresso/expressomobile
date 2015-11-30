@@ -3,11 +3,11 @@ define([
   'underscore',
   'backbone',
   'shared',
-  'text!templates/chat/chatListTemplate.html',
-  'text!templates/chat/chatListTemplateDesktop.html',
-  'views/chat/ChatListItemsView',
-  'views/chat/ChatWindowView',
-  'views/home/LoadingView',
+  'templates/chat/chatListTemplate.html!text',
+  'templates/chat/chatListTemplateDesktop.html!text',
+  'views/chat/ChatListItemsView.js',
+  'views/chat/ChatWindowView.js',
+  'views/home/LoadingView.js',
 ], function($, _, Backbone, Shared, chatListTemplate, chatListTemplateDesktop,ChatListItemsView,ChatWindowView,LoadingView){
 
   var ChatListView = Backbone.View.extend({

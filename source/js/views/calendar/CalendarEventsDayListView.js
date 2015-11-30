@@ -3,9 +3,9 @@ define([
 	'underscore',
 	'backbone',
 	'shared',
-	'collections/calendar/EventsListCollection',
-	'views/home/LoadingView',
-	'text!templates/calendar/calendarEventsDayListTemplate.html',
+	'collections/calendar/EventsListCollection.js',
+	'views/home/LoadingView.js',
+	'templates/calendar/calendarEventsDayListTemplate.html!text',
 ], function($, _, Backbone, Shared, EventsListCollection, LoadingView, calendarEventsDayListTemplate)
 {
 	var CalendarEventsDayListView = Backbone.View.extend(

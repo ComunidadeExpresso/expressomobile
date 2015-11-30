@@ -3,8 +3,8 @@ define([
   'underscore',
   'backbone',
   'shared',
-  'text!templates/mail/editFolderTemplate.html',
-  'collections/mail/FoldersCollection'
+  'templates/mail/editFolderTemplate.html!text',
+  'collections/mail/FoldersCollection.js'
 ], function($, _, Backbone, Shared, editFolderTemplate,FoldersCollection){
 
   var EditFolderView = Backbone.View.extend({

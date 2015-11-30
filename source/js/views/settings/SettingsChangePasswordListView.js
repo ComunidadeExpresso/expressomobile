@@ -3,7 +3,7 @@ define([
   'underscore',
   'backbone',
   'shared',
-  'text!templates/settings/settingsChangePasswordListTemplate.html'
+  'templates/settings/settingsChangePasswordListTemplate.html!text'
 ], function($, _, Backbone, Shared, settingsChangePasswordListTemplate){
 
   var SettingsChangePasswordListView = Backbone.View.extend({
