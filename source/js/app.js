@@ -29,7 +29,6 @@ define([
       startApp();
     }
 
-
   };
 
   return { 

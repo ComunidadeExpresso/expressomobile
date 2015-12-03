@@ -3,8 +3,8 @@
 	'underscore',
 	'backbone',
 	'shared',
-	'views/home/LoadingView.js',
-	'models/contacts/ContactPictureImageModel.js',
+	'js/views/home/LoadingView.js',
+	'js/models/contacts/ContactPictureImageModel.js',
 	'templates/contacts/pictureImageContactTemplate.html!text'
 ], function($, _, Backbone, Shared, LoadingView, ContactPictureImageModel, PictureImageContactTemplate)
 {

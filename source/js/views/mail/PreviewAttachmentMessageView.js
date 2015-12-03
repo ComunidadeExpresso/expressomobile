@@ -3,7 +3,7 @@ define([
   'underscore',
   'backbone',
   'shared',
-  'views/home/LoadingView.js',
+  'js/views/home/LoadingView.js',
   'templates/mail/previewAttachmentMessageTemplate.html!text'
 ], function($, _, Backbone, Shared, LoadingView, previewAttachmentMessageTemplate){
 

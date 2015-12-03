@@ -7,7 +7,7 @@
     <author email="developer@celepar.pr.gov.br" href="http://cordova.io">
         Expresso Mobile Developer Team
     </author>
-    <content src="index_ios.html" />
+    <content src="index.html" />
     <access origin="*" />
     <preference name="fullscreen" value="true" />
     <preference name="webviewbounce" value="false" />

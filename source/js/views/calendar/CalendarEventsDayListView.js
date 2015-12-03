@@ -3,8 +3,8 @@ define([
 	'underscore',
 	'backbone',
 	'shared',
-	'collections/calendar/EventsListCollection.js',
-	'views/home/LoadingView.js',
+	'js/collections/calendar/EventsListCollection.js',
+	'js/views/home/LoadingView.js',
 	'templates/calendar/calendarEventsDayListTemplate.html!text',
 ], function($, _, Backbone, Shared, EventsListCollection, LoadingView, calendarEventsDayListTemplate)
 {

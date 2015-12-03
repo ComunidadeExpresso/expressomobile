@@ -2,7 +2,7 @@ define([
   'underscore',
   'backbone',
   'shared',
-  'models/calendar/EventCategoryModel.js'
+  'js/models/calendar/EventCategoryModel.js'
 ], function (_, Backbone, Shared, EventCategoryModel)
 {
 	var EventCategoriesCollection = Backbone.Collection.extend (

@@ -5,9 +5,9 @@ define([
   'shared',
   'templates/chat/chatListTemplate.html!text',
   'templates/chat/chatListTemplateDesktop.html!text',
-  'views/chat/ChatListItemsView.js',
-  'views/chat/ChatWindowView.js',
-  'views/home/LoadingView.js',
+  'js/views/chat/ChatListItemsView.js',
+  'js/views/chat/ChatWindowView.js',
+  'js/views/home/LoadingView.js',
 ], function($, _, Backbone, Shared, chatListTemplate, chatListTemplateDesktop,ChatListItemsView,ChatWindowView,LoadingView){
 
   var ChatListView = Backbone.View.extend({

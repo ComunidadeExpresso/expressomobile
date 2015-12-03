@@ -2,7 +2,7 @@ define([
   'underscore',
   'backbone',
   'shared',
-  'models/mail/MessagesModel.js'
+  'js/models/mail/MessagesModel.js'
 ], function(_, Backbone, Shared, MessagesModel){
 
   var MessagesCollection = Backbone.Collection.extend({

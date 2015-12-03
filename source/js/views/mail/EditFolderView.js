@@ -4,7 +4,7 @@ define([
   'backbone',
   'shared',
   'templates/mail/editFolderTemplate.html!text',
-  'collections/mail/FoldersCollection.js'
+  'js/collections/mail/FoldersCollection.js'
 ], function($, _, Backbone, Shared, editFolderTemplate,FoldersCollection){
 
   var EditFolderView = Backbone.View.extend({

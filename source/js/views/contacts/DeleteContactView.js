@@ -3,13 +3,13 @@ define([
 	'underscore',
 	'backbone',
 	'shared',
-	'views/home/LoadingView.js',
-	'views/home/HomeView.js',
+	'js/views/home/LoadingView.js',
+	'js/views/home/HomeView.js',
 	'templates/master/detailContentTemplate.html!text',
 	'templates/master/primaryContentTemplate.html!text',
-	'models/contacts/ContactModel.js',
-	'collections/contacts/DetailsContactCollection.js',
-	'collections/home/ContextMenuCollection.js',
+	'js/models/contacts/ContactModel.js',
+	'js/collections/contacts/DetailsContactCollection.js',
+	'js/collections/home/ContextMenuCollection.js',
 ], function($, _, Backbone, Shared, LoadingView, HomeView, detailContentTemplate, primaryContentTemplate, ContactModel, DetailsContactCollection, ContextMenuCollection)
 {
 	var DeleteContactView = Backbone.View.extend(

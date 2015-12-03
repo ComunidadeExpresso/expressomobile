@@ -6,7 +6,7 @@ define([
   'moment',
   'templates/chat/chatWindowTemplate.html!text',
   'templates/chat/chatWindowMessagesTemplate.html!text',
-  'views/home/LoadingView.js',
+  'js/views/home/LoadingView.js',
 ], function($, _, Backbone, Shared, moment, chatWindowTemplate,chatWindowMessagesTemplate,LoadingView){
 
   var ChatWindowView = Backbone.View.extend({

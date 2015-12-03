@@ -4,9 +4,9 @@ define([
   'backbone',
   'shared',
   'templates/home/contextMenuTemplate.html!text',
-  'collections/home/ContextMenuCollection.js',
+  'js/collections/home/ContextMenuCollection.js',
   'material',
-  'views/home/SearchView.js',
+  'js/views/home/SearchView.js',
 ], function($, _, Backbone, Shared, contextMenuTemplate,ContextMenuCollection,Material,SearchView){
 
   var ContextMenuView = Backbone.View.extend({

@@ -3,15 +3,15 @@ define([
 	'underscore',
 	'backbone',
 	'shared',
-	'views/home/LoadingView.js',
-	'views/home/HomeView.js',
-	'views/contacts/PictureImageContactView.js',
+	'js/views/home/LoadingView.js',
+	'js/views/home/HomeView.js',
+	'js/views/contacts/PictureImageContactView.js',
 	'templates/master/detailContentTemplate.html!text',
 	'templates/master/primaryContentTemplate.html!text',
 	'templates/contacts/detailsContactTemplate.html!text',
-	'collections/contacts/DetailsContactCollection.js',
-	'collections/home/ContextMenuCollection.js',
-	'models/contacts/ContactPictureImageModel.js',
+	'js/collections/contacts/DetailsContactCollection.js',
+	'js/collections/home/ContextMenuCollection.js',
+	'js/models/contacts/ContactPictureImageModel.js',
 ], function($, _, Backbone, Shared, LoadingView, HomeView, PictureImageContactView, detailContentTemplate, primaryContentTemplate, DetailsContactTemplate, DetailsContactCollection, ContextMenuCollection, ContactPictureImageModel)
 {
 	var DetailsContactView = Backbone.View.extend(

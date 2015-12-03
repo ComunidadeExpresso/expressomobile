@@ -34,8 +34,6 @@
 @import url('m_calendar.css'); 
 
 
-
-
 /* MESSENGER */
 
 @import url('jquery.wijmo.css'); 
@@ -44,6 +42,14 @@
 @import url('../js/libs/messenger/im.css');
 @import url('../js/libs/messenger/im_new.css');
 @import url('m_chat.css'); 
+
+
+
+html, body {
+  font-family: 'Roboto', 'Helvetica', sans-serif;
+  /*background-color: #EFEFEF ;*/
+   /*background-color: #000 ;*/
+}
 
 
 /*

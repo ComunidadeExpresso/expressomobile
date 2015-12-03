@@ -4,15 +4,15 @@ define([
   'underscore',
   'backbone',
   'shared',
-  'models/mail/MessagesModel.js',
-  'collections/mail/MessagesCollection.js',
+  'js/models/mail/MessagesModel.js',
+  'js/collections/mail/MessagesCollection.js',
   'templates/login/loginTemplate.html!text',
-  'views/home/LoadingView.js',
-  'views/home/HomeView.js',
+  'js/views/home/LoadingView.js',
+  'js/views/home/HomeView.js',
   'expressoIM',
-  'collections/home/ExpressoCollection.js',
-  'collections/home/ServersCollection.js',
-  'views/settings/SettingsFaqListView.js',
+  'js/collections/home/ExpressoCollection.js',
+  'js/collections/home/ServersCollection.js',
+  'js/views/settings/SettingsFaqListView.js',
   'material'
 ], function(webcomponents,$, _, Backbone, Shared, MessagesModel, MessagesCollection, loginTemplate,LoadingView,HomeView,expressoIM,ExpressoCollection,ServersCollection,SettingsFaqListView,Material){
 

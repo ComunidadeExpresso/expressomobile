@@ -7,12 +7,12 @@ define([
 	'templates/master/detailContentTemplate.html!text',
 	'templates/contacts/generalContactsListTemplate.html!text',
 	'templates/contacts/personalContactsListTemplate.html!text',
-	'collections/home/ContextMenuCollection.js',
-	'views/contacts/PictureImageContactView.js',
-	'views/home/LoadingView.js',
-	'views/home/HomeView.js',
-	'collections/contacts/ContactsListCollection.js',
-	'views/mail/PullToActionView.js',
+	'js/collections/home/ContextMenuCollection.js',
+	'js/views/contacts/PictureImageContactView.js',
+	'js/views/home/LoadingView.js',
+	'js/views/home/HomeView.js',
+	'js/collections/contacts/ContactsListCollection.js',
+	'js/views/mail/PullToActionView.js',
 	'material',
 ], function($, _, Backbone, Shared, primaryContentTemplate, detailContentTemplate, GeneralContactsListTemplate, PersonalContactsListTemplate, ContextMenuCollection, PictureImageContactView, LoadingView, HomeView, ContactsListCollection, PullToActionView,Material)
 {

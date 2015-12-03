@@ -4,9 +4,9 @@ define([
   'backbone',
   'shared',
   'templates/mail/messagesListItemsTemplate.html!text',
-  'collections/mail/MessagesCollection.js',
+  'js/collections/mail/MessagesCollection.js',
   'material',
-  'views/mail/MessagesListItemView.js'
+  'js/views/mail/MessagesListItemView.js'
 ], function($, _, Backbone, Shared, messagesListItemsTemplate,MessagesCollection,Material,MessagesListItemView){
 
   var MessagesListItemsView = Backbone.View.extend({

@@ -4,14 +4,14 @@ define([
   'backbone',
   'shared',
   'autocomplete',
-  'views/calendar/CalendarEditEventAddParticipantsView.js',
+  'js/views/calendar/CalendarEditEventAddParticipantsView.js',
   'templates/mail/composeMessageTemplate.html!text',
-  'models/mail/MessagesModel.js',
-  'collections/mail/MessagesCollection.js',
-  'collections/home/ContextMenuCollection.js',
-  'views/mail/PreviewAttachmentMessageView.js',
-  'views/home/LoadingView.js',
-  'collections/contacts/ContactsListCollection.js',
+  'js/models/mail/MessagesModel.js',
+  'js/collections/mail/MessagesCollection.js',
+  'js/collections/home/ContextMenuCollection.js',
+  'js/views/mail/PreviewAttachmentMessageView.js',
+  'js/views/home/LoadingView.js',
+  'js/collections/contacts/ContactsListCollection.js',
 
 ], function($, _, Backbone, Shared, AutoComplete, CalendarEditEventAddParticipantsView ,composeMessageTemplate,MessagesModel,MessagesCollection,ContextMenuCollection,PreviewAttachmentMessageView,LoadingView,ContactsListCollection){
 

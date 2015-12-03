@@ -3,11 +3,11 @@ define([
   'underscore',
   'backbone',
   'shared',
-  'views/mail/FoldersMenuListView.js',
+  'js/views/mail/FoldersMenuListView.js',
   'templates/home/menuTemplate.html!text',
-  'views/home/ContextMenuView.js',
-  'collections/home/ContextMenuCollection.js',
-  'collections/home/MenuItemsCollection.js',
+  'js/views/home/ContextMenuView.js',
+  'js/collections/home/ContextMenuCollection.js',
+  'js/collections/home/MenuItemsCollection.js',
   'material',
 ], function($, _, Backbone, Shared, FoldersMenuListView, menuTemplate,ContextMenuView,ContextMenuCollection,MenuItemsCollection,Material){
 
