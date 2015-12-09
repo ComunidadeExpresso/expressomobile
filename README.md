@@ -6,22 +6,29 @@ Este repositório é a unificação dos outros 3 repositórios seguindo o padrã
 # Instalação
 	
 	git clone https://github.com/ComunidadeExpresso/expressomobile.git
-	make install
+	npm install
+	bower install
+
 	
-## Minificação de JAVASCRIPT
-make build 
+## Tarefas do gulp
+  build           Create a new build on the build folder.
+  clean:build     Delete all files from build folder.
 
-## Inicia um webserver na pasta ./source/
-make serve 
+  gulp default         [help]
+  gulp help            Display this help text.
+  gulp install         Install all project dependencies NODE_MODULES and BOWER.
+  gulp minify-css      Minifica CSS na pasta de build.
+  gulp minify-scripts  Minifica JS na pasta de build.
+  gulp vulcanize       Minify Polymer Elements into a index.html and index.js on the build folder.
+  gulp serve           Inicia um servidor web local na pasta: /source/ 
+  gulp serve-www       Inicia um servidor web local na pasta: /www/  
+  
 
-## Inicia um webserver na pasta ./www/
-make serve-www
+## Compilar para o Android
+	gulp clean:build
+	gulp build
+	cordova run android
 
-## Compilar app para Android.
-make android
-
-## Compilar app para iOS.
-make ios
 
 # Projeto desenvolvido por:
     CELEPAR - Companhia de Tecnologia da Informação e Comunicação do Estado do Paraná

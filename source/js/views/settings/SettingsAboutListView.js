@@ -1,41 +1,37 @@
-define([
-  'jquery',
-  'underscore',
-  'backbone',
-  'shared',
-  'templates/settings/settingsAboutListTemplate.html!text'
-], function($, _, Backbone, Shared, settingsAboutListTemplate){
+import $ from 'jquery';
+import _ from 'underscore';
+import Backbone from 'backbone';
+import Shared from 'shared';
+import settingsAboutListTemplate from 'settingsAboutListTemplate';
 
-  var SettingsAboutListView = Backbone.View.extend({
+var SettingsAboutListView = Backbone.View.extend({
 
     el: $("#content"),
 
-    render: function(){
+    render: function() {
 
-      var that = this;
+        var that = this;
 
-      Shared.api.resource('/ExpressoVersion').params({}).done(function(result){
+        Shared.api.resource('/ExpressoVersion').params({}).done(function(result) {
 
-        var newData = {
-          expressoVersion: result.expressoVersion,
-          apiVersion: result.apiVersion,
-          appVersion: Shared.appVersion,
-          _: _ 
-        };
+            var newData = {
+                expressoVersion: result.expressoVersion,
+                apiVersion: result.apiVersion,
+                appVersion: Shared.appVersion,
+                _: _
+            };
 
-        var htmlTemplate = _.template(settingsAboutListTemplate);
-        var compiledTemplate = htmlTemplate(newData);
+            var htmlTemplate = _.template(settingsAboutListTemplate);
+            var compiledTemplate = htmlTemplate(newData);
 
-        that.$el.html( compiledTemplate ); 
+            that.$el.html(compiledTemplate);
 
-        //Shared.setCurrentPageTitle("Sobre o Expresso");
+            //Shared.setCurrentPageTitle("Sobre o Expresso");
 
-      }).execute();
-      
-    } 
+        }).execute();
 
-  });
+    }
 
-  return SettingsAboutListView;
-  
 });
+
+export default SettingsAboutListView;

@@ -13,4 +13,10 @@ System.config({
     baseURL: '/'
 });
 
-System.import('android_asset/www/js/main.js');
+loadMainComponents([
+	[	
+		'bower_components/polymer/polymer.html!',
+		'elements/elements.html!',
+	],
+	'js/main.js'
+]);

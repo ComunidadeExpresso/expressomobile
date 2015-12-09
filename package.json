@@ -41,7 +41,8 @@
     "gulp-run": "^1.6.11",
     "gulp-task-listing": "^1.0.1",
     "gulp-vulcanize": "^6.1.0",
-    "proxy-middleware": "*"
+    "proxy-middleware": "*",
+    "yargs": "^3.30.0"
   },
   "dependencies": {},
   "private": true

@@ -1,16 +1,14 @@
-define([
-  'jquery',
-  'underscore',
-  'backbone',
-  'shared',
-  'js/collections/mail/MessagesCollection.js',
-  'templates/mail/detailMessageTemplate.html!text',
-  'js/views/home/LoadingView.js',
-  'js/collections/home/ContextMenuCollection.js',
-  'js/views/mail/PreviewAttachmentMessageView.js',
-], function($, _, Backbone, Shared,MessagesCollection, detailMessageTemplate, LoadingView,ContextMenuCollection,PreviewAttachmentMessageView){
+import $ from 'jquery';
+import _ from 'underscore';
+import Backbone from 'backbone';
+import Shared from 'shared';
+import MessagesCollection from 'MessagesCollection';
+import detailMessageTemplate from 'detailMessageTemplate';
+import LoadingView from 'LoadingView';
+import ContextMenuCollection from 'ContextMenuCollection';
+import PreviewAttachmentMessageView from 'PreviewAttachmentMessageView';
 
-  var DetailMessageView = Backbone.View.extend({
+var DetailMessageView = Backbone.View.extend({
 
     folderID: 'INBOX',
     msgID: '',
@@ -21,176 +19,182 @@ define([
 
     scrollDetail: '',
 
-    render: function(){
+    render: function() {
 
-      var elementID = "#contentDetail";
+        var elementID = "#contentDetail";
 
-      if (Shared.isSmartPhoneResolution()) {
-        elementID = "#content";
-      }
+        if (Shared.isSmartPhoneResolution()) {
+            elementID = "#content";
+        }
 
-      this.$el.html("");
+        this.$el.html("");
 
-      var that = this;
+        var that = this;
 
-      if (this.msgID) {
+        if (this.msgID) {
 
-        var loadingView = new LoadingView({ el: $(elementID) });
-        loadingView.render();
-
-        var messagesData = new MessagesCollection();
-
-        messagesData.getMessagesInFolder(this.folderID,this.msgID,this.search,this.page).done(function(data){
-
-          var message = data.models[0];
-
-          var qtdMessages = data.models.length;
-
-          var data = {
-            messages: data.models,
-            _: _ ,
-            Shared: Shared,
-            $: $
-          };
-
-          var htmlTemplate = _.template(detailMessageTemplate);
-          var compiledTemplate = htmlTemplate(data);
-
-          that.$el.html(compiledTemplate);
-
-          $(elementID).empty().append(that.$el);
-
-          that.renderAttachments(message);
-
-          var folderType = 5;
-          if (Shared.folders != undefined) {
-            var currentFolder = Shared.folders.getFolderByID(that.folderID);
-          
-            if (currentFolder.get != undefined) {
-              folderType = currentFolder.get("folderType");
-            }
-          }
-
-          //Shared.setCurrentPageTitle(message.get("msgSubject"));
-
-          Shared.menuView.renderContextMenu('detailMessage',{folderID: that.folderID, msgID: that.msgID, folderType: folderType, qtdMessages: qtdMessages });
-
-
-          setTimeout(function() {
-
-            $.each($("#contentMessageBody img"), function() {
-
-              var max_width = $("#wrapperDetail").width();
-              max_width = max_width - 40;
-              var current_height = $(this).height();
-              var current_width = $(this).width();
-              if (current_width > max_width) {
-                var new_width = max_width;
-                var new_height = max_width * (current_height / current_width);
-                $("#contentMessageBody").width(max_width);
-                $(this).css("max-width",max_width); 
-                $(this).css("max-height",current_height); 
-                $(this).css("height",new_height);
-                $(this).css("width",new_width);
-              }
-
+            var loadingView = new LoadingView({
+                el: $(elementID)
             });
+            loadingView.render();
 
-            // $('#contentMessageBody').parents('detailRow').addClass('reset-this');
+            var messagesData = new MessagesCollection();
 
-            that.loaded();
+            messagesData.getMessagesInFolder(this.folderID, this.msgID, this.search, this.page).done(function(data) {
 
-          },500);
-          
+                var message = data.models[0];
 
-        }).fail(function(result){
-              
-          Shared.handleErrors(result.error);
+                var qtdMessages = data.models.length;
 
-          $(elementID).empty();
-          
-          return false;
-        }).execute();
-      }
+                var data = {
+                    messages: data.models,
+                    _: _,
+                    Shared: Shared,
+                    $: $
+                };
+
+                var htmlTemplate = _.template(detailMessageTemplate);
+                var compiledTemplate = htmlTemplate(data);
+
+                that.$el.html(compiledTemplate);
+
+                $(elementID).empty().append(that.$el);
+
+                that.renderAttachments(message);
+
+                var folderType = 5;
+                if (Shared.folders != undefined) {
+                    var currentFolder = Shared.folders.getFolderByID(that.folderID);
+
+                    if (currentFolder.get != undefined) {
+                        folderType = currentFolder.get("folderType");
+                    }
+                }
+
+                //Shared.setCurrentPageTitle(message.get("msgSubject"));
+
+                Shared.menuView.renderContextMenu('detailMessage', {
+                    folderID: that.folderID,
+                    msgID: that.msgID,
+                    folderType: folderType,
+                    qtdMessages: qtdMessages
+                });
+
+
+                setTimeout(function() {
+
+                    $.each($("#contentMessageBody img"), function() {
+
+                        var max_width = $("#wrapperDetail").width();
+                        max_width = max_width - 40;
+                        var current_height = $(this).height();
+                        var current_width = $(this).width();
+                        if (current_width > max_width) {
+                            var new_width = max_width;
+                            var new_height = max_width * (current_height / current_width);
+                            $("#contentMessageBody").width(max_width);
+                            $(this).css("max-width", max_width);
+                            $(this).css("max-height", current_height);
+                            $(this).css("height", new_height);
+                            $(this).css("width", new_width);
+                        }
+
+                    });
+
+                    // $('#contentMessageBody').parents('detailRow').addClass('reset-this');
+
+                    that.loaded();
+
+                }, 500);
+
+
+            }).fail(function(result) {
+
+                Shared.handleErrors(result.error);
+
+                $(elementID).empty();
+
+                return false;
+            }).execute();
+        }
 
     },
 
     renderAttachments: function(message) {
 
-      if (message != undefined) {
-        
-        var attachments = message.get("msgAttachments");
-        for (var i in attachments) {
+        if (message != undefined) {
 
-          var attachment = attachments[i];
+            var attachments = message.get("msgAttachments");
+            for (var i in attachments) {
 
-          var preview = new PreviewAttachmentMessageView();
+                var attachment = attachments[i];
 
-          preview.fileID = attachment.attachmentID;
-          preview.fileName = attachment.attachmentName;
-          preview.fileSize = attachment.attachmentSize;
-          preview.fileEncoding = attachment.attachmentEncoding;
-          preview.fileIndex = attachment.attachmentIndex;
-          preview.msgID = message.get("msgID");
-          preview.folderID = message.get("folderID");
-          preview.fileData = '';
+                var preview = new PreviewAttachmentMessageView();
 
-          preview.previewType = 'detailmessage';
+                preview.fileID = attachment.attachmentID;
+                preview.fileName = attachment.attachmentName;
+                preview.fileSize = attachment.attachmentSize;
+                preview.fileEncoding = attachment.attachmentEncoding;
+                preview.fileIndex = attachment.attachmentIndex;
+                preview.msgID = message.get("msgID");
+                preview.folderID = message.get("folderID");
+                preview.fileData = '';
 
-          preview.render();
+                preview.previewType = 'detailmessage';
+
+                preview.render();
+            }
+
         }
-
-      }
     },
 
-    events:
-    {
-      'click .attachmentLink': 'openAttachment',
-      'click .showMoreMsgTo' : 'showMoreMsgTo',
-      'click .showMoreMsgCc' : 'showMoreMsgCc',
+    events: {
+        'click .attachmentLink': 'openAttachment',
+        'click .showMoreMsgTo': 'showMoreMsgTo',
+        'click .showMoreMsgCc': 'showMoreMsgCc',
     },
 
-    showMoreMsgTo: function(e) { 
-      $(".detailMsgTo").removeClass("hidden");
-      $(".showMoreMsgTo").addClass("hidden");
-      this.loaded();
+    showMoreMsgTo: function(e) {
+        $(".detailMsgTo").removeClass("hidden");
+        $(".showMoreMsgTo").addClass("hidden");
+        this.loaded();
     },
 
-    showMoreMsgCc: function(e) { 
-      $(".detailMsgCc").removeClass("hidden");
-      $(".showMoreMsgCc").addClass("hidden");
-      this.loaded();
+    showMoreMsgCc: function(e) {
+        $(".detailMsgCc").removeClass("hidden");
+        $(".showMoreMsgCc").addClass("hidden");
+        this.loaded();
     },
 
     openAttachment: function(e) {
-      e.preventDefault();
-      Shared.router.navigate(e.currentTarget.getAttribute("href"),{trigger: true});
+        e.preventDefault();
+        Shared.router.navigate(e.currentTarget.getAttribute("href"), {
+            trigger: true
+        });
     },
 
 
-    loaded: function () {
+    loaded: function() {
 
-     // $( "#disable-all-css" ).find("*").css( "all", "initial" );
-      
+        // $( "#disable-all-css" ).find("*").css( "all", "initial" );
 
-      // var top = $('.topHeader').outerHeight(true);
-      // var search = $('.searchArea').outerHeight(true) == null ? 0 : $('.searchArea').outerHeight(true);
-      
-      // // $('body').height($(window).height() - top);
-      // // $('#wrapper').css('top', top + search);
 
-      // var contentBodyWidth = $("#contentMessageBody").width();
-      // var contentDetailWidth = $("#contentDetail").width();
+        // var top = $('.topHeader').outerHeight(true);
+        // var search = $('.searchArea').outerHeight(true) == null ? 0 : $('.searchArea').outerHeight(true);
 
-      // if ((contentBodyWidth + 15) >= contentDetailWidth) {
-      //   $("#scrollerDetail").width(contentBodyWidth + 2);
-      // }
+        // // $('body').height($(window).height() - top);
+        // // $('#wrapper').css('top', top + search);
+
+        // var contentBodyWidth = $("#contentMessageBody").width();
+        // var contentDetailWidth = $("#contentDetail").width();
+
+        // if ((contentBodyWidth + 15) >= contentDetailWidth) {
+        //   $("#scrollerDetail").width(contentBodyWidth + 2);
+        // }
 
 
     }
 
-  });
-
-  return DetailMessageView;
-  
 });
+
+export default DetailMessageView;

@@ -1,12 +1,10 @@
-define([
-  'jquery',
-  'underscore',
-  'backbone',
-  'shared',
-  'material'
-], function($, _, Backbone, Shared, Material){
+import $ from 'jquery';
+import _ from 'underscore';
+import Backbone from 'backbone';
+import Shared from 'shared';
+import Material from 'material';
 
-  var IronScrollTresholdView = Backbone.View.extend({
+var IronScrollTresholdView = Backbone.View.extend({
 
     tagName: 'iron-scroll-threshold',
 
@@ -17,24 +15,22 @@ define([
     lowerTriggered: true,
     lowerThreshold: 400,
 
-    refreshFunction: function() {  },
+    refreshFunction: function() {},
 
-    initialize: function(data) { },
+    initialize: function(data) {},
 
     resize: function() {
-      this.el.resize();
+        this.el.resize();
     },
 
-    render: function(){
+    render: function() {
 
-      // this.el.innerHTML = '<iron-scroll-threshold id="threshold" lowerThreshold="500" lowerTriggered="true"></iron-scroll-threshold>';
+        // this.el.innerHTML = '<iron-scroll-threshold id="threshold" lowerThreshold="500" lowerTriggered="true"></iron-scroll-threshold>';
 
-      $(this.containerID).empty().append( this.el );
-      
+        $(this.containerID).empty().append(this.el);
+
     }
-    
-  });
 
-  return IronScrollTresholdView;
-  
 });
+
+export default IronScrollTresholdView;

@@ -1,32 +1,28 @@
-define([
-  'jquery',
-  'underscore',
-  'backbone',
-  'shared',
-  'templates/settings/settingsCreditsListTemplate.html!text'
-], function($, _, Backbone, Shared, settingsCreditsListTemplate){
+import $ from 'jquery';
+import _ from 'underscore';
+import Backbone from 'backbone';
+import Shared from 'shared';
+import settingsCreditsListTemplate from 'settingsCreditsListTemplate';
 
-  var SettingsCreditsListView = Backbone.View.extend({
+var SettingsCreditsListView = Backbone.View.extend({
 
     el: $("#content"),
 
-    render: function(){
+    render: function() {
 
-      var newData = {
-        _: _ 
-      };
+        var newData = {
+            _: _
+        };
 
-      var htmlTemplate = _.template(settingsCreditsListTemplate);
-      var compiledTemplate = htmlTemplate(newData);
+        var htmlTemplate = _.template(settingsCreditsListTemplate);
+        var compiledTemplate = htmlTemplate(newData);
 
-      this.$el.html( compiledTemplate ); 
+        this.$el.html(compiledTemplate);
 
-      //Shared.setCurrentPageTitle("Créditos");
+        //Shared.setCurrentPageTitle("Créditos");
 
     }
-    
-  });
 
-  return SettingsCreditsListView;
-  
 });
+
+export default SettingsCreditsListView;

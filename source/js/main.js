@@ -1,5 +1,4 @@
-require([
-  'app'
-], function(App){
-  App.initialize();
-});
+
+import App from 'app';
+
+App.initialize();

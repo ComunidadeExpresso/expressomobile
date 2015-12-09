@@ -43,7 +43,9 @@
     "backbone.widget.autocomplete": "https://github.com/martindrapeau/Backbone-Widgets.git",
     "autogrow-textarea": "*",
     "gsap": "~1.18.0",
-    "systemjs": "https://github.com/systemjs/systemjs.git"
+    "systemjs": "https://github.com/systemjs/systemjs.git",
+    "systemjs-plugin-html": "https://github.com/Hypercubed/systemjs-plugin-html.git#~0.0.6",
+    "charto-polymer-shim": "https://github.com/charto/charto-polymer-shim.git#~0.0.1"
   },
   "resolutions": {
     "polymer": "1.2.0"

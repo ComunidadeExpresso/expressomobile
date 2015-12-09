@@ -1,276 +1,260 @@
-define([
-	'jquery',
-	'underscore',
-	'backbone',
-	'shared',
-	'js/collections/calendar/EventsListCollection.js',
-	'js/views/home/LoadingView.js',
-	'js/views/calendar/CalendarEventsDayListView.js',
-	'js/views/calendar/CalendarFullDayListView.js',
-	'js/views/mail/PullToActionView.js',
-	'templates/calendar/calendarTemplate.html!text',
-	'templates/master/primaryContentTemplate.html!text',
-	'jqueryui',
-	'jqueryui_datepicker_ptBR',
-], function($, _, Backbone, Shared, EventsListCollection, LoadingView, CalendarEventsDayListView, CalendarFullDayListView,PullToActionView, calendarTemplate, primaryContentTemplate, jqueryui, jqueryui_datepicker_ptBR)
-{
-	var CalendarListView = Backbone.View.extend(
-	{
-		year: '',
-		month: '',
-		day: '',
-		fullDay: false,
-		status: '',
-		data: {},
-		dayTitle: '',
-		onlyDatePicker: false,
+import $ from 'jquery';
+import _ from 'underscore';
+import Backbone from 'backbone';
+import Shared from 'shared';
+import EventsListCollection from 'EventsListCollection';
+import LoadingView from 'LoadingView';
+import CalendarEventsDayListView from 'CalendarEventsDayListView';
+import CalendarFullDayListView from 'CalendarFullDayListView';
+import PullToActionView from 'PullToActionView';
+import calendarTemplate from 'calendarTemplate';
+import primaryContentTemplate from 'primaryContentTemplate';
+import jqueryui from 'jqueryui';
+import jqueryui_datepicker_ptBR from 'jqueryui_datepicker_ptBR';
+var CalendarListView = Backbone.View.extend({
+    year: '',
+    month: '',
+    day: '',
+    fullDay: false,
+    status: '',
+    data: {},
+    dayTitle: '',
+    onlyDatePicker: false,
 
-		render: function()
-		{
-			var self = this;
-			var pad = "00";
-			var today = new Date();
+    render: function() {
+        var self = this;
+        var pad = "00";
+        var today = new Date();
 
-			if (this.year == '' || this.year == undefined)
-				this.year = today.getFullYear();
+        if (this.year == '' || this.year == undefined)
+            this.year = today.getFullYear();
 
-			if (this.month == '' || this.month == undefined)
-			{
-				this.month = today.getMonth() + 1; // Months are zero based;
-				this.month = pad.substring(0, pad.length - ("" + this.month).length) + ("" + this.month);
-			}
+        if (this.month == '' || this.month == undefined) {
+            this.month = today.getMonth() + 1; // Months are zero based;
+            this.month = pad.substring(0, pad.length - ("" + this.month).length) + ("" + this.month);
+        }
 
-			if (this.day == '' || this.day == undefined)
-			{
-				this.day = today.getDate();
-				this.day = pad.substring(0, pad.length - ("" + this.day).length) + ("" + this.day);
-			}
+        if (this.day == '' || this.day == undefined) {
+            this.day = today.getDate();
+            this.day = pad.substring(0, pad.length - ("" + this.day).length) + ("" + this.day);
+        }
 
-			this.clean();
+        this.clean();
 
-			var callback = function (data)
-			{
-				self.$el.html(_.template(primaryContentTemplate));
-				$('#content').empty().append(self.$el);
-				$('#scroller').html(_.template(calendarTemplate));
+        var callback = function(data) {
+            self.$el.html(_.template(primaryContentTemplate));
+            $('#content').empty().append(self.$el);
+            $('#scroller').html(_.template(calendarTemplate));
 
-				self.renderDatePicker();
+            self.renderDatePicker();
 
-				if (self.onlyDatePicker === false)
-					self.listDayEvents(data);
+            if (self.onlyDatePicker === false)
+                self.listDayEvents(data);
 
-				self.loaded();
-			}
+            self.loaded();
+        }
 
-			var lastDay = new Date(this.year, this.month, 0);
-				lastDay = lastDay.getDate();
+        var lastDay = new Date(this.year, this.month, 0);
+        lastDay = lastDay.getDate();
 
-			var pDateStart =  '01/' + this.month + '/' + this.year;
-			var pDateEnd =  lastDay + '/' + this.month + '/' + this.year;
+        var pDateStart = '01/' + this.month + '/' + this.year;
+        var pDateEnd = lastDay + '/' + this.month + '/' + this.year;
 
-			this.listEvents(pDateStart, pDateEnd, false, callback, callback);
+        this.listEvents(pDateStart, pDateEnd, false, callback, callback);
 
 
-		},
+    },
 
-		listEvents: function (pDateStart, pDateEnd, ignoreCache, callbackSucess, callbackFail)
-		{
-			var self = this;
+    listEvents: function(pDateStart, pDateEnd, ignoreCache, callbackSucess, callbackFail) {
+        var self = this;
 
-			var eventsData = new EventsListCollection();
-				eventsData.done(function (data) 
-				{
-					self.data = { events: data.models, _: _ };
+        var eventsData = new EventsListCollection();
+        eventsData.done(function(data) {
+                self.data = {
+                    events: data.models,
+                    _: _
+                };
 
-					if (callbackSucess)
-						callbackSucess(self.data);
-				})
-				.fail(function (data) 
-				{
-					self.data = { error: data.error, _: _ };
-					
-					if (callbackFail)
-						callbackFail(self.data);
-				}).listEvents(pDateStart, pDateEnd,ignoreCache);
-		},
+                if (callbackSucess)
+                    callbackSucess(self.data);
+            })
+            .fail(function(data) {
+                self.data = {
+                    error: data.error,
+                    _: _
+                };
 
-		listDayEvents: function(data)
-		{
-			if (!Shared.isSmartPhoneResolution() || this.fullDay)
-			{
-				var calendarFullDayListView = new CalendarFullDayListView();
-					calendarFullDayListView.year = this.year;
-					calendarFullDayListView.month = this.month;
-					calendarFullDayListView.day = this.day;
-					calendarFullDayListView.data = data;
-					calendarFullDayListView.dayTitle = this.dayTitle;
-					calendarFullDayListView.render();
-			}
-			else
-			{
-				var calendarEventsDayListView = new CalendarEventsDayListView();
-					calendarEventsDayListView.year = this.year;
-					calendarEventsDayListView.month = this.month;
-					calendarEventsDayListView.day = this.day;
-					calendarEventsDayListView.data = data;
-					calendarEventsDayListView.render();
-			}
+                if (callbackFail)
+                    callbackFail(self.data);
+            }).listEvents(pDateStart, pDateEnd, ignoreCache);
+    },
 
-			this.loaded();
-		},
+    listDayEvents: function(data) {
+        if (!Shared.isSmartPhoneResolution() || this.fullDay) {
+            var calendarFullDayListView = new CalendarFullDayListView();
+            calendarFullDayListView.year = this.year;
+            calendarFullDayListView.month = this.month;
+            calendarFullDayListView.day = this.day;
+            calendarFullDayListView.data = data;
+            calendarFullDayListView.dayTitle = this.dayTitle;
+            calendarFullDayListView.render();
+        } else {
+            var calendarEventsDayListView = new CalendarEventsDayListView();
+            calendarEventsDayListView.year = this.year;
+            calendarEventsDayListView.month = this.month;
+            calendarEventsDayListView.day = this.day;
+            calendarEventsDayListView.data = data;
+            calendarEventsDayListView.render();
+        }
 
-		initialize: function() 
-		{
-			this.container = $('#scroller');
-		},
+        this.loaded();
+    },
 
-		changeMonthYear: function (y, m, ignoreCache)
-		{
-			var self = this;
+    initialize: function() {
+        this.container = $('#scroller');
+    },
 
-			var callback = function (data)
-			{
-				self.refreshDatePicker();
-			}
+    changeMonthYear: function(y, m, ignoreCache) {
+        var self = this;
 
-			var pad = "00";
-			var m = pad.substring(0, pad.length - ("" + m).length) + ("" + m);
-			var lastDay = new Date(y, m, 0);
-				lastDay = lastDay.getDate();
+        var callback = function(data) {
+            self.refreshDatePicker();
+        }
 
-			this.year = y;
-			this.month = m;
+        var pad = "00";
+        var m = pad.substring(0, pad.length - ("" + m).length) + ("" + m);
+        var lastDay = new Date(y, m, 0);
+        lastDay = lastDay.getDate();
 
-			var pDateStart =  '01/' + m + '/' + y;
-			var pDateEnd =  lastDay + '/' + m + '/' + y;
+        this.year = y;
+        this.month = m;
 
-			this.listEvents(pDateStart, pDateEnd, ignoreCache, callback, callback);
-	 	},
+        var pDateStart = '01/' + m + '/' + y;
+        var pDateEnd = lastDay + '/' + m + '/' + y;
 
-		highlightDays: function (date)
-		{
-			if (!_.isEmpty(this.data.events))
-			{
-				for (var i in this.data.events)
-				{
-					var dateStart = ((this.data.events[i].get('eventStartDate')).split(' ')[0]).split('/');
-						dateStart = new Date(dateStart[2], (dateStart[1] - 1), dateStart[0]);
+        this.listEvents(pDateStart, pDateEnd, ignoreCache, callback, callback);
+    },
 
-					var dateEnd = ((this.data.events[i].get('eventEndDate')).split(" ")[0]).split('/');
-						dateEnd = new Date(dateEnd[2], (dateEnd[1] - 1), dateEnd[0]);
+    highlightDays: function(date) {
+        if (!_.isEmpty(this.data.events)) {
+            for (var i in this.data.events) {
+                var dateStart = ((this.data.events[i].get('eventStartDate')).split(' ')[0]).split('/');
+                dateStart = new Date(dateStart[2], (dateStart[1] - 1), dateStart[0]);
 
-					if (date.getTime() == dateStart.getTime() || date.getTime() == dateEnd.getTime())
-					{
-						return [true, 'hasEvent'];
-					}
-				}
-			}
+                var dateEnd = ((this.data.events[i].get('eventEndDate')).split(" ")[0]).split('/');
+                dateEnd = new Date(dateEnd[2], (dateEnd[1] - 1), dateEnd[0]);
 
-			return [true, ''];
-		},
+                if (date.getTime() == dateStart.getTime() || date.getTime() == dateEnd.getTime()) {
+                    return [true, 'hasEvent'];
+                }
+            }
+        }
 
-		refreshDatePicker: function ()
-		{
-			$('#agenda').datepicker("refresh");
-		},
+        return [true, ''];
+    },
 
-		renderDatePicker: function () 
-		{
-			var self = this;
+    refreshDatePicker: function() {
+        $('#agenda').datepicker("refresh");
+    },
 
-			$('#agenda').datepicker(
-			{
-				dayNamesShort: $.datepicker.regional[ "pt-BR" ].dayNamesShort,
-				dayNames: $.datepicker.regional[ "pt-BR" ].dayNames,
-				monthNamesShort: $.datepicker.regional[ "pt-BR" ].monthNamesShort,
-				monthNames: $.datepicker.regional[ "pt-BR" ].monthNames,
-				inline: true,
-				autoSize: true,
-				nextText: '>',
-				prevText: '<',
-				dateFormat: 'DD, dd/mm/yy',
-				onChangeMonthYear: function (year, month, widget)
-				{
-					self.changeMonthYear(year, month, false);
-				},
-				beforeShowDay: function (date)
-				{
-					return self.highlightDays(date);
-				},
-				onSelect: function(date, obj)
-				{
-					var selectedDate = (date.split(', ')[1]).split('/');
-					var url = 'Calendar/' + selectedDate[2] + '/' + selectedDate[1] + '/' + selectedDate[0];
+    renderDatePicker: function() {
+        var self = this;
 
-					Shared.router.navigate(url, {trigger: true});
-				}
-			});
+        $('#agenda').datepicker({
+            dayNamesShort: $.datepicker.regional["pt-BR"].dayNamesShort,
+            dayNames: $.datepicker.regional["pt-BR"].dayNames,
+            monthNamesShort: $.datepicker.regional["pt-BR"].monthNamesShort,
+            monthNames: $.datepicker.regional["pt-BR"].monthNames,
+            inline: true,
+            autoSize: true,
+            nextText: '>',
+            prevText: '<',
+            dateFormat: 'DD, dd/mm/yy',
+            onChangeMonthYear: function(year, month, widget) {
+                self.changeMonthYear(year, month, false);
+            },
+            beforeShowDay: function(date) {
+                return self.highlightDays(date);
+            },
+            onSelect: function(date, obj) {
+                var selectedDate = (date.split(', ')[1]).split('/');
+                var url = 'Calendar/' + selectedDate[2] + '/' + selectedDate[1] + '/' + selectedDate[0];
 
-			if (this.year != '' && this.month != '' && this.day != '')
-				$("#agenda").datepicker("setDate", new Date(this.year, this.month - 1, this.day));
+                Shared.router.navigate(url, {
+                    trigger: true
+                });
+            }
+        });
 
-			this.dayTitle = $.datepicker.formatDate('DD, dd/mm/yy', new Date(this.year, this.month - 1, this.day));
-		},
+        if (this.year != '' && this.month != '' && this.day != '')
+            $("#agenda").datepicker("setDate", new Date(this.year, this.month - 1, this.day));
 
-		loaded: function ()
-		{
+        this.dayTitle = $.datepicker.formatDate('DD, dd/mm/yy', new Date(this.year, this.month - 1, this.day));
+    },
 
-			var that = this;
+    loaded: function() {
 
-			// Shared.scrollerRefresh();
-			Shared.menuView.renderContextMenu('calendar',{year: this.year, month: this.month, day: this.day});
-			Shared.setDefaultIMListeners();
+        var that = this;
 
-			Shared.setCurrentPageTitle("Agenda");
+        // Shared.scrollerRefresh();
+        Shared.menuView.renderContextMenu('calendar', {
+            year: this.year,
+            month: this.month,
+            day: this.day
+        });
+        Shared.setDefaultIMListeners();
 
-			var refreshAction = function () {
-				that.changeMonthYear(that.year,that.month,true);
-	        };
+        Shared.setCurrentPageTitle("Agenda");
 
-	        var pullToAction = new PullToActionView({ refreshAction: refreshAction, container: '#pull-to-action-loader'  });
-        	pullToAction.render();
+        var refreshAction = function() {
+            that.changeMonthYear(that.year, that.month, true);
+        };
 
-			// $('#content .searchArea').remove();
-			// $('#contentTitle').text('Agenda');
-			// $('#contentTitle').addClass("icon-agenda");
+        var pullToAction = new PullToActionView({
+            refreshAction: refreshAction,
+            container: '#pull-to-action-loader'
+        });
+        pullToAction.render();
 
-			if (this.status == 'OK')
-			{
-				Shared.showMessage({
-					type: "success",
-					icon: 'icon-agenda',
-					title: 'Evento excluído com sucesso.',
-					description: '',
-					timeout: 3000,
-					elementID: '#pageMessage',
-				});
-			}
-		},
+        // $('#content .searchArea').remove();
+        // $('#contentTitle').text('Agenda');
+        // $('#contentTitle').addClass("icon-agenda");
 
-		pullDownAction: function()
-		{
+        if (this.status == 'OK') {
+            Shared.showMessage({
+                type: "success",
+                icon: 'icon-agenda',
+                title: 'Evento excluído com sucesso.',
+                description: '',
+                timeout: 3000,
+                elementID: '#pageMessage',
+            });
+        }
+    },
 
-			this.changeMonthYear(this.year,this.month,true);
+    pullDownAction: function() {
 
-			pullDownEl = document.getElementById('pullDown');
-			pullDownEl.className = '';
+        this.changeMonthYear(this.year, this.month, true);
 
-			Shared.scrollerRefresh();
-		},
+        pullDownEl = document.getElementById('pullDown');
+        pullDownEl.className = '';
 
-		clean: function ()
-		{
-			var contentLoadingView = new LoadingView({el: $('#content')});
-				contentLoadingView.render();
+        Shared.scrollerRefresh();
+    },
 
-			if (!Shared.isSmartPhoneResolution() && this.onlyDatePicker === false)
-			{
-				var contentDetailLoadingView = new LoadingView({el: $('#contentDetail')});
-					contentDetailLoadingView.render();
-			}
-		}
-	});
+    clean: function() {
+        var contentLoadingView = new LoadingView({
+            el: $('#content')
+        });
+        contentLoadingView.render();
 
-	return CalendarListView;
-
+        if (!Shared.isSmartPhoneResolution() && this.onlyDatePicker === false) {
+            var contentDetailLoadingView = new LoadingView({
+                el: $('#contentDetail')
+            });
+            contentDetailLoadingView.render();
+        }
+    }
 });
+
+export default CalendarListView;

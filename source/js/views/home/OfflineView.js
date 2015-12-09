@@ -1,24 +1,20 @@
-define([
-  'jquery',
-  'underscore',
-  'backbone',
-  'shared',
-  'templates/home/offlineTemplate.html!text'
-], function($, _, Backbone, Shared, offlineTemplate){
+import $ from 'jquery';
+import _ from 'underscore';
+import Backbone from 'backbone';
+import Shared from 'shared';
+import offlineTemplate from 'offlineTemplate';
 
-  var OfflineView = Backbone.View.extend({
+var OfflineView = Backbone.View.extend({
 
     el: $("#mainAppPageContent"),
 
-    render: function(){
+    render: function() {
 
-      var compiledTemplate = _.template( offlineTemplate );
-      this.$el.html( compiledTemplate ); 
+        var compiledTemplate = _.template(offlineTemplate);
+        this.$el.html(compiledTemplate);
 
     },
 
-  });
-
-  return OfflineView;
-  
 });
+
+export default OfflineView;

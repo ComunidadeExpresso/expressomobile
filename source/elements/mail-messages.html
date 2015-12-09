@@ -5,34 +5,19 @@
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../bower_components/iron-selector/iron-selector.html">
 
-<link rel="import" href="../bower_components/iron-scroll-threshold/iron-scroll-threshold.html">
-
 <link rel="import" href="../bower_components/iron-menu-behavior/iron-menu-behavior.html">
 
-<link rel="import" href="../bower_components/paper-fab-speed-dial/paper-fab-speed-dial-action.html">
-<link rel="import" href="../bower_components/paper-fab-speed-dial/paper-fab-speed-dial.html">
-
+<link rel="import" href="mail-folder.html">
 <link rel="import" href="profile-img.html">
 <link rel="import" href="swipeable-item.html">
 <link rel="import" href="mail-thread.html">
 
-<!--
-A single GMail mail thread.
 
-##### Example
-
-    <mail-thread></mail-thread>
--->
 <dom-module id="mail-messages">
   <style>
     :host {
       height: 100%;
       overflow: hidden;
-    }
-
-    #scroller {
-      overflow: auto;
-      height: 300px;
     }
 
     iron-list {
@@ -54,55 +39,102 @@ A single GMail mail thread.
       --paper-spinner-layer-4-color: var(--paper-light-blue-500);
     }
 
-    #loading-area {
+    #loadingArea {
       margin-top: 20px;
       margin-bottom: 10px;
       margin-left: 50%;
     }
 
+    #hasMoreMessagesArea {
+      margin-top: 20px;
+      margin-bottom: 20px;
+      width: 100%;
+      margin-left: 20px;
+
+      text-align: center;
+    }
+
   </style>
   <template>
-    
-    <iron-scroll-threshold id="threshold" lower-threshold="1" on-lower-trigger="loadMore" lower-triggered="{{lowerTriggered}}" fit></iron-scroll-threshold> 
-
-      <div id="scroller">
-        <iron-selector id="threadlist" multi activate-event="thread-select"
-                     selected-attribute="selected"
-                     selected-items="{{selectedMessages}}"
-                     on-iron-select="_onThreadSelectChange"
-                     on-iron-deselect="_onThreadSelectChange">
-          <template is="dom-repeat" items="{{items}}">
-             <mail-thread folderid="{{item.folderID}}" msgid='{{item.msgID}}' subject="{{item.subject}}" from="{{item.from}}" date="{{item.date}}" bodyresume="{{item.bodyresume}}" route="{{item.route}}" on-open-message="openMessage" on-starred-message="starredMessage" data-thread-index$="{{item.index}}"></mail-thread>
-          </template>
-        </iron-selector>
-        <div id='loading-area' class="layout flex center" hidden?="{{!lowerTriggered}}"><paper-spinner class="blue" alt="Carregando..." active></paper-spinner></div>
-      </div>
-
-      <!-- <paper-fab-speed-dial>
-        <paper-fab-speed-dial-action icon="copy">Copy</paper-fab-speed-dial-action>
-        <paper-fab-speed-dial-action icon="print">Print</paper-fab-speed-dial-action>
-      </paper-fab-speed-dial> -->
       
+      <iron-selector id="threadlist" multi activate-event="evt-selector-messages"
+                       selected-attribute="selected"
+                       selected-items="{{selectedMessages}}"
+                       on-iron-select="_onThreadSelectorChange"
+                       on-iron-deselect="_onThreadSelectorChange">
+
+      <iron-list id="scrollList" items="{{items}}" as="item" on-scroll="onScroll">
+      <template>
+         <div>
+        <template is="dom-if" if="[[item.isFolder]]">
+          <mail-folder folder-name="{{item.folderName}}" folder-id="{{item.folderID}}" route="{{item.route}}" on-open-folder="_openFolder"></mail-folder>
+        </template>
+        <template is="dom-if" if="[[!item.isFolder]]">
+          <iron-selector id="threadlist" multi activate-event="thread-select"
+                       selected-attribute="selected"
+                       selected-items="{{tempMessages}}"
+                       on-iron-select="_onThreadSelectChange"
+                       on-iron-deselect="_onThreadSelectChange">
+           <mail-thread folderid="{{item.folderID}}" msgid='{{item.msgID}}' subject="{{item.subject}}" from="{{item.from}}" date="{{item.date}}" bodyresume="{{item.bodyresume}}" route="{{item.route}}" unread="{{item.unread}}" starred="{{item.starred}}" on-open-message="openMessage" on-starred-message="starredMessage" data-thread-index$="{{item.index}}"></mail-thread>
+           </iron-selector>
+        </template>
+      </div>
+      </template>
+      </iron-list>
+
+      </iron-selector>
+    
+    <div id='loadingArea' class="layout flex center" style$="[[_computeShowLoadingNextPageStyle(isLoadingNextPage)]]"><paper-spinner class="blue" alt="Carregando..." active></paper-spinner></div>
+
+    <div id='hasMoreMessagesArea' class="layout flex center" style$="[[_computeShowMoreMessagesStyle(hasMoreMessages)]]">Esta pasta n&atilde;o cont&eacute;m mais mensagens...</div>
+
   </template>
   <script>
   Polymer({
     is: 'mail-messages',
 
+    onScroll: function(e) {
+
+      if ((this.hasMoreMessages) && (!this.isLoadingNextPage)) {
+
+        if (e.target.scrollTop + e.target.offsetHeight >= e.target.scrollHeight - 500) {
+
+          Polymer.dom(this.$.loadingArea).classList.remove('hidden');
+          this.isLoadingNextPage = true;
+          this.fire('lower-trigger');
+
+        }
+      }
+
+    },
+
+    addItems: function(nextPageItems) {
+
+      //HAS FINISHED LOADING PAGES
+      this.isLoadingNextPage = false;
+
+      if (nextPageItems.length == 0) {
+      
+        this.hasMoreMessages = false;
+
+      } else {
+
+        var that = this;
+
+        _.each(nextPageItems, function(message){ 
+          that.push('items',message);
+        });
+
+      }
+
+    },
+
     ready: function() {
-      this.$.threshold.scrollTarget = this.$.scroller;
 
-      // console.log(Polymer.dom(this.$.scrollList));
-      Polymer.dom(this.$.scroller).setAttribute('style', 'height: ' + (document.body.clientHeight - 56) + 'px;');
+      Polymer.dom(this.$.scrollList).setAttribute('style', 'height: ' + (document.body.clientHeight - 50) + 'px;');
 
     },
-    loadMore: function() {
 
-      var scope = this;
-      this.fire('load-next-page');
-      scope.$.threshold.clearLower();
-      //this.isLowerTriggered = false;
-
-    },
 
     starredMessage: function(event) {
       var messageView = event.currentTarget;
@@ -114,26 +146,6 @@ A single GMail mail thread.
       this.currentMessage = {"msgid": msgid, "folderid": folderid, "starred": starred};
 
       this.fire('evt-starred-message', {thread: this});
-    },
-
-    _onThreadSelectChange: function(event) {
-      console.log("_onThreadSelectChange");
-      //console.log(this.selectedMessages);
-
-      for (var thread in this.selectedMessages) {
-        console.log(this.selectedMessages[thread].get('msgid'));
-        // console.log("obj." + thread.get('msgid') + " = " + thread.get('folderid'));
-      }
-
-      this.fire('evt-select-messages', {thread: this});
-    },
-
-    getSelectedMessages: function() {
-      var arrMessages = [];
-       for (var thread in this.selectedMessages) {
-        arrMessages.push({msgid: this.selectedMessages[thread].get('msgid'), folderid: this.selectedMessages[thread].get('folderid')});
-      }
-      return arrMessages;
     },
 
     openMessage: function(event) {
@@ -149,13 +161,108 @@ A single GMail mail thread.
 
     },
 
+    _openFolder: function(event) {
+
+      var folderView = event.currentTarget;
+
+      var folderId = folderView.get("folderId");
+
+      this.currentFolder = {"folderId": folderId};
+
+      this.fire('evt-open-folder', {folder: this});
+
+    },
+
+    _onThreadSelectorChange: function(event) {
+      console.log("_onThreadSelectorChange");
+      //console.log(event);
+      // console.log(event.detail.get('items'));
+
+      for (var thread in this.selectedMessages) {
+        //console.log(this.selectedMessages[thread].get('msgid'));
+        // console.log("obj." + thread.get('msgid') + " = " + thread.get('folderid'));
+      }
+
+      this.fire('evt-select-messages', {thread: this});
+    },
+
+    _onThreadSelectChange: function(event) {
+
+      var message = {};
+
+      for (var thread in this.tempMessages) {
+
+        msgID = this.tempMessages[thread].get('msgid');
+        folderID = this.tempMessages[thread].get('folderid');
+        message = { msgid: msgID, folderid: folderID, selected: true };
+      }
+
+      var found = false;
+      var newArr = [];
+      for (var thread in this.selectedMessages) {
+        if (thread.msgid == message.msgid) {
+          found = true;
+        } else {
+          newArr.push(thread);
+        }
+      }
+
+      if (!found) {
+        this.selectedMessages.push(message);
+      } else {
+        this.selectedMessages = newArr;
+      }
+
+      console.log(this.selectedMessages);
+
+      // this.fire('evt-select-messages', {thread: this});
+
+      this.fire('evt-selector-messages', {thread: message});
+    },
+
+    getSelectedMessages: function() {
+
+      return this.selectedMessages;
+      // var arrMessages = [];
+      //  for (var thread in this.selectedMessages) {
+      //   arrMessages.push({msgid: this.selectedMessages[thread].get('msgid'), folderid: this.selectedMessages[thread].get('folderid')});
+      // }
+      // return arrMessages;
+    },
+
+    _computeShowMoreMessagesStyle: function(hasMoreMessages) {
+      if (!hasMoreMessages) {
+        return '';
+      } else {
+        return 'display: none;';
+      }
+      
+    },
+
+    _computeShowLoadingNextPageStyle: function(isLoadingNextPage) {
+      if (isLoadingNextPage) {
+        return '';
+      } else {
+        return 'display: none;';
+      }
+      
+    },
+
     resize: function() {
-      Polymer.dom(this.$.scroller).setAttribute('style', 'height: ' + (document.body.clientHeight - 56) + 'px;');
+      Polymer.dom(this.$.scrollList).setAttribute('style', 'height: ' + (document.body.clientHeight - 50) + 'px;');
     },
 
     properties: {
       items: {
         type: Array, 
+        value: [],
+        reflectAttribute: true
+      },
+
+
+      tempMessages: {
+        type: Array, 
+        reflectAttribute: true,
         value: []
       },
       selectedMessages: {
@@ -163,14 +270,23 @@ A single GMail mail thread.
         reflectAttribute: true,
         value: []
       },
-
       currentMessage: {
         type: Array,
         value: []
       },
-      isLowerTriggered: {
-        type: Boolean,
+      currentFolder: {
+        type: Array,
+        value: []
+      },
+      hasMoreMessages: {
+        type: Number,
         value: true,
+        reflectAttribute: true,
+      },
+      isLoadingNextPage: {
+        type: Number,
+        value: false,
+        reflectAttribute: true,
       }
     }
 

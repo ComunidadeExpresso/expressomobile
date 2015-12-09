@@ -1,190 +1,206 @@
-define([
-  'jquery',
-  'underscore',
-  'backbone',
-  'shared',
-  'templates/settings/settingsListTemplate.html!text',
-  'js/views/settings/SettingsAboutListView.js',
-  'js/views/settings/SettingsChangePasswordListView.js',
-  'js/views/settings/SettingsCreditsListView.js',
-  'js/views/settings/SettingsMailSignatureListView.js',
-  'js/views/settings/SettingsResultsPerPageListView.js',
-  'js/views/settings/SettingsSupportListView.js',
-  'js/views/settings/SettingsFaqListView.js',
-  'js/views/home/LoadingView.js',
-  'material',
-], function($, _, Backbone, Shared, settingsListTemplate,SettingsAboutListView,SettingsChangePasswordListView,SettingsCreditsListView,SettingsMailSignatureListView,SettingsResultsPerPageListView,SettingsSupportListView,SettingsFaqListView,LoadingView,Material){
+import $ from 'jquery';
+import _ from 'underscore';
+import Backbone from 'backbone';
+import Shared from 'shared';
+import settingsListTemplate from 'settingsListTemplate';
+import SettingsAboutListView from 'SettingsAboutListView';
+import SettingsChangePasswordListView from 'SettingsChangePasswordListView';
+import SettingsCreditsListView from 'SettingsCreditsListView';
+import SettingsMailSignatureListView from 'SettingsMailSignatureListView';
+import SettingsResultsPerPageListView from 'SettingsResultsPerPageListView';
+import SettingsSupportListView from 'SettingsSupportListView';
+import SettingsFaqListView from 'SettingsFaqListView';
+import LoadingView from 'LoadingView';
+import Material from 'material';
 
-  var SettingsListView = Backbone.View.extend({
+var SettingsListView = Backbone.View.extend({
 
     secondViewName: '',
 
-    render: function(){
-
-      var that = this;
-
-      var primaryElementID = "#content";
-      var detailElementID = "#contentDetail";
-
-      Shared.menuView.renderContextMenu(0,[]); 
-
-      if (Shared.isSmartPhoneResolution()) {
-        detailElementID = "#content";
-      }
-      
-      if (this.secondViewName != null) {
-
-        if ((this.secondViewName != "SaveMailSignature") && (this.secondViewName != "SaveChangePassword")) {
-
-          $(detailElementID).html("");
-
-          var loadingView = new LoadingView({ el: $(detailElementID) });
-          loadingView.render();
-
-        }
-
-        if (this.secondViewName == "Support") {
-           var secondView = new SettingsSupportListView({ el: $(detailElementID) });
-        }
-        // if (this.secondViewName == "SendSupportFeedback") {
-        //    var secondView = new SettingsSupportListView({ el: $(detailElementID) });
-        // }
-        if (this.secondViewName == "About") {
-           var secondView = new SettingsAboutListView({ el: $(detailElementID) });
-        }
-        if (this.secondViewName == "FAQ") {
-           var secondView = new SettingsFaqListView({  });
-           secondView.elementID = detailElementID;
-        }
-        if (this.secondViewName == "Credits") {
-           var secondView = new SettingsCreditsListView({ el: $(detailElementID) });
-        }
-        if (this.secondViewName == "ChangePassword") {
-           var secondView = new SettingsChangePasswordListView({ el: $(detailElementID) });
-        }
-        if (this.secondViewName == "ResultsPerPage") {
-           var secondView = new SettingsResultsPerPageListView();
-           secondView.elementID = detailElementID;
-        }
-        if (this.secondViewName == "MailSignature") {
-           var secondView = new SettingsMailSignatureListView({ el: $(detailElementID) });
-        }
-
-        if (this.secondViewName == "SaveMailSignature") {
-           var secondView = new SettingsMailSignatureListView({ el: $(detailElementID) });
-           secondView.SaveMailSignature();
-        } else if (this.secondViewName == "SaveChangePassword") {
-          var secondView = new SettingsChangePasswordListView({ el: $(detailElementID) });
-          secondView.SaveChangePassword();
-        } else {
-
-          setTimeout(function() {
-
-            secondView.render();
-
-          },Shared.timeoutDelay);
-
-        }
-
-
-      } else {
-
-        $(detailElementID).html("");
-        
-        var loadingView = new LoadingView({ el: $(primaryElementID) });
-        loadingView.render();
+    render: function() {
 
         var that = this;
 
-        setTimeout(function() {
+        var primaryElementID = "#content";
+        var detailElementID = "#contentDetail";
 
-            var newData = {
-              _: _,
-              user: Shared.profile,
-              auth: Shared.api.auth(),
-              automaticLogin: Shared.settings.automaticLogin,
-              Shared: Shared
-            };
+        Shared.menuView.renderContextMenu(0, []);
 
-            var htmlTemplate = _.template(settingsListTemplate);
-            var compiledTemplate = htmlTemplate(newData);
+        if (Shared.isSmartPhoneResolution()) {
+            detailElementID = "#content";
+        }
 
-            that.$el.html(compiledTemplate);
-            $(primaryElementID).empty().html( that.$el );
+        if (this.secondViewName != null) {
+
+            if ((this.secondViewName != "SaveMailSignature") && (this.secondViewName != "SaveChangePassword")) {
+
+                $(detailElementID).html("");
+
+                var loadingView = new LoadingView({
+                    el: $(detailElementID)
+                });
+                loadingView.render();
+
+            }
+
+            if (this.secondViewName == "Support") {
+                var secondView = new SettingsSupportListView({
+                    el: $(detailElementID)
+                });
+            }
+            // if (this.secondViewName == "SendSupportFeedback") {
+            //    var secondView = new SettingsSupportListView({ el: $(detailElementID) });
+            // }
+            if (this.secondViewName == "About") {
+                var secondView = new SettingsAboutListView({
+                    el: $(detailElementID)
+                });
+            }
+            if (this.secondViewName == "FAQ") {
+                var secondView = new SettingsFaqListView({});
+                secondView.elementID = detailElementID;
+            }
+            if (this.secondViewName == "Credits") {
+                var secondView = new SettingsCreditsListView({
+                    el: $(detailElementID)
+                });
+            }
+            if (this.secondViewName == "ChangePassword") {
+                var secondView = new SettingsChangePasswordListView({
+                    el: $(detailElementID)
+                });
+            }
+            if (this.secondViewName == "ResultsPerPage") {
+                var secondView = new SettingsResultsPerPageListView();
+                secondView.elementID = detailElementID;
+            }
+            if (this.secondViewName == "MailSignature") {
+                var secondView = new SettingsMailSignatureListView({
+                    el: $(detailElementID)
+                });
+            }
+
+            if (this.secondViewName == "SaveMailSignature") {
+                var secondView = new SettingsMailSignatureListView({
+                    el: $(detailElementID)
+                });
+                secondView.SaveMailSignature();
+            } else if (this.secondViewName == "SaveChangePassword") {
+                var secondView = new SettingsChangePasswordListView({
+                    el: $(detailElementID)
+                });
+                secondView.SaveChangePassword();
+            } else {
+
+                setTimeout(function() {
+
+                    secondView.render();
+
+                }, Shared.timeoutDelay);
+
+            }
 
 
-            Shared.setCurrentPageTitle("Preferências");
-            window.componentHandler.upgradeDom();
+        } else {
+
+            $(detailElementID).html("");
+
+            var loadingView = new LoadingView({
+                el: $(primaryElementID)
+            });
+            loadingView.render();
+
+            var that = this;
+
+            setTimeout(function() {
+
+                var newData = {
+                    _: _,
+                    user: Shared.profile,
+                    auth: Shared.api.auth(),
+                    automaticLogin: Shared.settings.automaticLogin,
+                    Shared: Shared
+                };
+
+                var htmlTemplate = _.template(settingsListTemplate);
+                var compiledTemplate = htmlTemplate(newData);
+
+                that.$el.html(compiledTemplate);
+                $(primaryElementID).empty().html(that.$el);
 
 
-        },Shared.timeoutDelay);
+                Shared.setCurrentPageTitle("Preferências");
+                window.componentHandler.upgradeDom();
 
-      }
 
-      Shared.setDefaultIMListeners();
+            }, Shared.timeoutDelay);
+
+        }
+
+        Shared.setDefaultIMListeners();
 
     },
 
     events: {
-      //"click .settinsLink": "selectMenuItem",
-      "change #automaticLoginSwitch" : "selectAutomaticLogin",
+        //"click .settinsLink": "selectMenuItem",
+        "change #automaticLoginSwitch": "selectAutomaticLogin",
     },
 
-    selectAutomaticLogin: function(e){
+    selectAutomaticLogin: function(e) {
 
-      if (Shared.settings.automaticLogin == true) {
-        $("#automaticLoginSwitch").val("off");
-        Shared.settings.automaticLogin = false;
-      } else {
-        $("#automaticLoginSwitch").val("on");
-        Shared.settings.automaticLogin = true;
-      }
+        if (Shared.settings.automaticLogin == true) {
+            $("#automaticLoginSwitch").val("off");
+            Shared.settings.automaticLogin = false;
+        } else {
+            $("#automaticLoginSwitch").val("on");
+            Shared.settings.automaticLogin = true;
+        }
 
-      // //BUG INTENTIONALY LEFT TO REPRODUCE AN INVALID AUTH.
+        // //BUG INTENTIONALY LEFT TO REPRODUCE AN INVALID AUTH.
 
-      // Shared.api
-      // .resource('Logout')
-      // .done(function(result){
+        // Shared.api
+        // .resource('Logout')
+        // .done(function(result){
 
-      //   alert('logout');
-        
-      // })
-      // .fail(function(error){
+        //   alert('logout');
 
-      //   Shared.handleErrors(error);
-        
-      //   return false;
-      // })
-      // .execute();
+        // })
+        // .fail(function(error){
 
-      // Shared.api.getLocalStorageValue("expresso",function(expressoValue) {
+        //   Shared.handleErrors(error);
 
-      //   expressoValue.auth = "7a3dn5thro4puedfe3afmcu1j5:622de249d9f778dd9a6c67923528273b";
+        //   return false;
+        // })
+        // .execute();
 
-      //   Shared.api.auth(expressoValue.auth);
+        // Shared.api.getLocalStorageValue("expresso",function(expressoValue) {
 
-      //   Shared.api.setLocalStorageValue("expresso",expressoValue);
+        //   expressoValue.auth = "7a3dn5thro4puedfe3afmcu1j5:622de249d9f778dd9a6c67923528273b";
 
-      //   // Shared.saveSettingsToLocalStorage();
-      // });
-      
-      // var expressoValue = Shared.api.getLocalStorageValue("expresso");
-      // window.localStorage.removeItem("expresso");
-      // window.localStorage.clear();
-      // expressoValue.auth = "a" + expressoValue.auth;
-      // alert("new auth : " + expressoValue.auth);
+        //   Shared.api.auth(expressoValue.auth);
 
-      // Shared.api.auth(expressoValue.auth);
+        //   Shared.api.setLocalStorageValue("expresso",expressoValue);
 
-      // Shared.api.setLocalStorageValue("expresso",expressoValue);
+        //   // Shared.saveSettingsToLocalStorage();
+        // });
 
-      // expressoValue = Shared.api.getLocalStorageValue("expresso");
-      // alert("storage auth : " + expressoValue.auth);
-      // alert("api auth: "+ Shared.api.auth());
-      // //END OF BUG
+        // var expressoValue = Shared.api.getLocalStorageValue("expresso");
+        // window.localStorage.removeItem("expresso");
+        // window.localStorage.clear();
+        // expressoValue.auth = "a" + expressoValue.auth;
+        // alert("new auth : " + expressoValue.auth);
 
-      
-      
+        // Shared.api.auth(expressoValue.auth);
+
+        // Shared.api.setLocalStorageValue("expresso",expressoValue);
+
+        // expressoValue = Shared.api.getLocalStorageValue("expresso");
+        // alert("storage auth : " + expressoValue.auth);
+        // alert("api auth: "+ Shared.api.auth());
+        // //END OF BUG
+
+
+
     },
 
     // selectMenuItem: function(e){
@@ -206,11 +222,9 @@ define([
     // },
 
     initialize: function() {
-      this.secondViewName = "";
+        this.secondViewName = "";
     }
-    
-  });
 
-  return SettingsListView;
-  
 });
+
+export default SettingsListView;

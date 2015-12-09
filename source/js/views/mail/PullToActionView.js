@@ -1,12 +1,10 @@
-define([
-  'jquery',
-  'underscore',
-  'backbone',
-  'shared',
-  'material'
-], function($, _, Backbone, Shared, Material){
+import $ from 'jquery';
+import _ from 'underscore';
+import Backbone from 'backbone';
+import Shared from 'shared';
+import Material from 'material';
 
-  var PullToActionView = Backbone.View.extend({
+var PullToActionView = Backbone.View.extend({
 
     //tagName: 'pull-to-action',
 
@@ -14,47 +12,45 @@ define([
 
     container: '#pageContent',
 
-    refreshFunction: function() {  },
+    refreshFunction: function() {},
 
     initialize: function(data) {
 
-      if (data.refreshAction != undefined) {
-        this.refreshFunction = data.refreshAction;
-      }
+        if (data.refreshAction != undefined) {
+            this.refreshFunction = data.refreshAction;
+        }
 
-      if (data.container != undefined) {
-        this.container = data.container;
-      }
+        if (data.container != undefined) {
+            this.container = data.container;
+        }
 
     },
 
     events: {
-      'refresh' : "_refresh",
-      'lower-trigger': '_loadNextPage',
+        'refresh': "_refresh",
+        'lower-trigger': '_loadNextPage',
     },
 
     resize: function() {
-      this.el.resize();
+        this.el.resize();
     },
 
     _refresh: function() {
-      this.refreshFunction();
+        this.refreshFunction();
     },
 
     _loadNextPage: function() {
-      console.log("_loadNextPage");
+        console.log("_loadNextPage");
     },
 
-    render: function(){
+    render: function() {
 
-      this.el.innerHTML = '<pull-to-action action="attribute.fire(\'refresh\',{})" color="blue" container="' + this.container + '"></pull-to-action>';
+        this.el.innerHTML = '<pull-to-action action="attribute.fire(\'refresh\',{})" color="blue" container="' + this.container + '"></pull-to-action>';
 
-      $(this.container).empty().append( this.el );
-      
+        $(this.container).empty().append(this.el);
+
     }
-    
-  });
 
-  return PullToActionView;
-  
 });
+
+export default PullToActionView;

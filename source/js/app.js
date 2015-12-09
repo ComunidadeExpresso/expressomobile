@@ -1,19 +1,17 @@
-define([
-  'webcomponents',
-  'jquery', 
-  'jqueryui',
-  'underscore', 
-  'backbone',
-  'Shared',
-  'material',
-  'router', 
-], function(webcomponents,jQuery,$, _, Backbone, Shared, Material ,AppRouter){
+import webcomponents from 'webcomponents';
+import jQuery from 'jquery';
+import $ from 'jqueryui';
+import _ from 'underscore';
+import Backbone from 'backbone';
+import Shared from 'Shared';
+import Material from 'material';
+import router from 'router';
   var initialize = function(){
 
     var startApp = function() {
 
       
-      Shared.router = new AppRouter();
+      Shared.router = new router();
 
       Shared.router.setupRouter();
 
@@ -31,7 +29,8 @@ define([
 
   };
 
-  return { 
+  export default { 
     initialize: initialize
   };
-});
+
+

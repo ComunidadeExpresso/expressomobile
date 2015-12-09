@@ -13,13 +13,33 @@ var proxy           = require('proxy-middleware');
 var browserSync     = require('browser-sync'); 
 var run             = require('gulp-run');
 
+var argv = require('yargs')
+    .default('buildFolder', 'www')
+    .default('platform', 'web')
+    .default('minifyscripts',0)
+    .argv;
+
+console.log("");
+console.log("---------- Expresso Mobile ------------");
+console.log("");
+console.log("PLATFORM: " + argv.platform );
+console.log("BUILD FOLDER: " + argv.buildFolder);
+console.log("");
+console.log("---------------------------------------");
+console.log("");
+console.log("");
 
 //GLOBAL VARS
-var buildFolder     = 'www';
-var buildPlatform   = 'android';
+var buildFolder     = argv.buildFolder;
+var buildPlatform   = argv.platform;
+if (argv.minifyscripts == 0) {
+    var minifyJS = false;
+} else {
+    var minifyJS = true;
+}
+
 
 var folder = path.resolve(__dirname, "../");
-
 
 gulp.task('default', ['help']);
 
@@ -49,7 +69,7 @@ gulp.task('minify-scripts','Minify JS files on the build folder.', function () {
         baseURL : p_baseURL
     }
 
-    builder.buildStatic('./source/js/main_es6.js',buildFolder + '/js/main.js',{ minify: true , format: 'global', config: configChanges });
+    builder.buildStatic('./source/js/main.js',buildFolder + '/js/main.js',{ minify: minifyJS , format: 'global', config: configChanges });
 
 });
 
@@ -65,10 +85,14 @@ gulp.task('copy:build','Copy all necessary files from source to build folder.',f
     gulp.src(['source/api/**/*']).pipe(gulp.dest(folder + '/api/'));
     gulp.src(['source/api/.htaccess']).pipe(gulp.dest(folder + '/api/'));
     gulp.src(['source/bower_components/systemjs/**/*']).pipe(gulp.dest(folder + '/bower_components/systemjs/'));
+    gulp.src(['source/bower_components/webcomponentsjs/**/*']).pipe(gulp.dest(folder + '/bower_components/webcomponentsjs/'));
+    gulp.src(['source/bower_components/charto-polymer-shim/**/*']).pipe(gulp.dest(folder + '/bower_components/charto-polymer-shim/'));
+    gulp.src(['source/bower_components/systemjs-plugin-html/**/*']).pipe(gulp.dest(folder + '/bower_components/systemjs-plugin-html/'));
     gulp.src(['source/imgs/**/*']).pipe(gulp.dest(folder + '/imgs/'));
     // gulp.src(['source/config/**/*']).pipe(gulp.dest(folder + '/config/'));
     // gulp.src(['source/css/**/*']).pipe(gulp.dest(folder + '/css/'));
-    gulp.src(['source/css/m_platform_**/*']).pipe(gulp.dest(folder + '/css/'));
+    gulp.src(['source/css/m_platform_desktop.css']).pipe(gulp.dest(folder + '/css/'));
+    gulp.src(['source/css/m_platform_ios.css']).pipe(gulp.dest(folder + '/css/'));
 
     gulp.src(['source/js/libs/cordova/**/*']).pipe(gulp.dest(folder + '/js/libs/cordova/'));
     gulp.src(['source/js/libs/mdl-iconfont/**/*']).pipe(gulp.dest(folder + '/js/libs/mdl-iconfont/'));
@@ -80,7 +104,7 @@ gulp.task('copy:build','Copy all necessary files from source to build folder.',f
     gulp.src(['source/.htaccess']).pipe(gulp.dest(folder + '/'));
     gulp.src(['source/index.php']).pipe(gulp.dest(folder + '/'));
     gulp.src(['source/cordova.js']).pipe(gulp.dest(folder + '/'));
-    gulp.src(['servers.json']).pipe(gulp.dest(folder + '/'));
+    gulp.src(['source/servers.json']).pipe(gulp.dest(folder + '/'));
 
     gulp.src(['platforms/' + buildPlatform + '/platform_www/**/*']).pipe(gulp.dest(folder + '/'));
 })

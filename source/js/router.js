@@ -1,29 +1,27 @@
 // Filename: router.js
-define([
-  'jquery',
-  'underscore',
-  'backbone',
-  'shared',
-  'js/views/login/LoginView.js',
-  'js/views/home/HomeView.js',
-  'js/views/home/OfflineView.js',
-  'js/views/mail/DetailMessageView.js',
-  'js/views/mail/ComposeMessageView.js',
-  'js/views/mail/EditFolderView.js',
-  'js/views/settings/SettingsListView.js',
-  'js/views/contacts/ContactsListView.js',
-  'js/views/contacts/DetailsContactView.js',
-  'js/views/contacts/AddContactView.js',
-  'js/views/contacts/DeleteContactView.js',
-  'js/views/calendar/CalendarListView.js',
-  'js/views/calendar/CalendarDetailsView.js',
-  'js/views/calendar/CalendarEditEventView.js',
-  'js/views/calendar/CalendarDeleteEventView.js',
-  'js/views/calendar/CalendarFullDayListView.js',
-  'js/views/chat/ChatListView.js',
-], function($, _, Backbone, Shared, LoginView, HomeView, OfflineView, DetailMessageView, ComposeMessageView, EditFolderView, SettingsListView,ContactsListView,DetailsContactView, AddContactView, DeleteContactView,CalendarListView,CalendarDetailsView, CalendarEditEventView, CalendarDeleteEventView, CalendarFullDayListView, ChatListView) {
+import $ from 'jquery';
+import _ from 'underscore';
+import Backbone from 'backbone';
+import Shared from 'shared';
+import LoginView from 'LoginView';
+import HomeView from 'HomeView';
+import OfflineView from 'OfflineView';
+import DetailMessageView from 'DetailMessageView';
+import ComposeMessageView from 'ComposeMessageView';
+import EditFolderView from 'EditFolderView';
+import SettingsListView from 'SettingsListView';
+import ContactsListView from 'ContactsListView';
+import DetailsContactView from 'DetailsContactView';
+import AddContactView from 'AddContactView';
+import DeleteContactView from 'DeleteContactView';
+import CalendarListView from 'CalendarListView';
+import CalendarDetailsView from 'CalendarDetailsView';
+import CalendarEditEventView from 'CalendarEditEventView';
+import CalendarDeleteEventView from 'CalendarDeleteEventView';
+import CalendarFullDayListView from 'CalendarFullDayListView';
+import ChatListView from 'ChatListView';
   
-  var AppRouter = Backbone.Router.extend({
+  var router = Backbone.Router.extend({
 
     routes: {
 
@@ -272,9 +270,9 @@ define([
 
         app_router.on('route:contactsListView', function (secondViewName) {
 
-          contactsListView = new ContactsListView();
-          contactsListView.secondViewName = secondViewName;
-          contactsListView.render();
+          var contListView = new ContactsListView();
+          contListView.secondViewName = secondViewName;
+          contListView.render();
 
           Shared.menuView.selectMenu(3);
 
@@ -284,7 +282,7 @@ define([
 
         app_router.on('route:deleteContactsListView', function (secondViewName) {
 
-          contactsListView = new ContactsListView();
+          var contactsListView = new ContactsListView();
           contactsListView.secondViewName = secondViewName;
           contactsListView.status = 'OK';
           contactsListView.render();
@@ -297,7 +295,7 @@ define([
 
         app_router.on('route:detailsContactView', function (secondViewName, contactID, status) {
 
-          detailsContactView = new DetailsContactView();
+          var detailsContactView = new DetailsContactView();
           detailsContactView.secondViewName = secondViewName;
           detailsContactView.contactID = contactID;
           detailsContactView.status = status;
@@ -311,7 +309,7 @@ define([
 
         app_router.on('route:addContactView', function (contactID, email) {
 
-          addContactView = new AddContactView();
+          var addContactView = new AddContactView();
           addContactView.contactID = contactID;
           addContactView.email = email;
           addContactView.render();
@@ -323,7 +321,7 @@ define([
 
         app_router.on('route:deleteContactView', function (contactID) {
 
-          deleteContactView = new DeleteContactView();
+          var deleteContactView = new DeleteContactView();
           deleteContactView.contactID = contactID;
           deleteContactView.render();
 
@@ -446,6 +444,7 @@ define([
     
   });
 
-  return AppRouter;
+  export default router;
 
-});
+
+

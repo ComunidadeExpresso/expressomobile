@@ -14759,7 +14759,7 @@ Polymer({
     is: 'mail-thread',
 
     behaviors: [
-      //SwipeableBehavior
+      SwipeableBehavior
       // Polymer.IronMenuBehavior
     ],
 
@@ -15233,57 +15233,24 @@ Polymer({
     }
 
   });
-(function() {
-
-	Polymer({
-		is: 'paper-fab-speed-dial-action',
-		properties: {
-			icon: String
-		}
-	});
-
-})();
-(function() {
-
-  Polymer({
-    is: 'paper-fab-speed-dial-overlay',
-
-    behaviors: [
-      Polymer.IronOverlayBehavior
-    ]
-
-  });
-
-})();
-(function() {
-
-	Polymer({
-		is: 'paper-fab-speed-dial',
-		properties: {
-			opened: {
-				type: Boolean,
-				notify: true
-			}
-		},
-
-		// Public methods
-		open: function(e) {
-			this.opened = true;
-		},
-		close: function(e) {
-			this.opened = false;
-		}
-	});
-
-})();
 Polymer({
     is: 'mail-messages',
 
-    ready: function() {
-      this.$.threshold.scrollTarget = this.$.scroller;
+    onScroll: function(e) {
 
-      // console.log(Polymer.dom(this.$.scrollList));
-      Polymer.dom(this.$.scroller).setAttribute('style', 'height: ' + (document.body.clientHeight - 56) + 'px;');
+        Polymer.dom(this.$.loadingArea).setAttribute('style', 'display: inline;');
+        if (e.target.scrollTop + e.target.offsetHeight >= e.target.scrollHeight - 500) {
+          this.fire('lower-trigger');
+          
+
+        }
+    },
+
+    ready: function() {
+      // this.$.threshold.scrollTarget = this.$.scrollList._scroller;
+
+      Polymer.dom(this.$.scrollList).setAttribute('style', 'height: ' + (document.body.clientHeight - 40) + 'px;');
+
 
     },
     loadMore: function() {
@@ -15307,9 +15274,25 @@ Polymer({
       this.fire('evt-starred-message', {thread: this});
     },
 
+    openMessage: function(event) {
+
+      var messageView = event.currentTarget;
+      var msgid = messageView.get("msgid");
+      var folderid = messageView.get("folderid");
+      var route = messageView.get("route");
+
+      this.currentMessage = {"msgid": msgid, "folderid": folderid, "route": route };
+
+      this.fire('evt-open-message', {thread: this});
+
+    },
+
     _onThreadSelectChange: function(event) {
       console.log("_onThreadSelectChange");
-      //console.log(this.selectedMessages);
+      console.log(this.selectedMessages);
+
+      console.log(event);
+      // console.log(event.detail.get('items'));
 
       for (var thread in this.selectedMessages) {
         console.log(this.selectedMessages[thread].get('msgid'));
@@ -15327,21 +15310,8 @@ Polymer({
       return arrMessages;
     },
 
-    openMessage: function(event) {
-
-      var messageView = event.currentTarget;
-      var msgid = messageView.get("msgid");
-      var folderid = messageView.get("folderid");
-      var route = messageView.get("route");
-
-      this.currentMessage = {"msgid": msgid, "folderid": folderid, "route": route };
-
-      this.fire('evt-open-message', {thread: this});
-
-    },
-
     resize: function() {
-      Polymer.dom(this.$.scroller).setAttribute('style', 'height: ' + (document.body.clientHeight - 56) + 'px;');
+      Polymer.dom(this.$.scrollList).setAttribute('style', 'height: ' + (document.body.clientHeight - 40) + 'px;');
     },
 
     properties: {
@@ -15354,7 +15324,6 @@ Polymer({
         reflectAttribute: true,
         value: []
       },
-
       currentMessage: {
         type: Array,
         value: []
@@ -15680,3 +15649,46 @@ var lastTouchY=0,
       }
     });
   })();
+(function() {
+
+	Polymer({
+		is: 'paper-fab-speed-dial-action',
+		properties: {
+			icon: String
+		}
+	});
+
+})();
+(function() {
+
+  Polymer({
+    is: 'paper-fab-speed-dial-overlay',
+
+    behaviors: [
+      Polymer.IronOverlayBehavior
+    ]
+
+  });
+
+})();
+(function() {
+
+	Polymer({
+		is: 'paper-fab-speed-dial',
+		properties: {
+			opened: {
+				type: Boolean,
+				notify: true
+			}
+		},
+
+		// Public methods
+		open: function(e) {
+			this.opened = true;
+		},
+		close: function(e) {
+			this.opened = false;
+		}
+	});
+
+})();

@@ -2,16 +2,9 @@
 <link rel="import" href="../bower_components/iron-icon/iron-icon.html">
 <link rel="import" href="../bower_components/paper-styles/paper-styles.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
-
-<!-- <link rel="import" href="../bower_components/iron-menu-behavior/iron-menu-behavior.html"> -->
-
 <link rel="import" href="profile-img.html">
 <link rel="import" href="swipeable-item.html">
 
-<!--
-
-    <mail-thread></mail-thread>
--->
 <dom-module id="mail-thread">
   <style>
     :host {
@@ -61,12 +54,12 @@
       font-size: 14px;
       cursor: pointer;
     }
-    header[unread] .name,
-    header[unread] .subject,
-    header[unread] time {
+    .unread .name,
+    .unread .subject,
+    .unread time {
       font-weight: 500;
     }
-    header[unread] time {
+    .unread time {
       color: var(--paper-light-blue-500);
     }
     header span.name {
@@ -95,7 +88,9 @@
     #star {
       cursor: pointer;
     }
-    iron-icon[starred] {
+    /*#star .starred {*/
+    #star[starred] {
+      cursor: pointer;
       color: var(--paper-yellow-700);
     }
     .undo {
@@ -167,7 +162,7 @@
                      on-transitionend="_eatEvent"></profile-img>
         <div class="flex layout horizontal">
           
-          <header class="layout vertical flex" unread$="{{unread}}"
+          <header class$="[[headerClasses]]" unread="{{unread}}"
                   on-down="_onDown" on-up="_onUp">
             <span class="layout horizontal center justified" on-tap="_onOpenMessage">
               <span class="name">
@@ -185,8 +180,7 @@
                          class$="[[_objectItem('labels', id, 'color')]]">[[_objectItem('labels', id, 'name')]]</label>
                 </template>
               </span>
-              <iron-icon id="star" icon="[[starredIcon]]"
-                         on-tap="_onHighlightStar" starred$="{{starred}}"></iron-icon>
+              <iron-icon id="star" icon="[[starredIcon]]" on-tap="_onHighlightStar" starred$="{{starred}}"></iron-icon>
             </span>
 
           </header>
@@ -209,8 +203,8 @@
     is: 'mail-thread',
 
     behaviors: [
-      //SwipeableBehavior
-      // Polymer.IronMenuBehavior
+      SwipeableBehavior
+      //Polymer.IronMenuBehavior
     ],
 
     _HOLD_DELAY: 400, // wait delay (ms) to fire hold event.
@@ -254,7 +248,8 @@
 
       unread: {
         type: Boolean,
-        value: true
+        value: true,
+        reflectToAttribute: true
       },
 
       /**
@@ -295,6 +290,12 @@
         type: String,
         value: '',
         computed: '_computeStarredIcon(starred)'
+      },
+
+      headerClasses: {
+        type: String,
+        value: '',
+        computed: '_computeHeaderClasses(unread)'
       },
 
       from: {
@@ -346,7 +347,8 @@
 
       starred: {
         type: Boolean,
-        value: false
+        value: false,
+        reflectToAttribute: true
       },
 
     },
@@ -407,6 +409,10 @@
       return 'icons:star' + (starred ? '' : '-border');
     },
 
+    _computeHeaderClasses: function(unread) {
+      return 'layout vertical flex ' + (unread ? 'unread' : '');
+    },
+
     _onHighlightStar: function(e) {
       e.stopPropagation();
       this.thread.starred = !this.thread.starred;
@@ -452,7 +458,9 @@
       if (Polymer.dom(e).localTarget === this.$.profileimage) {
         e.stopPropagation();
         this.selected = !this.selected;
-        this.fire('thread-select', {thread: this});
+
+        var message = { msgid: this.get('msgid'), folderid: this.get('folderid'), selected: this.selected };
+        this.fire('thread-select', {thread: message});
       }
     },
 

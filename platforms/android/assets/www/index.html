@@ -15,11 +15,14 @@
     <meta name="msapplication-TileImage" content="images/touch/ms-touch-icon-144x144-precomposed.png">
     <meta name="msapplication-TileColor" content="#3372DF">
 
-    <meta http-equiv="Content-Security-Policy" content="default-src *; style-src * 'unsafe-inline'; script-src * 'unsafe-inline' 'unsafe-eval'">
+    <meta http-equiv="Content-Security-Policy" content="img-src 'self' data:; default-src *; style-src * 'unsafe-inline'; script-src * 'unsafe-inline' 'unsafe-eval'">
 
-<!--     <link href="https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en" rel="stylesheet">
- -->
+    <link href="https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en" rel="stylesheet">
+    
     <link rel="stylesheet" type="text/css" href="./css/styles.css">
+    <script type="text/javascript" src="./bower_components/webcomponentsjs/webcomponents.js"></script>
+    <script src="./bower_components/systemjs/dist/system.js" type="text/javascript"></script>
+    
     <script data-main="js/main" src="./cordova.js"></script>
     <!--
 `iron-meta` is a generic element you can use for sharing information across the DOM tree.
@@ -2994,8 +2997,7 @@ mail-thread {
   };
 }
 </style>
-<script src="./bower_components/systemjs/dist/system.js" type="text/javascript"></script>
-    <script src="./js/config.js" type="text/javascript"></script>
+<script src="./js/config.js" type="text/javascript"></script>
     <script src="./js/platform.js" type="text/javascript"></script>
 
   </head>
@@ -5284,96 +5286,11 @@ mail-thread {
   </dom-module><dom-module id="iron-scroll-threshold" assetpath="bower_components/iron-scroll-threshold/">
 </dom-module>
 
-<dom-module id="paper-fab-speed-dial-action" assetpath="bower_components/paper-fab-speed-dial/">
-
-	<template>
-
-		<style>
-			:host {
-				@apply(--layout-horizontal);
-				@apply(--layout-center);
-				margin-top: 15px;
-				margin-right: 8px;
-				display: block;
-			}
-			
-			.label {
-				color: black;
-				background: white;
-				padding: 5px 10px;
-				border-radius: 3px;
-				margin-right: 20px;
-				text-align: right;
-			}
-			
-			.fab {
-				--paper-fab-background: var(--paper-fab-speed-dial-action-background);
-				--paper-fab-keyboard-focus-background: var(--paper-fab-speed-dial-action-keyboard-focus-background);
-			}
-		</style>
-
-		<div class="flex"><span class="label"><content></content></span></div>
-		<paper-fab class="fab" icon="[[icon]]" mini=""></paper-fab>
-
-	</template>
-</dom-module>
-
-<dom-module id="paper-fab-speed-dial-overlay" assetpath="bower_components/paper-fab-speed-dial/">
-
-	<template>
-		<content></content>
-	</template>
-
-</dom-module>
-
-<dom-module id="paper-fab-speed-dial" assetpath="bower_components/paper-fab-speed-dial/">
-
-	<template>
-
-		<style>
-			.open {
-				--paper-fab-background: var(--paper-fab-speed-dial-background);
-				--paper-fab-keyboard-focus-background: var(--paper-fab-speed-dial-keyboard-focus-background);
-				position: absolute;
-				bottom: 16px;
-				right: 16px;
-			}
-
-			.close {
-				--paper-fab-background: var(--paper-grey-500);
-				--paper-fab-keyboard-focus-background: var(--paper-grey-500);
-				margin-top: 20px;
-				display: inline-block;
-			}
-			
-			.overlay {
-				right: 16px;
-				bottom: 16px;
-				position: fixed;
-				text-align: right;
-			}
-		</style>
-
-		<paper-fab icon="add" class="open" on-tap="open" hidden="[[opened]]"></paper-fab>
-		
-		<paper-fab-speed-dial-overlay class="overlay" opened="{{opened}}" with-backdrop="" no-cancel-on-outside-click="">
-			<content></content>
-			<paper-fab icon="close" class="close" on-tap="close"></paper-fab>
-		</paper-fab-speed-dial-overlay>
-
-	</template>
-</dom-module>
-
 <dom-module id="mail-messages" assetpath="elements/">
   <style>
     :host {
       height: 100%;
       overflow: hidden;
-    }
-
-    #scroller {
-      overflow: auto;
-      height: 300px;
     }
 
     iron-list {
@@ -5404,22 +5321,24 @@ mail-thread {
   </style>
   <template>
     
-    <iron-scroll-threshold id="threshold" lower-threshold="1" on-lower-trigger="loadMore" lower-triggered="{{lowerTriggered}}" fit=""></iron-scroll-threshold> 
+<!--     <iron-scroll-threshold id="threshold" lower-threshold="10" on-lower-trigger="loadMore" lower-triggered="{{lowerTriggered}}" fit></iron-scroll-threshold> 
+ -->
+    
+      <iron-selector id="threadlist" multi="" activate-event="thread-select" selected-attribute="selected" selected-items="{{selectedMessages}}" on-iron-select="_onThreadSelectChange" on-iron-deselect="_onThreadSelectChange">
 
-      <div id="scroller">
-        <iron-selector id="threadlist" multi="" activate-event="thread-select" selected-attribute="selected" selected-items="{{selectedMessages}}" on-iron-select="_onThreadSelectChange" on-iron-deselect="_onThreadSelectChange">
-          <template is="dom-repeat" items="{{items}}">
-             <mail-thread folderid="{{item.folderID}}" msgid="{{item.msgID}}" subject="{{item.subject}}" from="{{item.from}}" date="{{item.date}}" bodyresume="{{item.bodyresume}}" route="{{item.route}}" on-open-message="openMessage" on-starred-message="starredMessage" data-thread-index$="{{item.index}}"></mail-thread>
-          </template>
-        </iron-selector>
-        <div id="loading-area" class="layout flex center" hidden?="{{!lowerTriggered}}"><paper-spinner class="blue" alt="Carregando..." active=""></paper-spinner></div>
-      </div>
+      <iron-list id="scrollList" items="{{items}}" as="item" on-scroll="onScroll">
+        <template>
+           <mail-thread folderid="{{item.folderID}}" msgid="{{item.msgID}}" subject="{{item.subject}}" from="{{item.from}}" date="{{item.date}}" bodyresume="{{item.bodyresume}}" route="{{item.route}}" on-open-message="openMessage" on-starred-message="starredMessage" data-thread-index$="{{item.index}}"></mail-thread>
+        </template>
+      </iron-list>
 
-      <!-- <paper-fab-speed-dial>
-        <paper-fab-speed-dial-action icon="copy">Copy</paper-fab-speed-dial-action>
-        <paper-fab-speed-dial-action icon="print">Print</paper-fab-speed-dial-action>
-      </paper-fab-speed-dial> -->
+      </iron-selector>
       
+
+    
+
+    <div id="loadingArea" class="hidden layout flex center"><paper-spinner class="blue" alt="Carregando..." active=""></paper-spinner></div>
+
   </template>
   </dom-module><iron-iconset-svg name="av" size="24">
 <svg><defs>
@@ -5660,6 +5579,86 @@ mail-thread {
     </paper-material>
   </template>
 </dom-module>
+<dom-module id="paper-fab-speed-dial-action" assetpath="bower_components/paper-fab-speed-dial/">
+
+	<template>
+
+		<style>
+			:host {
+				@apply(--layout-horizontal);
+				@apply(--layout-center);
+				margin-top: 15px;
+				margin-right: 8px;
+				display: block;
+			}
+			
+			.label {
+				color: black;
+				background: white;
+				padding: 5px 10px;
+				border-radius: 3px;
+				margin-right: 20px;
+				text-align: right;
+			}
+			
+			.fab {
+				--paper-fab-background: var(--paper-fab-speed-dial-action-background);
+				--paper-fab-keyboard-focus-background: var(--paper-fab-speed-dial-action-keyboard-focus-background);
+			}
+		</style>
+
+		<div class="flex"><span class="label"><content></content></span></div>
+		<paper-fab class="fab" icon="[[icon]]" mini=""></paper-fab>
+
+	</template>
+</dom-module>
+
+<dom-module id="paper-fab-speed-dial-overlay" assetpath="bower_components/paper-fab-speed-dial/">
+
+	<template>
+		<content></content>
+	</template>
+
+</dom-module>
+
+<dom-module id="paper-fab-speed-dial" assetpath="bower_components/paper-fab-speed-dial/">
+
+	<template>
+
+		<style>
+			.open {
+				--paper-fab-background: var(--paper-fab-speed-dial-background);
+				--paper-fab-keyboard-focus-background: var(--paper-fab-speed-dial-keyboard-focus-background);
+				position: absolute;
+				bottom: 16px;
+				right: 16px;
+			}
+
+			.close {
+				--paper-fab-background: var(--paper-grey-500);
+				--paper-fab-keyboard-focus-background: var(--paper-grey-500);
+				margin-top: 20px;
+				display: inline-block;
+			}
+			
+			.overlay {
+				right: 16px;
+				bottom: 16px;
+				position: fixed;
+				text-align: right;
+			}
+		</style>
+
+		<paper-fab icon="add" class="open" on-tap="open" hidden="[[opened]]"></paper-fab>
+		
+		<paper-fab-speed-dial-overlay class="overlay" opened="{{opened}}" with-backdrop="" no-cancel-on-outside-click="">
+			<content></content>
+			<paper-fab icon="close" class="close" on-tap="close"></paper-fab>
+		</paper-fab-speed-dial-overlay>
+
+	</template>
+</dom-module>
+
 </div>
   <div class="expresso-loading-spacer">
     Carregando...

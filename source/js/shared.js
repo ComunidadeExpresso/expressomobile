@@ -1,14 +1,12 @@
 // Filename: shared.js
-define([
-  'underscore',
-  'jquery',
-  'backbone',
-  'expressoAPI',
-  'expressoIM',
-  'js/views/home/UserMessageView.js',
-  'expressoService',
-  'moment',
-], function(_, $, Backbone,expressoAPI,expressoIM,UserMessageView,expressoService,moment) {
+import _ from 'underscore';
+import $ from 'jquery';
+import Backbone from 'backbone';
+import expressoAPI from 'expressoAPI';
+import expressoIM from 'expressoIM';
+import UserMessageView from 'UserMessageView';
+import expressoService from 'expressoService';
+import moment from 'moment';
   
   var Shared = {};
 
@@ -869,6 +867,7 @@ document.addEventListener('deviceready', function () {
 
 
   //Shared.router is created in App.js
-  return Shared;
+  export default Shared;
 
-});
+
+

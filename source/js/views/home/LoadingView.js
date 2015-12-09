@@ -1,39 +1,34 @@
-define([
-  'jquery',
-  'underscore',
-  'backbone',
-  'shared',
-  'templates/home/loadingTemplate.html!text',
-  'material'
-], function($, _, Backbone, Shared, loadingTemplate, Material){
+import $ from 'jquery';
+import _ from 'underscore';
+import Backbone from 'backbone';
+import Shared from 'shared';
+import loadingTemplate from 'loadingTemplate';
+import Material from 'material';
 
-  var LoadingView = Backbone.View.extend({
+var LoadingView = Backbone.View.extend({
 
     el: $("#content"),
 
-    render: function(){
+    render: function() {
 
-      if (Shared.menuView) {
-        //if (Shared.newMessageIntent != true) {
-          Shared.menuView.renderContextMenu(0,[]); 
-        //}
-      }
+        if (Shared.menuView) {
+            //if (Shared.newMessageIntent != true) {
+            Shared.menuView.renderContextMenu(0, []);
+            //}
+        }
 
 
-      var compiledTemplate = _.template( loadingTemplate);
-      this.$el.html( compiledTemplate ); 
+        var compiledTemplate = _.template(loadingTemplate);
+        this.$el.html(compiledTemplate);
 
-      window.componentHandler.upgradeDom();
+        window.componentHandler.upgradeDom();
 
     },
 
-    loaded: function () 
-    {
+    loaded: function() {
 
 
     }
-  });
-
-  return LoadingView;
-  
 });
+
+export default LoadingView;

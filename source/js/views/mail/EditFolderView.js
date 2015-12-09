@@ -1,92 +1,90 @@
-define([
-  'jquery',
-  'underscore',
-  'backbone',
-  'shared',
-  'templates/mail/editFolderTemplate.html!text',
-  'js/collections/mail/FoldersCollection.js'
-], function($, _, Backbone, Shared, editFolderTemplate,FoldersCollection){
+import $ from 'jquery';
+import _ from 'underscore';
+import Backbone from 'backbone';
+import Shared from 'shared';
+import editFolderTemplate from 'editFolderTemplate';
+import FoldersCollection from 'FoldersCollection';
 
-  var EditFolderView = Backbone.View.extend({
+var EditFolderView = Backbone.View.extend({
 
     action: "addFolder",
     folderID: "",
-    folderName : "Nova Pasta",
+    folderName: "Nova Pasta",
     parentFolderID: "INBOX",
 
-    render: function(){
+    render: function() {
 
-      this.elementID = "#content";
+        this.elementID = "#content";
 
-      if (this.action == "renameFolder") { 
-        title = "Renomear Pasta";
+        if (this.action == "renameFolder") {
+            title = "Renomear Pasta";
 
-        var foldersCol =  new FoldersCollection();
+            var foldersCol = new FoldersCollection();
 
-        var that = this;
+            var that = this;
 
-        foldersCol.getFolders(this.folderID,this.search).done( function (foldersData) {
-
-
-          var currentFolder = foldersData.getFolderByID(that.folderID);
-
-          that.folderName = currentFolder.get("folderName");
-
-          that.renderView();
+            foldersCol.getFolders(this.folderID, this.search).done(function(foldersData) {
 
 
-        }).fail(function(result){
+                    var currentFolder = foldersData.getFolderByID(that.folderID);
 
-          Shared.handleErrors(result.error);
+                    that.folderName = currentFolder.get("folderName");
 
-          $(that.elementID).empty();
+                    that.renderView();
 
-          $(that.detailElementID).empty();
 
-          return false;
-        })
-        .execute();
+                }).fail(function(result) {
 
-      } else {
-        this.renderView();
-      }
+                    Shared.handleErrors(result.error);
 
-      
+                    $(that.elementID).empty();
+
+                    $(that.detailElementID).empty();
+
+                    return false;
+                })
+                .execute();
+
+        } else {
+            this.renderView();
+        }
+
+
 
     },
 
     renderView: function() {
-      var title = "";
+        var title = "";
 
-      if (this.action == "addFolder") { 
-        title = "Adicionar Pasta";
-      }
+        if (this.action == "addFolder") {
+            title = "Adicionar Pasta";
+        }
 
-      if (this.action == "renameFolder") { 
-        title = "Renomear Pasta";
-      }
+        if (this.action == "renameFolder") {
+            title = "Renomear Pasta";
+        }
 
-      var newData = {
-        _: _,
-        Shared: Shared,
-        title: title,
-        folderName: this.folderName,
-        folderID: this.folderID,
-        parentFolderID: this.parentFolderID,
-        folderAction: this.action
-      };
+        var newData = {
+            _: _,
+            Shared: Shared,
+            title: title,
+            folderName: this.folderName,
+            folderID: this.folderID,
+            parentFolderID: this.parentFolderID,
+            folderAction: this.action
+        };
 
-      var htmlTemplate = _.template(editFolderTemplate);
-      var compiledTemplate = htmlTemplate(newData);
+        var htmlTemplate = _.template(editFolderTemplate);
+        var compiledTemplate = htmlTemplate(newData);
 
-      this.$el.html( compiledTemplate ); 
+        this.$el.html(compiledTemplate);
 
-      
 
-      // if (Shared.isDesktop()) {
-      //   $('#modalWindows').empty().append(this.$el);
-      //   $('#modalEditFolder').modal('show');
-      // } else {
+
+        // if (Shared.isDesktop()) {
+        //   $('#modalWindows').empty().append(this.$el);
+        //   $('#modalEditFolder').modal('show');
+        // } else {
 
         $(this.elementID).empty().append(this.$el);
 
@@ -98,180 +96,188 @@ define([
 
 
         Shared.deviceType(true);
-      // }
+        // }
 
-      
+
     },
 
     cleanTrash: function(folderID) {
 
-      var foldersCol =  new FoldersCollection();
+        var foldersCol = new FoldersCollection();
 
-      foldersCol.cleanTrash().done(function (result) {
+        foldersCol.cleanTrash().done(function(result) {
 
-        var message = {
-          type: "success",
-          icon: 'icon-email',
-          title: "Lixeira foi esvaziada com sucesso!",
-          description: "",
-          elementID: "#pageMessage",
-        }
+            var message = {
+                type: "success",
+                icon: 'icon-email',
+                title: "Lixeira foi esvaziada com sucesso!",
+                description: "",
+                elementID: "#pageMessage",
+            }
 
-        Shared.showMessage(message);
+            Shared.showMessage(message);
 
-        Shared.menuView.refreshFolders();
+            Shared.menuView.refreshFolders();
 
-        Shared.router.navigate("/Mail/Messages/1/0/" + folderID + "#",{ trigger: true });
+            Shared.router.navigate("/Mail/Messages/1/0/" + folderID + "#", {
+                trigger: true
+            });
 
 
-      }).fail(function (result) {
+        }).fail(function(result) {
 
-        var message = {
-          type: "error",
-          icon: 'icon-email',
-          title: "Não foi possível esvaziar a lixeira!",
-          description: "",
-          elementID: "#pageMessage",
-        }
+            var message = {
+                type: "error",
+                icon: 'icon-email',
+                title: "Não foi possível esvaziar a lixeira!",
+                description: "",
+                elementID: "#pageMessage",
+            }
 
-        Shared.showMessage(message);
+            Shared.showMessage(message);
 
-        Shared.router.navigate("/Mail/Messages/1/0/" + folderID + "#",{ trigger: true });
-        
-      }).execute();
+            Shared.router.navigate("/Mail/Messages/1/0/" + folderID + "#", {
+                trigger: true
+            });
+
+        }).execute();
     },
 
     saveFolder: function() {
-      var folderAction = $("#folderAction").val();
-      var folderName = $("#folderName").val();
-      var folderID = $("#folderID").val();
-      var parentFolderID = $("#parentFolderID").val();
+        var folderAction = $("#folderAction").val();
+        var folderName = $("#folderName").val();
+        var folderID = $("#folderID").val();
+        var parentFolderID = $("#parentFolderID").val();
 
-      var foldersCol =  new FoldersCollection();
+        var foldersCol = new FoldersCollection();
 
-      if (folderAction == "addFolder") { 
+        if (folderAction == "addFolder") {
 
-        foldersCol.addFolder(folderName,parentFolderID).done(function (result) {
+            foldersCol.addFolder(folderName, parentFolderID).done(function(result) {
 
-          var message = {
-            type: "success",
-            icon: 'icon-email',
-            title: "Nova pasta adicionada com sucesso!",
-            description: "",
-            elementID: "#pageMessage",
-          }
+                var message = {
+                    type: "success",
+                    icon: 'icon-email',
+                    title: "Nova pasta adicionada com sucesso!",
+                    description: "",
+                    elementID: "#pageMessage",
+                }
 
-          Shared.showMessage(message);
+                Shared.showMessage(message);
 
-          Shared.deviceType(Shared.isSmartPhoneResolution());
+                Shared.deviceType(Shared.isSmartPhoneResolution());
 
-          Shared.menuView.refreshFolders();
+                Shared.menuView.refreshFolders();
 
-          Shared.router.navigate("/Mail/Messages/1/0/" + result.folderID + "#",{ trigger: true });
+                Shared.router.navigate("/Mail/Messages/1/0/" + result.folderID + "#", {
+                    trigger: true
+                });
 
-        }).fail(function (result) {
+            }).fail(function(result) {
 
-          var message = {
-            type: "error",
-            icon: 'icon-email',
-            title: "Não foi possível adicionar esta pasta!",
-            description: "",
-            elementID: "#pageMessage",
-          }
+                var message = {
+                    type: "error",
+                    icon: 'icon-email',
+                    title: "Não foi possível adicionar esta pasta!",
+                    description: "",
+                    elementID: "#pageMessage",
+                }
 
-          if (result.error.code == "1011") { 
-            message.title = "Não foi possível adicionar uma pasta com esse nome!";
-          } 
+                if (result.error.code == "1011") {
+                    message.title = "Não foi possível adicionar uma pasta com esse nome!";
+                }
 
-          if (result.error.code == "1011") { 
-            message.title = "Não foi possível adicionar uma pasta com esse nome!";
-          } 
+                if (result.error.code == "1011") {
+                    message.title = "Não foi possível adicionar uma pasta com esse nome!";
+                }
 
-          Shared.showMessage(message);
-          
-        }).execute();
+                Shared.showMessage(message);
 
-      }
+            }).execute();
 
-      if (folderAction == "renameFolder") { 
-        foldersCol.renameFolder(folderName,folderID).done(function (result) {
+        }
 
-          var message = {
-            type: "success",
-            icon: 'icon-email',
-            title: "Pasta renomeada com sucesso!",
-            description: "",
-            elementID: "#pageMessage",
-          }
+        if (folderAction == "renameFolder") {
+            foldersCol.renameFolder(folderName, folderID).done(function(result) {
 
-          Shared.showMessage(message);
+                var message = {
+                    type: "success",
+                    icon: 'icon-email',
+                    title: "Pasta renomeada com sucesso!",
+                    description: "",
+                    elementID: "#pageMessage",
+                }
 
-          Shared.deviceType(Shared.isSmartPhoneResolution());
+                Shared.showMessage(message);
 
-          Shared.menuView.refreshFolders();
+                Shared.deviceType(Shared.isSmartPhoneResolution());
 
-          Shared.router.navigate("/Mail/Messages/1/0/" + result.folderID + "#",{ trigger: true });
+                Shared.menuView.refreshFolders();
 
-        }).fail(function (result) {
+                Shared.router.navigate("/Mail/Messages/1/0/" + result.folderID + "#", {
+                    trigger: true
+                });
 
-          var message = {
-            type: "error",
-            icon: 'icon-email',
-            title: "Não foi possível renomear esta pasta!",
-            description: "",
-            elementID: "#pageMessage",
-          }
+            }).fail(function(result) {
 
-          if (result.error.code == "1011") { 
-            message.title = "Não foi possível adicionar uma pasta com esse nome!";
-          } 
+                var message = {
+                    type: "error",
+                    icon: 'icon-email',
+                    title: "Não foi possível renomear esta pasta!",
+                    description: "",
+                    elementID: "#pageMessage",
+                }
 
-          Shared.showMessage(message);
-          
-        }).execute();
+                if (result.error.code == "1011") {
+                    message.title = "Não foi possível adicionar uma pasta com esse nome!";
+                }
 
-      }
+                Shared.showMessage(message);
+
+            }).execute();
+
+        }
 
     },
 
     deleteFolder: function(folderID) {
 
-      var foldersCol =  new FoldersCollection();
+        var foldersCol = new FoldersCollection();
 
-      foldersCol.deleteFolder(folderID).done(function(result) { 
+        foldersCol.deleteFolder(folderID).done(function(result) {
 
-        var message = {
-          type: "success",
-          icon: 'icon-email',
-          title: "A pasta foi excluída com sucesso!",
-          description: "",
-          elementID: "#pageMessage",
-        }
+            var message = {
+                type: "success",
+                icon: 'icon-email',
+                title: "A pasta foi excluída com sucesso!",
+                description: "",
+                elementID: "#pageMessage",
+            }
 
-        Shared.showMessage(message);
-        Shared.menuView.refreshFolders();
+            Shared.showMessage(message);
+            Shared.menuView.refreshFolders();
 
-        Shared.router.navigate("/Mail/Messages/1/0/INBOX#",{ trigger: true }); 
+            Shared.router.navigate("/Mail/Messages/1/0/INBOX#", {
+                trigger: true
+            });
 
-      }).fail(function (result) {
+        }).fail(function(result) {
 
-        var message = {
-          type: "error",
-          icon: 'icon-email',
-          title: "Não foi possível excluir esta pasta!",
-          description: "",
-          elementID: "#pageMessage",
-        }
+            var message = {
+                type: "error",
+                icon: 'icon-email',
+                title: "Não foi possível excluir esta pasta!",
+                description: "",
+                elementID: "#pageMessage",
+            }
 
-        Shared.showMessage(message);
-        
-      }).execute();
+            Shared.showMessage(message);
+
+        }).execute();
 
     }
 
-    
-  });
 
-  return EditFolderView;
-  
 });
+
+export default EditFolderView;

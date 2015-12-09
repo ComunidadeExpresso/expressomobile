@@ -12,4 +12,7 @@ System.config({
     baseURL: '/'
 });
 
-System.import('js/main.js');
+loadMainComponents([
+	'js/main.js'
+]);
+

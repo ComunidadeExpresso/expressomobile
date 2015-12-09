@@ -1,48 +1,48 @@
-define([
-  'jquery',
-  'underscore',
-  'backbone',
-  'shared',
-  'templates/settings/settingsMailSignatureListTemplate.html!text'
-], function($, _, Backbone, Shared, settingsMailSignatureListTemplate){
+import $ from 'jquery';
+import _ from 'underscore';
+import Backbone from 'backbone';
+import Shared from 'shared';
+import settingsMailSignatureListTemplate from 'settingsMailSignatureListTemplate';
 
-  var SettingsMailSignatureListView = Backbone.View.extend({
+var SettingsMailSignatureListView = Backbone.View.extend({
 
     el: $("#content"),
 
-    render: function(){
+    render: function() {
 
-      var mailsign = '';
-      var type_signature = '';
+        var mailsign = '';
+        var type_signature = '';
 
-      var that = this;
+        var that = this;
 
-      Shared.api
-      .resource('Preferences/UserPreferences')
-      .params({"module": "mail"})
-      .done(function(result){
+        Shared.api
+            .resource('Preferences/UserPreferences')
+            .params({
+                "module": "mail"
+            })
+            .done(function(result) {
 
-        mailsign = result.mail.signature;
-        type_signature = result.mail.type_signature;
+                mailsign = result.mail.signature;
+                type_signature = result.mail.type_signature;
 
-        var newData = {
-          _: _ ,
-          mailsignature : mailsign,
-          typeSignature: type_signature
-        };
+                var newData = {
+                    _: _,
+                    mailsignature: mailsign,
+                    typeSignature: type_signature
+                };
 
-        var htmlTemplate = _.template(settingsMailSignatureListTemplate);
-        var compiledTemplate = htmlTemplate(newData);
+                var htmlTemplate = _.template(settingsMailSignatureListTemplate);
+                var compiledTemplate = htmlTemplate(newData);
 
-        that.$el.html( compiledTemplate ); 
+                that.$el.html(compiledTemplate);
 
-        //Shared.setCurrentPageTitle("Assinatura de e-mail");
+                //Shared.setCurrentPageTitle("Assinatura de e-mail");
 
-        Shared.menuView.renderContextMenu('mailsignature',{});
+                Shared.menuView.renderContextMenu('mailsignature', {});
 
-      }).fail(function(result) {
+            }).fail(function(result) {
 
-      }).execute();
+            }).execute();
 
 
 
@@ -51,44 +51,48 @@ define([
 
     SaveMailSignature: function() {
 
-      var value = '';
+        var value = '';
 
-      if ($("#typeSignature").val() == "html") {
-        value = $("#assinaturaEmailHTML").html();
-      } else {
-        value = $("#assinaturaEmail").val();
-      }
+        if ($("#typeSignature").val() == "html") {
+            value = $("#assinaturaEmailHTML").html();
+        } else {
+            value = $("#assinaturaEmail").val();
+        }
 
-      Shared.api
-      .resource('Preferences/ChangeUserPreferences')
-      .params({"module": "mail","preference":"signature","value":value})
-      .done(function(result){
+        Shared.api
+            .resource('Preferences/ChangeUserPreferences')
+            .params({
+                "module": "mail",
+                "preference": "signature",
+                "value": value
+            })
+            .done(function(result) {
 
-        Shared.settings.mailSignature = value;
-        Shared.settings.typeSignature = $("#typeSignature").val();
+                Shared.settings.mailSignature = value;
+                Shared.settings.typeSignature = $("#typeSignature").val();
 
-        Shared.saveSettingsToLocalStorage();
+                Shared.saveSettingsToLocalStorage();
 
-        Shared.showMessage({
-          type: "success",
-          icon: 'icon-settings',
-          title: "Sua preferência foi salva com sucesso!",
-          description: "",
-          elementID: "#pageMessage",
-        });
+                Shared.showMessage({
+                    type: "success",
+                    icon: 'icon-settings',
+                    title: "Sua preferência foi salva com sucesso!",
+                    description: "",
+                    elementID: "#pageMessage",
+                });
 
-        Shared.router.navigate("/Settings",{trigger: true});
+                Shared.router.navigate("/Settings", {
+                    trigger: true
+                });
 
-      }).fail(function(result) {
+            }).fail(function(result) {
 
-      }).execute();
+            }).execute();
 
-      
+
 
     },
 
-  });
-
-  return SettingsMailSignatureListView;
-  
 });
+
+export default SettingsMailSignatureListView;

@@ -1,992 +1,1040 @@
-define([
-  'jquery',
-  'underscore',
-  'backbone',
-  'shared',
-  'autocomplete',
-  'js/views/calendar/CalendarEditEventAddParticipantsView.js',
-  'templates/mail/composeMessageTemplate.html!text',
-  'js/models/mail/MessagesModel.js',
-  'js/collections/mail/MessagesCollection.js',
-  'js/collections/home/ContextMenuCollection.js',
-  'js/views/mail/PreviewAttachmentMessageView.js',
-  'js/views/home/LoadingView.js',
-  'js/collections/contacts/ContactsListCollection.js',
+import $ from 'jquery';
+import _ from 'underscore';
+import Backbone from 'backbone';
+import Shared from 'shared';
+import AutoComplete from 'autocomplete';
+import CalendarEditEventAddParticipantsView from 'CalendarEditEventAddParticipantsView';
+import composeMessageTemplate from 'composeMessageTemplate';
+import MessagesModel from 'MessagesModel';
+import MessagesCollection from 'MessagesCollection';
+import ContextMenuCollection from 'ContextMenuCollection';
+import PreviewAttachmentMessageView from 'PreviewAttachmentMessageView';
+import LoadingView from 'LoadingView';
+import ContactsListCollection from 'ContactsListCollection';
 
-], function($, _, Backbone, Shared, AutoComplete, CalendarEditEventAddParticipantsView ,composeMessageTemplate,MessagesModel,MessagesCollection,ContextMenuCollection,PreviewAttachmentMessageView,LoadingView,ContactsListCollection){
-
-  var ComposeMessageView = Backbone.View.extend({
+var ComposeMessageView = Backbone.View.extend({
 
     secondViewName: '',
     emailTo: '',
     msgID: '',
     folderID: '',
-    currentMessage : '',
+    currentMessage: '',
 
 
     addContactToField: function(params) {
 
-      for (var i = 0, f; participant = params.listParticipants[i]; i++) {
-        params.model.addRecipient(params.model.get("currentField"), participant.participantMail, participant.participantName);
-      }
+        for (var i = 0, f; participant = params.listParticipants[i]; i++) {
+            params.model.addRecipient(params.model.get("currentField"), participant.participantMail, participant.participantName);
+        }
 
-      this.renderComposeMessage(params.model,false);
+        this.renderComposeMessage(params.model, false);
     },
 
-    renderComposeMessage: function(pMessage,signature,pMsgType,pMsgOriginal) {
-      var elementID = "#contentDetail";
+    renderComposeMessage: function(pMessage, signature, pMsgType, pMsgOriginal) {
+        var elementID = "#contentDetail";
 
-      if (Shared.isSmartPhoneResolution()) {
-        elementID = "#content";
-      }
+        if (Shared.isSmartPhoneResolution()) {
+            elementID = "#content";
+        }
 
-      var withSignature = true;
+        var withSignature = true;
 
-      if (signature == false) {
-        withSignature = false;
-      }
+        if (signature == false) {
+            withSignature = false;
+        }
 
-      var newData = {
-        _: _,
-        message: pMessage,
-        isDesktop: Shared.isDesktop(),
-        withSignature: withSignature,
-        msgType: pMsgType,
-        msgOriginal: pMsgOriginal,
-        Shared: Shared,
-      };
-
-      
-      var htmlTemplate = _.template(composeMessageTemplate);
-      var compiledTemplate = htmlTemplate(newData);
-
-      this.$el.html("");
-      this.$el.html(compiledTemplate);
-      
-      var withDialog = false;
-
-      if (withDialog) {
-        // this.$el.wijdialog({
-        //   autoOpen: true,
-        //   title: "Nova Mensagem",
-        //   draggable: true,
-        //   dialogClass: "compose-dialog-box",
-        //   captionButtons: {
-        //       pin: { visible: false },
-        //       refresh: { visible: false },
-        //       toggle: { visible: false },
-        //       minimize: { visible: true },
-        //       maximize: { visible: false }
-        //   },
-        //   resizable: true,
-        //   position: [0,0],
-        //   close: function(){
-        //     $(this).wijdialog ("destroy");
-        //   }
-        // });
-      } else {
-        $(elementID).empty().append(this.$el);
-      }
-
-      if (Shared.isDesktop()) {
-        //ENABLE ATTACHMENTS, DROP ZONE AND AUTO-COMPLETE.
-
-        var that = this;
-
-        var handleDragOverDropZone = function(evt) {
-          evt.stopPropagation();
-          evt.preventDefault();
-          evt.dataTransfer.dropEffect = 'copy'; 
+        var newData = {
+            _: _,
+            message: pMessage,
+            isDesktop: Shared.isDesktop(),
+            withSignature: withSignature,
+            msgType: pMsgType,
+            msgOriginal: pMsgOriginal,
+            Shared: Shared,
         };
 
-        var handleFileSelectInDropZone = function(evt) {
 
-          evt.stopPropagation();
-          evt.preventDefault();
+        var htmlTemplate = _.template(composeMessageTemplate);
+        var compiledTemplate = htmlTemplate(newData);
 
-          var files = evt.dataTransfer.files; 
+        this.$el.html("");
+        this.$el.html(compiledTemplate);
 
-          var fileID = Shared.currentDraftMessage.getQtdFiles();
+        var withDialog = false;
 
-          for (var i = 0, f; f = files[i]; i++) {
+        if (withDialog) {
+            // this.$el.wijdialog({
+            //   autoOpen: true,
+            //   title: "Nova Mensagem",
+            //   draggable: true,
+            //   dialogClass: "compose-dialog-box",
+            //   captionButtons: {
+            //       pin: { visible: false },
+            //       refresh: { visible: false },
+            //       toggle: { visible: false },
+            //       minimize: { visible: true },
+            //       maximize: { visible: false }
+            //   },
+            //   resizable: true,
+            //   position: [0,0],
+            //   close: function(){
+            //     $(this).wijdialog ("destroy");
+            //   }
+            // });
+        } else {
+            $(elementID).empty().append(this.$el);
+        }
 
-            that.prependAttachmentImage(fileID,f.name,f.size,'binary',files[i]);
+        if (Shared.isDesktop()) {
+            //ENABLE ATTACHMENTS, DROP ZONE AND AUTO-COMPLETE.
 
-            Shared.currentDraftMessage.addBinaryFile(fileID,escape(f.name),files[i]);
+            var that = this;
 
-            fileID = fileID + 1;
+            var handleDragOverDropZone = function(evt) {
+                evt.stopPropagation();
+                evt.preventDefault();
+                evt.dataTransfer.dropEffect = 'copy';
+            };
 
-          }
+            var handleFileSelectInDropZone = function(evt) {
 
-          that.updateBody();
-        };
+                evt.stopPropagation();
+                evt.preventDefault();
 
-        var dropZone = document.getElementById('msgAttachmentsRecipients');
-        $(dropZone).addClass("drop_zone");
-        $("#msgAttachmentsRow").removeClass("hidden");
-        dropZone.addEventListener('dragover', handleDragOverDropZone, false);
-        dropZone.addEventListener('drop', handleFileSelectInDropZone, false);
-        
-        this.setupAutoComplete();
+                var files = evt.dataTransfer.files;
 
-      } 
+                var fileID = Shared.currentDraftMessage.getQtdFiles();
 
-      
+                for (var i = 0, f; f = files[i]; i++) {
 
-      this.renderContextMenu();
+                    that.prependAttachmentImage(fileID, f.name, f.size, 'binary', files[i]);
 
-      this.loaded();
+                    Shared.currentDraftMessage.addBinaryFile(fileID, escape(f.name), files[i]);
+
+                    fileID = fileID + 1;
+
+                }
+
+                that.updateBody();
+            };
+
+            var dropZone = document.getElementById('msgAttachmentsRecipients');
+            $(dropZone).addClass("drop_zone");
+            $("#msgAttachmentsRow").removeClass("hidden");
+            dropZone.addEventListener('dragover', handleDragOverDropZone, false);
+            dropZone.addEventListener('drop', handleFileSelectInDropZone, false);
+
+            this.setupAutoComplete();
+
+        }
+
+
+
+        this.renderContextMenu();
+
+        this.loaded();
     },
 
     renderAttachments: function(message) {
 
-      this.showAttachments();
+        this.showAttachments();
 
-      Shared.currentDraftMessage.clearFiles();
+        Shared.currentDraftMessage.clearFiles();
 
-      if (message != undefined) {
-        
-        var attachments = message.get("msgAttachments");
-        for (var i in attachments) {
+        if (message != undefined) {
 
-          var attachment = attachments[i];
+            var attachments = message.get("msgAttachments");
+            for (var i in attachments) {
 
-          var preview = new PreviewAttachmentMessageView();
+                var attachment = attachments[i];
 
-          preview.fileID = attachment.attachmentID;
-          preview.fileName = attachment.attachmentName;
-          preview.fileSize = attachment.attachmentSize;
-          preview.fileEncoding = attachment.attachmentEncoding;
-          preview.fileIndex = attachment.attachmentIndex;
-          preview.msgID = message.get("msgID");
-          preview.folderID = message.get("folderID");
-          preview.fileData = '';
+                var preview = new PreviewAttachmentMessageView();
 
-          preview.previewType = 'compose';
+                preview.fileID = attachment.attachmentID;
+                preview.fileName = attachment.attachmentName;
+                preview.fileSize = attachment.attachmentSize;
+                preview.fileEncoding = attachment.attachmentEncoding;
+                preview.fileIndex = attachment.attachmentIndex;
+                preview.msgID = message.get("msgID");
+                preview.folderID = message.get("folderID");
+                preview.fileData = '';
 
-          var OnDownloadFile = function(fileID,fileData,fileName,fileType) {
-            Shared.currentDraftMessage.addFile(fileID,fileData,fileName,fileType);
-          }
+                preview.previewType = 'compose';
 
-          preview.forceDownloadFile = OnDownloadFile;
+                var OnDownloadFile = function(fileID, fileData, fileName, fileType) {
+                    Shared.currentDraftMessage.addFile(fileID, fileData, fileName, fileType);
+                }
 
-          preview.render();
+                preview.forceDownloadFile = OnDownloadFile;
+
+                preview.render();
+            }
+
         }
-
-      }
     },
 
     setupAutoComplete: function() {
 
-      if (Shared.userHasModule("catalog")) {
+        if (Shared.userHasModule("catalog")) {
 
-        var that = this;
-        var contactsData = new ContactsListCollection();
-          contactsData.done(function (data) 
-          {
+            var that = this;
+            var contactsData = new ContactsListCollection();
+            contactsData.done(function(data) {
 
-            var ThatClass = that;
+                    var ThatClass = that;
 
-              var onSelectMsgToFunction = function(model) {
-                var prefix = "msgTo";
-                $("#" + prefix + "Input").val("");
-                ThatClass.prependEmailRecipientBadgeToDiv(prefix,"#" + prefix + "Recipients",model.getEmailString(),model.get('contactFirstName') + " " + model.get('contactLastName'));
-              };
+                    var onSelectMsgToFunction = function(model) {
+                        var prefix = "msgTo";
+                        $("#" + prefix + "Input").val("");
+                        ThatClass.prependEmailRecipientBadgeToDiv(prefix, "#" + prefix + "Recipients", model.getEmailString(), model.get('contactFirstName') + " " + model.get('contactLastName'));
+                    };
 
-              var onSelectMsgCcFunction = function(model) {
-                var prefix = "msgCc";
-                $("#" + prefix + "Input").val("");
-                ThatClass.prependEmailRecipientBadgeToDiv(prefix,"#" + prefix + "Recipients",model.getEmailString(),model.get('contactFirstName') + " " + model.get('contactLastName'));
-              };
+                    var onSelectMsgCcFunction = function(model) {
+                        var prefix = "msgCc";
+                        $("#" + prefix + "Input").val("");
+                        ThatClass.prependEmailRecipientBadgeToDiv(prefix, "#" + prefix + "Recipients", model.getEmailString(), model.get('contactFirstName') + " " + model.get('contactLastName'));
+                    };
 
-              var onSelectMsgBccFunction = function(model) {
-                var prefix = "msgBcc";
-                $("#" + prefix + "Input").val("");
-                ThatClass.prependEmailRecipientBadgeToDiv(prefix,"#" + prefix + "Recipients",model.getEmailString(),model.get('contactFirstName') + " " + model.get('contactLastName'));
-              };
-              
-              $('#msgToInput').autocomplete({
-                collection: data,
-                attr: 'contactSearchString',
-                attrID: 'contactID',
-                noCase: true,
-                width: '95%',
-                onselect: onSelectMsgToFunction,
-                ul_class: 'autocomplete shadow',
-                ul_css: {'z-index':1234},
-                max_results: 10
-              });
+                    var onSelectMsgBccFunction = function(model) {
+                        var prefix = "msgBcc";
+                        $("#" + prefix + "Input").val("");
+                        ThatClass.prependEmailRecipientBadgeToDiv(prefix, "#" + prefix + "Recipients", model.getEmailString(), model.get('contactFirstName') + " " + model.get('contactLastName'));
+                    };
 
-              $('#msgCcInput').autocomplete({
-                collection: data,
-                attr: 'contactSearchString',
-                attrID: 'contactID',
-                noCase: true,
-                width: '95%',
-                onselect: onSelectMsgCcFunction,
-                ul_class: 'autocomplete shadow',
-                ul_css: {'z-index':1234},
-                max_results: 10
-              });
+                    $('#msgToInput').autocomplete({
+                        collection: data,
+                        attr: 'contactSearchString',
+                        attrID: 'contactID',
+                        noCase: true,
+                        width: '95%',
+                        onselect: onSelectMsgToFunction,
+                        ul_class: 'autocomplete shadow',
+                        ul_css: {
+                            'z-index': 1234
+                        },
+                        max_results: 10
+                    });
 
-              $('#msgBccInput').autocomplete({
-                collection: data,
-                attr: 'contactSearchString',
-                attrID: 'contactID',
-                noCase: true,
-                width: '95%',
-                onselect: onSelectMsgBccFunction,
-                ul_class: 'autocomplete shadow',
-                ul_css: {'z-index':1234},
-                max_results: 10
-              });
-          })
-          .fail(function (data) 
-          {
-            // callbackFail({ error: data.error, _: _ });
-          }).getContacts('', '1');
+                    $('#msgCcInput').autocomplete({
+                        collection: data,
+                        attr: 'contactSearchString',
+                        attrID: 'contactID',
+                        noCase: true,
+                        width: '95%',
+                        onselect: onSelectMsgCcFunction,
+                        ul_class: 'autocomplete shadow',
+                        ul_css: {
+                            'z-index': 1234
+                        },
+                        max_results: 10
+                    });
+
+                    $('#msgBccInput').autocomplete({
+                        collection: data,
+                        attr: 'contactSearchString',
+                        attrID: 'contactID',
+                        noCase: true,
+                        width: '95%',
+                        onselect: onSelectMsgBccFunction,
+                        ul_class: 'autocomplete shadow',
+                        ul_css: {
+                            'z-index': 1234
+                        },
+                        max_results: 10
+                    });
+                })
+                .fail(function(data) {
+                    // callbackFail({ error: data.error, _: _ });
+                }).getContacts('', '1');
 
         }
     },
 
     getContextMenuParams: function() {
-      var params = {};
-      params.sendCallBack = this.sendMessage;
-      params.addCcBccCallBack = this.addCcBcc;
-      params.removeCcBccCallBack = this.removeCcBcc;
-      params.takePictureCallBack = this.takePicture;
-      params.selectAttachmentFileCallBack = this.selectAttachmentFile;
-      params.selectPictureCallBack = this.selectPicture;
-      params.parentCallBack = this;
-      return params;
+        var params = {};
+        params.sendCallBack = this.sendMessage;
+        params.addCcBccCallBack = this.addCcBcc;
+        params.removeCcBccCallBack = this.removeCcBcc;
+        params.takePictureCallBack = this.takePicture;
+        params.selectAttachmentFileCallBack = this.selectAttachmentFile;
+        params.selectPictureCallBack = this.selectPicture;
+        params.parentCallBack = this;
+        return params;
     },
 
     renderContextMenu: function() {
-      
-      var params = this.getContextMenuParams();
 
-      if ($("#msgCcRow").hasClass("hidden")) {
-        Shared.menuView.renderContextMenu('newMessage',params);
-      } else {
-        Shared.menuView.renderContextMenu('newMessageWithCc',params);
-      }
+        var params = this.getContextMenuParams();
+
+        if ($("#msgCcRow").hasClass("hidden")) {
+            Shared.menuView.renderContextMenu('newMessage', params);
+        } else {
+            Shared.menuView.renderContextMenu('newMessageWithCc', params);
+        }
     },
 
     sendMessage: function(thisView) {
 
-      var that = thisView;
+        var that = thisView;
 
-      var elementID = "#contentDetail";
+        var elementID = "#contentDetail";
 
-      if (Shared.isSmartPhoneResolution()) {
-        elementID = "#content";
-      }
-
-      var onSendMessage = function(result) {
-
-        var res = JSON.parse(result);
-
-        if (res.error == undefined) {
-          var message = {
-            type: "success",
-            icon: 'icon-email',
-            title: "Mensagem enviada com sucesso!",
-            description: "",
-            elementID: "#pageMessage",
-          }
-
-        } else {
-
-          var message = {
-            type: "error",
-            icon: 'icon-email',
-            title: "Sua Mensagem não pode ser enviada!",
-            description: "",
-            elementID: "#pageMessage",
-          }
-
-        }
-      
-        Shared.showMessage(message);
-
-        Shared.router.navigate("/Mail/Messages/1/0/INBOX",{ trigger: true });
-
-      };
-
-      var onFailSendMessage = function(error) {
-
-        var message = {
-          type: "error",
-          icon: 'icon-email',
-          title: "Ocorreu um erro ao enviar a mensagem!",
-          description: error.message,
-          elementID: "#pageMessage",
+        if (Shared.isSmartPhoneResolution()) {
+            elementID = "#content";
         }
 
-        Shared.showMessage(message);
+        var onSendMessage = function(result) {
 
-        Shared.router.navigate("/Mail/Messages/1/0/INBOX",{ trigger: true });
-        
-      };
+            var res = JSON.parse(result);
 
-      var Message = thisView.getNewMessageModel();
+            if (res.error == undefined) {
+                var message = {
+                    type: "success",
+                    icon: 'icon-email',
+                    title: "Mensagem enviada com sucesso!",
+                    description: "",
+                    elementID: "#pageMessage",
+                }
 
-      var msgTo = thisView.getMessageStringForRecipient("msgTo");
+            } else {
 
-      var errors = false;
+                var message = {
+                    type: "error",
+                    icon: 'icon-email',
+                    title: "Sua Mensagem não pode ser enviada!",
+                    description: "",
+                    elementID: "#pageMessage",
+                }
 
-      if (msgTo == "") {
-        var message = {
-          type: "error",
-          icon: 'icon-email',
-          title: "Campo 'Para:' Não informado/Inválido!",
-          description: "",
-          elementID: "#pageMessage",
+            }
+
+            Shared.showMessage(message);
+
+            Shared.router.navigate("/Mail/Messages/1/0/INBOX", {
+                trigger: true
+            });
+
+        };
+
+        var onFailSendMessage = function(error) {
+
+            var message = {
+                type: "error",
+                icon: 'icon-email',
+                title: "Ocorreu um erro ao enviar a mensagem!",
+                description: error.message,
+                elementID: "#pageMessage",
+            }
+
+            Shared.showMessage(message);
+
+            Shared.router.navigate("/Mail/Messages/1/0/INBOX", {
+                trigger: true
+            });
+
+        };
+
+        var Message = thisView.getNewMessageModel();
+
+        var msgTo = thisView.getMessageStringForRecipient("msgTo");
+
+        var errors = false;
+
+        if (msgTo == "") {
+            var message = {
+                type: "error",
+                icon: 'icon-email',
+                title: "Campo 'Para:' Não informado/Inválido!",
+                description: "",
+                elementID: "#pageMessage",
+            }
+            Shared.showMessage(message);
+            errors = true;
         }
-        Shared.showMessage(message);
-        errors = true;
-      }
 
-      var checkAttachments = Message.checkAttachments(false);
+        var checkAttachments = Message.checkAttachments(false);
 
-      if (checkAttachments != true) {
-        var message = {
-          type: "error",
-          icon: 'icon-email',
-          title: checkAttachments,
-          description: "",
-          elementID: "#pageMessage",
+        if (checkAttachments != true) {
+            var message = {
+                type: "error",
+                icon: 'icon-email',
+                title: checkAttachments,
+                description: "",
+                elementID: "#pageMessage",
+            }
+            Shared.showMessage(message);
+            errors = true;
         }
-        Shared.showMessage(message);
-        errors = true;
-      }
 
-      if (!errors) {
-        var loadingView = new LoadingView({ el: $(elementID) });
-        loadingView.render();
+        if (!errors) {
+            var loadingView = new LoadingView({
+                el: $(elementID)
+            });
+            loadingView.render();
 
-        Message.send(onSendMessage,onFailSendMessage);
-      }
-      
+            Message.send(onSendMessage, onFailSendMessage);
+        }
+
     },
 
     onFailUploadPicture: function(message) {
-       Shared.showMessage({
-          type: "warning",
-          icon: 'icon-email',
-          title: "Não foi possível adicionar a foto aos anexos!",
-          description: "",
-          elementID: "#pageMessage",
+        Shared.showMessage({
+            type: "warning",
+            icon: 'icon-email',
+            title: "Não foi possível adicionar a foto aos anexos!",
+            description: "",
+            elementID: "#pageMessage",
         });
     },
 
     uploadPicture: function(imageData) {
 
-      var that = Shared.currentView;
+        var that = Shared.currentView;
 
-      that.showAttachments();
+        that.showAttachments();
 
-      var fileID = Shared.currentDraftMessage.getQtdFiles();
+        var fileID = Shared.currentDraftMessage.getQtdFiles();
 
-      that.prependAttachmentImage(fileID,'Foto ' + fileID + ".png",'','base64',imageData);
+        that.prependAttachmentImage(fileID, 'Foto ' + fileID + ".png", '', 'base64', imageData);
 
-      Shared.currentDraftMessage.addFile(fileID,imageData,'Foto ' + fileID + ".png","base64");
+        Shared.currentDraftMessage.addFile(fileID, imageData, 'Foto ' + fileID + ".png", "base64");
 
-      that.renderContextMenu();
+        that.renderContextMenu();
     },
 
     selectPicture: function(thisView) {
 
         if ((Shared.isPhonegap()) && (navigator.camera != undefined)) {
 
-          Shared.currentView = thisView;
+            Shared.currentView = thisView;
 
-          navigator.camera.getPicture(thisView.uploadPicture, thisView.onFailUploadPicture, { quality: 60, 
-            destinationType: Camera.DestinationType.DATA_URL, sourceType: Camera.PictureSourceType.PHOTOLIBRARY }); 
+            navigator.camera.getPicture(thisView.uploadPicture, thisView.onFailUploadPicture, {
+                quality: 60,
+                destinationType: Camera.DestinationType.DATA_URL,
+                sourceType: Camera.PictureSourceType.PHOTOLIBRARY
+            });
         } else {
-          Shared.showMessage({
-            type: "error",
-            icon: 'icon-email',
-            title: "Seu dispositivo não possui câmera!",
-            description: "",
-            elementID: "#pageMessage",
-          });
+            Shared.showMessage({
+                type: "error",
+                icon: 'icon-email',
+                title: "Seu dispositivo não possui câmera!",
+                description: "",
+                elementID: "#pageMessage",
+            });
         }
     },
 
     takePicture: function(thisView) {
 
 
-      if ((Shared.isPhonegap()) && (navigator.camera != undefined)) {
+        if ((Shared.isPhonegap()) && (navigator.camera != undefined)) {
 
-        Shared.currentView = thisView;
+            Shared.currentView = thisView;
 
-        navigator.camera.getPicture(thisView.uploadPicture, thisView.onFailUploadPicture, { quality: 60, destinationType: Camera.DestinationType.DATA_URL }); 
-      } else {
+            navigator.camera.getPicture(thisView.uploadPicture, thisView.onFailUploadPicture, {
+                quality: 60,
+                destinationType: Camera.DestinationType.DATA_URL
+            });
+        } else {
 
-          Shared.showMessage({
-            type: "error",
-            icon: 'icon-email',
-            title: "Seu dispositivo não possui câmera!",
-            description: "",
-            elementID: "#pageMessage",
-          });
+            Shared.showMessage({
+                type: "error",
+                icon: 'icon-email',
+                title: "Seu dispositivo não possui câmera!",
+                description: "",
+                elementID: "#pageMessage",
+            });
 
-      }
+        }
 
     },
 
     selectAttachmentFile: function(thisView) {
 
-      Shared.currentView = thisView;
+        Shared.currentView = thisView;
 
-      $("#attachment_input").click();
+        $("#attachment_input").click();
 
-      thisView.renderContextMenu();
+        thisView.renderContextMenu();
 
     },
 
     addAttachmentFile: function(evt) {
 
-      evt.stopPropagation();
-      evt.preventDefault();
-
-      $("#msgAttachmentsRow").removeClass("hidden");
-
-      var that = this;
-      var files = evt.target.files; 
-
-      for (var i = 0, f; f = files[i]; i++) {
-
-        var fileID = Shared.currentDraftMessage.getQtdFiles();
-
-        that.prependAttachmentImage(fileID,f.name,f.size,'binary',files[i]);
-
-        Shared.currentDraftMessage.addBinaryFile(fileID,escape(f.name),files[i]);
-      }
-
-      var control = $("#attachment_input");
-      control.replaceWith( control = control.clone( true ) );
-
-    },
-
-    render: function(){
-
-      var elementID = "#contentDetail";
-
-      var that = this;
-
-      if (Shared.isSmartPhoneResolution()) {
-        elementID = "#content";
-      }
-
-      if (this.secondViewName == "New") {
-
-        var pMessage = new MessagesModel();
-        pMessage.set("msgSubject","");
-        pMessage.set("msgTo",[]);
-        pMessage.set("msgCc",[]);
-        pMessage.set("msgBcc",[]);
-        pMessage.set("msgBody","");
-        pMessage.clearFiles();
-
-        if ($.trim(this.emailTo) != '')
-          pMessage.addRecipient("msgTo", this.emailTo, '');
-
-        var that = this;
-
-        that.renderComposeMessage(pMessage,true,'new');
+        evt.stopPropagation();
+        evt.preventDefault();
 
         $("#msgAttachmentsRow").removeClass("hidden");
 
-        var callbackDone = function(currentMessage) {
+        var that = this;
+        var files = evt.target.files;
 
-          Shared.currentDraftMessage = currentMessage;
+        for (var i = 0, f; f = files[i]; i++) {
 
-          var files = Shared.currentDraftMessage.get("files");
+            var fileID = Shared.currentDraftMessage.getQtdFiles();
 
-          if (!Shared.isDesktop()) {
-            $("#msgAttachmentsRecipients").empty();
-          }
+            that.prependAttachmentImage(fileID, f.name, f.size, 'binary', files[i]);
 
-          for (var i = 0, f; f = files[i]; i++) {
+            Shared.currentDraftMessage.addBinaryFile(fileID, escape(f.name), files[i]);
+        }
 
-            that.prependAttachmentImage(f.fileID,f.filename,f.fileSize,f.dataType,f.src);
+        var control = $("#attachment_input");
+        control.replaceWith(control = control.clone(true));
 
-          }
+    },
 
-        };
+    render: function() {
 
-        pMessage.addNewMessageFiles(callbackDone);
-
-      }
-
-      if (this.secondViewName == "DelMessage") {
-
-        var loadingView = new LoadingView({ el: $(elementID) });
-        loadingView.render();
+        var elementID = "#contentDetail";
 
         var that = this;
 
-        var onDeleteMessage = function() {
+        if (Shared.isSmartPhoneResolution()) {
+            elementID = "#content";
+        }
 
-          Shared.showMessage({
-            type: "success",
-            icon: 'icon-email',
-            title: "Mensagem apagada com sucesso!",
-            description: "",
-            elementID: "#pageMessage",
-          });
+        if (this.secondViewName == "New") {
 
-          var message = { msgID: that.msgID, folderID: that.folderID};
-          var mModel = new MessagesModel(message);
+            var pMessage = new MessagesModel();
+            pMessage.set("msgSubject", "");
+            pMessage.set("msgTo", []);
+            pMessage.set("msgCc", []);
+            pMessage.set("msgBcc", []);
+            pMessage.set("msgBody", "");
+            pMessage.clearFiles();
 
-          if (Shared.isTabletResolution()) {
+            if ($.trim(this.emailTo) != '')
+                pMessage.addRecipient("msgTo", this.emailTo, '');
 
-            $("#" + mModel.listItemID()).animate({
-              opacity: 0.25,
-              height: "toggle"
-            }, 1000, function() {
+            var that = this;
 
-              $("#" + mModel.listItemID()).remove();
-              $("#scrollerList li:first").addClass("selected");
-              $("#" + mModel.listItemID()).animate({
-                opacity: 1,
-              }, 1000, function() { });
+            that.renderComposeMessage(pMessage, true, 'new');
 
-              var messageID = 0;
-              var forceReload = 0;
-              if ($("#scrollerList li:first").length !== 0) {
-                var selectedItemID = $("#scrollerList li:first").attr('id').split("_");
-                messageID = selectedItemID[selectedItemID.length - 1];
-              }
+            $("#msgAttachmentsRow").removeClass("hidden");
 
-              if (messageID == undefined) {
-                messageID = 0;
-                forceReload = 1;
-              }
+            var callbackDone = function(currentMessage) {
 
-              Shared.router.navigate("/Mail/Messages/" + forceReload + "/" +  messageID + "/" + that.folderID,{ trigger: true });
+                Shared.currentDraftMessage = currentMessage;
 
+                var files = Shared.currentDraftMessage.get("files");
+
+                if (!Shared.isDesktop()) {
+                    $("#msgAttachmentsRecipients").empty();
+                }
+
+                for (var i = 0, f; f = files[i]; i++) {
+
+                    that.prependAttachmentImage(f.fileID, f.filename, f.fileSize, f.dataType, f.src);
+
+                }
+
+            };
+
+            pMessage.addNewMessageFiles(callbackDone);
+
+        }
+
+        if (this.secondViewName == "DelMessage") {
+
+            var loadingView = new LoadingView({
+                el: $(elementID)
             });
-            
+            loadingView.render();
 
-          } else {
-            Shared.router.navigate("/Mail/Messages/1/0/" + that.folderID,{ trigger: true });
-          }
+            var that = this;
 
-        };
+            var onDeleteMessage = function() {
 
-        var onFailDeleteMessage = function() {
-          Shared.showMessage({
-            type: "error",
-            icon: 'icon-email',
-            title: "Não foi possível apagar a mensagem selecionada!",
-            description: "",
-            elementID: "#pageMessage",
-          });
+                Shared.showMessage({
+                    type: "success",
+                    icon: 'icon-email',
+                    title: "Mensagem apagada com sucesso!",
+                    description: "",
+                    elementID: "#pageMessage",
+                });
 
-          Shared.router.navigate("/Mail/Messages/1/0/" + that.folderID + "#",{ trigger: true });
-        };
+                var message = {
+                    msgID: that.msgID,
+                    folderID: that.folderID
+                };
+                var mModel = new MessagesModel(message);
 
-        var message = { msgID: this.msgID, folderID: this.folderID};
-        var mModel = new MessagesModel(message);
+                if (Shared.isTabletResolution()) {
 
-        mModel.delete(onDeleteMessage,onFailDeleteMessage);
-        
-      }
+                    $("#" + mModel.listItemID()).animate({
+                        opacity: 0.25,
+                        height: "toggle"
+                    }, 1000, function() {
 
-      if (this.secondViewName == "ReplyToAll") {
-        
-        
+                        $("#" + mModel.listItemID()).remove();
+                        $("#scrollerList li:first").addClass("selected");
+                        $("#" + mModel.listItemID()).animate({
+                            opacity: 1,
+                        }, 1000, function() {});
 
-        var ReplyOnGetMessage = function(result) {
+                        var messageID = 0;
+                        var forceReload = 0;
+                        if ($("#scrollerList li:first").length !== 0) {
+                            var selectedItemID = $("#scrollerList li:first").attr('id').split("_");
+                            messageID = selectedItemID[selectedItemID.length - 1];
+                        }
 
-          var originalMessage = result.models[0];
+                        if (messageID == undefined) {
+                            messageID = 0;
+                            forceReload = 1;
+                        }
 
-          var newMessage = new MessagesModel();
+                        Shared.router.navigate("/Mail/Messages/" + forceReload + "/" + messageID + "/" + that.folderID, {
+                            trigger: true
+                        });
 
-          var from = originalMessage.get("msgFrom");
-          var msgTo = originalMessage.get("msgTo");
-          var msgCc = originalMessage.get("msgCC");
-          var msgBcc = originalMessage.get("msgBcc");
-
-          var myEmail = Shared.profile.contactMails[0];
-
-          newMessage.set("msgTo",[]);
-          newMessage.set("msgCc",[]);
-          newMessage.set("msgBcc",[]);
-
-          newMessage.addRecipient("msgTo",from.mailAddress, from.fullName);
-          for (var i in msgTo) {
-            if ((msgTo[i].mailAddress != from.mailAddress) && (msgTo[i].mailAddress != myEmail)) {
-              newMessage.addRecipient("msgCc",msgTo[i].mailAddress,msgTo[i].fullName);
-            }
-          }
-          for (var i in msgCc) {
-            newMessage.addRecipient("msgCc",msgCc[i].mailAddress,msgCc[i].fullName);
-          }
-          
-          newMessage.set("msgSubject","Re: " + originalMessage.get("msgSubject"));
-
-          Shared.currentDraftMessage = newMessage;
-
-          that.renderComposeMessage(newMessage,true,'reply',originalMessage);
-
-        };
-        var ReplyOnGetMessageFailed = function() {
-          
-        };
-
-        var loadingView = new LoadingView({ el: $(elementID) });
-        loadingView.render();
-
-        var mCollection = new MessagesCollection();
-
-        mCollection.getMessageByID( this.folderID, this.msgID).done(ReplyOnGetMessage).fail(ReplyOnGetMessageFailed).execute();
-
-      }
-
-      if (this.secondViewName == "ReplyMessage") {
-
-        var ReplyOnGetMessage = function(result) {
-
-          var originalMessage = result.models[0];
-
-          var newMessage = new MessagesModel();
-
-          var from = originalMessage.get("msgFrom");
-
-          newMessage.set("msgTo",[]);
-          newMessage.addRecipient("msgTo",from.mailAddress, from.fullName);
-          newMessage.set("msgSubject","Re: " + originalMessage.get("msgSubject"));
-
-          Shared.currentDraftMessage = newMessage;
-
-          that.renderComposeMessage(newMessage,true,'reply',originalMessage);
-
-          
-        };
-        var ReplyOnGetMessageFailed = function() {
-          
-        };
-
-        var loadingView = new LoadingView({ el: $(elementID) });
-        loadingView.render();
-
-        var mCollection = new MessagesCollection();
-
-        mCollection.getMessageByID( this.folderID, this.msgID).done(ReplyOnGetMessage).fail(ReplyOnGetMessageFailed).execute();
-
-      }
-
-      if (this.secondViewName == "Forward") {
-        
-        var ForwardOnGetMessage = function(result) {
-
-          var originalMessage = result.models[0];
-
-          var newMessage = new MessagesModel();
-
-          newMessage.set("msgID",originalMessage.get("msgID"));
-          newMessage.set("folderID",originalMessage.get("folderID"));
-
-          newMessage.set("msgTo",[]);
-          newMessage.set("msgCc",[]);
-          newMessage.set("msgBcc",[]);
-          newMessage.set("msgSubject","Fw: " + originalMessage.get("msgSubject"));
-
-          Shared.currentDraftMessage = newMessage;
-
-          if (originalMessage.get("msgHasAttachments") == "1") {
-            newMessage.set("msgHasAttachments","1");
-            newMessage.set("msgAttachments",originalMessage.get("msgAttachments"));
-            newMessage.set("files",originalMessage.get("files"));
-          }
-
-          that.renderComposeMessage(newMessage,true,'forward',originalMessage);
-
-          if (originalMessage.get("msgHasAttachments") == "1") {
-            that.renderAttachments(Shared.currentDraftMessage);
-          }
+                    });
 
 
-        };
-        var ForwardOnGetMessageFailed = function() {
-          
-        };
+                } else {
+                    Shared.router.navigate("/Mail/Messages/1/0/" + that.folderID, {
+                        trigger: true
+                    });
+                }
 
-        var loadingView = new LoadingView({ el: $(elementID) });
-        loadingView.render();
+            };
 
-        var mCollection = new MessagesCollection();
+            var onFailDeleteMessage = function() {
+                Shared.showMessage({
+                    type: "error",
+                    icon: 'icon-email',
+                    title: "Não foi possível apagar a mensagem selecionada!",
+                    description: "",
+                    elementID: "#pageMessage",
+                });
 
-        mCollection.getMessageByID( this.folderID, this.msgID).done(ForwardOnGetMessage).fail(ForwardOnGetMessageFailed).execute();
+                Shared.router.navigate("/Mail/Messages/1/0/" + that.folderID + "#", {
+                    trigger: true
+                });
+            };
 
-      }
+            var message = {
+                msgID: this.msgID,
+                folderID: this.folderID
+            };
+            var mModel = new MessagesModel(message);
+
+            mModel.delete(onDeleteMessage, onFailDeleteMessage);
+
+        }
+
+        if (this.secondViewName == "ReplyToAll") {
+
+
+
+            var ReplyOnGetMessage = function(result) {
+
+                var originalMessage = result.models[0];
+
+                var newMessage = new MessagesModel();
+
+                var from = originalMessage.get("msgFrom");
+                var msgTo = originalMessage.get("msgTo");
+                var msgCc = originalMessage.get("msgCC");
+                var msgBcc = originalMessage.get("msgBcc");
+
+                var myEmail = Shared.profile.contactMails[0];
+
+                newMessage.set("msgTo", []);
+                newMessage.set("msgCc", []);
+                newMessage.set("msgBcc", []);
+
+                newMessage.addRecipient("msgTo", from.mailAddress, from.fullName);
+                for (var i in msgTo) {
+                    if ((msgTo[i].mailAddress != from.mailAddress) && (msgTo[i].mailAddress != myEmail)) {
+                        newMessage.addRecipient("msgCc", msgTo[i].mailAddress, msgTo[i].fullName);
+                    }
+                }
+                for (var i in msgCc) {
+                    newMessage.addRecipient("msgCc", msgCc[i].mailAddress, msgCc[i].fullName);
+                }
+
+                newMessage.set("msgSubject", "Re: " + originalMessage.get("msgSubject"));
+
+                Shared.currentDraftMessage = newMessage;
+
+                that.renderComposeMessage(newMessage, true, 'reply', originalMessage);
+
+            };
+            var ReplyOnGetMessageFailed = function() {
+
+            };
+
+            var loadingView = new LoadingView({
+                el: $(elementID)
+            });
+            loadingView.render();
+
+            var mCollection = new MessagesCollection();
+
+            mCollection.getMessageByID(this.folderID, this.msgID).done(ReplyOnGetMessage).fail(ReplyOnGetMessageFailed).execute();
+
+        }
+
+        if (this.secondViewName == "ReplyMessage") {
+
+            var ReplyOnGetMessage = function(result) {
+
+                var originalMessage = result.models[0];
+
+                var newMessage = new MessagesModel();
+
+                var from = originalMessage.get("msgFrom");
+
+                newMessage.set("msgTo", []);
+                newMessage.addRecipient("msgTo", from.mailAddress, from.fullName);
+                newMessage.set("msgSubject", "Re: " + originalMessage.get("msgSubject"));
+
+                Shared.currentDraftMessage = newMessage;
+
+                that.renderComposeMessage(newMessage, true, 'reply', originalMessage);
+
+
+            };
+            var ReplyOnGetMessageFailed = function() {
+
+            };
+
+            var loadingView = new LoadingView({
+                el: $(elementID)
+            });
+            loadingView.render();
+
+            var mCollection = new MessagesCollection();
+
+            mCollection.getMessageByID(this.folderID, this.msgID).done(ReplyOnGetMessage).fail(ReplyOnGetMessageFailed).execute();
+
+        }
+
+        if (this.secondViewName == "Forward") {
+
+            var ForwardOnGetMessage = function(result) {
+
+                var originalMessage = result.models[0];
+
+                var newMessage = new MessagesModel();
+
+                newMessage.set("msgID", originalMessage.get("msgID"));
+                newMessage.set("folderID", originalMessage.get("folderID"));
+
+                newMessage.set("msgTo", []);
+                newMessage.set("msgCc", []);
+                newMessage.set("msgBcc", []);
+                newMessage.set("msgSubject", "Fw: " + originalMessage.get("msgSubject"));
+
+                Shared.currentDraftMessage = newMessage;
+
+                if (originalMessage.get("msgHasAttachments") == "1") {
+                    newMessage.set("msgHasAttachments", "1");
+                    newMessage.set("msgAttachments", originalMessage.get("msgAttachments"));
+                    newMessage.set("files", originalMessage.get("files"));
+                }
+
+                that.renderComposeMessage(newMessage, true, 'forward', originalMessage);
+
+                if (originalMessage.get("msgHasAttachments") == "1") {
+                    that.renderAttachments(Shared.currentDraftMessage);
+                }
+
+
+            };
+            var ForwardOnGetMessageFailed = function() {
+
+            };
+
+            var loadingView = new LoadingView({
+                el: $(elementID)
+            });
+            loadingView.render();
+
+            var mCollection = new MessagesCollection();
+
+            mCollection.getMessageByID(this.folderID, this.msgID).done(ForwardOnGetMessage).fail(ForwardOnGetMessageFailed).execute();
+
+        }
 
     },
 
     addCcBcc: function(thisView) {
-      thisView.toggleCCBcc();
-      var params = thisView.getContextMenuParams();
-      Shared.menuView.renderContextMenu('newMessageWithCc',params);
+        thisView.toggleCCBcc();
+        var params = thisView.getContextMenuParams();
+        Shared.menuView.renderContextMenu('newMessageWithCc', params);
     },
 
     removeCcBcc: function(thisView) {
-      thisView.toggleCCBcc();
-      var params = thisView.getContextMenuParams();
-      Shared.menuView.renderContextMenu('newMessage',params);
+        thisView.toggleCCBcc();
+        var params = thisView.getContextMenuParams();
+        Shared.menuView.renderContextMenu('newMessage', params);
     },
 
     events: {
-      "keydown #msgToInput" : "addRecipientTo",
-      "keydown #msgCcInput" : "addRecipientTo",
-      "keydown #msgBccInput" : "addRecipientTo",
-      "keydown #msgSubjectInput" : "updateSubject",
-      "keydown #msgBodyInput" : "updateBody",
-      "click #msgToRow" : "focusRecipientTo",
-      "click #msgCcRow" : "focusRecipientCc",
-      "click #msgBccRow" : "focusRecipientBcc",
-      "click #msgSubjectRow" : "focusSubject",
-      "click #addMsgToField" : "addMsgToField",
-      "click #addMsgCcField" : "addMsgCcField",
-      "click #addMsgBccField" : "addMsgBccField",
-      "dblclick .recipientmsgTo" : "removeRecipientMsgTo",
-      "dblclick .recipientmsgCc" : "removeRecipientMsgCc",
-      "dblclick .recipientmsgBcc" : "removeRecipientMsgBcc",
-      "touch .recipientmsgTo" : "removeRecipientMsgTo",
-      "touch .recipientmsgCc" : "removeRecipientMsgCc",
-      "touch .recipientmsgBcc" : "removeRecipientMsgBcc",
-      "change #attachment_input" : "addAttachmentFile",
-      "click #add_attachment" : "selectAttachmentFile",
+        "keydown #msgToInput": "addRecipientTo",
+        "keydown #msgCcInput": "addRecipientTo",
+        "keydown #msgBccInput": "addRecipientTo",
+        "keydown #msgSubjectInput": "updateSubject",
+        "keydown #msgBodyInput": "updateBody",
+        "click #msgToRow": "focusRecipientTo",
+        "click #msgCcRow": "focusRecipientCc",
+        "click #msgBccRow": "focusRecipientBcc",
+        "click #msgSubjectRow": "focusSubject",
+        "click #addMsgToField": "addMsgToField",
+        "click #addMsgCcField": "addMsgCcField",
+        "click #addMsgBccField": "addMsgBccField",
+        "dblclick .recipientmsgTo": "removeRecipientMsgTo",
+        "dblclick .recipientmsgCc": "removeRecipientMsgCc",
+        "dblclick .recipientmsgBcc": "removeRecipientMsgBcc",
+        "touch .recipientmsgTo": "removeRecipientMsgTo",
+        "touch .recipientmsgCc": "removeRecipientMsgCc",
+        "touch .recipientmsgBcc": "removeRecipientMsgBcc",
+        "change #attachment_input": "addAttachmentFile",
+        "click #add_attachment": "selectAttachmentFile",
     },
 
     removeRecipientMsgTo: function(e) {
-      var email = $(e.currentTarget).attr("data-mail");
-      $(e.currentTarget).remove();
-      Shared.currentDraftMessage.removeRecipient("msgTo",email);
+        var email = $(e.currentTarget).attr("data-mail");
+        $(e.currentTarget).remove();
+        Shared.currentDraftMessage.removeRecipient("msgTo", email);
     },
 
     removeRecipientMsgCc: function(e) {
-      var email = $(e.currentTarget).attr("data-mail");
-      $(e.currentTarget).remove();
-      Shared.currentDraftMessage.removeRecipient("msgCc",email);
+        var email = $(e.currentTarget).attr("data-mail");
+        $(e.currentTarget).remove();
+        Shared.currentDraftMessage.removeRecipient("msgCc", email);
     },
 
     removeRecipientMsgBcc: function(e) {
-      var email = $(e.currentTarget).attr("data-mail");
-      $(e.currentTarget).remove();
-      Shared.currentDraftMessage.removeRecipient("msgBcc",email);
+        var email = $(e.currentTarget).attr("data-mail");
+        $(e.currentTarget).remove();
+        Shared.currentDraftMessage.removeRecipient("msgBcc", email);
     },
 
     addMsgToField: function(e) {
 
-      this.updateCurrentDraftMessage();
-      var obj = Shared.currentDraftMessage;
+        this.updateCurrentDraftMessage();
+        var obj = Shared.currentDraftMessage;
 
-      var attrs = {
-        currentField: "msgTo",
-        eventParticipants: [],
-        listParticipants: [],
-      }
+        var attrs = {
+            currentField: "msgTo",
+            eventParticipants: [],
+            listParticipants: [],
+        }
 
-      obj.set(attrs);
+        obj.set(attrs);
 
-      var calendarEditEventAddParticipantsView = new CalendarEditEventAddParticipantsView({ listParticipants: [], model: obj, view: new ComposeMessageView(), senderName: 'compose' });
-      calendarEditEventAddParticipantsView.senderName = 'compose';
-      calendarEditEventAddParticipantsView.render();
+        var calendarEditEventAddParticipantsView = new CalendarEditEventAddParticipantsView({
+            listParticipants: [],
+            model: obj,
+            view: new ComposeMessageView(),
+            senderName: 'compose'
+        });
+        calendarEditEventAddParticipantsView.senderName = 'compose';
+        calendarEditEventAddParticipantsView.render();
     },
 
     addMsgCcField: function(e) {
 
-      this.updateCurrentDraftMessage();
+        this.updateCurrentDraftMessage();
 
-      var obj = Shared.currentDraftMessage;
+        var obj = Shared.currentDraftMessage;
 
-      var attrs = {
-        currentField: "msgCc",
-        eventParticipants: [],
-        listParticipants: [],
-      }
+        var attrs = {
+            currentField: "msgCc",
+            eventParticipants: [],
+            listParticipants: [],
+        }
 
-      obj.set(attrs);
+        obj.set(attrs);
 
-      var calendarEditEventAddParticipantsView = new CalendarEditEventAddParticipantsView({ listParticipants: [], model: obj, view: new ComposeMessageView(), senderName: 'compose' });
-      calendarEditEventAddParticipantsView.senderName = 'compose';
-      calendarEditEventAddParticipantsView.render();
+        var calendarEditEventAddParticipantsView = new CalendarEditEventAddParticipantsView({
+            listParticipants: [],
+            model: obj,
+            view: new ComposeMessageView(),
+            senderName: 'compose'
+        });
+        calendarEditEventAddParticipantsView.senderName = 'compose';
+        calendarEditEventAddParticipantsView.render();
     },
 
     addMsgBccField: function(e) {
 
-      this.updateCurrentDraftMessage();
-      
-      var obj = Shared.currentDraftMessage;
+        this.updateCurrentDraftMessage();
 
-      var attrs = {
-        currentField: "msgBcc",
-        eventParticipants: [],
-        listParticipants: [],
-      }
+        var obj = Shared.currentDraftMessage;
 
-      obj.set(attrs);
+        var attrs = {
+            currentField: "msgBcc",
+            eventParticipants: [],
+            listParticipants: [],
+        }
 
-      var calendarEditEventAddParticipantsView = new CalendarEditEventAddParticipantsView({ listParticipants: [], model: obj, view: new ComposeMessageView(), senderName: 'compose' });
-      calendarEditEventAddParticipantsView.senderName = 'compose';
-      calendarEditEventAddParticipantsView.render();
+        obj.set(attrs);
+
+        var calendarEditEventAddParticipantsView = new CalendarEditEventAddParticipantsView({
+            listParticipants: [],
+            model: obj,
+            view: new ComposeMessageView(),
+            senderName: 'compose'
+        });
+        calendarEditEventAddParticipantsView.senderName = 'compose';
+        calendarEditEventAddParticipantsView.render();
     },
 
     updateSubject: function(e) {
-      var val = $(e.currentTarget).val();
-      $('#msgSubjectTitle').html(val);
-      if ( (e.which == 13 && !e.shiftKey) ) {
-        $("#msgBodyInput").focus();
-      }
+        var val = $(e.currentTarget).val();
+        $('#msgSubjectTitle').html(val);
+        if ((e.which == 13 && !e.shiftKey)) {
+            $("#msgBodyInput").focus();
+        }
     },
 
     updateBody: function(e) {
-      Shared.scrollerRefresh();
+        Shared.scrollerRefresh();
     },
 
     focusRecipientTo: function(e) {
-      $("#msgToInput").focus();
+        $("#msgToInput").focus();
     },
 
     focusRecipientCc: function(e) {
-      $("#msgCcInput").focus();
+        $("#msgCcInput").focus();
     },
 
     focusRecipientBcc: function(e) {
-      $("#msgBccInput").focus();
+        $("#msgBccInput").focus();
     },
 
     focusSubject: function(e) {
-      $("#msgSubjectInput").focus();
+        $("#msgSubjectInput").focus();
     },
 
     showAttachments: function(e) {
-      $("#msgAttachmentsRow").removeClass("hidden");
+        $("#msgAttachmentsRow").removeClass("hidden");
     },
 
 
 
     addRecipientTo: function(e) {
-      var val = $(e.currentTarget).val();
+        var val = $(e.currentTarget).val();
 
-      //13 - ENTER
-      //32 - ESPAÇO 
-      //9 - TAB
-      //59 - PONTO E VIRGULA
-      //188 - VIRGULA
-      //8 - BACKSPACE
+        //13 - ENTER
+        //32 - ESPAÇO 
+        //9 - TAB
+        //59 - PONTO E VIRGULA
+        //188 - VIRGULA
+        //8 - BACKSPACE
 
-      var prefix = "msgTo";
-      var nextOrder = "msgCc";
+        var prefix = "msgTo";
+        var nextOrder = "msgCc";
 
-      if ($(e.currentTarget).attr("id") == "msgToInput") {
-        prefix = "msgTo";
-        if ($("#msgCCBcc").hasClass("hidden")) {
-          nextOrder = "msgSubject";
-        } else {
-          nextOrder = "msgCc";
+        if ($(e.currentTarget).attr("id") == "msgToInput") {
+            prefix = "msgTo";
+            if ($("#msgCCBcc").hasClass("hidden")) {
+                nextOrder = "msgSubject";
+            } else {
+                nextOrder = "msgCc";
+            }
         }
-      }
 
-      if ($(e.currentTarget).attr("id") == "msgCcInput") {
-        prefix = "msgCc";
-        nextOrder = "msgBcc";
-      }
-
-      if ($(e.currentTarget).attr("id") == "msgBccInput") {
-        prefix = "msgBcc";
-        nextOrder = "msgSubject";
-      }
-
-      if ($(e.currentTarget).attr("id") == "msgSubjectInput") {
-        nextOrder = "msgBody";
-      }
-
-      if ( (e.which == 13 && !e.shiftKey) || (e.which == 32) || (e.which == 188) || (e.which == 59) ) {
-        if (this.validateEmail($.trim(val))) {
-          $(e.currentTarget).val("");
-          this.prependEmailRecipientBadgeToDiv(prefix,"#" + prefix + "Recipients",val);
-
-          if ((e.which == 188) || (e.which == 59) || (e.which == 32)) {
-            e.preventDefault();
-          }
-        } else {
-          if ( (e.which == 13 && !e.shiftKey && val == "") || (e.which == 9) ) {
-            $("#" + nextOrder + "Input").focus();
-
-          }
+        if ($(e.currentTarget).attr("id") == "msgCcInput") {
+            prefix = "msgCc";
+            nextOrder = "msgBcc";
         }
-      }
-      if ( (e.which == 8) && ($.trim(val) == "") ) {
-        Shared.currentDraftMessage.removeRecipient(prefix,$("#" + prefix + "Recipients div:last-child").attr("data-mail"));
-        $("#" + prefix + "Recipients div:last-child").remove();
-        
-      }
+
+        if ($(e.currentTarget).attr("id") == "msgBccInput") {
+            prefix = "msgBcc";
+            nextOrder = "msgSubject";
+        }
+
+        if ($(e.currentTarget).attr("id") == "msgSubjectInput") {
+            nextOrder = "msgBody";
+        }
+
+        if ((e.which == 13 && !e.shiftKey) || (e.which == 32) || (e.which == 188) || (e.which == 59)) {
+            if (this.validateEmail($.trim(val))) {
+                $(e.currentTarget).val("");
+                this.prependEmailRecipientBadgeToDiv(prefix, "#" + prefix + "Recipients", val);
+
+                if ((e.which == 188) || (e.which == 59) || (e.which == 32)) {
+                    e.preventDefault();
+                }
+            } else {
+                if ((e.which == 13 && !e.shiftKey && val == "") || (e.which == 9)) {
+                    $("#" + nextOrder + "Input").focus();
+
+                }
+            }
+        }
+        if ((e.which == 8) && ($.trim(val) == "")) {
+            Shared.currentDraftMessage.removeRecipient(prefix, $("#" + prefix + "Recipients div:last-child").attr("data-mail"));
+            $("#" + prefix + "Recipients div:last-child").remove();
+
+        }
     },
 
-    prependAttachmentImage: function(fileID,fileName,fileSize,fileType,imageData) {
+    prependAttachmentImage: function(fileID, fileName, fileSize, fileType, imageData) {
 
-      var preview = new PreviewAttachmentMessageView();
+        var preview = new PreviewAttachmentMessageView();
 
-      preview.fileID = fileID;
-      preview.fileName = fileName;
-      preview.fileSize = fileSize;
-      preview.fileType = fileType;
-      preview.fileData = imageData;
+        preview.fileID = fileID;
+        preview.fileName = fileName;
+        preview.fileSize = fileSize;
+        preview.fileType = fileType;
+        preview.fileData = imageData;
 
-      preview.render();
+        preview.render();
 
-      this.updateBody();
+        this.updateBody();
 
-      
-    },
-
-    prependEmailRecipientBadgeToDiv: function(prefix,divID,emailRecipient,emailName) {
-
-      var div = $("<div />").addClass("recipient" + prefix).attr("data-mail",emailRecipient);
-
-      var span = $("<span />").addClass("badge").addClass("badge-write-message");
-
-      if (emailName == undefined) {
-        span.html(emailRecipient);
-      } else {
-        span.html(emailName);
-      }
-
-      var input = $("<input />").attr("type","text").addClass("hidden").addClass(prefix + "Input").attr("name", prefix+ "Input").attr("value",emailRecipient);
-
-      span.appendTo(div)
-      input.appendTo(div);
-
-      Shared.currentDraftMessage.addRecipient(prefix,emailRecipient,"");
-
-      div.appendTo($(divID));
 
     },
 
-    validateEmail: function(email) { 
-      var ck_email = /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i;
-      return ck_email.test(email);
+    prependEmailRecipientBadgeToDiv: function(prefix, divID, emailRecipient, emailName) {
+
+        var div = $("<div />").addClass("recipient" + prefix).attr("data-mail", emailRecipient);
+
+        var span = $("<span />").addClass("badge").addClass("badge-write-message");
+
+        if (emailName == undefined) {
+            span.html(emailRecipient);
+        } else {
+            span.html(emailName);
+        }
+
+        var input = $("<input />").attr("type", "text").addClass("hidden").addClass(prefix + "Input").attr("name", prefix + "Input").attr("value", emailRecipient);
+
+        span.appendTo(div)
+        input.appendTo(div);
+
+        Shared.currentDraftMessage.addRecipient(prefix, emailRecipient, "");
+
+        div.appendTo($(divID));
+
+    },
+
+    validateEmail: function(email) {
+        var ck_email = /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i;
+        return ck_email.test(email);
     },
 
     getMessageStringForRecipient: function(prefix) {
-      var string = '';
-      var qtd = $("." + prefix + "Input").length;
-      $("." + prefix + "Input").each(function(i, obj) {
-        string = string + $(obj).val();
-        if (i < qtd - 1) {
-          string = string + ", ";
+        var string = '';
+        var qtd = $("." + prefix + "Input").length;
+        $("." + prefix + "Input").each(function(i, obj) {
+            string = string + $(obj).val();
+            if (i < qtd - 1) {
+                string = string + ", ";
+            }
+        });
+        if ($("#" + prefix + "Input").val() != "") {
+            string = string + ", " + $("#" + prefix + "Input").val();
         }
-      });
-      if ($("#" + prefix + "Input").val() != "") {
-        string = string + ", " + $("#" + prefix + "Input").val();
-      }
-      // var res = string.substring(0,string.length - 2);
-      return string;
+        // var res = string.substring(0,string.length - 2);
+        return string;
     },
 
     // addRecipientsToMessage: function(prefix,pMessage) {
@@ -999,104 +1047,101 @@ define([
 
     restoreDraftMessage: function() {
 
-      var draft = Shared.currentDraftMessage;
+        var draft = Shared.currentDraftMessage;
 
-      var subject = draft.get("msgSubject");
-      if (subject != "") {
-        $("#msgSubjectTitle").html(draft.get("msgSubject"));
-      }
-      $("#msgSubjectInput").val(subject);
+        var subject = draft.get("msgSubject");
+        if (subject != "") {
+            $("#msgSubjectTitle").html(draft.get("msgSubject"));
+        }
+        $("#msgSubjectInput").val(subject);
 
-      $("#msgBodyInput").html(draft.get("msgBody"));
+        $("#msgBodyInput").html(draft.get("msgBody"));
 
     },
 
     updateCurrentDraftMessage: function() {
-      var model = this.getNewMessageModel();
-      Shared.currentDraftMessage = model;
+        var model = this.getNewMessageModel();
+        Shared.currentDraftMessage = model;
     },
 
     getNewMessageModel: function() {
 
-      //LOAD TEMP FILES
-      var tempFiles = {};
-      if (Shared.currentDraftMessage) {
-        tempFiles = Shared.currentDraftMessage.get("files");
-      }
+        //LOAD TEMP FILES
+        var tempFiles = {};
+        if (Shared.currentDraftMessage) {
+            tempFiles = Shared.currentDraftMessage.get("files");
+        }
 
-      var msgTo = this.getMessageStringForRecipient("msgTo");
-      var msgSubject = $("#msgSubjectInput").val();
-      var msgCc = this.getMessageStringForRecipient("msgCc");
-      var msgBcc = this.getMessageStringForRecipient("msgBcc");
-      var msgBody = $("#msgBodyInput").html();
+        var msgTo = this.getMessageStringForRecipient("msgTo");
+        var msgSubject = $("#msgSubjectInput").val();
+        var msgCc = this.getMessageStringForRecipient("msgCc");
+        var msgBcc = this.getMessageStringForRecipient("msgBcc");
+        var msgBody = $("#msgBodyInput").html();
 
-      var message = { 
-        "msgTo" : Shared.currentDraftMessage.get("msgTo"),
-        "msgCc" : Shared.currentDraftMessage.get("msgCc"),
-        "msgBcc" : Shared.currentDraftMessage.get("msgBcc"),
-        "msgToString" : msgTo,
-        "msgCcString" : msgCc,
-        "msgBccString" : msgBcc,
-        "msgSubject" : msgSubject,
-        "msgBody" : msgBody,
-        "msgType" : "html"
-      }
+        var message = {
+            "msgTo": Shared.currentDraftMessage.get("msgTo"),
+            "msgCc": Shared.currentDraftMessage.get("msgCc"),
+            "msgBcc": Shared.currentDraftMessage.get("msgBcc"),
+            "msgToString": msgTo,
+            "msgCcString": msgCc,
+            "msgBccString": msgBcc,
+            "msgSubject": msgSubject,
+            "msgBody": msgBody,
+            "msgType": "html"
+        }
 
-      var mModel = new MessagesModel(message);
+        var mModel = new MessagesModel(message);
 
-      var bstr = 'base64,';
+        var bstr = 'base64,';
 
-      mModel.clearFiles();
+        mModel.clearFiles();
 
-      mModel.set("files",tempFiles);
+        mModel.set("files", tempFiles);
 
-      // $('.attachmentImage').each(function(i, obj) {
-      //   var src = $(obj).attr('src').substr($(obj).attr('src').indexOf(bstr)+bstr.length);
-      //   mModel.addFile(src,'Anexo ' + (i + 1) + '.png',"base64");
-      // });
+        // $('.attachmentImage').each(function(i, obj) {
+        //   var src = $(obj).attr('src').substr($(obj).attr('src').indexOf(bstr)+bstr.length);
+        //   mModel.addFile(src,'Anexo ' + (i + 1) + '.png',"base64");
+        // });
 
-      return mModel;
+        return mModel;
     },
 
     toggleCCBcc: function() {
-      if ($("#msgCcRow").hasClass("hidden")) {
-        $("#msgCcRow").removeClass("hidden");
-        $("#msgBccRow").removeClass("hidden");
-      } else {
-        $("#msgCcRow").addClass("hidden");
-        $("#msgBccRow").addClass("hidden");
-      }
-      
+        if ($("#msgCcRow").hasClass("hidden")) {
+            $("#msgCcRow").removeClass("hidden");
+            $("#msgBccRow").removeClass("hidden");
+        } else {
+            $("#msgCcRow").addClass("hidden");
+            $("#msgBccRow").addClass("hidden");
+        }
+
     },
 
     refreshWindowHeight: function() {
-      var top = $('.topHeader').outerHeight(true);
-      var search = $('#composeMessageHeader').outerHeight(true) == null ? 0 : $('#composeMessageHeader').outerHeight(true);
-      $('#msgBody').height($(window).height() - top - search);
+        var top = $('.topHeader').outerHeight(true);
+        var search = $('#composeMessageHeader').outerHeight(true) == null ? 0 : $('#composeMessageHeader').outerHeight(true);
+        $('#msgBody').height($(window).height() - top - search);
 
     },
 
-    loaded: function () 
-    {
+    loaded: function() {
 
-      this.refreshWindowHeight();
+        this.refreshWindowHeight();
 
-      var msgBodyInput = $("#msgBodyInput").width();
-      var contentDetailWidth = $("#contentDetail").width();
+        var msgBodyInput = $("#msgBodyInput").width();
+        var contentDetailWidth = $("#contentDetail").width();
 
-      if (Shared.isTabletResolution()) {
-        if ((msgBodyInput + 13) >= contentDetailWidth) {
-          $("#scrollerDetail").width(msgBodyInput + 13);
+        if (Shared.isTabletResolution()) {
+            if ((msgBodyInput + 13) >= contentDetailWidth) {
+                $("#scrollerDetail").width(msgBodyInput + 13);
+            }
+        } else {
+            $("#scrollerDetail").width("100%");
         }
-      } else {
-        $("#scrollerDetail").width("100%");
-      }
-      
+
 
     }
-  });
-
-  return ComposeMessageView;
-  
 });
+
+export default ComposeMessageView;
 

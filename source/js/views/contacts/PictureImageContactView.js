@@ -1,71 +1,64 @@
-	define([
-	'jquery',
-	'underscore',
-	'backbone',
-	'shared',
-	'js/views/home/LoadingView.js',
-	'js/models/contacts/ContactPictureImageModel.js',
-	'templates/contacts/pictureImageContactTemplate.html!text'
-], function($, _, Backbone, Shared, LoadingView, ContactPictureImageModel, PictureImageContactTemplate)
-{
-	var PictureImageContactView = Backbone.View.extend(
-	{
-		render: function(data)
-		{
-			var done = function (value)
-			{
-				var contactID = decodeURIComponent(value.contact.get('contactID'));
-				var id;
+import $ from 'jquery';
+import _ from 'underscore';
+import Backbone from 'backbone';
+import Shared from 'shared';
+import LoadingView from 'LoadingView';
+import ContactPictureImageModel from 'ContactPictureImageModel';
+import PictureImageContactTemplate from 'pictureImageContactTemplate';
 
-				if (parseInt(contactID) != NaN && parseInt(contactID) % 1 == 0)
-					id = contactID;
-				else
-				{
-					var queryUID = contactID.split(",")[0]; 
-					var uid = queryUID.split("=");
-					id = uid[1].replace(".", "___");
-				}
+var PictureImageContactView = Backbone.View.extend({
+    render: function(data) {
+        var done = function(value) {
+            var contactID = decodeURIComponent(value.contact.get('contactID'));
+            var id;
 
-				$('#picture_contact_' + id + ' img').attr('src', 'data:image/gif;base64,' + value.contact.get('contactImagePicture'));
-			}
+            if (parseInt(contactID) != NaN && parseInt(contactID) % 1 == 0)
+                id = contactID;
+            else {
+                var queryUID = contactID.split(",")[0];
+                var uid = queryUID.split("=");
+                id = uid[1].replace(".", "___");
+            }
 
-			for (var i in data.contacts)
-			{
-				if (data.contacts[i].get('contactHasImagePicture') == 1)
-				{
-					this.getContactPictureImage(data.contacts[i].get('contactID'), done, done);	
-				}
-			}
+            $('#picture_contact_' + id + ' img').attr('src', 'data:image/gif;base64,' + value.contact.get('contactImagePicture'));
+        }
 
-			var compiledTemplate = _.template(PictureImageContactTemplate);
-			this.$el.html(compiledTemplate);
+        for (var i in data.contacts) {
+            if (data.contacts[i].get('contactHasImagePicture') == 1) {
+                this.getContactPictureImage(data.contacts[i].get('contactID'), done, done);
+            }
+        }
 
-			this.loaded();			
-		},
+        var compiledTemplate = _.template(PictureImageContactTemplate);
+        this.$el.html(compiledTemplate);
 
-		initialize: function() { },
+        this.loaded();
+    },
 
-		loaded: function () { },
+    initialize: function() {},
 
-		getContactPictureImage: function (pContactID, callbackSuccess, callbackFail)
-		{
-			var pContactType = '2';
+    loaded: function() {},
 
-			if (parseInt(pContactID) != NaN && parseInt(pContactID) % 1 == 0)
-				pContactType = '1';
+    getContactPictureImage: function(pContactID, callbackSuccess, callbackFail) {
+        var pContactType = '2';
 
-			var contactPictureImageModel = new ContactPictureImageModel();
-				contactPictureImageModel.done(function (data) 
-				{
-					callbackSuccess({ contact: data, _: _ });
-				})
-				.fail(function (data) 
-				{
-				    callbackFail({ error: data.error, _: _ });
-				}).getImagePicture(pContactID, pContactType);
-		}
-	});
+        if (parseInt(pContactID) != NaN && parseInt(pContactID) % 1 == 0)
+            pContactType = '1';
 
-	return PictureImageContactView;
-  
+        var contactPictureImageModel = new ContactPictureImageModel();
+        contactPictureImageModel.done(function(data) {
+                callbackSuccess({
+                    contact: data,
+                    _: _
+                });
+            })
+            .fail(function(data) {
+                callbackFail({
+                    error: data.error,
+                    _: _
+                });
+            }).getImagePicture(pContactID, pContactType);
+    }
 });
+
+export default PictureImageContactView;
