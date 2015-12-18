@@ -11,4 +11,6 @@ System.config({
     baseURL: '/android_asset/www/'
 });
 
-System.import('js/main.js');
+loadMainComponents([
+	'js/main.js'
+]);

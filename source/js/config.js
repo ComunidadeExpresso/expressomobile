@@ -11,7 +11,6 @@
     "webcomponentsjs": "bower_components/webcomponentsjs"
   },
 
-  // globalEvaluationScope: false,
   paths: {
     templates:                                    "js/templates",
     Shared:                                       "js/shared.js",
@@ -19,6 +18,8 @@
     router:                                       "js/router.js",
     main:                                         "js/main.js",
     app:                                          "js/app.js",
+
+    Polymer:                                      "bower_components/polymer/polymer.html!",
 
     //MODELS
     EventCategoryModel:                           "js/models/EventCategoryModel.js",
@@ -32,6 +33,7 @@
     ServerModel:                                  "js/models/ServerModel.js",
     FoldersModel:                                 "js/models/FoldersModel.js",
     MessagesModel:                                "js/models/MessagesModel.js",
+    HomeTabModel:                                 "js/models/HomeTabModel.js",
 
     //COLLECTIONS
     EventCategoriesCollection:                    "js/collections/EventCategoriesCollection.js",
@@ -44,6 +46,7 @@
     ServersCollection:                            "js/collections/ServersCollection.js",
     FoldersCollection:                            "js/collections/FoldersCollection.js",
     MessagesCollection:                           "js/collections/MessagesCollection.js",
+    HomeTabCollection:                            "js/collections/HomeTabCollection.js",
 
     //VIEWS    
     CalendarDeleteEventView:                      "js/views/calendar/CalendarDeleteEventView.js",
@@ -107,7 +110,6 @@
     personalContactsListTemplate:                 "js/templates/contacts/personalContactsListTemplate.html!text",
     pictureImageContactTemplate:                  "js/templates/contacts/pictureImageContactTemplate.html!text",
     contextMenuTemplate:                          "js/templates/home/contextMenuTemplate.html!text",
-    homeTemplate:                                 "js/templates/home/homeTemplate.html!text",
     loadingTemplate:                              "js/templates/home/loadingTemplate.html!text",
     menuTemplate:                                 "js/templates/home/menuTemplate.html!text",
     offlineTemplate:                              "js/templates/home/offlineTemplate.html!text",
@@ -134,33 +136,33 @@
 
 
     //LIBRARIES
-    underscore:               "bower_components/underscore/underscore-min.js",
-    backbone:                 "bower_components/backbone/backbone-min.js",
-    webcomponents:            "bower_components/webcomponentsjs/webcomponents-lite.min.js",
-    jquery:                   "bower_components/jquery/dist/jquery.min.js",
-    jquery_migrate:           "bower_components/jquery-migrate/jquery-migrate.min.js",
-    moment:                   "bower_components/momentjs/moment.js",
-    localstorage:             "bower_components/backbone.browserStorage/backbone.browserStorage.js",
-    jqueryui:                 "bower_components/jquery-ui/jquery-ui.min.js",
-    material:                 "bower_components/material-design-lite/material.js",
-    tinysort:                 "bower_components/tinysort/dist/tinysort.min.js",
-    tinysort_charorder:       "bower_components/tinysort/dist/tinysort.charorder.min.js",
-    tinysort_open:            "bower_components/tinysort/dist/jquery.tinysort.min.js",
-    jquery_autogrow:          "bower_components/autogrow-textarea/jquery.autogrowtextarea.min.js",
-    tweenmax:                 "bower_components/gsap/src/minified/TweenMax.min.js",
-    linkify:                  "bower_components/linkifyjs/src/linkified.js",
-    jquery_linkify:           "bower_components/linkifyjs/src/jquery.linkify.js",
-    wijmo:                    "bower_components/wijmo/wijmo/jquery.wijmo.wijutil.js",
-    wijdialog:                "bower_components/wijmo/wijmo/jquery.wijmo.wijdialog.js",
-    jqueryui_datepicker_ptBR: "js/libs/lang/jquery.ui.datepicker-pt-BR.js",
-    moment_ptBR:              "js/libs/lang/moment-pt-BR.js",
-    expressoAPI:              "js/libs/expresso/expressoAPI.js",
-    expressoIM:               "js/libs/expresso/expressoIM.js",
-    expressoService:          "js/libs/expresso/expressoService.js",
-    im:                       "js/libs/messenger/im.js",
-    jquery_xmpp:              "js/libs/jquery.xmpp/jquery.xmpp.js",
-    autocomplete:             "js/libs/jquery.backbone.widget/jquery.backbone.widgets.js",
-    contextmenu:              "js/libs/jquery.contextmenu/jquery.contextMenu.js",
+    underscore:                                   "bower_components/underscore/underscore-min.js",
+    backbone:                                     "bower_components/backbone/backbone-min.js",
+    webcomponents:                                "bower_components/webcomponentsjs/webcomponents-lite.min.js",
+    jquery:                                       "bower_components/jquery/dist/jquery.min.js",
+    jquery_migrate:                               "bower_components/jquery-migrate/jquery-migrate.min.js",
+    moment:                                       "bower_components/momentjs/moment.js",
+    localstorage:                                 "bower_components/backbone.browserStorage/backbone.browserStorage.js",
+    jqueryui:                                     "bower_components/jquery-ui/jquery-ui.min.js",
+    material:                                     "bower_components/material-design-lite/material.js",
+    tinysort:                                     "bower_components/tinysort/dist/tinysort.min.js",
+    tinysort_charorder:                           "bower_components/tinysort/dist/tinysort.charorder.min.js",
+    tinysort_open:                                "bower_components/tinysort/dist/jquery.tinysort.min.js",
+    jquery_autogrow:                              "bower_components/autogrow-textarea/jquery.autogrowtextarea.min.js",
+    tweenmax:                                     "bower_components/gsap/src/minified/TweenMax.min.js",
+    linkify:                                      "bower_components/linkifyjs/src/linkified.js",
+    jquery_linkify:                               "bower_components/linkifyjs/src/jquery.linkify.js",
+    wijmo:                                        "bower_components/wijmo/wijmo/jquery.wijmo.wijutil.js",
+    wijdialog:                                    "bower_components/wijmo/wijmo/jquery.wijmo.wijdialog.js",
+    jqueryui_datepicker_ptBR:                     "js/libs/lang/jquery.ui.datepicker-pt-BR.js",
+    moment_ptBR:                                  "js/libs/lang/moment-pt-BR.js",
+    expressoAPI:                                  "js/libs/expresso/expressoAPI.js",
+    expressoIM:                                   "js/libs/expresso/expressoIM.js",
+    expressoService:                              "js/libs/expresso/expressoService.js",
+    im:                                           "js/libs/messenger/im.js",
+    jquery_xmpp:                                  "js/libs/jquery.xmpp/jquery.xmpp.js",
+    autocomplete:                                 "js/libs/jquery.backbone.widget/jquery.backbone.widgets.js",
+    contextmenu:                                  "js/libs/jquery.contextmenu/jquery.contextMenu.js",
 
   },
   shim: {

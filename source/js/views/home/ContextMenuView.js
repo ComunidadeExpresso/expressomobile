@@ -16,7 +16,7 @@ var ContextMenuView = Backbone.View.extend({
     callBack: '',
     parentCallBack: '',
 
-    render: function() {
+    render: function(elementID) {
 
         if (this.collection == null) {
             this.collection = new ContextMenuCollection();
@@ -35,7 +35,7 @@ var ContextMenuView = Backbone.View.extend({
 
         this.$el.html(htmlWithData);
 
-        $("#rightMenu").empty().append(this.$el);
+        $(elementID).empty().append(this.$el);
 
         this.setPrimaryAction();
 
@@ -43,15 +43,15 @@ var ContextMenuView = Backbone.View.extend({
             this.hideMenu();
         }
 
-        if (($("#chatContactsWindow").width() == 0) || ($("#chatContactsWindow").width() == undefined)) {
-            $(".expresso-fab-button").animate({
-                right: "16px"
-            }, 200);
-        } else {
-            $(".expresso-fab-button").animate({
-                right: "266px"
-            }, 200);
-        }
+        // if (($("#chatContactsWindow").width() == 0) || ($("#chatContactsWindow").width() == undefined)) {
+        //     $(".expresso-fab-button").animate({
+        //         right: "16px"
+        //     }, 200);
+        // } else {
+        //     $(".expresso-fab-button").animate({
+        //         right: "266px"
+        //     }, 200);
+        // }
 
         window.componentHandler.upgradeDom();
 
@@ -80,10 +80,11 @@ var ContextMenuView = Backbone.View.extend({
         "click #btn-primary-action": "routeToPrimaryAction",
         "click #contextMenu ul li a": "selectContextMenuItem",
         "click #contextMenuItems li a": "selectContextMenuItem",
-        "click #searchButton": "showSearchView",
+        "evt-search-view": "showSearchView",
     },
 
     showSearchView: function() {
+        console.log("do-search - 2");
         var searchView = new SearchView();
         searchView.render();
     },

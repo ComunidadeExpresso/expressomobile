@@ -17,6 +17,8 @@ var MessagesListItemsView = Backbone.View.extend({
 
     messageView: null,
 
+    elementIndex: 0,
+
     parentFolders: [],
 
     items: [],
@@ -30,14 +32,15 @@ var MessagesListItemsView = Backbone.View.extend({
         this.el.resize();
     },
 
-    render: function(nextPage, nextPageItems) {
+    render: function(elementIndex,nextPage, nextPageItems) {
 
         if (nextPage) {
 
             this.el.addItems(nextPageItems);
 
         } else {
-            $("#messagesList").empty().append(this.el);
+            console.log("#messagesList_" + elementIndex);
+            $("#messagesList_" + elementIndex).empty().append(this.el);
         }
 
 

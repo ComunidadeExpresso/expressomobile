@@ -27,7 +27,7 @@ var MenuView = Backbone.View.extend({
     render: function() {
 
 
-        $(window).resize(this.refreshWindow);
+        // $(window).resize(this.refreshWindow);
         //UPDATE PROFILE
         //GERALMENTE O PROFILE É ENVIAOD PELO MENU-VIEW PORÉM SE O USUÁRIO REALIZAR O RELOAD DA PÁGINA
         //ENTÃO SERÁ NECESSÁRIO RECARREGÁ-LO DO LOCALSTORAGE
@@ -277,7 +277,13 @@ var MenuView = Backbone.View.extend({
 
     renderContextMenu: function(menuID, params) {
 
-        // console.log("renderContextMenu: " + menuID);
+        var elementID = "#paper-fab-menu-" + params.tabIndex;
+
+        if (params.tabIndex == undefined) {
+            elementID = "#paper-fab-menu-1000";
+        }
+
+        console.log("renderContextMenu: " + menuID + ' - elementID:' + elementID);
 
         this.context = new ContextMenuView();
         var contextMenuCollection = new ContextMenuCollection();
@@ -329,7 +335,7 @@ var MenuView = Backbone.View.extend({
         if (menuID == 'chatOffline') {
             this.context.collection = contextMenuCollection.getChatOfflineMenu(params);
         }
-        this.context.render();
+        this.context.render(elementID);
     },
 
 });

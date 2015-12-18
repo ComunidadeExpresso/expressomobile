@@ -86,8 +86,11 @@ gulp.task('copy:build','Copy all necessary files from source to build folder.',f
     gulp.src(['source/api/.htaccess']).pipe(gulp.dest(folder + '/api/'));
     gulp.src(['source/bower_components/systemjs/**/*']).pipe(gulp.dest(folder + '/bower_components/systemjs/'));
     gulp.src(['source/bower_components/webcomponentsjs/**/*']).pipe(gulp.dest(folder + '/bower_components/webcomponentsjs/'));
+    gulp.src(['source/bower_components/web-animations-js/**/*']).pipe(gulp.dest(folder + '/bower_components/web-animations-js/'));
     gulp.src(['source/bower_components/charto-polymer-shim/**/*']).pipe(gulp.dest(folder + '/bower_components/charto-polymer-shim/'));
     gulp.src(['source/bower_components/systemjs-plugin-html/**/*']).pipe(gulp.dest(folder + '/bower_components/systemjs-plugin-html/'));
+    gulp.src(['source/bower_components/expandjs/**/*']).pipe(gulp.dest(folder + '/bower_components/expandjs/'));
+    gulp.src(['source/bower_components/xp-observer/**/*']).pipe(gulp.dest(folder + '/bower_components/xp-observer/'));
     gulp.src(['source/imgs/**/*']).pipe(gulp.dest(folder + '/imgs/'));
     // gulp.src(['source/config/**/*']).pipe(gulp.dest(folder + '/config/'));
     // gulp.src(['source/css/**/*']).pipe(gulp.dest(folder + '/css/'));

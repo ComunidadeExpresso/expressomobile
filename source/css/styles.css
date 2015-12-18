@@ -6,8 +6,6 @@
 @import url('material.min.css'); 
 @import url('m_mdl_iconfont.css'); 
 
-
-
 /* CONFIGURAÇÕES GLOBAIS*/
 @import url('m_animations.css');
 @import url('m_globals.css');
@@ -47,8 +45,6 @@
 
 html, body {
   font-family: 'Roboto', 'Helvetica', sans-serif;
-  /*background-color: #EFEFEF ;*/
-   /*background-color: #000 ;*/
 }
 
 

@@ -1,0 +1,363 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+
+<!-- Iron elements -->
+<link rel="import" href="../bower_components/iron-flex-layout/classes/iron-flex-layout.html">
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../bower_components/iron-icons/communication-icons.html">
+<link rel="import" href="../bower_components/iron-icons/social-icons.html">
+<link rel="import" href="../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../bower_components/iron-selector/iron-selector.html">
+<link rel="import" href="../bower_components/iron-a11y-announcer/iron-a11y-announcer.html">
+<link rel="import" href="../bower_components/iron-overlay-behavior/iron-overlay-behavior.html">
+<link rel="import" href="../bower_components/iron-list/iron-list.html">
+
+
+<link rel="import" href="../bower_components/paper-drawer-panel/paper-drawer-panel.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../bower_components/paper-material/paper-material.html">
+<link rel="import" href="../bower_components/paper-menu/paper-menu.html">
+<link rel="import" href="../bower_components/paper-header-panel/paper-header-panel.html">
+<link rel="import" href="../bower_components/paper-scroll-header-panel/paper-scroll-header-panel.html">
+<link rel="import" href="../bower_components/paper-styles/paper-styles-classes.html">
+<link rel="import" href="../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../bower_components/paper-toolbar/paper-toolbar.html">
+<link rel="import" href="../bower_components/paper-fab/paper-fab.html">
+<link rel="import" href="../bower_components/paper-tabs/paper-tab.html"> 
+<link rel="import" href="../bower_components/paper-spinner/paper-spinner.html"> 
+<link rel="import" href="../bower_components/paper-tabs/paper-tabs.html"> 
+<link rel="import" href="../bower_components/paper-item/paper-icon-item.html"> 
+<link rel="import" href="../bower_components/paper-menu-button/paper-menu-button.html"> 
+<!-- 
+<link rel="import" href="../bower_components/expandjs/expandjs.html">
+<link rel="import" href="../bower_components/mat-content/mat-content.html">
+<link rel="import" href="../bower_components/mat-drawer-panel/mat-drawer-panel.html">
+<link rel="import" href="../bower_components/mat-header-panel/mat-header-panel.html">
+<link rel="import" href="../bower_components/mat-icon-button/mat-icon-button.html">
+<link rel="import" href="../bower_components/mat-icons/action-icons.html">
+<link rel="import" href="../bower_components/mat-icons/content-icons.html">
+<link rel="import" href="../bower_components/mat-icons/navigation-icons.html">
+<link rel="import" href="../bower_components/mat-ink/mat-ink.html">
+<link rel="import" href="../bower_components/mat-item/mat-item.html">
+<link rel="import" href="../bower_components/mat-list/mat-list.html">
+<link rel="import" href="../bower_components/mat-spinner/mat-spinner.html">
+<link rel="import" href="../bower_components/mat-subheader/mat-subheader.html">
+<link rel="import" href="../bower_components/mat-tabs/mat-tabs.html">
+<link rel="import" href="../bower_components/mat-pages/mat-page.html">
+<link rel="import" href="../bower_components/mat-pages/mat-pages.html">
+<link rel="import" href="../bower_components/mat-text-field/mat-text-field.html"> -->
+
+
+<link rel="import" href="../bower_components/neon-animation/neon-animated-pages.html">
+<link rel="import" href="../bower_components/neon-animation/neon-animatable.html">
+<link rel="import" href="../bower_components/neon-animation/animations/slide-from-left-animation.html">
+<link rel="import" href="../bower_components/neon-animation/animations/fade-out-animation.html">
+<link rel="import" href="../bower_components/neon-animation/animations/slide-up-animation.html">
+<link rel="import" href="../bower_components/neon-animation/animations/slide-down-animation.html">
+
+<link rel="import" href="../bower_components/dom-bind-notifier/dom-bind-notifier.html">
+
+<dom-module id="home-view">
+  <style>
+    :host {
+        display: block;
+    }
+
+    #drawerToolbar { 
+      background-color: #FFF; 
+    }
+
+    :host .pages {
+        height: 400px;
+        line-height: 400px;
+        position: relative;
+    }
+    :host .page {
+        text-align: center;
+    }
+
+    #refresh {
+      margin-top: 100px;
+    }
+
+
+    body.core-narrow {
+      padding: 8px;
+    }
+    
+    paper-tabs, core-toolbar {
+      color: #fff;
+      /*box-shadow: 0px 3px 2px rgba(0, 0, 0, 0.2);*/
+    }
+    
+    core-toolbar paper-tabs {
+      box-shadow: none;
+    }
+    
+    paper-tabs[noink][nobar] paper-tab.core-selected {
+      color: #ffff8d;
+    }
+    
+    paper-tabs.transparent-teal {
+      background-color: transparent;
+      color: #00bcd4;
+      box-shadow: none;
+    }
+
+    paper-tabs paper-icon-button {
+      z-index: 2000;
+      width: 30px;
+      height: 30px;
+      margin-top: -20px;
+    }
+    
+    paper-tabs.transparent-teal::shadow #selectionBar {
+      background-color: #00bcd4;
+    }
+    
+    paper-tabs.transparent-teal paper-tab::shadow #ink {
+      color: #00bcd4;
+    }
+    
+    h3 {
+      font-size: 16px;
+      font-weight: 400;
+    }
+    
+
+  </style>
+  <template>
+
+    <paper-drawer-panel id="paperDrawerPanel">
+    <!-- Drawer Scroll Header Panel -->
+    <paper-scroll-header-panel drawer fixed>
+
+      <!-- Drawer Toolbar -->
+      <paper-toolbar id="drawerToolbar">
+        <span class="paper-font-title"><div class="menu-logo animation-scale-fadein"></div></span>
+      </paper-toolbar>
+
+      <!-- Drawer Content --> 
+      <menu-tabs></menu-tabs>
+
+    </paper-scroll-header-panel>
+
+    <!-- Main Area -->
+    <paper-scroll-header-panel id="scrollheader" class="fit" main keep-condensed-header condenses>
+
+      <!-- Main Toolbar -->
+      <paper-toolbar id="mainToolbar" class="tall">
+        <paper-icon-button id="paperToggle" icon="menu" paper-drawer-toggle></paper-icon-button>
+        <span class="flex"></span>
+
+        <!-- Toolbar icons -->
+        <paper-icon-button icon="refresh"></paper-icon-button>
+        <paper-icon-button id="searchButton" icon="search" on-down="_onTapSearchButton"></paper-icon-button> 
+        
+        
+
+        <!-- Application name -->
+        <div class="middle middle-container center horizontal layout">
+          <div id="currentPageTitle" class="app-name"></div>
+        </div>
+
+
+            <paper-tabs selected="{{selected}}" attrForSelected="{{item.index}}" class="bottom self-end"  scrollable style="width: 100%;">
+              <template is="dom-repeat" items="{{tabs}}">
+                <paper-tab id="home_paper_tab_{{item.index}}" name="{{item.index}}" label="{{item.name}}">{{item.name}}
+                  <paper-icon-button icon="cancel" on-down="_closeTab"></paper-icon-button>
+                </paper-tab>
+              </template>
+            </paper-tabs>
+          
+
+          <!-- <mat-tabs id="mainTabs" scrollable selected="{{selected}}" target="homePages">
+            <template is="dom-repeat" items="{{tabs}}">
+              <mat-tab name="{{item.index}}" label="{{item.name}}" closable$="{{item.closable}}"></mat-tab>
+            </template>
+          </mat-tabs> -->
+          <div class="bottom flex"></div>
+
+          
+      </paper-toolbar>
+      
+
+      <!-- Main Content -->
+
+      <!-- 
+      <mat-pages id="homePages" selected="{{selected}}">
+          <template is="dom-repeat" items="{{tabs}}">
+            <mat-page index="{{item.index}}" id="content_{{item.index}}" class="content">
+
+              <div id="refresh" class="fit layout vertical center-center">
+                <div id="refresh-spinner-container" class="layout vertical center-center shrink">
+                  <paper-spinner alt="Carregando" active></paper-spinner>
+                  {{item.content}}
+                </div>
+              </div>
+            
+            </mat-page>
+          </template>
+      </mat-pages>    
+      -->
+
+
+  
+      <neon-animated-pages id="homeTabs" class="flex" selected="{{selected}}" entry-animation="slide-down-animation" exit-animation="fade-out-animation">
+        <template is="dom-repeat" items="{{pageTabs}}">
+          <neon-animatable>
+            <div id="pull-to-action-loader-{{item.index}}"></div>
+            <div id="content_{{item.index}}" class="content">
+              <div id="refresh" class="fit layout vertical center-center">
+                <div id="refresh-spinner-container" class="layout vertical center-center shrink">
+                  <paper-spinner alt="Carregando" active></paper-spinner>
+                </div>
+              </div>
+            </div>
+            <div id="paper-fab-menu-{{item.index}}"></div>
+          </neon-animatable>
+        </template>
+      </neon-animated-pages>
+            
+
+    </paper-scroll-header-panel>
+
+    </paper-drawer-panel>
+    
+
+    <paper-toast id="toastMessage" text="." style="z-index: 100000;">
+      <span class="toast-hide-button" role="button" tabindex="0" onclick="this.$.toastMessage.hide()">Ok</span>
+    </paper-toast>
+
+  </template>
+  <script>
+    Polymer({
+      is: 'home-view',
+      properties: {
+        selected: {
+          type: Number,
+          reflectAttribute: true,
+          notify: true,
+          value: 0
+        },
+        tabs: {
+          type: Array,
+          value: [],
+          notify: true,
+          reflectAttribute: true,
+        },
+
+        pageTabs: {
+          type: Array,
+          value: [],
+          notify: true,
+          reflectAttribute: true
+        },
+
+      },
+
+
+
+
+      _closeTab: function(e, detail, sender) {
+        var tabIndex = e.model.__data__.index;
+
+
+        // console.log(e);
+        // console.log("closeTab:" + tabIndex);
+
+        this.splice('tabs',tabIndex,1);
+        this.splice('pageTabs',tabIndex,1);
+
+        if (this.tabs.length > 0) {
+          this.selected = this.tabs.length - 1;
+        }
+
+      },
+
+
+
+
+      setNameForTab: function(Pindex,Pname) { 
+        var newTabs = [];
+        for (var i = 0; i < this.tabs.length; i++) { 
+          if (this.tabs[i].index == Pindex) {
+            this.tabs[i].name = Pname;
+          }
+          newTabs[i] = this.tabs[i];
+        }
+
+
+        console.log("this.tabs");
+        console.log(this.tabs);
+        console.log("newTabs");
+        console.log(newTabs);
+
+        this.tabs = [];
+
+        this.push('tabs',newTabs);
+
+        // this.tabs = newTabs;
+      },
+      _getNewIndex: function() {
+        var maxIndex = 0;
+        for (var i = 0; i < this.tabs.length; i++) { 
+          if (this.tabs[i].index > maxIndex) {
+            maxIndex = this.tabs[i].index;
+          }
+        }
+        return maxIndex + 1;
+      },
+
+      _onTapSearchButton: function(e) {
+        e.stopPropagation();
+        console.log("evt-search-view");
+        this.fire('evt-search-view', {view: this});
+      },
+
+      addTab: function(PcontentID,Ptitle,Pcontent,Pclosable) {
+
+          // if ((Ptitle != undefined) && (PcontentID != undefined) ) {
+
+            var newIndex = this._getNewIndex();
+
+            PcontentID = PcontentID.replace('/','_');
+
+            var newTab = {index: newIndex, contentID: PcontentID, name: Ptitle, closable: Pclosable};
+
+            var newPageTab = {index: newIndex, contentID: PcontentID,  content: Pcontent };
+
+            this.push('tabs',newTab);
+            this.push('pageTabs',newPageTab);
+
+            return newIndex;
+
+
+        },
+    });
+
+    // document.addEventListener('paper-header-transform', function(event) {
+    //     console.log('paper-header-transform');
+    //     var title = this.querySelector('.title');
+    //     var detail = event.detail;
+    //     var deltaHeight = detail.height - detail.condensedHeight;
+    //     var scale = Math.max(0.6, (deltaHeight - detail.y) / (deltaHeight / 0.4)  + 0.6);
+    //     $("#currentPageTitle").css({transform: 'scale(' + scale + ') translateZ(0)'});
+
+    //     if (scale <= 0.8) {
+    //       $('#currentPageTitle').css({'margin-top':'130px'});
+    //     } else {
+    //       $('#currentPageTitle').css({'margin-top':'0px'});
+    //     }
+    // });
+  </script>
+</dom-module>

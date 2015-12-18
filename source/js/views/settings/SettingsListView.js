@@ -17,18 +17,18 @@ var SettingsListView = Backbone.View.extend({
 
     secondViewName: '',
 
-    render: function() {
+    render: function(elementID) {
 
         var that = this;
 
-        var primaryElementID = "#content";
-        var detailElementID = "#contentDetail";
+        var primaryElementID = elementID;
+        var detailElementID = elementID;
 
         Shared.menuView.renderContextMenu(0, []);
 
-        if (Shared.isSmartPhoneResolution()) {
-            detailElementID = "#content";
-        }
+        // if (Shared.isSmartPhoneResolution()) {
+        //     detailElementID = "#content";
+        // }
 
         if (this.secondViewName != null) {
 
@@ -129,7 +129,7 @@ var SettingsListView = Backbone.View.extend({
                 $(primaryElementID).empty().html(that.$el);
 
 
-                Shared.setCurrentPageTitle("Preferências");
+                //Shared.setCurrentPageTitle("Preferências");
                 window.componentHandler.upgradeDom();
 
 

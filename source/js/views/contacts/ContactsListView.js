@@ -13,12 +13,16 @@ import HomeView from 'HomeView';
 import ContactsListCollection from 'ContactsListCollection';
 import PullToActionView from 'PullToActionView';
 import Material from 'material';
+
 var ContactsListView = Backbone.View.extend({
     searchLength: 0,
     secondViewName: '',
     status: null,
     currentView: null,
     arrayContacts: {},
+
+    elementID: '',
+    elementIndex: '',
 
     events: {
         "keyup .personalContacts .searchField": "searchPersonalContacts",
@@ -27,41 +31,45 @@ var ContactsListView = Backbone.View.extend({
     },
 
     render: function() {
-        this.$el.html(_.template(primaryContentTemplate));
-        $('#content').empty().append(this.$el);
 
-        Shared.setDefaultIMListeners();
-
-        if (!Shared.isSmartPhoneResolution()) {
-            $('#contentDetail').html(_.template(detailContentTemplate));
-            $('#contentDetail .searchArea').remove();
-            // $('#contentDetailTitle').text('Exibir contato');
+        var pageTitle = "Contatos Pessoais"
+        if (this.secondViewName == 'General') {
+            pageTitle = "Catálogo Geral";
         }
 
-        var loadingView = new LoadingView({
-            el: $('#scroller')
-        });
-        loadingView.render();
+        var thot = this;
+        
+        var doneCallback = function(elementIndex, elementID) {
 
-        if (this.secondViewName == 'General')
-            this.listGeneralContacts('', false);
-        else
-            this.listPersonalContacts('', false);
+            thot.elementIndex = elementIndex;
+            thot.elementID = elementID;
+            
+            thot.$el.html(_.template(primaryContentTemplate));
+            $(elementID).empty().append(thot.$el);
 
-        var that = this;
-        var refreshAction = function() {
-            $("#scroller").empty();
-            if (that.secondViewName == 'General')
-                that.listGeneralContacts($('.searchField').val(), true);
+            if (thot.secondViewName == 'General')
+                thot.listGeneralContacts('', false);
             else
-                that.listPersonalContacts($('.searchField').val(), true);
+                thot.listPersonalContacts('', false);
+
+            var that = thot;
+            var refreshAction = function() {
+                $(elementID).empty();
+                if (that.secondViewName == 'General')
+                    that.listGeneralContacts($('.searchField').val(), true);
+                else
+                    that.listPersonalContacts($('.searchField').val(), true);
+            };
+
+            var pullToAction = new PullToActionView({
+                refreshAction: refreshAction,
+                container: '#pull-to-action-loader-' + that.elementIndex
+            });
+            pullToAction.render();
+   
         };
 
-        var pullToAction = new PullToActionView({
-            refreshAction: refreshAction,
-            container: '#pull-to-action-loader'
-        });
-        pullToAction.render();
+        Shared.homeView.addTab(pageTitle,doneCallback);
 
     },
 
@@ -107,7 +115,7 @@ var ContactsListView = Backbone.View.extend({
         // Define se precisa fazer a busca ou não
         if (pSearch.length >= 3 || this.searchLength >= 3) {
             var loadingView = new LoadingView({
-                el: $('#scroller')
+                el: $(this.elementID)
             });
             loadingView.render();
 
@@ -132,9 +140,9 @@ var ContactsListView = Backbone.View.extend({
         var donePersonalContacts = function(data) {
             Shared.menuView.renderContextMenu(0, []);
             if (self.secondViewName == 'General')
-                Shared.menuView.renderContextMenu('generalContacts', {});
+                Shared.menuView.renderContextMenu('generalContacts', { tabIndex: self.elementIndex });
             else
-                Shared.menuView.renderContextMenu('personalContacts', {});
+                Shared.menuView.renderContextMenu('personalContacts', { tabIndex: self.elementIndex });
 
             if (data.error == undefined) {
                 if (data.contacts.length > 0) {

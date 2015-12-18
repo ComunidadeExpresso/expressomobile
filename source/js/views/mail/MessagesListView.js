@@ -20,7 +20,9 @@ var MessagesListView = Backbone.View.extend({
     currentFolder: [],
     parentFolders: [],
     elementID: "#content",
-    detailElementID: "#contentDetail",
+    elementIndex: 1,
+    currentIndex : 0,
+    // detailElementID: "#contentDetail",
     folderID: 'INBOX',
     msgID: '',
     forceReload: "0",
@@ -33,117 +35,152 @@ var MessagesListView = Backbone.View.extend({
 
     render: function() {
 
-        this.elementID = "#content";
+        //this.elementID = "#content_" + this.elementIndex;
+
+        // console.log("render: " + this.elementID);
 
         var that = this;
 
         var beforeRenderCallback = function(colection) {
 
-            Shared.setCurrentPageTitle(that.currentFolder.get("folderName"));
+            //$("#home_paper_tab_"+ that.elementIndex).attr('label',that.currentFolder.get("folderName"));
 
-            var newData = {
-                folderID: that.folderID,
-                msgID: that.msgID,
-                currentFolder: that.currentFolder,
-                collection: colection,
-                _: _,
-                Shared: Shared,
-                enabledDesktopVersion: that.enabledDesktopVersion
-            };
+            //Shared.homeView.el.setNameForTab(that.elementIndex,that.currentFolder.get("folderName"));
+            // Shared.setCurrentPageTitle(that.currentFolder.get("folderName"));
 
-            if (!colection.length) {
-
-                if (Shared.isTabletResolution()) {
-                    if (Shared.newMessageIntent) {
-                        Shared.newMessageIntent = false;
-                        Shared.router.navigate("/Mail/Message/New", {
-                            trigger: true
-                        });
-                    } else {
-                        Shared.router.navigate("/Mail/Messages/0/0/" + that.folderID + "#", {
-                            trigger: true
-                        });
-                    }
-
-                }
-
-            }
-
-            var htmlTemplate = _.template(messagesListTemplate);
-            var htmlWithData = htmlTemplate(newData);
-
-            that.$el.html(htmlWithData);
-
-            $(that.elementID).empty().append(that.$el);
-
-
-
-
-            var refreshFunction = function() {
-                that.page = 1;
-                $("#messagesList").empty();
-                that.getMessages(that.folderID, that.search, that.page, false, true);
-            };
-
-            var pullToAction = new PullToActionView({
-                refreshAction: refreshFunction,
-                container: '#pull-to-action-loader'
-            });
-            pullToAction.render();
-
-            // var nextPageFunction = function () {
-            //   console.log("nextPage");
+            // var newData = {
+            //     folderID: that.folderID,
+            //     msgID: that.msgID,
+            //     currentFolder: that.currentFolder,
+            //     collection: colection,
+            //     _: _,
+            //     Shared: Shared,
+            //     elementIndex: that.elementIndex,
+            //     enabledDesktopVersion: that.enabledDesktopVersion
             // };
 
+            // if (!colection.length) {
 
-            // var ironTreshold = new IronScrollTresholdView({ refreshAction: nextPageFunction, container: "#iron-scroll-threshold-loader" });
-            // ironTreshold.render();
+            //     if (Shared.isTabletResolution()) {
+            //         if (Shared.newMessageIntent) {
+            //             Shared.newMessageIntent = false;
+            //             Shared.router.navigate("/Mail/Message/New", {
+            //                 trigger: true
+            //             });
+            //         } else {
+            //             Shared.router.navigate("/Mail/Messages/0/0/" + that.folderID + "#", {
+            //                 trigger: true
+            //             });
+            //         }
 
+            //     }
+
+            // }
+
+           
 
         }
 
 
-        var doneFunction = function() {
+        var doneFunction = function(arr_items, appendAtEnd) {
 
-            if (Shared.newMessageIntent == false) {
-                Shared.menuView.renderContextMenu('messageList', {
-                    folderID: that.folderID,
-                    folderName: that.currentFolder.folderName,
-                    folderType: that.currentFolder.get("folderType"),
-                    qtdMessages: 0
-                });
-            }
+            
 
-            if (((Shared.isTabletResolution()) && (that.forceReload == "1")) || ((!Shared.isTabletResolution()) && (Shared.gotoRoute != false))) {
+            var thot = that; 
 
-                if (Shared.newMessageIntent == true) {
-                    Shared.newMessageIntent = false;
-                    Shared.router.navigate("/Mail/Message/New", {
-                        trigger: true
+            // console.log("beforeRenderCallback:" + that.currentFolder.get("folderName"));
+
+            
+
+            var doneAddTab = function(elementIndex, elementID) {
+
+                if (Shared.newMessageIntent == false) {
+                    Shared.menuView.renderContextMenu('messageList', {
+                        tabIndex: that.elementIndex, 
+                        folderID: thot.folderID,
+                        folderName: thot.currentFolder.folderName,
+                        qtdMessages: 0
                     });
-                } else {
-
-                    if (that.msgID != undefined) {
-
-                        var detailMessageView = new DetailMessageView();
-                        detailMessageView.folderID = that.folderID;
-                        detailMessageView.msgID = that.msgID;
-
-                        Shared.menuView.renderContextMenu('messageList', {
-                            folderID: that.folderID,
-                            folderName: that.currentFolder.folderName,
-                            folderType: that.currentFolder.get("folderType"),
-                            qtdMessages: 0
-                        });
-
-                        detailMessageView.render();
-                    }
-
+                    // folderType: that.currentFolder.get("folderType"),
                 }
 
+                thot.elementIndex = elementIndex;
+
+                var newData = {
+                    elementIndex: thot.elementIndex
+                };
+
+                console.log("doneAddTab");
+                console.log(elementID);
+
+                var htmlTemplate = _.template(messagesListTemplate);
+                var htmlWithData = htmlTemplate(newData);
+
+                thot.$el.html(htmlWithData);
+
+                $(elementID).empty().append(thot.$el);
+
+                thot.messagesListItemsView.render(elementIndex,appendAtEnd, arr_items);
+
+                var refreshFunction = function() {
+
+                    var elementIndex = thot.elementIndex;
+
+                    thot.page = 1;
+                    $("#messagesList_" + elementIndex).empty();
+
+                    var doneRefreshCallback = function(arr_items, appendAtEnd) {
+                        thot.messagesListItemsView.render(elementIndex,appendAtEnd, arr_items);
+                    };
+
+                    thot.getMessages(thot.folderID, thot.search, thot.page, false, true,function(){},doneRefreshCallback);
+                };
+
+                var pullToAction = new PullToActionView({
+                    refreshAction: refreshFunction,
+                    container: '#pull-to-action-loader-' + thot.elementIndex
+                });
+                pullToAction.render();
+                
+            };
+
+            if (!appendAtEnd) {
+
+                Shared.homeView.addTab(that.currentFolder.get("folderName"),doneAddTab);
+
             }
 
-            Shared.setDefaultIMListeners();
+            // if (((Shared.isTabletResolution()) && (that.forceReload == "1")) || ((!Shared.isTabletResolution()) && (Shared.gotoRoute != false))) {
+
+            //     if (Shared.newMessageIntent == true) {
+            //         Shared.newMessageIntent = false;
+            //         Shared.router.navigate("/Mail/Message/New", {
+            //             trigger: true
+            //         });
+            //     } else {
+
+            //         if (that.msgID != undefined) {
+
+            //             var detailMessageView = new DetailMessageView();
+            //             detailMessageView.folderID = that.folderID;
+            //             detailMessageView.msgID = that.msgID;
+            //             detailMessageView.elementIndex = that.elementIndex;
+
+            //             Shared.menuView.renderContextMenu('messageList', {
+            //                 folderID: that.folderID,
+            //                 folderName: that.currentFolder.folderName,
+            //                 folderType: that.currentFolder.get("folderType"),
+            //                 qtdMessages: 0
+            //             });
+
+            //             detailMessageView.render();
+            //         }
+
+            //     }
+
+            // }
+
+            // Shared.setDefaultIMListeners();
 
         };
 
@@ -152,31 +189,15 @@ var MessagesListView = Backbone.View.extend({
         //IN SMARTPHONE RESOLUTION THE FORCERELOAD IS USED TO NOT RELOAD ALL THE PAGE AND ONLY LOADS THE NECESSARY AREA OF THE PAGE.
         if (this.forceReload == "1") {
 
-            var loadingView = new LoadingView({
-                el: $(this.elementID)
-            });
-            loadingView.render();
-
-            var loadingView = new LoadingView({
-                el: $(this.detailElementID)
-            });
-            loadingView.render();
-
             that.getMessages(that.folderID, that.search, that.page, false, false, beforeRenderCallback, doneFunction);
 
         } else {
 
-            var loadingView = new LoadingView({
-                el: $(this.detailElementID)
-            });
-            loadingView.render();
-
             var detailMessageView = new DetailMessageView();
             detailMessageView.folderID = that.folderID;
             detailMessageView.msgID = that.msgID;
-
             detailMessageView.render();
-
+            
         }
 
 
@@ -184,12 +205,12 @@ var MessagesListView = Backbone.View.extend({
     },
 
     events: {
-        "keydown #searchField": "searchMessage",
+        // "keydown #searchField": "searchMessage",
         "lower-trigger": "loadNextPage",
     },
 
     loadNextPage: function(e) {
-        // console.log("loadNextPage");
+        console.log("loadNextPage");
         this.pullUpAction();
     },
 
@@ -330,10 +351,10 @@ var MessagesListView = Backbone.View.extend({
                             }
                         }
 
-                        that.messagesListItemsView.render(appendAtEnd, arr_items);
+                        // Shared.homeView.el.setNameForTab(that.elementIndex,that.currentFolder.get("folderName"));
 
                         if (doneCallback) {
-                            doneCallback();
+                            doneCallback(arr_items,appendAtEnd);
                         }
 
 
@@ -344,7 +365,6 @@ var MessagesListView = Backbone.View.extend({
 
                         $(that.elementID).empty();
 
-                        $(that.detailElementID).empty();
 
                         return false;
                     })
@@ -356,8 +376,6 @@ var MessagesListView = Backbone.View.extend({
                 Shared.handleErrors(result.error);
 
                 $(that.elementID).empty();
-
-                $(that.detailElementID).empty();
 
                 return false;
             })
@@ -374,6 +392,7 @@ var MessagesListView = Backbone.View.extend({
     },
 
     pullUpAction: function() {
+        console.log("pullUpAction:" + this.elementID);
         this.page = this.page + 1;
         this.getMessages(this.folderID, this.search, this.page, true, false);
     }

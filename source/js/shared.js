@@ -204,7 +204,7 @@ import moment from 'moment';
   };
 
   Shared.setCurrentPageTitle = function(title) {
-    $("#currentPageTitle").html(title);
+    // $("#currentPageTitle").html(title);
   };
 
   Shared.refreshSettings = function() {

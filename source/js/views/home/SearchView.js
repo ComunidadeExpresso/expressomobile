@@ -57,7 +57,7 @@ var SearchView = Backbone.View.extend({
     render: function() {
 
         //this.$el.set("previousSearches",Shared.previousSearches);
-        $("#mainPage").prepend(this.$el);
+        $("#mainAppPageContent").prepend(this.$el);
 
     }
 

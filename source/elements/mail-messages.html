@@ -18,10 +18,19 @@
     :host {
       height: 100%;
       overflow: hidden;
+      /*overflow: hidden;*/
+    }
+  
+    iron-list {
+      padding-bottom: 16px;
     }
 
     iron-list {
+      /*overflow: hidden;*/
+    }
 
+    iron-list.has-scroller {
+      /*overflow: hidden;*/
     }
   
     hidden {
@@ -104,6 +113,7 @@
           this.fire('lower-trigger');
 
         }
+        
       }
 
     },
@@ -249,7 +259,7 @@
     },
 
     resize: function() {
-      Polymer.dom(this.$.scrollList).setAttribute('style', 'height: ' + (document.body.clientHeight - 50) + 'px;');
+       // Polymer.dom(this.$.scrollList).setAttribute('style', 'height: ' + (document.body.clientHeight - 500) + 'px;');
     },
 
     properties: {

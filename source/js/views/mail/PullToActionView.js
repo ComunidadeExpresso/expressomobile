@@ -10,7 +10,7 @@ var PullToActionView = Backbone.View.extend({
 
     _shadow: null,
 
-    container: '#pageContent',
+    container: '#content_1',
 
     refreshFunction: function() {},
 

@@ -14,6 +14,14 @@ body div #menu dl dd ul#myFolders li a span { line-height: 25px; vertical-align:
 /*body div #menu dl dd ul#myFolders li a span .badge.badge-info { float: right; }*/
 
 
+.menu-logo {
+  width: 200px;
+  height: 40px;
+  background: url("../imgs/logo_expresso.png") no-repeat scroll center center;
+  background-size: 150px 40px;
+}
+
+
 .expresso-settings-button {
     position: absolute;
     left: 196px;
@@ -77,6 +85,8 @@ body div #menu dl dd ul#myFolders li a span { line-height: 25px; vertical-align:
 }
 .expresso-drawer {
   border: none;
+  width: 255px;
+  z-index:0;
 }
 /* iOS Safari specific workaround */
 .expresso-drawer .mdl-menu__container {
@@ -237,3 +247,9 @@ body div #menu dl dd ul#myFolders li a span { line-height: 25px; vertical-align:
   position: absolute;
 }
 
+.menu-footer {
+  font-size: 10px;
+  background-color: #FFF;
+  padding-top: 20px;
+  padding-bottom: 20px;
+}

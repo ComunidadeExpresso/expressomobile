@@ -75,10 +75,11 @@ import ChatListView from 'ChatListView';
     setupRouter: function() {
       var app_router = this;
 
-        app_router.on('route:homeView', function (actions) {
-         
-            var homeView = new HomeView();
-            homeView.render();
+        app_router.on('route:homeView', function (actions) {  
+
+            Shared.homeView = new HomeView();
+            Shared.homeView.render();
+
         });
 
         app_router.on('route:switchAccount', function (PaccountName) {
@@ -215,18 +216,10 @@ import ChatListView from 'ChatListView';
         app_router.on('route:detailMessageView', function (PforceReload,PmsgID,PfolderID) {
 
           PfolderID = PfolderID.replace("#","");
+          // console.log("detailMessageView");
+          Shared.homeView.folderID = PfolderID;
+          Shared.homeView.loadMessagesInFolder(PfolderID,'',PmsgID,PforceReload);
 
-          var homeView = new HomeView({folderID: PfolderID});
-          Shared.menuView.closeMenu();
-          homeView.loadMessagesInFolder(PfolderID,'',PmsgID,PforceReload);
-
-          if (PfolderID == 'INBOX') {
-            Shared.menuView.selectMenu(1);
-          } else {
-            Shared.menuView.selectMenu(0);
-          }
-
-          Shared.deviceType(Shared.isSmartPhoneResolution());
 
         });
 
@@ -238,10 +231,7 @@ import ChatListView from 'ChatListView';
           composeMessageView.msgID = msgID;
           composeMessageView.folderID = folderID;
           composeMessageView.render();
-          Shared.menuView.closeMenu();
-
-          Shared.deviceType(Shared.isSmartPhoneResolution());
-      
+          
         });
 
         app_router.on('route:composeMessageTo', function (secondViewName, emailTo) {
@@ -249,10 +239,15 @@ import ChatListView from 'ChatListView';
           var composeMessageView = new ComposeMessageView();
           composeMessageView.secondViewName = secondViewName;
           composeMessageView.emailTo = emailTo;
-          composeMessageView.render();
-          Shared.menuView.closeMenu();
 
-          Shared.deviceType(Shared.isSmartPhoneResolution());
+          var elementIndex = Shared.homeView.addTab(secondViewName,true);
+          var elementID = "#content_" + elementIndex;
+          
+
+          composeMessageView.render(elementID);
+          // Shared.menuView.closeMenu();
+
+          // Shared.deviceType(Shared.isSmartPhoneResolution());
       
         });
 
@@ -260,23 +255,20 @@ import ChatListView from 'ChatListView';
 
           var settingsListView = new SettingsListView();
           settingsListView.secondViewName = secondViewName;
-          settingsListView.render();
+          
 
-          Shared.menuView.selectMenu(5);
+          var elementIndex = Shared.homeView.addTab("Preferências",true);
+          var elementID = "#content_" + elementIndex;
 
-          Shared.deviceType(Shared.isSmartPhoneResolution());
-      
+          settingsListView.render(elementID);
+
         });
 
         app_router.on('route:contactsListView', function (secondViewName) {
 
           var contListView = new ContactsListView();
           contListView.secondViewName = secondViewName;
-          contListView.render();
-
-          Shared.menuView.selectMenu(3);
-
-          Shared.deviceType(Shared.isSmartPhoneResolution());
+          contListView.render();          
       
         });
 
@@ -413,8 +405,6 @@ import ChatListView from 'ChatListView';
         });
 
         app_router.on('route:chatListView', function (secondViewName) {
-
-
 
           // var chatListView = new ChatListView();
           // chatListView.secondViewName = secondViewName;

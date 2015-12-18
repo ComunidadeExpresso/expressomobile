@@ -20,6 +20,9 @@ var ComposeMessageView = Backbone.View.extend({
     folderID: '',
     currentMessage: '',
 
+    elementID: '',
+    elementIndex: '',
+
 
     addContactToField: function(params) {
 
@@ -31,11 +34,13 @@ var ComposeMessageView = Backbone.View.extend({
     },
 
     renderComposeMessage: function(pMessage, signature, pMsgType, pMsgOriginal) {
-        var elementID = "#contentDetail";
+        // var elementID = "#contentDetail";
 
-        if (Shared.isSmartPhoneResolution()) {
-            elementID = "#content";
-        }
+        // if (Shared.isSmartPhoneResolution()) {
+        //     elementID = "#content";
+        // }
+
+        var elementID = this.elementID;
 
         var withSignature = true;
 
@@ -60,9 +65,9 @@ var ComposeMessageView = Backbone.View.extend({
         this.$el.html("");
         this.$el.html(compiledTemplate);
 
-        var withDialog = false;
+        var withTab = false;
 
-        if (withDialog) {
+        if (withTab) {
             // this.$el.wijdialog({
             //   autoOpen: true,
             //   title: "Nova Mensagem",
@@ -118,11 +123,11 @@ var ComposeMessageView = Backbone.View.extend({
                 that.updateBody();
             };
 
-            var dropZone = document.getElementById('msgAttachmentsRecipients');
-            $(dropZone).addClass("drop_zone");
-            $("#msgAttachmentsRow").removeClass("hidden");
-            dropZone.addEventListener('dragover', handleDragOverDropZone, false);
-            dropZone.addEventListener('drop', handleFileSelectInDropZone, false);
+            // var dropZone = document.getElementById('msgAttachmentsRecipients');
+            // $(dropZone).addClass("drop_zone");
+            // $("#msgAttachmentsRow").removeClass("hidden");
+            // dropZone.addEventListener('dragover', handleDragOverDropZone, false);
+            // dropZone.addEventListener('drop', handleFileSelectInDropZone, false);
 
             this.setupAutoComplete();
 
@@ -252,6 +257,7 @@ var ComposeMessageView = Backbone.View.extend({
 
     getContextMenuParams: function() {
         var params = {};
+        params.tabIndex = this.elementIndex;
         params.sendCallBack = this.sendMessage;
         params.addCcBccCallBack = this.addCcBcc;
         params.removeCcBccCallBack = this.removeCcBcc;
@@ -277,11 +283,13 @@ var ComposeMessageView = Backbone.View.extend({
 
         var that = thisView;
 
-        var elementID = "#contentDetail";
+        // var elementID = "#contentDetail";
 
-        if (Shared.isSmartPhoneResolution()) {
-            elementID = "#content";
-        }
+        // if (Shared.isSmartPhoneResolution()) {
+        //     elementID = "#content";
+        // }
+
+        var elementID = this.elementID;
 
         var onSendMessage = function(result) {
 
@@ -483,54 +491,69 @@ var ComposeMessageView = Backbone.View.extend({
 
     },
 
-    render: function() {
+    render: function(PelementID) {
 
-        var elementID = "#contentDetail";
+        // var elementID = "#contentDetail";
+
+        var elementID = PelementID;
+
+        this.elementID = PelementID;
 
         var that = this;
 
-        if (Shared.isSmartPhoneResolution()) {
-            elementID = "#content";
-        }
+        // if (Shared.isSmartPhoneResolution()) {
+        //     elementID = "#content";
+        // }
 
         if (this.secondViewName == "New") {
 
-            var pMessage = new MessagesModel();
-            pMessage.set("msgSubject", "");
-            pMessage.set("msgTo", []);
-            pMessage.set("msgCc", []);
-            pMessage.set("msgBcc", []);
-            pMessage.set("msgBody", "");
-            pMessage.clearFiles();
+            var thot = this;
 
-            if ($.trim(this.emailTo) != '')
-                pMessage.addRecipient("msgTo", this.emailTo, '');
+            var callBackTabAdded = function(elementIndex, elementID) {
 
-            var that = this;
+                thot.elementID = elementID;
+                thot.elementIndex = elementIndex;
 
-            that.renderComposeMessage(pMessage, true, 'new');
+                var that = thot;
 
-            $("#msgAttachmentsRow").removeClass("hidden");
+                var pMessage = new MessagesModel();
+                pMessage.set("msgSubject", "");
+                pMessage.set("msgTo", []);
+                pMessage.set("msgCc", []);
+                pMessage.set("msgBcc", []);
+                pMessage.set("msgBody", "");
+                pMessage.clearFiles();
 
-            var callbackDone = function(currentMessage) {
+                if ($.trim(that.emailTo) != '')
+                    pMessage.addRecipient("msgTo", that.emailTo, '');
 
-                Shared.currentDraftMessage = currentMessage;
+                that.renderComposeMessage(pMessage, true, 'new');
 
-                var files = Shared.currentDraftMessage.get("files");
+                $("#msgAttachmentsRow").removeClass("hidden");
 
-                if (!Shared.isDesktop()) {
-                    $("#msgAttachmentsRecipients").empty();
-                }
+                var callbackDone = function(currentMessage) {
 
-                for (var i = 0, f; f = files[i]; i++) {
+                    Shared.currentDraftMessage = currentMessage;
 
-                    that.prependAttachmentImage(f.fileID, f.filename, f.fileSize, f.dataType, f.src);
+                    var files = Shared.currentDraftMessage.get("files");
 
-                }
+                    if (!Shared.isDesktop()) {
+                        $("#msgAttachmentsRecipients").empty();
+                    }
+
+                    for (var i = 0, f; f = files[i]; i++) {
+
+                        that.prependAttachmentImage(f.fileID, f.filename, f.fileSize, f.dataType, f.src);
+
+                    }
+
+                };
+
+                pMessage.addNewMessageFiles(callbackDone);
 
             };
 
-            pMessage.addNewMessageFiles(callbackDone);
+            Shared.homeView.addTab("Nova Mensagem",callBackTabAdded);
 
         }
 

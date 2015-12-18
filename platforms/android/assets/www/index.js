@@ -15,10 +15,11 @@ addEventListener('DOMContentLoaded', resolve);
 window.Polymer = {
 Settings: function () {
 var user = window.Polymer || {};
-location.search.slice(1).split('&').forEach(function (o) {
+var parts = location.search.slice(1).split('&');
+for (var i = 0, o; i < parts.length && (o = parts[i]); i++) {
 o = o.split('=');
 o[0] && (user[o[0]] = o[1] || true);
-});
+}
 var wantShadow = user.dom === 'shadow';
 var hasShadow = Boolean(Element.prototype.createShadowRoot);
 var nativeShadow = hasShadow && !window.ShadowDOMPolyfill;
@@ -105,15 +106,53 @@ this._callbacks.push(cb);
 },
 _makeReady: function () {
 this._ready = true;
-this._callbacks.forEach(function (cb) {
-cb();
-});
+for (var i = 0; i < this._callbacks.length; i++) {
+this._callbacks[i]();
+}
 this._callbacks = [];
 },
 _catchFirstRender: function () {
 requestAnimationFrame(function () {
 Polymer.RenderStatus._makeReady();
 });
+},
+_afterNextRenderQueue: [],
+_waitingNextRender: false,
+afterNextRender: function (element, fn, args) {
+this._watchNextRender();
+this._afterNextRenderQueue.push([
+element,
+fn,
+args
+]);
+},
+_watchNextRender: function () {
+if (!this._waitingNextRender) {
+this._waitingNextRender = true;
+var fn = function () {
+Polymer.RenderStatus._flushNextRender();
+};
+if (!this._ready) {
+this.whenReady(fn);
+} else {
+requestAnimationFrame(fn);
+}
+}
+},
+_flushNextRender: function () {
+var self = this;
+setTimeout(function () {
+self._flushRenderCallbacks(self._afterNextRenderQueue);
+self._afterNextRenderQueue = [];
+self._waitingNextRender = false;
+});
+},
+_flushRenderCallbacks: function (callbacks) {
+for (var i = 0, h; i < callbacks.length; i++) {
+h = callbacks[i];
+h[1].apply(h[0], h[2] || Polymer.nar);
+}
+;
 }
 };
 if (window.HTMLImports) {
@@ -143,27 +182,33 @@ this._doBehavior('created');
 this._initFeatures();
 },
 attachedCallback: function () {
+var self = this;
 Polymer.RenderStatus.whenReady(function () {
-this.isAttached = true;
-this._doBehavior('attached');
-}.bind(this));
+self.isAttached = true;
+self._doBehavior('attached');
+});
 },
 detachedCallback: function () {
 this.isAttached = false;
 this._doBehavior('detached');
 },
-attributeChangedCallback: function (name) {
+attributeChangedCallback: function (name, oldValue, newValue) {
 this._attributeChangedImpl(name);
-this._doBehavior('attributeChanged', arguments);
+this._doBehavior('attributeChanged', [
+name,
+oldValue,
+newValue
+]);
 },
 _attributeChangedImpl: function (name) {
 this._setAttributeToProperty(this, name);
 },
 extend: function (prototype, api) {
 if (prototype && api) {
-Object.getOwnPropertyNames(api).forEach(function (n) {
+var n$ = Object.getOwnPropertyNames(api);
+for (var i = 0, n; i < n$.length && (n = n$[i]); i++) {
 this.copyOwnProperty(n, api, prototype);
-}, this);
+}
 }
 return prototype || api;
 },
@@ -241,7 +286,7 @@ import: function (id, selector) {
 if (id) {
 var m = findModule(id);
 if (!m) {
-forceDocumentUpgrade();
+forceDomModulesUpgrade();
 m = findModule(id);
 }
 if (m && selector) {
@@ -253,12 +298,17 @@ return m;
 });
 var cePolyfill = window.CustomElements && !CustomElements.useNative;
 document.registerElement('dom-module', DomModule);
-function forceDocumentUpgrade() {
+function forceDomModulesUpgrade() {
 if (cePolyfill) {
 var script = document._currentScript || document.currentScript;
 var doc = script && script.ownerDocument || document;
-if (doc) {
-CustomElements.upgradeAll(doc);
+var modules = doc.querySelectorAll('dom-module');
+for (var i = modules.length - 1, m; i >= 0 && (m = modules[i]); i--) {
+if (m.__upgraded__) {
+return;
+} else {
+CustomElements.upgrade(m);
+}
 }
 }
 }
@@ -293,7 +343,8 @@ return behaviors;
 },
 _flattenBehaviorsList: function (behaviors) {
 var flat = [];
-behaviors.forEach(function (b) {
+for (var i = 0; i < behaviors.length; i++) {
+var b = behaviors[i];
 if (b instanceof Array) {
 flat = flat.concat(this._flattenBehaviorsList(b));
 } else if (b) {
@@ -301,31 +352,16 @@ flat.push(b);
 } else {
 this._warn(this._logf('_flattenBehaviorsList', 'behavior is null, check for missing or 404 import'));
 }
-}, this);
+}
 return flat;
 },
 _mixinBehavior: function (b) {
-Object.getOwnPropertyNames(b).forEach(function (n) {
-switch (n) {
-case 'hostAttributes':
-case 'registered':
-case 'properties':
-case 'observers':
-case 'listeners':
-case 'created':
-case 'attached':
-case 'detached':
-case 'attributeChanged':
-case 'configure':
-case 'ready':
-break;
-default:
-if (!this.hasOwnProperty(n)) {
+var n$ = Object.getOwnPropertyNames(b);
+for (var i = 0, n; i < n$.length && (n = n$[i]); i++) {
+if (!Polymer.Base._behaviorProperties[n] && !this.hasOwnProperty(n)) {
 this.copyOwnProperty(n, b, this);
 }
-break;
 }
-}, this);
 },
 _prepBehaviors: function () {
 this._prepFlattenedBehaviors(this.behaviors);
@@ -337,9 +373,9 @@ this._prepBehavior(behaviors[i]);
 this._prepBehavior(this);
 },
 _doBehavior: function (name, args) {
-this.behaviors.forEach(function (b) {
-this._invokeBehavior(b, name, args);
-}, this);
+for (var i = 0; i < this.behaviors.length; i++) {
+this._invokeBehavior(this.behaviors[i], name, args);
+}
 this._invokeBehavior(this, name, args);
 },
 _invokeBehavior: function (b, name, args) {
@@ -349,12 +385,24 @@ fn.apply(this, args || Polymer.nar);
 }
 },
 _marshalBehaviors: function () {
-this.behaviors.forEach(function (b) {
-this._marshalBehavior(b);
-}, this);
+for (var i = 0; i < this.behaviors.length; i++) {
+this._marshalBehavior(this.behaviors[i]);
+}
 this._marshalBehavior(this);
 }
 });
+Polymer.Base._behaviorProperties = {
+hostAttributes: true,
+registered: true,
+properties: true,
+observers: true,
+listeners: true,
+created: true,
+attached: true,
+detached: true,
+attributeChanged: true,
+ready: true
+};
 Polymer.Base._addFeature({
 _getExtendedPrototype: function (tag) {
 return this._getExtendedNativePrototype(tag);
@@ -406,9 +454,13 @@ properties: {},
 getPropertyInfo: function (property) {
 var info = this._getPropertyInfo(property, this.properties);
 if (!info) {
-this.behaviors.some(function (b) {
-return info = this._getPropertyInfo(property, b.properties);
-}, this);
+for (var i = 0; i < this.behaviors.length; i++) {
+info = this._getPropertyInfo(property, this.behaviors[i].properties);
+if (info) {
+return info;
+}
+}
+;
 }
 return info || Polymer.nob;
 },
@@ -421,6 +473,40 @@ if (p) {
 p.defined = true;
 }
 return p;
+},
+_prepPropertyInfo: function () {
+this._propertyInfo = {};
+for (var i = 0, p; i < this.behaviors.length; i++) {
+this._addPropertyInfo(this._propertyInfo, this.behaviors[i].properties);
+}
+this._addPropertyInfo(this._propertyInfo, this.properties);
+this._addPropertyInfo(this._propertyInfo, this._propertyEffects);
+},
+_addPropertyInfo: function (target, source) {
+if (source) {
+var t, s;
+for (var i in source) {
+t = target[i];
+s = source[i];
+if (i[0] === '_' && !s.readOnly) {
+continue;
+}
+if (!target[i]) {
+target[i] = {
+type: typeof s === 'function' ? s : s.type,
+readOnly: s.readOnly,
+attribute: Polymer.CaseMap.camelToDashCase(i)
+};
+} else {
+if (!t.type) {
+t.type = s.type;
+}
+if (!t.readOnly) {
+t.readOnly = s.readOnly;
+}
+}
+}
+}
 }
 });
 Polymer.CaseMap = {
@@ -448,21 +534,24 @@ return g[0] + '-' + g[1].toLowerCase();
 }
 };
 Polymer.Base._addFeature({
-_prepAttributes: function () {
-this._aggregatedAttributes = {};
-},
 _addHostAttributes: function (attributes) {
+if (!this._aggregatedAttributes) {
+this._aggregatedAttributes = {};
+}
 if (attributes) {
 this.mixin(this._aggregatedAttributes, attributes);
 }
 },
 _marshalHostAttributes: function () {
+if (this._aggregatedAttributes) {
 this._applyAttributes(this, this._aggregatedAttributes);
+}
 },
 _applyAttributes: function (node, attr$) {
 for (var n in attr$) {
 if (!this.hasAttribute(n) && n !== 'class') {
-this.serializeValueToAttribute(attr$[n], n, this);
+var v = attr$[n];
+this.serializeValueToAttribute(v, n, this);
 }
 }
 },
@@ -470,29 +559,40 @@ _marshalAttributes: function () {
 this._takeAttributesToModel(this);
 },
 _takeAttributesToModel: function (model) {
-for (var i = 0, l = this.attributes.length; i < l; i++) {
-this._setAttributeToProperty(model, this.attributes[i].name);
+if (this.hasAttributes()) {
+for (var i in this._propertyInfo) {
+var info = this._propertyInfo[i];
+if (this.hasAttribute(info.attribute)) {
+this._setAttributeToProperty(model, info.attribute, i, info);
+}
+}
 }
 },
-_setAttributeToProperty: function (model, attrName) {
+_setAttributeToProperty: function (model, attribute, property, info) {
 if (!this._serializing) {
-var propName = Polymer.CaseMap.dashToCamelCase(attrName);
-var info = this.getPropertyInfo(propName);
-if (info.defined || this._propertyEffects && this._propertyEffects[propName]) {
-var val = this.getAttribute(attrName);
-model[propName] = this.deserialize(val, info.type);
+var property = property || Polymer.CaseMap.dashToCamelCase(attribute);
+info = info || this._propertyInfo && this._propertyInfo[property];
+if (info && !info.readOnly) {
+var v = this.getAttribute(attribute);
+model[property] = this.deserialize(v, info.type);
 }
 }
 },
 _serializing: false,
-reflectPropertyToAttribute: function (name) {
+reflectPropertyToAttribute: function (property, attribute, value) {
 this._serializing = true;
-this.serializeValueToAttribute(this[name], Polymer.CaseMap.camelToDashCase(name));
+value = value === undefined ? this[property] : value;
+this.serializeValueToAttribute(value, attribute || Polymer.CaseMap.camelToDashCase(property));
 this._serializing = false;
 },
 serializeValueToAttribute: function (value, attribute, node) {
 var str = this.serialize(value);
-(node || this)[str === undefined ? 'removeAttribute' : 'setAttribute'](attribute, str);
+node = node || this;
+if (str === undefined) {
+node.removeAttribute(attribute);
+} else {
+node.setAttribute(attribute, str);
+}
 },
 deserialize: function (value, type) {
 switch (type) {
@@ -568,13 +668,13 @@ debouncer.stop();
 }
 }
 });
-Polymer.version = '1.2.0';
+Polymer.version = '1.2.3';
 Polymer.Base._addFeature({
 _registerFeatures: function () {
 this._prepIs();
-this._prepAttributes();
 this._prepBehaviors();
 this._prepConstructor();
+this._prepPropertyInfo();
 },
 _prepBehavior: function (b) {
 this._addHostAttributes(b.hostAttributes);
@@ -589,13 +689,14 @@ this._marshalBehaviors();
 });
 Polymer.Base._addFeature({
 _prepTemplate: function () {
-this._template = this._template || Polymer.DomModule.import(this.is, 'template');
+if (this._template === undefined) {
+this._template = Polymer.DomModule.import(this.is, 'template');
+}
 if (this._template && this._template.hasAttribute('is')) {
 this._warn(this._logf('_prepTemplate', 'top-level Polymer template ' + 'must not be a type-extension, found', this._template, 'Move inside simple <template>.'));
 }
-if (this._template && !this._template.content && HTMLTemplateElement.bootstrap) {
+if (this._template && !this._template.content && window.HTMLTemplateElement && HTMLTemplateElement.decorate) {
 HTMLTemplateElement.decorate(this._template);
-HTMLTemplateElement.bootstrap(this._template.content);
 }
 },
 _stampTemplate: function () {
@@ -614,20 +715,19 @@ Polymer.Base._addFeature({
 _hostStack: [],
 ready: function () {
 },
-_pushHost: function (host) {
+_registerHost: function (host) {
 this.dataHost = host = host || Polymer.Base._hostStack[Polymer.Base._hostStack.length - 1];
 if (host && host._clients) {
 host._clients.push(this);
 }
-this._beginHost();
 },
-_beginHost: function () {
+_beginHosting: function () {
 Polymer.Base._hostStack.push(this);
 if (!this._clients) {
 this._clients = [];
 }
 },
-_popHost: function () {
+_endHosting: function () {
 Polymer.Base._hostStack.pop();
 },
 _tryReady: function () {
@@ -640,20 +740,24 @@ return !this.dataHost || this.dataHost._clientsReadied;
 },
 _ready: function () {
 this._beforeClientsReady();
+if (this._template) {
 this._setupRoot();
 this._readyClients();
+}
+this._clientsReadied = true;
+this._clients = null;
 this._afterClientsReady();
 this._readySelf();
 },
 _readyClients: function () {
 this._beginDistribute();
 var c$ = this._clients;
+if (c$) {
 for (var i = 0, l = c$.length, c; i < l && (c = c$[i]); i++) {
 c._ready();
 }
+}
 this._finishDistribute();
-this._clientsReadied = true;
-this._clients = null;
 },
 _readySelf: function () {
 this._doBehavior('ready');
@@ -956,23 +1060,30 @@ var nativeRemoveChild = Element.prototype.removeChild;
 var nativeAppendChild = Element.prototype.appendChild;
 var nativeCloneNode = Element.prototype.cloneNode;
 var nativeImportNode = Document.prototype.importNode;
+var needsToWrap = Settings.hasShadow && !Settings.nativeShadow;
+var wrap = window.wrap ? window.wrap : function (node) {
+return node;
+};
 var DomApi = function (node) {
-this.node = node;
+this.node = needsToWrap ? wrap(node) : node;
 if (this.patch) {
 this.patch();
 }
 };
-if (window.wrap && Settings.useShadow && !Settings.useNativeShadow) {
-DomApi = function (node) {
-this.node = wrap(node);
-if (this.patch) {
-this.patch();
-}
-};
-}
 DomApi.prototype = {
 flush: function () {
 Polymer.dom.flush();
+},
+deepContains: function (node) {
+if (this.node.contains(node)) {
+return true;
+}
+var n = node;
+var wrappedDocument = wrap(document);
+while (n && n !== wrappedDocument && n !== this.node) {
+n = Polymer.dom(n).parentNode || n.host;
+}
+return n === this.node;
 },
 _lazyDistribute: function (host) {
 if (host.shadyRoot && host.shadyRoot._distributionClean) {
@@ -1193,7 +1304,7 @@ _addLogicalInfo: function (node, container, index) {
 var children = factory(container).childNodes;
 index = index === undefined ? children.length : index;
 if (node.nodeType === Node.DOCUMENT_FRAGMENT_NODE) {
-var c$ = Array.prototype.slice.call(node.childNodes);
+var c$ = arrayCopyChildNodes(node);
 for (var i = 0, n; i < c$.length && (n = c$[i]); i++) {
 children.splice(index++, 0, n);
 n._lightParent = container;
@@ -1355,7 +1466,7 @@ Object.defineProperties(DomApi.prototype, {
 childNodes: {
 get: function () {
 var c$ = getLightChildren(this.node);
-return Array.isArray(c$) ? c$ : Array.prototype.slice.call(c$);
+return Array.isArray(c$) ? c$ : arrayCopyChildNodes(this.node);
 },
 configurable: true
 },
@@ -1478,7 +1589,7 @@ if (nt !== Node.TEXT_NODE || nt !== Node.COMMENT_NODE) {
 this._clear();
 var d = document.createElement('div');
 d.innerHTML = text;
-var c$ = Array.prototype.slice.call(d.childNodes);
+var c$ = arrayCopyChildNodes(d);
 for (var i = 0; i < c$.length; i++) {
 this.appendChild(c$[i]);
 }
@@ -1491,20 +1602,25 @@ DomApi.prototype._getComposedInnerHTML = function () {
 return getInnerHTML(this.node, true);
 };
 } else {
-var forwardMethods = [
+var forwardMethods = function (m$) {
+for (var i = 0; i < m$.length; i++) {
+forwardMethod(m$[i]);
+}
+};
+var forwardMethod = function (method) {
+DomApi.prototype[method] = function () {
+return this.node[method].apply(this.node, arguments);
+};
+};
+forwardMethods([
 'cloneNode',
 'appendChild',
 'insertBefore',
 'removeChild',
 'replaceChild'
-];
-forwardMethods.forEach(function (name) {
-DomApi.prototype[name] = function () {
-return this.node[name].apply(this.node, arguments);
-};
-});
+]);
 DomApi.prototype.querySelectorAll = function (selector) {
-return Array.prototype.slice.call(this.node.querySelectorAll(selector));
+return arrayCopy(this.node.querySelectorAll(selector));
 };
 DomApi.prototype.getOwnerRoot = function () {
 var n = this.node;
@@ -1521,35 +1637,24 @@ return doc.importNode(externalNode, deep);
 };
 DomApi.prototype.getDestinationInsertionPoints = function () {
 var n$ = this.node.getDestinationInsertionPoints && this.node.getDestinationInsertionPoints();
-return n$ ? Array.prototype.slice.call(n$) : [];
+return n$ ? arrayCopy(n$) : [];
 };
 DomApi.prototype.getDistributedNodes = function () {
 var n$ = this.node.getDistributedNodes && this.node.getDistributedNodes();
-return n$ ? Array.prototype.slice.call(n$) : [];
+return n$ ? arrayCopy(n$) : [];
 };
 DomApi.prototype._distributeParent = function () {
 };
-var nativeForwards = [
-'appendChild',
-'insertBefore',
-'removeChild',
-'replaceChild'
-];
-nativeForwards.forEach(function (forward) {
-DomApi.prototype[forward] = function () {
-return this.node[forward].apply(this.node, arguments);
-};
-});
 Object.defineProperties(DomApi.prototype, {
 childNodes: {
 get: function () {
-return Array.prototype.slice.call(this.node.childNodes);
+return arrayCopyChildNodes(this.node);
 },
 configurable: true
 },
 children: {
 get: function () {
-return Array.prototype.slice.call(this.node.children);
+return arrayCopyChildren(this.node);
 },
 configurable: true
 },
@@ -1572,7 +1677,20 @@ return this.node.innerHTML = value;
 configurable: true
 }
 });
-var forwardProperties = [
+var forwardProperties = function (f$) {
+for (var i = 0; i < f$.length; i++) {
+forwardProperty(f$[i]);
+}
+};
+var forwardProperty = function (name) {
+Object.defineProperty(DomApi.prototype, name, {
+get: function () {
+return this.node[name];
+},
+configurable: true
+});
+};
+forwardProperties([
 'parentNode',
 'firstChild',
 'lastChild',
@@ -1582,15 +1700,7 @@ var forwardProperties = [
 'lastElementChild',
 'nextElementSibling',
 'previousElementSibling'
-];
-forwardProperties.forEach(function (name) {
-Object.defineProperty(DomApi.prototype, name, {
-get: function () {
-return this.node[name];
-},
-configurable: true
-});
-});
+]);
 }
 var CONTENT = 'content';
 function factory(node, patch) {
@@ -1604,6 +1714,7 @@ return node.__domApi;
 function hasDomApi(node) {
 return Boolean(node.__domApi);
 }
+;
 Polymer.dom = function (obj, patch) {
 if (obj instanceof Event) {
 return Polymer.EventApi.factory(obj);
@@ -1617,7 +1728,7 @@ return children ? children : node.childNodes;
 }
 function getComposedChildren(node) {
 if (!node._composedChildren) {
-node._composedChildren = Array.prototype.slice.call(node.childNodes);
+node._composedChildren = arrayCopyChildNodes(node);
 }
 return node._composedChildren;
 }
@@ -1653,12 +1764,34 @@ children.splice(i, 1);
 }
 function saveLightChildrenIfNeeded(node) {
 if (!node._lightChildren) {
-var c$ = Array.prototype.slice.call(node.childNodes);
+var c$ = arrayCopyChildNodes(node);
 for (var i = 0, l = c$.length, child; i < l && (child = c$[i]); i++) {
 child._lightParent = child._lightParent || node;
 }
 node._lightChildren = c$;
 }
+}
+function arrayCopyChildNodes(parent) {
+var copy = [], i = 0;
+for (var n = parent.firstChild; n; n = n.nextSibling) {
+copy[i++] = n;
+}
+return copy;
+}
+function arrayCopyChildren(parent) {
+var copy = [], i = 0;
+for (var n = parent.firstElementChild; n; n = n.nextElementSibling) {
+copy[i++] = n;
+}
+return copy;
+}
+function arrayCopy(a$) {
+var l = a$.length;
+var copy = new Array(l);
+for (var i = 0; i < l; i++) {
+copy[i] = a$[i];
+}
+return copy;
 }
 function hasInsertionPoint(root) {
 return Boolean(root && root._insertionPoints.length);
@@ -1675,7 +1808,11 @@ matchesSelector: matchesSelector,
 hasInsertionPoint: hasInsertionPoint,
 ctor: DomApi,
 factory: factory,
-hasDomApi: hasDomApi
+hasDomApi: hasDomApi,
+arrayCopy: arrayCopy,
+arrayCopyChildNodes: arrayCopyChildNodes,
+arrayCopyChildren: arrayCopyChildren,
+wrap: wrap
 };
 }();
 Polymer.Base.extend(Polymer.dom, {
@@ -1896,7 +2033,10 @@ n.__observeNodesMap.set(this, this._observeContent(n));
 }
 },
 _observeContent: function (content) {
-var h = Polymer.dom(content).observeNodes(this._scheduleNotify.bind(this));
+var self = this;
+var h = Polymer.dom(content).observeNodes(function () {
+self._scheduleNotify();
+});
 h._avoidChangeCalculation = true;
 return h;
 },
@@ -1973,7 +2113,9 @@ self._scheduleNotify();
 }
 };
 this._observer = new MutationObserver(this._mutationHandler);
-this._boundFlush = this._flush.bind(this);
+this._boundFlush = function () {
+self._flush();
+};
 Polymer.dom.addStaticFlush(this._boundFlush);
 this._observer.observe(this.node, { childList: true });
 }
@@ -2042,7 +2184,10 @@ if (!this._observer) {
 var root = this.domApi.getOwnerRoot();
 var host = root && root.host;
 if (host) {
-this._observer = Polymer.dom(host).observeNodes(this._scheduleNotify.bind(this));
+var self = this;
+this._observer = Polymer.dom(host).observeNodes(function () {
+self._scheduleNotify();
+});
 this._observer._isContentListener = true;
 if (this._hasAttrSelect()) {
 Polymer.dom(host).observer.enableShadowAttributeTracking();
@@ -2087,6 +2232,7 @@ upgradeLightChildren(this._lightChildren);
 _createLocalRoot: function () {
 this.shadyRoot = this.root;
 this.shadyRoot._distributionClean = false;
+this.shadyRoot._hasDistributed = false;
 this.shadyRoot._isShadyRoot = true;
 this.shadyRoot._dirtyRoots = [];
 var i$ = this.shadyRoot._insertionPoints = !this._notes || this._notes._hasContent ? this.shadyRoot.querySelectorAll('content') : [];
@@ -2413,20 +2559,23 @@ Polymer.DomModule = document.createElement('dom-module');
 Polymer.Base._addFeature({
 _registerFeatures: function () {
 this._prepIs();
-this._prepAttributes();
 this._prepBehaviors();
 this._prepConstructor();
 this._prepTemplate();
 this._prepShady();
+this._prepPropertyInfo();
 },
 _prepBehavior: function (b) {
 this._addHostAttributes(b.hostAttributes);
 },
 _initFeatures: function () {
+this._registerHost();
+if (this._template) {
 this._poolContent();
-this._pushHost();
+this._beginHosting();
 this._stampTemplate();
-this._popHost();
+this._endHosting();
+}
 this._marshalHostAttributes();
 this._setupDebouncers();
 this._marshalBehaviors();
@@ -2440,13 +2589,13 @@ Polymer.Annotations = {
 parseAnnotations: function (template) {
 var list = [];
 var content = template._content || template.content;
-this._parseNodeAnnotations(content, list);
+this._parseNodeAnnotations(content, list, template.hasAttribute('strip-whitespace'));
 return list;
 },
-_parseNodeAnnotations: function (node, list) {
-return node.nodeType === Node.TEXT_NODE ? this._parseTextNodeAnnotation(node, list) : this._parseElementAnnotations(node, list);
+_parseNodeAnnotations: function (node, list, stripWhiteSpace) {
+return node.nodeType === Node.TEXT_NODE ? this._parseTextNodeAnnotation(node, list) : this._parseElementAnnotations(node, list, stripWhiteSpace);
 },
-_bindingRegex: /([^{[]*)({{|\[\[)([^}\]]*)(?:]]|}})/g,
+_bindingRegex: /([^{[]*)(\{\{|\[\[)(?!\}\}|\]\])(.+?)(?:\]\]|\}\})/g,
 _parseBindings: function (text) {
 var re = this._bindingRegex;
 var parts = [];
@@ -2512,7 +2661,7 @@ list.push(annote);
 return annote;
 }
 },
-_parseElementAnnotations: function (element, list) {
+_parseElementAnnotations: function (element, list, stripWhiteSpace) {
 var annote = {
 bindings: [],
 events: []
@@ -2520,7 +2669,7 @@ events: []
 if (element.localName === 'content') {
 list._hasContent = true;
 }
-this._parseChildNodesAnnotations(element, annote, list);
+this._parseChildNodesAnnotations(element, annote, list, stripWhiteSpace);
 if (element.attributes) {
 this._parseNodeAttributeAnnotations(element, annote, list);
 if (this.prepElement) {
@@ -2532,25 +2681,37 @@ list.push(annote);
 }
 return annote;
 },
-_parseChildNodesAnnotations: function (root, annote, list, callback) {
+_parseChildNodesAnnotations: function (root, annote, list, stripWhiteSpace) {
 if (root.firstChild) {
-for (var i = 0, node = root.firstChild; node; node = node.nextSibling, i++) {
+var node = root.firstChild;
+var i = 0;
+while (node) {
+var next = node.nextSibling;
 if (node.localName === 'template' && !node.hasAttribute('preserve-content')) {
 this._parseTemplate(node, i, list, annote);
 }
 if (node.nodeType === Node.TEXT_NODE) {
-var n = node.nextSibling;
+var n = next;
 while (n && n.nodeType === Node.TEXT_NODE) {
 node.textContent += n.textContent;
+next = n.nextSibling;
 root.removeChild(n);
-n = n.nextSibling;
+n = next;
+}
+if (stripWhiteSpace && !node.textContent.trim()) {
+root.removeChild(node);
+i--;
 }
 }
-var childAnnotation = this._parseNodeAnnotations(node, list, callback);
+if (node.parentNode) {
+var childAnnotation = this._parseNodeAnnotations(node, list, stripWhiteSpace);
 if (childAnnotation) {
 childAnnotation.parent = annote;
 childAnnotation.index = i;
 }
+}
+node = next;
+i++;
 }
 }
 },
@@ -2686,7 +2847,10 @@ _prepAnnotations: function () {
 if (!this._template) {
 this._notes = [];
 } else {
-Polymer.Annotations.prepElement = this._prepElement.bind(this);
+var self = this;
+Polymer.Annotations.prepElement = function (element) {
+self._prepElement(element);
+};
 if (this._template._content && this._template._content._notes) {
 this._notes = this._template._content._notes;
 } else {
@@ -2733,24 +2897,24 @@ note.bindings = note.bindings.concat(bindings);
 },
 _discoverTemplateParentProps: function (notes) {
 var pp = {};
-notes.forEach(function (n) {
-n.bindings.forEach(function (b) {
-b.parts.forEach(function (p) {
+for (var i = 0, n; i < notes.length && (n = notes[i]); i++) {
+for (var j = 0, b$ = n.bindings, b; j < b$.length && (b = b$[j]); j++) {
+for (var k = 0, p$ = b.parts, p; k < p$.length && (p = p$[k]); k++) {
 if (p.signature) {
 var args = p.signature.args;
-for (var k = 0; k < args.length; k++) {
-pp[args[k].model] = true;
+for (var kk = 0; kk < args.length; kk++) {
+pp[args[kk].model] = true;
 }
 } else {
 pp[p.model] = true;
 }
-});
-});
+}
+}
 if (n.templateContent) {
 var tpp = n.templateContent._parentProps;
 Polymer.Base.mixin(pp, tpp);
 }
-});
+}
 return pp;
 },
 _prepElement: function (element) {
@@ -2804,44 +2968,46 @@ node[name] = binding.literal;
 },
 _marshalIdNodes: function () {
 this.$ = {};
-this._notes.forEach(function (a) {
+for (var i = 0, l = this._notes.length, a; i < l && (a = this._notes[i]); i++) {
 if (a.id) {
 this.$[a.id] = this._findAnnotatedNode(this.root, a);
 }
-}, this);
+}
 },
 _marshalAnnotatedNodes: function () {
-if (this._nodes) {
-this._nodes = this._nodes.map(function (a) {
-return this._findAnnotatedNode(this.root, a);
-}, this);
+if (this._notes && this._notes.length) {
+var r = new Array(this._notes.length);
+for (var i = 0; i < this._notes.length; i++) {
+r[i] = this._findAnnotatedNode(this.root, this._notes[i]);
+}
+this._nodes = r;
 }
 },
 _marshalAnnotatedListeners: function () {
-this._notes.forEach(function (a) {
+for (var i = 0, l = this._notes.length, a; i < l && (a = this._notes[i]); i++) {
 if (a.events && a.events.length) {
 var node = this._findAnnotatedNode(this.root, a);
-a.events.forEach(function (e) {
+for (var j = 0, e$ = a.events, e; j < e$.length && (e = e$[j]); j++) {
 this.listen(node, e.name, e.value);
-}, this);
 }
-}, this);
+}
+}
 }
 });
 Polymer.Base._addFeature({
 listeners: {},
 _listenListeners: function (listeners) {
-var node, name, key;
-for (key in listeners) {
-if (key.indexOf('.') < 0) {
+var node, name, eventName;
+for (eventName in listeners) {
+if (eventName.indexOf('.') < 0) {
 node = this;
-name = key;
+name = eventName;
 } else {
-name = key.split('.');
+name = eventName.split('.');
 node = this.$[name[0]];
 name = name[1];
 }
-this.listen(node, name, listeners[key]);
+this.listen(node, name, listeners[eventName]);
 }
 },
 listen: function (node, eventName, methodName) {
@@ -2912,6 +3078,7 @@ node.removeEventListener(eventName, handler);
 });
 (function () {
 'use strict';
+var wrap = Polymer.DomApi.wrap;
 var HAS_NATIVE_TA = typeof document.head.style.touchAction === 'string';
 var GESTURE_KEY = '__polymerGestures';
 var HANDLED_OBJ = '__polymerGesturesHandled';
@@ -3062,8 +3229,11 @@ return ev.target;
 handleNative: function (ev) {
 var handled;
 var type = ev.type;
-var node = ev.currentTarget;
+var node = wrap(ev.currentTarget);
 var gobj = node[GESTURE_KEY];
+if (!gobj) {
+return;
+}
 var gs = gobj[type];
 if (!gs) {
 return;
@@ -3146,6 +3316,7 @@ Gestures.prevent('track');
 }
 },
 add: function (node, evType, handler) {
+node = wrap(node);
 var recognizer = this.gestures[evType];
 var deps = recognizer.deps;
 var name = recognizer.name;
@@ -3174,6 +3345,7 @@ this.setTouchAction(node, recognizer.touchAction);
 }
 },
 remove: function (node, evType, handler) {
+node = wrap(node);
 var recognizer = this.gestures[evType];
 var deps = recognizer.deps;
 var name = recognizer.name;
@@ -3300,7 +3472,9 @@ Gestures.fire(target, type, {
 x: event.clientX,
 y: event.clientY,
 sourceEvent: event,
-prevent: Gestures.prevent.bind(Gestures)
+prevent: function (e) {
+return Gestures.prevent(e);
+}
 });
 }
 });
@@ -3599,7 +3773,10 @@ Polymer.Debounce = function () {
 var Async = Polymer.Async;
 var Debouncer = function (context) {
 this.context = context;
-this.boundComplete = this.complete.bind(this);
+var self = this;
+this.boundComplete = function () {
+self.complete();
+};
 };
 Debouncer.prototype = {
 go: function (callback, wait) {
@@ -3700,7 +3877,7 @@ var e$ = Polymer.dom(this).queryDistributedElements(slctr);
 return e$ && e$[0];
 },
 queryAllEffectiveChildren: function (slctr) {
-return Polymer.dom(this).queryAllDistributedElements(slctr);
+return Polymer.dom(this).queryDistributedElements(slctr);
 },
 getContentChildNodes: function (slctr) {
 var content = Polymer.dom(this.root).querySelector(slctr || 'content');
@@ -3714,19 +3891,37 @@ return n.nodeType === Node.ELEMENT_NODE;
 fire: function (type, detail, options) {
 options = options || Polymer.nob;
 var node = options.node || this;
-var detail = detail === null || detail === undefined ? Polymer.nob : detail;
+var detail = detail === null || detail === undefined ? {} : detail;
 var bubbles = options.bubbles === undefined ? true : options.bubbles;
 var cancelable = Boolean(options.cancelable);
-var event = new CustomEvent(type, {
-bubbles: Boolean(bubbles),
-cancelable: cancelable,
-detail: detail
-});
+var useCache = options._useCache;
+var event = this._getEvent(type, bubbles, cancelable, useCache);
+event.detail = detail;
+if (useCache) {
+this.__eventCache[type] = null;
+}
 node.dispatchEvent(event);
+if (useCache) {
+this.__eventCache[type] = event;
+}
+return event;
+},
+__eventCache: {},
+_getEvent: function (type, bubbles, cancelable, useCache) {
+var event = useCache && this.__eventCache[type];
+if (!event || (event.bubbles != bubbles || event.cancelable != cancelable)) {
+event = new Event(type, {
+bubbles: Boolean(bubbles),
+cancelable: cancelable
+});
+}
 return event;
 },
 async: function (callback, waitTime) {
-return Polymer.Async.run(callback.bind(this), waitTime);
+var self = this;
+return Polymer.Async.run(function () {
+callback.call(self);
+}, waitTime);
 },
 cancelAsync: function (handle) {
 Polymer.Async.cancel(handle);
@@ -3759,11 +3954,16 @@ importHref: function (href, onload, onerror) {
 var l = document.createElement('link');
 l.rel = 'import';
 l.href = href;
+var self = this;
 if (onload) {
-l.onload = onload.bind(this);
+l.onload = function (e) {
+return onload.call(self, e);
+};
 }
 if (onerror) {
-l.onerror = onerror.bind(this);
+l.onerror = function (e) {
+return onerror.call(self, e);
+};
 }
 document.head.appendChild(l);
 return l;
@@ -3778,24 +3978,25 @@ elt[n] = props[n];
 return elt;
 },
 isLightDescendant: function (node) {
-return this.contains(node) && Polymer.dom(this).getOwnerRoot() === Polymer.dom(node).getOwnerRoot();
+return this !== node && this.contains(node) && Polymer.dom(this).getOwnerRoot() === Polymer.dom(node).getOwnerRoot();
 },
 isLocalDescendant: function (node) {
 return this.root === Polymer.dom(node).getOwnerRoot();
 }
 });
 Polymer.Bind = {
+_dataEventCache: {},
 prepareModel: function (model) {
-model._propertyEffects = {};
-model._bindListeners = [];
 Polymer.Base.mixin(model, this._modelApi);
 },
 _modelApi: {
-_notifyChange: function (property) {
-var eventName = Polymer.CaseMap.camelToDashCase(property) + '-changed';
-Polymer.Base.fire(eventName, { value: this[property] }, {
+_notifyChange: function (source, event, value) {
+value = value === undefined ? this[source] : value;
+event = event || Polymer.CaseMap.camelToDashCase(source) + '-changed';
+this.fire(event, { value: value }, {
 bubbles: false,
-node: this
+cancelable: false,
+_useCache: true
 });
 },
 _propertySetter: function (property, value, effects, fromAbove) {
@@ -3824,12 +4025,9 @@ node[property] = value;
 }
 },
 _effectEffects: function (property, value, effects, old, fromAbove) {
-effects.forEach(function (fx) {
-var fn = Polymer.Bind['_' + fx.kind + 'Effect'];
-if (fn) {
-fn.call(this, property, value, fx.effect, old, fromAbove);
+for (var i = 0, l = effects.length, fx; i < l && (fx = effects[i]); i++) {
+fx.fn.call(this, property, value, fx.effect, old, fromAbove);
 }
-}, this);
 },
 _clearPath: function (path) {
 for (var prop in this.__data__) {
@@ -3840,6 +4038,9 @@ this.__data__[prop] = undefined;
 }
 },
 ensurePropertyEffects: function (model, property) {
+if (!model._propertyEffects) {
+model._propertyEffects = {};
+}
 var fx = model._propertyEffects[property];
 if (!fx) {
 fx = model._propertyEffects[property] = [];
@@ -3848,10 +4049,13 @@ return fx;
 },
 addPropertyEffect: function (model, property, kind, effect) {
 var fx = this.ensurePropertyEffects(model, property);
-fx.push({
+var propEffect = {
 kind: kind,
-effect: effect
-});
+effect: effect,
+fn: Polymer.Bind['_' + kind + 'Effect']
+};
+fx.push(propEffect);
+return propEffect;
 },
 createBindings: function (model) {
 var fx$ = model._propertyEffects;
@@ -3901,7 +4105,10 @@ upper: function (name) {
 return name[0].toUpperCase() + name.substring(1);
 },
 _addAnnotatedListener: function (model, index, property, path, event) {
-var fn = this._notedListenerFactory(property, path, this._isStructured(path), this._isEventBogus);
+if (!model._bindListeners) {
+model._bindListeners = [];
+}
+var fn = this._notedListenerFactory(property, path, this._isStructured(path));
 var eventName = event || Polymer.CaseMap.camelToDashCase(property) + '-changed';
 model._bindListeners.push({
 index: index,
@@ -3917,19 +4124,17 @@ return path.indexOf('.') > 0;
 _isEventBogus: function (e, target) {
 return e.path && e.path[0] !== target;
 },
-_notedListenerFactory: function (property, path, isStructured, bogusTest) {
-return function (e, target) {
-if (!bogusTest(e, target)) {
-if (e.detail && e.detail.path) {
-this._notifyPath(this._fixPath(path, property, e.detail.path), e.detail.value);
+_notedListenerFactory: function (property, path, isStructured) {
+return function (target, value, targetPath) {
+if (targetPath) {
+this._notifyPath(this._fixPath(path, property, targetPath), value);
 } else {
-var value = target[property];
+value = target[property];
 if (!isStructured) {
-this[path] = target[property];
+this[path] = value;
 } else {
 if (this.__data__[path] != value) {
 this.set(path, value);
-}
 }
 }
 }
@@ -3939,9 +4144,16 @@ prepareInstance: function (inst) {
 inst.__data__ = Object.create(null);
 },
 setupBindListeners: function (inst) {
-inst._bindListeners.forEach(function (info) {
+var b$ = inst._bindListeners;
+for (var i = 0, l = b$.length, info; i < l && (info = b$[i]); i++) {
 var node = inst._nodes[info.index];
-node.addEventListener(info.event, inst._notifyListener.bind(inst, info.changedFn));
+this._addNotifyListener(node, inst, info.event, info.changedFn);
+}
+;
+},
+_addNotifyListener: function (element, context, event, changedFn) {
+element.addEventListener(event, function (e) {
+return context._notifyListener(changedFn, e);
 });
 }
 };
@@ -3959,12 +4171,12 @@ if (!effect.customEvent || this._nodes[effect.index][effect.name] !== calc) {
 return this._applyEffectValue(effect, calc);
 }
 },
-_reflectEffect: function (source) {
-this.reflectPropertyToAttribute(source);
+_reflectEffect: function (source, value, effect) {
+this.reflectPropertyToAttribute(source, effect.attribute, value);
 },
 _notifyEffect: function (source, value, effect, old, fromAbove) {
 if (!fromAbove) {
-this._notifyChange(source);
+this._notifyChange(source, effect.event, value);
 }
 },
 _functionEffect: function (source, value, fn, old, fromAbove) {
@@ -4050,7 +4262,8 @@ return values;
 });
 Polymer.Base._addFeature({
 _addPropertyEffect: function (property, kind, effect) {
-Polymer.Bind.addPropertyEffect(this, property, kind, effect);
+var prop = Polymer.Bind.addPropertyEffect(this, property, kind, effect);
+prop.pathFn = this['_' + prop.kind + 'PathEffect'];
 },
 _prepEffects: function () {
 Polymer.Bind.prepareModel(this);
@@ -4071,10 +4284,10 @@ prop.readOnly = true;
 this._addComputedEffect(p, prop.computed);
 }
 if (prop.notify) {
-this._addPropertyEffect(p, 'notify');
+this._addPropertyEffect(p, 'notify', { event: Polymer.CaseMap.camelToDashCase(p) + '-changed' });
 }
 if (prop.reflectToAttribute) {
-this._addPropertyEffect(p, 'reflect');
+this._addPropertyEffect(p, 'reflect', { attribute: Polymer.CaseMap.camelToDashCase(p) });
 }
 if (prop.readOnly) {
 Polymer.Bind.ensurePropertyEffects(this, p);
@@ -4084,14 +4297,14 @@ Polymer.Bind.ensurePropertyEffects(this, p);
 },
 _addComputedEffect: function (name, expression) {
 var sig = this._parseMethod(expression);
-sig.args.forEach(function (arg) {
+for (var i = 0, arg; i < sig.args.length && (arg = sig.args[i]); i++) {
 this._addPropertyEffect(arg.model, 'compute', {
 method: sig.method,
 args: sig.args,
 trigger: arg,
 name: name
 });
-}, this);
+}
 },
 _addObserverEffect: function (property, observer) {
 this._addPropertyEffect(property, 'observer', {
@@ -4101,29 +4314,28 @@ property: property
 },
 _addComplexObserverEffects: function (observers) {
 if (observers) {
-observers.forEach(function (observer) {
-this._addComplexObserverEffect(observer);
-}, this);
+for (var i = 0, o; i < observers.length && (o = observers[i]); i++) {
+this._addComplexObserverEffect(o);
+}
 }
 },
 _addComplexObserverEffect: function (observer) {
 var sig = this._parseMethod(observer);
-sig.args.forEach(function (arg) {
+for (var i = 0, arg; i < sig.args.length && (arg = sig.args[i]); i++) {
 this._addPropertyEffect(arg.model, 'complexObserver', {
 method: sig.method,
 args: sig.args,
 trigger: arg
 });
-}, this);
+}
 },
 _addAnnotationEffects: function (notes) {
-this._nodes = [];
-notes.forEach(function (note) {
-var index = this._nodes.push(note) - 1;
-note.bindings.forEach(function (binding) {
-this._addAnnotationEffect(binding, index);
-}, this);
-}, this);
+for (var i = 0, note; i < notes.length && (note = notes[i]); i++) {
+var b$ = note.bindings;
+for (var j = 0, binding; j < b$.length && (binding = b$[j]); j++) {
+this._addAnnotationEffect(binding, i);
+}
+}
 },
 _addAnnotationEffect: function (note, index) {
 if (Polymer.Bind._shouldAddListener(note)) {
@@ -4153,11 +4365,11 @@ var sig = part.signature;
 if (sig.static) {
 this.__addAnnotatedComputationEffect('__static__', index, note, part, null);
 } else {
-sig.args.forEach(function (arg) {
+for (var i = 0, arg; i < sig.args.length && (arg = sig.args[i]); i++) {
 if (!arg.literal) {
 this.__addAnnotatedComputationEffect(arg.model, index, note, part, arg);
 }
-}, this);
+}
 }
 },
 __addAnnotatedComputationEffect: function (property, index, note, part, trigger) {
@@ -4236,7 +4448,9 @@ return a;
 },
 _marshalInstanceEffects: function () {
 Polymer.Bind.prepareInstance(this);
+if (this._bindListeners) {
 Polymer.Bind.setupBindListeners(this);
+}
 },
 _applyEffectValue: function (info, value) {
 var node = this._nodes[info.index];
@@ -4255,11 +4469,14 @@ value = this._scopeElementClass(node, value);
 if (property === 'textContent' || node.localName == 'input' && property == 'value') {
 value = value == undefined ? '' : value;
 }
-return node[property] = value;
+var pinfo;
+if (!node._propertyInfo || !(pinfo = node._propertyInfo[property]) || !pinfo.readOnly) {
+this.__setProperty(property, value, true, node);
+}
 }
 },
 _executeStaticEffects: function () {
-if (this._propertyEffects.__static__) {
+if (this._propertyEffects && this._propertyEffects.__static__) {
 this._effectEffects('__static__', null, this._propertyEffects.__static__);
 }
 }
@@ -4267,12 +4484,14 @@ this._effectEffects('__static__', null, this._propertyEffects.__static__);
 Polymer.Base._addFeature({
 _setupConfigure: function (initialConfig) {
 this._config = {};
+this._handlers = [];
+if (initialConfig) {
 for (var i in initialConfig) {
 if (initialConfig[i] !== undefined) {
 this._config[i] = initialConfig[i];
 }
 }
-this._handlers = [];
+}
 },
 _marshalAttributes: function () {
 this._takeAttributesToModel(this._config);
@@ -4282,7 +4501,10 @@ var model = this._clientsReadied ? this : this._config;
 this._setAttributeToProperty(model, name);
 },
 _configValue: function (name, value) {
+var info = this._propertyInfo[name];
+if (!info || !info.readOnly) {
 this._config[name] = value;
+}
 },
 _beforeClientsReady: function () {
 this._configure();
@@ -4291,13 +4513,15 @@ _configure: function () {
 this._configureAnnotationReferences();
 this._aboveConfig = this.mixin({}, this._config);
 var config = {};
-this.behaviors.forEach(function (b) {
-this._configureProperties(b.properties, config);
-}, this);
+for (var i = 0; i < this.behaviors.length; i++) {
+this._configureProperties(this.behaviors[i].properties, config);
+}
 this._configureProperties(this.properties, config);
-this._mixinConfigure(config, this._aboveConfig);
+this.mixin(config, this._aboveConfig);
 this._config = config;
+if (this._clients && this._clients.length) {
 this._distributeConfig(this._config);
+}
 },
 _configureProperties: function (properties, config) {
 for (var i in properties) {
@@ -4308,13 +4532,6 @@ if (typeof value == 'function') {
 value = value.call(this, this._config);
 }
 config[i] = value;
-}
-}
-},
-_mixinConfigure: function (a, b) {
-for (var prop in b) {
-if (!this.getPropertyInfo(prop).readOnly) {
-a[prop] = b[prop];
 }
 }
 },
@@ -4350,14 +4567,22 @@ this.__setProperty(n, config[n], n in aboveConfig);
 }
 },
 _notifyListener: function (fn, e) {
+if (!Polymer.Bind._isEventBogus(e, e.target)) {
+var value, path;
+if (e.detail) {
+value = e.detail.value;
+path = e.detail.path;
+}
 if (!this._clientsReadied) {
 this._queueHandler([
 fn,
-e,
-e.target
+e.target,
+value,
+path
 ]);
 } else {
-return fn.call(this, e, e.target);
+return fn.call(this, e.target, value, path);
+}
 }
 },
 _queueHandler: function (args) {
@@ -4366,7 +4591,7 @@ this._handlers.push(args);
 _flushHandlers: function () {
 var h$ = this._handlers;
 for (var i = 0, l = h$.length, h; i < l && (h = h$[i]); i++) {
-h[0].call(this, h[1], h[2]);
+h[0].call(this, h[1], h[2], h[3]);
 }
 this._handlers = [];
 }
@@ -4376,7 +4601,7 @@ this._handlers = [];
 Polymer.Base._addFeature({
 notifyPath: function (path, value, fromAbove) {
 var info = {};
-path = this._get(path, this, info);
+this._get(path, this, info);
 this._notifyPath(info.path, value, fromAbove);
 },
 _notifyPath: function (path, value, fromAbove) {
@@ -4475,14 +4700,14 @@ return prop;
 },
 _pathEffector: function (path, value) {
 var model = this._modelForPath(path);
-var fx$ = this._propertyEffects[model];
+var fx$ = this._propertyEffects && this._propertyEffects[model];
 if (fx$) {
-fx$.forEach(function (fx) {
-var fxFn = this['_' + fx.kind + 'PathEffect'];
+for (var i = 0, fx; i < fx$.length && (fx = fx$[i]); i++) {
+var fxFn = fx.pathFn;
 if (fxFn) {
 fxFn.call(this, path, value, fx.effect);
 }
-}, this);
+}
 }
 if (this._boundPaths) {
 this._notifyBoundPaths(path, value);
@@ -4493,9 +4718,9 @@ if (effect.value === path || effect.value.indexOf(path + '.') === 0) {
 Polymer.Bind._annotationEffect.call(this, path, value, effect);
 } else if (path.indexOf(effect.value + '.') === 0 && !effect.negate) {
 var node = this._nodes[effect.index];
-if (node && node.notifyPath) {
+if (node && node._notifyPath) {
 var p = this._fixPath(effect.name, effect.value, path);
-node.notifyPath(p, value, true);
+node._notifyPath(p, value, true);
 }
 }
 },
@@ -4535,9 +4760,9 @@ _notifyBoundPaths: function (path, value) {
 for (var a in this._boundPaths) {
 var b = this._boundPaths[a];
 if (path.indexOf(a + '.') == 0) {
-this.notifyPath(this._fixPath(b, a, path), value);
+this._notifyPath(this._fixPath(b, a, path), value);
 } else if (path.indexOf(b + '.') == 0) {
-this.notifyPath(this._fixPath(a, b, path), value);
+this._notifyPath(this._fixPath(a, b, path), value);
 }
 }
 },
@@ -4551,7 +4776,10 @@ var eventName = dashCaseName + this._EVENT_CHANGED;
 this.fire(eventName, {
 path: path,
 value: value
-}, { bubbles: false });
+}, {
+bubbles: false,
+_useCache: true
+});
 },
 _modelForPath: function (path) {
 var dot = path.indexOf('.');
@@ -4654,6 +4882,8 @@ return ret;
 prepareModelNotifyPath: function (model) {
 this.mixin(model, {
 fire: Polymer.Base.fire,
+_getEvent: Polymer.Base._getEvent,
+__eventCache: Polymer.Base.__eventCache,
 notifyPath: Polymer.Base.notifyPath,
 _get: Polymer.Base._get,
 _EVENT_CHANGED: Polymer.Base._EVENT_CHANGED,
@@ -4727,6 +4957,8 @@ node.parsedCssText = node.cssText = t.trim();
 if (node.parent) {
 var ss = node.previous ? node.previous.end : node.parent.start;
 t = text.substring(ss, node.start - 1);
+t = this._expandUnicodeEscapes(t);
+t = t.replace(this._rx.multipleSpaces, ' ');
 t = t.substring(t.lastIndexOf(';') + 1);
 var s = node.parsedSelector = node.selector = t.trim();
 node.atRule = s.indexOf(this.AT_START) === 0;
@@ -4751,6 +4983,15 @@ this._parseCss(r, text);
 }
 }
 return node;
+},
+_expandUnicodeEscapes: function (s) {
+return s.replace(/\\([0-9a-f]{1,6})\s/gi, function () {
+var code = arguments[1], repeat = 6 - code.length;
+while (repeat--) {
+code = '0' + code;
+}
+return '\\' + code;
+});
 },
 stringify: function (node, preserveProperties, text) {
 text = text || '';
@@ -4781,7 +5022,7 @@ text += this.CLOSE_BRACE + '\n\n';
 return text;
 },
 _hasMixinRules: function (rules) {
-return rules[0].selector.indexOf(this.VAR_START) >= 0;
+return rules[0].selector.indexOf(this.VAR_START) === 0;
 },
 removeCustomProps: function (cssText) {
 cssText = this.removeCustomPropAssignment(cssText);
@@ -4805,10 +5046,11 @@ _rx: {
 comments: /\/\*[^*]*\*+([^\/*][^*]*\*+)*\//gim,
 port: /@import[^;]*;/gim,
 customProp: /(?:^|[\s;])--[^;{]*?:[^{};]*?(?:[;\n]|$)/gim,
-mixinProp: /(?:^|[\s;])--[^;{]*?:[^{;]*?{[^}]*?}(?:[;\n]|$)?/gim,
+mixinProp: /(?:^|[\s;])?--[^;{]*?:[^{;]*?{[^}]*?}(?:[;\n]|$)?/gim,
 mixinApply: /@apply[\s]*\([^)]*?\)[\s]*(?:[;\n]|$)?/gim,
-varApply: /[^;:]*?:[^;]*var[^;]*(?:[;\n]|$)?/gim,
-keyframesRule: /^@[^\s]*keyframes/
+varApply: /[^;:]*?:[^;]*?var\([^;]*\)(?:[;\n]|$)?/gim,
+keyframesRule: /^@[^\s]*keyframes/,
+multipleSpaces: /\s+/g
 },
 VAR_START: '--',
 MEDIA_START: '@media',
@@ -4888,21 +5130,21 @@ return cssText;
 cssFromModule: function (moduleId, warnIfNotFound) {
 var m = Polymer.DomModule.import(moduleId);
 if (m && !m._cssText) {
-m._cssText = this._cssFromElement(m);
+m._cssText = this.cssFromElement(m);
 }
 if (!m && warnIfNotFound) {
 console.warn('Could not find style data in module named', moduleId);
 }
 return m && m._cssText || '';
 },
-_cssFromElement: function (element) {
+cssFromElement: function (element) {
 var cssText = '';
 var content = element.content || element;
-var e$ = Array.prototype.slice.call(content.querySelectorAll(this.MODULE_STYLES_SELECTOR));
+var e$ = Polymer.DomApi.arrayCopy(content.querySelectorAll(this.MODULE_STYLES_SELECTOR));
 for (var i = 0, e; i < e$.length; i++) {
 e = e$[i];
 if (e.localName === 'template') {
-cssText += this._cssFromElement(e);
+cssText += this.cssFromElement(e);
 } else {
 if (e.localName === 'style') {
 var include = e.getAttribute(this.INCLUDE_ATTR);
@@ -5151,7 +5393,7 @@ _extendRule: function (target, source) {
 if (target.parent !== source.parent) {
 this._cloneAndAddRuleToParent(source, target.parent);
 }
-target.extends = target.extends || (target.extends = []);
+target.extends = target.extends || [];
 target.extends.push(source);
 source.selector = source.selector.replace(this.rx.STRIP, '');
 source.selector = (source.selector && source.selector + ',\n') + target.selector;
@@ -5192,13 +5434,17 @@ _prepStyles: function () {
 if (this._encapsulateStyle === undefined) {
 this._encapsulateStyle = !nativeShadow && Boolean(this._template);
 }
+if (this._template) {
 this._styles = this._collectStyles();
 var cssText = styleTransformer.elementStyles(this);
-if (cssText && this._template) {
+if (cssText) {
 var style = styleUtil.applyCss(cssText, this.is, nativeShadow ? this._template.content : null);
 if (!nativeShadow) {
 this._scopeStyle = style;
 }
+}
+} else {
+this._styles = [];
 }
 },
 _collectStyles: function () {
@@ -5210,6 +5456,10 @@ cssText += styleUtil.cssFromModule(m);
 }
 }
 cssText += styleUtil.cssFromModule(this.is);
+var p = this._template && this._template.parentNode;
+if (this._template && (!p || p.id.toLowerCase() !== this.is)) {
+cssText += styleUtil.cssFromElement(this._template);
+}
 if (cssText) {
 var style = document.createElement('style');
 style.textContent = cssText;
@@ -5243,21 +5493,21 @@ var scopify = function (node) {
 if (node.nodeType === Node.ELEMENT_NODE) {
 node.className = self._scopeElementClass(node, node.className);
 var n$ = node.querySelectorAll('*');
-Array.prototype.forEach.call(n$, function (n) {
+for (var i = 0, n; i < n$.length && (n = n$[i]); i++) {
 n.className = self._scopeElementClass(n, n.className);
-});
+}
 }
 };
 scopify(container);
 if (shouldObserve) {
 var mo = new MutationObserver(function (mxns) {
-mxns.forEach(function (m) {
+for (var i = 0, m; i < mxns.length && (m = mxns[i]); i++) {
 if (m.addedNodes) {
-for (var i = 0; i < m.addedNodes.length; i++) {
-scopify(m.addedNodes[i]);
+for (var j = 0; j < m.addedNodes.length; j++) {
+scopify(m.addedNodes[j]);
 }
 }
-});
+}
 });
 mo.observe(container, {
 childList: true,
@@ -5382,7 +5632,9 @@ p = pp.join(':');
 parts[i] = p && p.lastIndexOf(';') === p.length - 1 ? p.slice(0, -1) : p || '';
 }
 }
-return parts.join(';');
+return parts.filter(function (v) {
+return v;
+}).join(';');
 },
 applyProperties: function (rule, props) {
 var output = '';
@@ -5508,7 +5760,7 @@ props[i] = v;
 }
 },
 rx: {
-VAR_ASSIGN: /(?:^|[;\n]\s*)(--[\w-]*?):\s*(?:([^;{]*)|{([^}]*)})(?:(?=[;\n])|$)/gi,
+VAR_ASSIGN: /(?:^|[;\s{]\s*)(--[\w-]*?)\s*:\s*(?:([^;{]*)|{([^}]*)})(?:(?=[;\s}])|$)/gi,
 MIXIN_MATCH: /(?:^|\W+)@apply[\s]*\(([^)]*)\)/i,
 VAR_MATCH: /(^|\W+)var\([\s]*([^,)]*)[\s]*,?[\s]*((?:[^,)]*)|(?:[^;]*\([^;)]*\)))[\s]*?\)/gi,
 VAR_CAPTURE: /\([\s]*(--[^,\s)]*)(?:,[\s]*(--[^,\s)]*))?(?:\)|,)/gi,
@@ -5627,9 +5879,12 @@ var styleDefaults = Polymer.StyleDefaults;
 var nativeShadow = Polymer.Settings.useNativeShadow;
 Polymer.Base._addFeature({
 _prepStyleProperties: function () {
-this._ownStylePropertyNames = this._styles ? propertyUtils.decorateStyles(this._styles) : [];
+this._ownStylePropertyNames = this._styles ? propertyUtils.decorateStyles(this._styles) : null;
 },
-customStyle: {},
+customStyle: null,
+getComputedStyleValue: function (property) {
+return this._styleProperties && this._styleProperties[property] || getComputedStyle(this).getPropertyValue(property);
+},
 _setupStyleProperties: function () {
 this.customStyle = {};
 },
@@ -5726,7 +5981,7 @@ if (host) {
 value = host._scopeElementClass(node, value);
 }
 }
-node = Polymer.dom(node);
+node = this.shadyRoot && this.shadyRoot._hasDistributed ? Polymer.dom(node) : node;
 serializeValueToAttribute.call(this, value, attribute, node);
 },
 _scopeElementClass: function (element, selector) {
@@ -5775,7 +6030,6 @@ var XSCOPE_NAME = propertyUtils.XSCOPE_NAME;
 Polymer.Base._addFeature({
 _registerFeatures: function () {
 this._prepIs();
-this._prepAttributes();
 this._prepConstructor();
 this._prepTemplate();
 this._prepStyles();
@@ -5783,6 +6037,7 @@ this._prepStyleProperties();
 this._prepAnnotations();
 this._prepEffects();
 this._prepBehaviors();
+this._prepPropertyInfo();
 this._prepBindings();
 this._prepShady();
 },
@@ -5792,22 +6047,27 @@ this._addComplexObserverEffects(b.observers);
 this._addHostAttributes(b.hostAttributes);
 },
 _initFeatures: function () {
-this._poolContent();
 this._setupConfigure();
 this._setupStyleProperties();
-this._pushHost();
-this._stampTemplate();
-this._popHost();
-this._marshalAnnotationReferences();
 this._setupDebouncers();
+this._registerHost();
+if (this._template) {
+this._poolContent();
+this._beginHosting();
+this._stampTemplate();
+this._endHosting();
+this._marshalAnnotationReferences();
+}
 this._marshalInstanceEffects();
-this._marshalHostAttributes();
 this._marshalBehaviors();
+this._marshalHostAttributes();
 this._marshalAttributes();
 this._tryReady();
 },
 _marshalBehavior: function (b) {
+if (b.listeners) {
 this._listenListeners(b.listeners);
+}
 }
 });
 (function () {
@@ -5820,6 +6080,7 @@ var styleTransformer = Polymer.StyleTransformer;
 Polymer({
 is: 'custom-style',
 extends: 'style',
+_template: null,
 properties: { include: String },
 ready: function () {
 this._tryApply();
@@ -5834,18 +6095,19 @@ this._appliesToDocument = true;
 var e = this.__appliedElement || this;
 styleDefaults.addStyle(e);
 if (e.textContent || this.include) {
-this._apply();
+this._apply(true);
 } else {
+var self = this;
 var observer = new MutationObserver(function () {
 observer.disconnect();
-this._apply();
-}.bind(this));
+self._apply(true);
+});
 observer.observe(e, { childList: true });
 }
 }
 }
 },
-_apply: function () {
+_apply: function (deferProperties) {
 var e = this.__appliedElement || this;
 if (this.include) {
 e.textContent = styleUtil.cssFromModules(this.include, true) + e.textContent;
@@ -5854,7 +6116,19 @@ if (e.textContent) {
 styleUtil.forEachStyleRule(styleUtil.rulesForStyle(e), function (rule) {
 styleTransformer.documentRule(rule);
 });
-this._applyCustomProperties(e);
+var self = this;
+function fn() {
+self._applyCustomProperties(e);
+}
+if (this._pendingApplyProperties) {
+cancelAnimationFrame(this._pendingApplyProperties);
+this._pendingApplyProperties = null;
+}
+if (deferProperties) {
+this._pendingApplyProperties = requestAnimationFrame(fn);
+} else {
+fn();
+}
 }
 },
 _applyCustomProperties: function (element) {
@@ -5891,6 +6165,7 @@ this._prepParentProperties(archetype, template);
 archetype._prepEffects();
 this._customPrepEffects(archetype);
 archetype._prepBehaviors();
+archetype._prepPropertyInfo();
 archetype._prepBindings();
 archetype._notifyPathUp = this._notifyPathUpImpl;
 archetype._scopeElementClass = this._scopeElementClassImpl;
@@ -5953,7 +6228,9 @@ var c = template._content;
 if (!c._notes) {
 var rootDataHost = archetype._rootDataHost;
 if (rootDataHost) {
-Polymer.Annotations.prepElement = rootDataHost._prepElement.bind(rootDataHost);
+Polymer.Annotations.prepElement = function () {
+rootDataHost._prepElement();
+};
 }
 c._notes = Polymer.Annotations.parseAnnotations(template);
 Polymer.Annotations.prepElement = null;
@@ -5981,19 +6258,29 @@ var parentProp = this._parentPropPrefix + prop;
 var effects = [
 {
 kind: 'function',
-effect: this._createForwardPropEffector(prop)
+effect: this._createForwardPropEffector(prop),
+fn: Polymer.Bind._functionEffect
 },
-{ kind: 'notify' }
+{
+kind: 'notify',
+fn: Polymer.Bind._notifyEffect,
+effect: { event: Polymer.CaseMap.camelToDashCase(parentProp) + '-changed' }
+}
 ];
 Polymer.Bind._createAccessors(proto, parentProp, effects);
 }
 }
+var self = this;
 if (template != this) {
 Polymer.Bind.prepareInstance(template);
-template._forwardParentProp = this._forwardParentProp.bind(this);
+template._forwardParentProp = function (source, value) {
+self._forwardParentProp(source, value);
+};
 }
 this._extendTemplate(template, proto);
-template._pathEffector = this._pathEffectorImpl.bind(this);
+template._pathEffector = function (path, value, fromAbove) {
+return self._pathEffectorImpl(path, value, fromAbove);
+};
 }
 },
 _createForwardPropEffector: function (prop) {
@@ -6015,14 +6302,15 @@ this.dataHost._forwardInstanceProp(this, prop, value);
 };
 },
 _extendTemplate: function (template, proto) {
-Object.getOwnPropertyNames(proto).forEach(function (n) {
+var n$ = Object.getOwnPropertyNames(proto);
+for (var i = 0, n; i < n$.length && (n = n$[i]); i++) {
 var val = template[n];
 var pd = Object.getOwnPropertyDescriptor(proto, n);
 Object.defineProperty(template, n, pd);
 if (val !== undefined) {
 template._propertySetter(n, val);
 }
-});
+}
 },
 _showHideChildren: function (hidden) {
 },
@@ -6043,7 +6331,10 @@ _pathEffectorImpl: function (path, value, fromAbove) {
 if (this._forwardParentPath) {
 if (path.indexOf(this._parentPropPrefix) === 0) {
 var subPath = path.substring(this._parentPropPrefix.length);
+var model = this._modelForPath(subPath);
+if (model in this._parentProps) {
 this._forwardParentPath(subPath, value);
+}
 }
 }
 Polymer.Base._pathEffector.call(this._templatized, path, value, fromAbove);
@@ -6051,11 +6342,12 @@ Polymer.Base._pathEffector.call(this._templatized, path, value, fromAbove);
 _constructorImpl: function (model, host) {
 this._rootDataHost = host._getRootDataHost();
 this._setupConfigure(model);
-this._pushHost(host);
+this._registerHost(host);
+this._beginHosting();
 this.root = this.instanceTemplate(this._template);
 this.root.__noContent = !this._notes._hasContent;
 this.root.__styleScoped = true;
-this._popHost();
+this._endHosting();
 this._marshalAnnotatedNodes();
 this._marshalInstanceEffects();
 this._marshalAnnotatedListeners();
@@ -6114,6 +6406,7 @@ el = el.parentNode;
 Polymer({
 is: 'dom-template',
 extends: 'template',
+_template: null,
 behaviors: [Polymer.Templatizer],
 ready: function () {
 this.templatize(this);
@@ -6214,21 +6507,21 @@ items.push(store[key]);
 return items;
 },
 _applySplices: function (splices) {
-var keyMap = {}, key, i;
-splices.forEach(function (s) {
+var keyMap = {}, key;
+for (var i = 0, s; i < splices.length && (s = splices[i]); i++) {
 s.addedKeys = [];
-for (i = 0; i < s.removed.length; i++) {
-key = this.getKey(s.removed[i]);
+for (var j = 0; j < s.removed.length; j++) {
+key = this.getKey(s.removed[j]);
 keyMap[key] = keyMap[key] ? null : -1;
 }
-for (i = 0; i < s.addedCount; i++) {
-var item = this.userArray[s.index + i];
+for (var j = 0; j < s.addedCount; j++) {
+var item = this.userArray[s.index + j];
 key = this.getKey(item);
 key = key === undefined ? this.add(item) : key;
 keyMap[key] = keyMap[key] ? null : 1;
 s.addedKeys.push(key);
 }
-}, this);
+}
 var removed = [];
 var added = [];
 for (var key in keyMap) {
@@ -6256,6 +6549,7 @@ return coll ? coll._applySplices(splices) : null;
 Polymer({
 is: 'dom-repeat',
 extends: 'template',
+_template: null,
 properties: {
 items: { type: Array },
 as: {
@@ -6278,22 +6572,37 @@ observe: {
 type: String,
 observer: '_observeChanged'
 },
-delay: Number
+delay: Number,
+initialCount: {
+type: Number,
+observer: '_initializeChunking'
+},
+targetFramerate: {
+type: Number,
+value: 20
+},
+_targetFrameTime: { computed: '_computeFrameTime(targetFramerate)' }
 },
 behaviors: [Polymer.Templatizer],
 observers: ['_itemsChanged(items.*)'],
 created: function () {
 this._instances = [];
+this._pool = [];
+this._limit = Infinity;
+var self = this;
+this._boundRenderChunk = function () {
+self._renderChunk();
+};
 },
 detached: function () {
 for (var i = 0; i < this._instances.length; i++) {
-this._detachRow(i);
+this._detachInstance(i);
 }
 },
 attached: function () {
-var parentNode = Polymer.dom(this).parentNode;
+var parent = Polymer.dom(Polymer.dom(this).parentNode);
 for (var i = 0; i < this._instances.length; i++) {
-Polymer.dom(parentNode).insertBefore(this._instances[i].root, this);
+this._attachInstance(i, parent);
 }
 },
 ready: function () {
@@ -6304,9 +6613,8 @@ if (!this.ctor) {
 this.templatize(this);
 }
 },
-_sortChanged: function () {
+_sortChanged: function (sort) {
 var dataHost = this._getRootDataHost();
-var sort = this.sort;
 this._sortFn = sort && (typeof sort == 'function' ? sort : function () {
 return dataHost[sort].apply(dataHost, arguments);
 });
@@ -6315,9 +6623,8 @@ if (this.items) {
 this._debounceTemplate(this._render);
 }
 },
-_filterChanged: function () {
+_filterChanged: function (filter) {
 var dataHost = this._getRootDataHost();
-var filter = this.filter;
 this._filterFn = filter && (typeof filter == 'function' ? filter : function () {
 return dataHost[filter].apply(dataHost, arguments);
 });
@@ -6325,6 +6632,32 @@ this._needFullRefresh = true;
 if (this.items) {
 this._debounceTemplate(this._render);
 }
+},
+_computeFrameTime: function (rate) {
+return Math.ceil(1000 / rate);
+},
+_initializeChunking: function () {
+if (this.initialCount) {
+this._limit = this.initialCount;
+this._chunkCount = this.initialCount;
+this._lastChunkTime = performance.now();
+}
+},
+_tryRenderChunk: function () {
+if (this.items && this._limit < this.items.length) {
+this.debounce('renderChunk', this._requestRenderChunk);
+}
+},
+_requestRenderChunk: function () {
+requestAnimationFrame(this._boundRenderChunk);
+},
+_renderChunk: function () {
+var currChunkTime = performance.now();
+var ratio = this._targetFrameTime / (currChunkTime - this._lastChunkTime);
+this._chunkCount = Math.round(this._chunkCount * ratio) || 1;
+this._limit += this._chunkCount;
+this._lastChunkTime = currChunkTime;
+this._debounceTemplate(this._render);
 },
 _observeChanged: function () {
 this._observePaths = this.observe && this.observe.replace('.*', '.').split(' ');
@@ -6341,6 +6674,7 @@ this._error(this._logf('dom-repeat', 'expected array for `items`,' + ' found', t
 this._keySplices = [];
 this._indexSplices = [];
 this._needFullRefresh = true;
+this._initializeChunking();
 this._debounceTemplate(this._render);
 } else if (change.path == 'items.splices') {
 this._keySplices = this._keySplices.concat(change.value.keySplices);
@@ -6379,7 +6713,7 @@ var c = this.collection;
 if (this._needFullRefresh) {
 this._applyFullRefresh();
 this._needFullRefresh = false;
-} else {
+} else if (this._keySplices.length) {
 if (this._sortFn) {
 this._applySplicesUserSort(this._keySplices);
 } else {
@@ -6389,16 +6723,26 @@ this._applyFullRefresh();
 this._applySplicesArrayOrder(this._indexSplices);
 }
 }
+} else {
 }
 this._keySplices = [];
 this._indexSplices = [];
 var keyToIdx = this._keyToInstIdx = {};
-for (var i = 0; i < this._instances.length; i++) {
+for (var i = this._instances.length - 1; i >= 0; i--) {
 var inst = this._instances[i];
+if (inst.isPlaceholder && i < this._limit) {
+inst = this._insertInstance(i, inst.__key__);
+} else if (!inst.isPlaceholder && i >= this._limit) {
+inst = this._downgradeInstance(i, inst.__key__);
+}
 keyToIdx[inst.__key__] = i;
+if (!inst.isPlaceholder) {
 inst.__setProperty(this.indexAs, i, true);
 }
+}
+this._pool.length = 0;
 this.fire('dom-change');
+this._tryRenderChunk();
 },
 _applyFullRefresh: function () {
 var c = this.collection;
@@ -6414,33 +6758,34 @@ keys.push(c.getKey(items[i]));
 }
 }
 }
+var self = this;
 if (this._filterFn) {
 keys = keys.filter(function (a) {
-return this._filterFn(c.getItem(a));
-}, this);
+return self._filterFn(c.getItem(a));
+});
 }
 if (this._sortFn) {
 keys.sort(function (a, b) {
-return this._sortFn(c.getItem(a), c.getItem(b));
-}.bind(this));
+return self._sortFn(c.getItem(a), c.getItem(b));
+});
 }
 for (var i = 0; i < keys.length; i++) {
 var key = keys[i];
 var inst = this._instances[i];
 if (inst) {
-inst.__setProperty('__key__', key, true);
+inst.__key__ = key;
+if (!inst.isPlaceholder && i < this._limit) {
 inst.__setProperty(this.as, c.getItem(key), true);
+}
+} else if (i < this._limit) {
+this._insertInstance(i, key);
 } else {
-this._instances.push(this._insertRow(i, key));
+this._insertPlaceholder(i, key);
 }
 }
-for (; i < this._instances.length; i++) {
-this._detachRow(i);
+for (var j = this._instances.length - 1; j >= i; j--) {
+this._detachAndRemoveInstance(j);
 }
-this._instances.splice(keys.length, this._instances.length - keys.length);
-},
-_keySort: function (a, b) {
-return this.collection.getKey(a) - this.collection.getKey(b);
 },
 _numericSort: function (a, b) {
 return a - b;
@@ -6449,18 +6794,16 @@ _applySplicesUserSort: function (splices) {
 var c = this.collection;
 var instances = this._instances;
 var keyMap = {};
-var pool = [];
-var sortFn = this._sortFn || this._keySort.bind(this);
-splices.forEach(function (s) {
-for (var i = 0; i < s.removed.length; i++) {
-var key = s.removed[i];
+for (var i = 0, s; i < splices.length && (s = splices[i]); i++) {
+for (var j = 0; j < s.removed.length; j++) {
+var key = s.removed[j];
 keyMap[key] = keyMap[key] ? null : -1;
 }
-for (var i = 0; i < s.added.length; i++) {
-var key = s.added[i];
+for (var j = 0; j < s.added.length; j++) {
+var key = s.added[j];
 keyMap[key] = keyMap[key] ? null : 1;
 }
-}, this);
+}
 var removedIdxs = [];
 var addedKeys = [];
 for (var key in keyMap) {
@@ -6476,36 +6819,35 @@ removedIdxs.sort(this._numericSort);
 for (var i = removedIdxs.length - 1; i >= 0; i--) {
 var idx = removedIdxs[i];
 if (idx !== undefined) {
-pool.push(this._detachRow(idx));
-instances.splice(idx, 1);
+this._detachAndRemoveInstance(idx);
 }
 }
 }
+var self = this;
 if (addedKeys.length) {
 if (this._filterFn) {
 addedKeys = addedKeys.filter(function (a) {
-return this._filterFn(c.getItem(a));
-}, this);
+return self._filterFn(c.getItem(a));
+});
 }
 addedKeys.sort(function (a, b) {
-return this._sortFn(c.getItem(a), c.getItem(b));
-}.bind(this));
+return self._sortFn(c.getItem(a), c.getItem(b));
+});
 var start = 0;
 for (var i = 0; i < addedKeys.length; i++) {
-start = this._insertRowUserSort(start, addedKeys[i], pool);
+start = this._insertRowUserSort(start, addedKeys[i]);
 }
 }
 },
-_insertRowUserSort: function (start, key, pool) {
+_insertRowUserSort: function (start, key) {
 var c = this.collection;
 var item = c.getItem(key);
 var end = this._instances.length - 1;
 var idx = -1;
-var sortFn = this._sortFn || this._keySort.bind(this);
 while (start <= end) {
 var mid = start + end >> 1;
 var midKey = this._instances[mid].__key__;
-var cmp = sortFn(c.getItem(midKey), item);
+var cmp = this._sortFn(c.getItem(midKey), item);
 if (cmp < 0) {
 start = mid + 1;
 } else if (cmp > 0) {
@@ -6518,65 +6860,80 @@ break;
 if (idx < 0) {
 idx = end + 1;
 }
-this._instances.splice(idx, 0, this._insertRow(idx, key, pool));
+this._insertPlaceholder(idx, key);
 return idx;
 },
 _applySplicesArrayOrder: function (splices) {
-var pool = [];
 var c = this.collection;
-splices.forEach(function (s) {
-for (var i = 0; i < s.removed.length; i++) {
-var inst = this._detachRow(s.index + i);
-if (!inst.isPlaceholder) {
-pool.push(inst);
+for (var i = 0, s; i < splices.length && (s = splices[i]); i++) {
+for (var j = 0; j < s.removed.length; j++) {
+this._detachAndRemoveInstance(s.index);
 }
-}
-this._instances.splice(s.index, s.removed.length);
-for (var i = 0; i < s.addedKeys.length; i++) {
-var inst = {
-isPlaceholder: true,
-key: s.addedKeys[i]
-};
-this._instances.splice(s.index + i, 0, inst);
-}
-}, this);
-for (var i = this._instances.length - 1; i >= 0; i--) {
-var inst = this._instances[i];
-if (inst.isPlaceholder) {
-this._instances[i] = this._insertRow(i, inst.key, pool, true);
+for (var j = 0; j < s.addedKeys.length; j++) {
+this._insertPlaceholder(s.index + j, s.addedKeys[j]);
 }
 }
 },
-_detachRow: function (idx) {
+_detachInstance: function (idx) {
 var inst = this._instances[idx];
 if (!inst.isPlaceholder) {
-var parentNode = Polymer.dom(this).parentNode;
 for (var i = 0; i < inst._children.length; i++) {
 var el = inst._children[i];
 Polymer.dom(inst.root).appendChild(el);
 }
-}
 return inst;
-},
-_insertRow: function (idx, key, pool, replace) {
-var inst;
-if (inst = pool && pool.pop()) {
-inst.__setProperty(this.as, this.collection.getItem(key), true);
-inst.__setProperty('__key__', key, true);
-} else {
-inst = this._generateRow(idx, key);
 }
-var beforeRow = this._instances[replace ? idx + 1 : idx];
-var beforeNode = beforeRow ? beforeRow._children[0] : this;
-var parentNode = Polymer.dom(this).parentNode;
-Polymer.dom(parentNode).insertBefore(inst.root, beforeNode);
-return inst;
 },
-_generateRow: function (idx, key) {
+_attachInstance: function (idx, parent) {
+var inst = this._instances[idx];
+if (!inst.isPlaceholder) {
+parent.insertBefore(inst.root, this);
+}
+},
+_detachAndRemoveInstance: function (idx) {
+var inst = this._detachInstance(idx);
+if (inst) {
+this._pool.push(inst);
+}
+this._instances.splice(idx, 1);
+},
+_insertPlaceholder: function (idx, key) {
+this._instances.splice(idx, 0, {
+isPlaceholder: true,
+__key__: key
+});
+},
+_stampInstance: function (idx, key) {
 var model = { __key__: key };
 model[this.as] = this.collection.getItem(key);
 model[this.indexAs] = idx;
-var inst = this.stamp(model);
+return this.stamp(model);
+},
+_insertInstance: function (idx, key) {
+var inst = this._pool.pop();
+if (inst) {
+inst.__setProperty(this.as, this.collection.getItem(key), true);
+inst.__setProperty('__key__', key, true);
+} else {
+inst = this._stampInstance(idx, key);
+}
+var beforeRow = this._instances[idx + 1];
+var beforeNode = beforeRow && !beforeRow.isPlaceholder ? beforeRow._children[0] : this;
+var parentNode = Polymer.dom(this).parentNode;
+Polymer.dom(parentNode).insertBefore(inst.root, beforeNode);
+this._instances[idx] = inst;
+return inst;
+},
+_downgradeInstance: function (idx, key) {
+var inst = this._detachInstance(idx);
+if (inst) {
+this._pool.push(inst);
+}
+inst = {
+isPlaceholder: true,
+__key__: key
+};
+this._instances[idx] = inst;
 return inst;
 },
 _showHideChildren: function (hidden) {
@@ -6601,14 +6958,20 @@ this._notifyPath('items.' + inst.__key__ + '.' + path.slice(this.as.length + 1),
 }
 },
 _forwardParentProp: function (prop, value) {
-this._instances.forEach(function (inst) {
+var i$ = this._instances;
+for (var i = 0, inst; i < i$.length && (inst = i$[i]); i++) {
+if (!inst.isPlaceholder) {
 inst.__setProperty(prop, value, true);
-}, this);
+}
+}
 },
 _forwardParentPath: function (path, value) {
-this._instances.forEach(function (inst) {
+var i$ = this._instances;
+for (var i = 0, inst; i < i$.length && (inst = i$[i]); i++) {
+if (!inst.isPlaceholder) {
 inst._notifyPath(path, value, true);
-}, this);
+}
+}
 },
 _forwardItemPath: function (path, value) {
 if (this._keyToInstIdx) {
@@ -6616,7 +6979,7 @@ var dot = path.indexOf('.');
 var key = path.substring(0, dot < 0 ? path.length : dot);
 var idx = this._keyToInstIdx[key];
 var inst = this._instances[idx];
-if (inst) {
+if (inst && !inst.isPlaceholder) {
 if (dot >= 0) {
 path = this.as + '.' + path.substring(dot + 1);
 inst._notifyPath(path, value, true);
@@ -6641,6 +7004,7 @@ return instance && instance[this.indexAs];
 });
 Polymer({
 is: 'array-selector',
+_template: null,
 properties: {
 items: {
 type: Array,
@@ -6733,6 +7097,7 @@ this.linkPaths('selectedItem', 'items.' + key);
 Polymer({
 is: 'dom-if',
 extends: 'template',
+_template: null,
 properties: {
 'if': {
 type: Boolean,
@@ -6780,20 +7145,23 @@ this._lastIf = this.if;
 },
 _ensureInstance: function () {
 if (!this._instance) {
+var parentNode = Polymer.dom(this).parentNode;
+if (parentNode) {
+var parent = Polymer.dom(parentNode);
 this._instance = this.stamp();
 var root = this._instance.root;
-var parent = Polymer.dom(Polymer.dom(this).parentNode);
 parent.insertBefore(root, this);
+}
 }
 },
 _teardownInstance: function () {
 if (this._instance) {
-var c = this._instance._children;
-if (c) {
-var parent = Polymer.dom(Polymer.dom(c[0]).parentNode);
-c.forEach(function (n) {
+var c$ = this._instance._children;
+if (c$) {
+var parent = Polymer.dom(Polymer.dom(c$[0]).parentNode);
+for (var i = 0, n; i < c$.length && (n = c$[i]); i++) {
 parent.removeChild(n);
-});
+}
 }
 this._instance = null;
 }
@@ -6818,8 +7186,12 @@ this._instance._notifyPath(path, value, true);
 Polymer({
 is: 'dom-bind',
 extends: 'template',
+_template: null,
 created: function () {
-Polymer.RenderStatus.whenReady(this._markImportsReady.bind(this));
+var self = this;
+Polymer.RenderStatus.whenReady(function () {
+self._markImportsReady();
+});
 },
 _ensureReady: function () {
 if (!this._readied) {
@@ -6858,7 +7230,10 @@ var config = {};
 for (var prop in this._propertyEffects) {
 config[prop] = this[prop];
 }
-this._setupConfigure = this._setupConfigure.bind(this, config);
+var setupConfigure = this._setupConfigure;
+this._setupConfigure = function () {
+setupConfigure.call(this, config);
+};
 },
 attached: function () {
 if (this._importsReady) {
@@ -6877,8 +7252,9 @@ this._prepEffects();
 this._prepBehaviors();
 this._prepConfigure();
 this._prepBindings();
+this._prepPropertyInfo();
 Polymer.Base._initFeatures.call(this);
-this._children = Array.prototype.slice.call(this.root.childNodes);
+this._children = Polymer.DomApi.arrayCopyChildNodes(this.root);
 }
 this._insertChildren();
 this.fire('dom-change');
@@ -7340,6 +7716,184 @@ this.fire('dom-change');
     }
 
   });
+/**
+   * `IronResizableBehavior` is a behavior that can be used in Polymer elements to
+   * coordinate the flow of resize events between "resizers" (elements that control the
+   * size or hidden state of their children) and "resizables" (elements that need to be
+   * notified when they are resized or un-hidden by their parents in order to take
+   * action on their new measurements).
+   * Elements that perform measurement should add the `IronResizableBehavior` behavior to
+   * their element definition and listen for the `iron-resize` event on themselves.
+   * This event will be fired when they become showing after having been hidden,
+   * when they are resized explicitly by another resizable, or when the window has been
+   * resized.
+   * Note, the `iron-resize` event is non-bubbling.
+   *
+   * @polymerBehavior Polymer.IronResizableBehavior
+   * @demo demo/index.html
+   **/
+  Polymer.IronResizableBehavior = {
+    properties: {
+      /**
+       * The closest ancestor element that implements `IronResizableBehavior`.
+       */
+      _parentResizable: {
+        type: Object,
+        observer: '_parentResizableChanged'
+      },
+
+      /**
+       * True if this element is currently notifying its descedant elements of
+       * resize.
+       */
+      _notifyingDescendant: {
+        type: Boolean,
+        value: false
+      }
+    },
+
+    listeners: {
+      'iron-request-resize-notifications': '_onIronRequestResizeNotifications'
+    },
+
+    created: function() {
+      // We don't really need property effects on these, and also we want them
+      // to be created before the `_parentResizable` observer fires:
+      this._interestedResizables = [];
+      this._boundNotifyResize = this.notifyResize.bind(this);
+    },
+
+    attached: function() {
+      this.fire('iron-request-resize-notifications', null, {
+        node: this,
+        bubbles: true,
+        cancelable: true
+      });
+
+      if (!this._parentResizable) {
+        window.addEventListener('resize', this._boundNotifyResize);
+        this.notifyResize();
+      }
+    },
+
+    detached: function() {
+      if (this._parentResizable) {
+        this._parentResizable.stopResizeNotificationsFor(this);
+      } else {
+        window.removeEventListener('resize', this._boundNotifyResize);
+      }
+
+      this._parentResizable = null;
+    },
+
+    /**
+     * Can be called to manually notify a resizable and its descendant
+     * resizables of a resize change.
+     */
+    notifyResize: function() {
+      if (!this.isAttached) {
+        return;
+      }
+
+      this._interestedResizables.forEach(function(resizable) {
+        if (this.resizerShouldNotify(resizable)) {
+          this._notifyDescendant(resizable);
+        }
+      }, this);
+
+      this._fireResize();
+    },
+
+    /**
+     * Used to assign the closest resizable ancestor to this resizable
+     * if the ancestor detects a request for notifications.
+     */
+    assignParentResizable: function(parentResizable) {
+      this._parentResizable = parentResizable;
+    },
+
+    /**
+     * Used to remove a resizable descendant from the list of descendants
+     * that should be notified of a resize change.
+     */
+    stopResizeNotificationsFor: function(target) {
+      var index = this._interestedResizables.indexOf(target);
+
+      if (index > -1) {
+        this._interestedResizables.splice(index, 1);
+        this.unlisten(target, 'iron-resize', '_onDescendantIronResize');
+      }
+    },
+
+    /**
+     * This method can be overridden to filter nested elements that should or
+     * should not be notified by the current element. Return true if an element
+     * should be notified, or false if it should not be notified.
+     *
+     * @param {HTMLElement} element A candidate descendant element that
+     * implements `IronResizableBehavior`.
+     * @return {boolean} True if the `element` should be notified of resize.
+     */
+    resizerShouldNotify: function(element) { return true; },
+
+    _onDescendantIronResize: function(event) {
+      if (this._notifyingDescendant) {
+        event.stopPropagation();
+        return;
+      }
+
+      // NOTE(cdata): In ShadowDOM, event retargetting makes echoing of the
+      // otherwise non-bubbling event "just work." We do it manually here for
+      // the case where Polymer is not using shadow roots for whatever reason:
+      if (!Polymer.Settings.useShadow) {
+        this._fireResize();
+      }
+    },
+
+    _fireResize: function() {
+      this.fire('iron-resize', null, {
+        node: this,
+        bubbles: false
+      });
+    },
+
+    _onIronRequestResizeNotifications: function(event) {
+      var target = event.path ? event.path[0] : event.target;
+
+      if (target === this) {
+        return;
+      }
+
+      if (this._interestedResizables.indexOf(target) === -1) {
+        this._interestedResizables.push(target);
+        this.listen(target, 'iron-resize', '_onDescendantIronResize');
+      }
+
+      target.assignParentResizable(this);
+      this._notifyDescendant(target);
+
+      event.stopPropagation();
+    },
+
+    _parentResizableChanged: function(parentResizable) {
+      if (parentResizable) {
+        window.removeEventListener('resize', this._boundNotifyResize);
+      }
+    },
+
+    _notifyDescendant: function(descendant) {
+      // NOTE(cdata): In IE10, attached is fired on children first, so it's
+      // important not to notify them if the parent is not attached yet (or
+      // else they will get redundantly notified when the parent attaches).
+      if (!this.isAttached) {
+        return;
+      }
+
+      this._notifyingDescendant = true;
+      descendant.notifyResize();
+      this._notifyingDescendant = false;
+    }
+  };
 /**
    * @param {!Function} selectCallback
    * @constructor
@@ -7857,703 +8411,6 @@ this.fire('dom-change');
     Polymer.IronSelectableBehavior,
     Polymer.IronMultiSelectableBehaviorImpl
   ];
-(function() {
-    'use strict';
-
-    /**
-     * Chrome uses an older version of DOM Level 3 Keyboard Events
-     *
-     * Most keys are labeled as text, but some are Unicode codepoints.
-     * Values taken from: http://www.w3.org/TR/2007/WD-DOM-Level-3-Events-20071221/keyset.html#KeySet-Set
-     */
-    var KEY_IDENTIFIER = {
-      'U+0008': 'backspace',
-      'U+0009': 'tab',
-      'U+001B': 'esc',
-      'U+0020': 'space',
-      'U+007F': 'del'
-    };
-
-    /**
-     * Special table for KeyboardEvent.keyCode.
-     * KeyboardEvent.keyIdentifier is better, and KeyBoardEvent.key is even better
-     * than that.
-     *
-     * Values from: https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent.keyCode#Value_of_keyCode
-     */
-    var KEY_CODE = {
-      8: 'backspace',
-      9: 'tab',
-      13: 'enter',
-      27: 'esc',
-      33: 'pageup',
-      34: 'pagedown',
-      35: 'end',
-      36: 'home',
-      32: 'space',
-      37: 'left',
-      38: 'up',
-      39: 'right',
-      40: 'down',
-      46: 'del',
-      106: '*'
-    };
-
-    /**
-     * MODIFIER_KEYS maps the short name for modifier keys used in a key
-     * combo string to the property name that references those same keys
-     * in a KeyboardEvent instance.
-     */
-    var MODIFIER_KEYS = {
-      'shift': 'shiftKey',
-      'ctrl': 'ctrlKey',
-      'alt': 'altKey',
-      'meta': 'metaKey'
-    };
-
-    /**
-     * Matches a keyIdentifier string.
-     */
-    var IDENT_CHAR = /U\+/;
-
-    /**
-     * Matches arrow keys in Gecko 27.0+
-     */
-    var ARROW_KEY = /^arrow/;
-
-    /**
-     * Matches space keys everywhere (notably including IE10's exceptional name
-     * `spacebar`).
-     */
-    var SPACE_KEY = /^space(bar)?/;
-
-    function transformKey(key) {
-      var validKey = '';
-      if (key) {
-        var lKey = key.toLowerCase();
-        if (lKey === ' ' || SPACE_KEY.test(lKey)) {
-          validKey = 'space';
-        } else if (lKey.length == 1) {
-          validKey = lKey;
-        } else if (ARROW_KEY.test(lKey)) {
-          validKey = lKey.replace('arrow', '');
-        } else if (lKey == 'multiply') {
-          // numpad '*' can map to Multiply on IE/Windows
-          validKey = '*';
-        } else {
-          validKey = lKey;
-        }
-      }
-      return validKey;
-    }
-
-    function transformKeyIdentifier(keyIdent) {
-      var validKey = '';
-      if (keyIdent) {
-        if (keyIdent in KEY_IDENTIFIER) {
-          validKey = KEY_IDENTIFIER[keyIdent];
-        } else if (IDENT_CHAR.test(keyIdent)) {
-          keyIdent = parseInt(keyIdent.replace('U+', '0x'), 16);
-          validKey = String.fromCharCode(keyIdent).toLowerCase();
-        } else {
-          validKey = keyIdent.toLowerCase();
-        }
-      }
-      return validKey;
-    }
-
-    function transformKeyCode(keyCode) {
-      var validKey = '';
-      if (Number(keyCode)) {
-        if (keyCode >= 65 && keyCode <= 90) {
-          // ascii a-z
-          // lowercase is 32 offset from uppercase
-          validKey = String.fromCharCode(32 + keyCode);
-        } else if (keyCode >= 112 && keyCode <= 123) {
-          // function keys f1-f12
-          validKey = 'f' + (keyCode - 112);
-        } else if (keyCode >= 48 && keyCode <= 57) {
-          // top 0-9 keys
-          validKey = String(48 - keyCode);
-        } else if (keyCode >= 96 && keyCode <= 105) {
-          // num pad 0-9
-          validKey = String(96 - keyCode);
-        } else {
-          validKey = KEY_CODE[keyCode];
-        }
-      }
-      return validKey;
-    }
-
-    function normalizedKeyForEvent(keyEvent) {
-      // fall back from .key, to .keyIdentifier, to .keyCode, and then to
-      // .detail.key to support artificial keyboard events
-      return transformKey(keyEvent.key) ||
-        transformKeyIdentifier(keyEvent.keyIdentifier) ||
-        transformKeyCode(keyEvent.keyCode) ||
-        transformKey(keyEvent.detail.key) || '';
-    }
-
-    function keyComboMatchesEvent(keyCombo, event, eventKey) {
-      return eventKey === keyCombo.key &&
-        (!keyCombo.hasModifiers || (
-          !!event.shiftKey === !!keyCombo.shiftKey &&
-          !!event.ctrlKey === !!keyCombo.ctrlKey &&
-          !!event.altKey === !!keyCombo.altKey &&
-          !!event.metaKey === !!keyCombo.metaKey)
-        );
-    }
-
-    function parseKeyComboString(keyComboString) {
-      if (keyComboString.length === 1) {
-        return {
-          combo: keyComboString,
-          key: keyComboString,
-          event: 'keydown'
-        };
-      }
-      return keyComboString.split('+').reduce(function(parsedKeyCombo, keyComboPart) {
-        var eventParts = keyComboPart.split(':');
-        var keyName = eventParts[0];
-        var event = eventParts[1];
-
-        if (keyName in MODIFIER_KEYS) {
-          parsedKeyCombo[MODIFIER_KEYS[keyName]] = true;
-          parsedKeyCombo.hasModifiers = true;
-        } else {
-          parsedKeyCombo.key = keyName;
-          parsedKeyCombo.event = event || 'keydown';
-        }
-
-        return parsedKeyCombo;
-      }, {
-        combo: keyComboString.split(':').shift()
-      });
-    }
-
-    function parseEventString(eventString) {
-      return eventString.trim().split(' ').map(function(keyComboString) {
-        return parseKeyComboString(keyComboString);
-      });
-    }
-
-    /**
-     * `Polymer.IronA11yKeysBehavior` provides a normalized interface for processing
-     * keyboard commands that pertain to [WAI-ARIA best practices](http://www.w3.org/TR/wai-aria-practices/#kbd_general_binding).
-     * The element takes care of browser differences with respect to Keyboard events
-     * and uses an expressive syntax to filter key presses.
-     *
-     * Use the `keyBindings` prototype property to express what combination of keys
-     * will trigger the event to fire.
-     *
-     * Use the `key-event-target` attribute to set up event handlers on a specific
-     * node.
-     * The `keys-pressed` event will fire when one of the key combinations set with the
-     * `keys` property is pressed.
-     *
-     * @demo demo/index.html
-     * @polymerBehavior
-     */
-    Polymer.IronA11yKeysBehavior = {
-      properties: {
-        /**
-         * The HTMLElement that will be firing relevant KeyboardEvents.
-         */
-        keyEventTarget: {
-          type: Object,
-          value: function() {
-            return this;
-          }
-        },
-
-        /**
-         * If true, this property will cause the implementing element to
-         * automatically stop propagation on any handled KeyboardEvents.
-         */
-        stopKeyboardEventPropagation: {
-          type: Boolean,
-          value: false
-        },
-
-        _boundKeyHandlers: {
-          type: Array,
-          value: function() {
-            return [];
-          }
-        },
-
-        // We use this due to a limitation in IE10 where instances will have
-        // own properties of everything on the "prototype".
-        _imperativeKeyBindings: {
-          type: Object,
-          value: function() {
-            return {};
-          }
-        }
-      },
-
-      observers: [
-        '_resetKeyEventListeners(keyEventTarget, _boundKeyHandlers)'
-      ],
-
-      keyBindings: {},
-
-      registered: function() {
-        this._prepKeyBindings();
-      },
-
-      attached: function() {
-        this._listenKeyEventListeners();
-      },
-
-      detached: function() {
-        this._unlistenKeyEventListeners();
-      },
-
-      /**
-       * Can be used to imperatively add a key binding to the implementing
-       * element. This is the imperative equivalent of declaring a keybinding
-       * in the `keyBindings` prototype property.
-       */
-      addOwnKeyBinding: function(eventString, handlerName) {
-        this._imperativeKeyBindings[eventString] = handlerName;
-        this._prepKeyBindings();
-        this._resetKeyEventListeners();
-      },
-
-      /**
-       * When called, will remove all imperatively-added key bindings.
-       */
-      removeOwnKeyBindings: function() {
-        this._imperativeKeyBindings = {};
-        this._prepKeyBindings();
-        this._resetKeyEventListeners();
-      },
-
-      keyboardEventMatchesKeys: function(event, eventString) {
-        var keyCombos = parseEventString(eventString);
-        var eventKey = normalizedKeyForEvent(event);
-        for (var i = 0; i < keyCombos.length; ++i) {
-          if (keyComboMatchesEvent(keyCombos[i], event, eventKey)) {
-            return true;
-          }
-        }
-        return false;
-      },
-
-      _collectKeyBindings: function() {
-        var keyBindings = this.behaviors.map(function(behavior) {
-          return behavior.keyBindings;
-        });
-
-        if (keyBindings.indexOf(this.keyBindings) === -1) {
-          keyBindings.push(this.keyBindings);
-        }
-
-        return keyBindings;
-      },
-
-      _prepKeyBindings: function() {
-        this._keyBindings = {};
-
-        this._collectKeyBindings().forEach(function(keyBindings) {
-          for (var eventString in keyBindings) {
-            this._addKeyBinding(eventString, keyBindings[eventString]);
-          }
-        }, this);
-
-        for (var eventString in this._imperativeKeyBindings) {
-          this._addKeyBinding(eventString, this._imperativeKeyBindings[eventString]);
-        }
-
-        // Give precedence to combos with modifiers to be checked first.
-        for (var eventName in this._keyBindings) {
-          this._keyBindings[eventName].sort(function (kb1, kb2) {
-            var b1 = kb1[0].hasModifiers;
-            var b2 = kb2[0].hasModifiers;
-            return (b1 === b2) ? 0 : b1 ? -1 : 1;
-          })
-        }
-      },
-
-      _addKeyBinding: function(eventString, handlerName) {
-        parseEventString(eventString).forEach(function(keyCombo) {
-          this._keyBindings[keyCombo.event] =
-            this._keyBindings[keyCombo.event] || [];
-
-          this._keyBindings[keyCombo.event].push([
-            keyCombo,
-            handlerName
-          ]);
-        }, this);
-      },
-
-      _resetKeyEventListeners: function() {
-        this._unlistenKeyEventListeners();
-
-        if (this.isAttached) {
-          this._listenKeyEventListeners();
-        }
-      },
-
-      _listenKeyEventListeners: function() {
-        Object.keys(this._keyBindings).forEach(function(eventName) {
-          var keyBindings = this._keyBindings[eventName];
-          var boundKeyHandler = this._onKeyBindingEvent.bind(this, keyBindings);
-
-          this._boundKeyHandlers.push([this.keyEventTarget, eventName, boundKeyHandler]);
-
-          this.keyEventTarget.addEventListener(eventName, boundKeyHandler);
-        }, this);
-      },
-
-      _unlistenKeyEventListeners: function() {
-        var keyHandlerTuple;
-        var keyEventTarget;
-        var eventName;
-        var boundKeyHandler;
-
-        while (this._boundKeyHandlers.length) {
-          // My kingdom for block-scope binding and destructuring assignment..
-          keyHandlerTuple = this._boundKeyHandlers.pop();
-          keyEventTarget = keyHandlerTuple[0];
-          eventName = keyHandlerTuple[1];
-          boundKeyHandler = keyHandlerTuple[2];
-
-          keyEventTarget.removeEventListener(eventName, boundKeyHandler);
-        }
-      },
-
-      _onKeyBindingEvent: function(keyBindings, event) {
-        if (this.stopKeyboardEventPropagation) {
-          event.stopPropagation();
-        }
-
-        // if event has been already prevented, don't do anything
-        if (event.defaultPrevented) {
-          return;
-        }
-
-        var eventKey = normalizedKeyForEvent(event);
-        for (var i = 0; i < keyBindings.length; i++) {
-          var keyCombo = keyBindings[i][0];
-          var handlerName = keyBindings[i][1];
-          if (keyComboMatchesEvent(keyCombo, event, eventKey)) {
-            this._triggerKeyHandler(keyCombo, handlerName, event);
-            // exit the loop if eventDefault was prevented
-            if (event.defaultPrevented) {
-              return;
-            }
-          }
-        }
-      },
-
-      _triggerKeyHandler: function(keyCombo, handlerName, keyboardEvent) {
-        var detail = Object.create(keyCombo);
-        detail.keyboardEvent = keyboardEvent;
-        var event = new CustomEvent(keyCombo.event, {
-          detail: detail,
-          cancelable: true
-        });
-        this[handlerName].call(this, event);
-        if (event.defaultPrevented) {
-          keyboardEvent.preventDefault();
-        }
-      }
-    };
-  })();
-/**
-   * `Polymer.IronMenuBehavior` implements accessible menu behavior.
-   *
-   * @demo demo/index.html
-   * @polymerBehavior Polymer.IronMenuBehavior
-   */
-  Polymer.IronMenuBehaviorImpl = {
-
-    properties: {
-
-      /**
-       * Returns the currently focused item.
-       * @type {?Object}
-       */
-      focusedItem: {
-        observer: '_focusedItemChanged',
-        readOnly: true,
-        type: Object
-      },
-
-      /**
-       * The attribute to use on menu items to look up the item title. Typing the first
-       * letter of an item when the menu is open focuses that item. If unset, `textContent`
-       * will be used.
-       */
-      attrForItemTitle: {
-        type: String
-      }
-    },
-
-    hostAttributes: {
-      'role': 'menu',
-      'tabindex': '0'
-    },
-
-    observers: [
-      '_updateMultiselectable(multi)'
-    ],
-
-    listeners: {
-      'focus': '_onFocus',
-      'keydown': '_onKeydown',
-      'iron-items-changed': '_onIronItemsChanged'
-    },
-
-    keyBindings: {
-      'up': '_onUpKey',
-      'down': '_onDownKey',
-      'esc': '_onEscKey',
-      'shift+tab:keydown': '_onShiftTabDown'
-    },
-
-    attached: function() {
-      this._resetTabindices();
-    },
-
-    /**
-     * Selects the given value. If the `multi` property is true, then the selected state of the
-     * `value` will be toggled; otherwise the `value` will be selected.
-     *
-     * @param {string} value the value to select.
-     */
-    select: function(value) {
-      if (this._defaultFocusAsync) {
-        this.cancelAsync(this._defaultFocusAsync);
-        this._defaultFocusAsync = null;
-      }
-      var item = this._valueToItem(value);
-      if (item && item.hasAttribute('disabled')) return;
-      this._setFocusedItem(item);
-      Polymer.IronMultiSelectableBehaviorImpl.select.apply(this, arguments);
-    },
-
-    /**
-     * Resets all tabindex attributes to the appropriate value based on the
-     * current selection state. The appropriate value is `0` (focusable) for
-     * the default selected item, and `-1` (not keyboard focusable) for all
-     * other items.
-     */
-    _resetTabindices: function() {
-      var selectedItem = this.multi ? (this.selectedItems && this.selectedItems[0]) : this.selectedItem;
-
-      this.items.forEach(function(item) {
-        item.setAttribute('tabindex', item === selectedItem ? '0' : '-1');
-      }, this);
-    },
-
-    /**
-     * Sets appropriate ARIA based on whether or not the menu is meant to be
-     * multi-selectable.
-     *
-     * @param {boolean} multi True if the menu should be multi-selectable.
-     */
-    _updateMultiselectable: function(multi) {
-      if (multi) {
-        this.setAttribute('aria-multiselectable', 'true');
-      } else {
-        this.removeAttribute('aria-multiselectable');
-      }
-    },
-
-    /**
-     * Given a KeyboardEvent, this method will focus the appropriate item in the
-     * menu (if there is a relevant item, and it is possible to focus it).
-     *
-     * @param {KeyboardEvent} event A KeyboardEvent.
-     */
-    _focusWithKeyboardEvent: function(event) {
-      for (var i = 0, item; item = this.items[i]; i++) {
-        var attr = this.attrForItemTitle || 'textContent';
-        var title = item[attr] || item.getAttribute(attr);
-        if (title && title.trim().charAt(0).toLowerCase() === String.fromCharCode(event.keyCode).toLowerCase()) {
-          this._setFocusedItem(item);
-          break;
-        }
-      }
-    },
-
-    /**
-     * Focuses the previous item (relative to the currently focused item) in the
-     * menu.
-     */
-    _focusPrevious: function() {
-      var length = this.items.length;
-      var index = (Number(this.indexOf(this.focusedItem)) - 1 + length) % length;
-      this._setFocusedItem(this.items[index]);
-    },
-
-    /**
-     * Focuses the next item (relative to the currently focused item) in the
-     * menu.
-     */
-    _focusNext: function() {
-      var index = (Number(this.indexOf(this.focusedItem)) + 1) % this.items.length;
-      this._setFocusedItem(this.items[index]);
-    },
-
-    /**
-     * Mutates items in the menu based on provided selection details, so that
-     * all items correctly reflect selection state.
-     *
-     * @param {Element} item An item in the menu.
-     * @param {boolean} isSelected True if the item should be shown in a
-     * selected state, otherwise false.
-     */
-    _applySelection: function(item, isSelected) {
-      if (isSelected) {
-        item.setAttribute('aria-selected', 'true');
-      } else {
-        item.removeAttribute('aria-selected');
-      }
-
-      Polymer.IronSelectableBehavior._applySelection.apply(this, arguments);
-    },
-
-    /**
-     * Discretely updates tabindex values among menu items as the focused item
-     * changes.
-     *
-     * @param {Element} focusedItem The element that is currently focused.
-     * @param {?Element} old The last element that was considered focused, if
-     * applicable.
-     */
-    _focusedItemChanged: function(focusedItem, old) {
-      old && old.setAttribute('tabindex', '-1');
-      if (focusedItem) {
-        focusedItem.setAttribute('tabindex', '0');
-        focusedItem.focus();
-      }
-    },
-
-    /**
-     * A handler that responds to mutation changes related to the list of items
-     * in the menu.
-     *
-     * @param {CustomEvent} event An event containing mutation records as its
-     * detail.
-     */
-    _onIronItemsChanged: function(event) {
-      var mutations = event.detail;
-      var mutation;
-      var index;
-
-      for (index = 0; index < mutations.length; ++index) {
-        mutation = mutations[index];
-
-        if (mutation.addedNodes.length) {
-          this._resetTabindices();
-          break;
-        }
-      }
-    },
-
-    /**
-     * Handler that is called when a shift+tab keypress is detected by the menu.
-     *
-     * @param {CustomEvent} event A key combination event.
-     */
-    _onShiftTabDown: function(event) {
-      var oldTabIndex;
-
-      Polymer.IronMenuBehaviorImpl._shiftTabPressed = true;
-
-      oldTabIndex = this.getAttribute('tabindex');
-
-      this.setAttribute('tabindex', '-1');
-
-      this.async(function() {
-        this.setAttribute('tabindex', oldTabIndex);
-        Polymer.IronMenuBehaviorImpl._shiftTabPressed = false;
-      // NOTE(cdata): polymer/polymer#1305
-      }, 1);
-    },
-
-    /**
-     * Handler that is called when the menu receives focus.
-     *
-     * @param {FocusEvent} event A focus event.
-     */
-    _onFocus: function(event) {
-      if (Polymer.IronMenuBehaviorImpl._shiftTabPressed) {
-        return;
-      }
-      // do not focus the menu itself
-      this.blur();
-      // clear the cached focus item
-      this._setFocusedItem(null);
-      this._defaultFocusAsync = this.async(function() {
-        // focus the selected item when the menu receives focus, or the first item
-        // if no item is selected
-        var selectedItem = this.multi ? (this.selectedItems && this.selectedItems[0]) : this.selectedItem;
-        if (selectedItem) {
-          this._setFocusedItem(selectedItem);
-        } else {
-          this._setFocusedItem(this.items[0]);
-        }
-      // async 100ms to wait for `select` to get called from `_itemActivate`
-      }, 100);
-    },
-
-    /**
-     * Handler that is called when the up key is pressed.
-     *
-     * @param {CustomEvent} event A key combination event.
-     */
-    _onUpKey: function(event) {
-      // up and down arrows moves the focus
-      this._focusPrevious();
-    },
-
-    /**
-     * Handler that is called when the down key is pressed.
-     *
-     * @param {CustomEvent} event A key combination event.
-     */
-    _onDownKey: function(event) {
-      this._focusNext();
-    },
-
-    /**
-     * Handler that is called when the esc key is pressed.
-     *
-     * @param {CustomEvent} event A key combination event.
-     */
-    _onEscKey: function(event) {
-      // esc blurs the control
-      this.focusedItem.blur();
-    },
-
-    /**
-     * Handler that is called when a keydown event is detected.
-     *
-     * @param {KeyboardEvent} event A keyboard event.
-     */
-    _onKeydown: function(event) {
-      if (this.keyboardEventMatchesKeys(event, 'up down esc')) {
-        return;
-      }
-
-      // all other keys focus the menu item starting with that character
-      this._focusWithKeyboardEvent(event);
-    }
-  };
-
-  Polymer.IronMenuBehaviorImpl._shiftTabPressed = false;
-
-  /** @polymerBehavior Polymer.IronMenuBehavior */
-  Polymer.IronMenuBehavior = [
-    Polymer.IronMultiSelectableBehavior,
-    Polymer.IronA11yKeysBehavior,
-    Polymer.IronMenuBehaviorImpl
-  ];
 /**
   `iron-selector` is an element which can be used to manage a list of elements
   that can be selected.  Tapping on the item will make the item selected.  The `selected` indicates
@@ -8609,822 +8466,6 @@ this.fire('dom-change');
     ]
 
   });
-/**
-   * `IronResizableBehavior` is a behavior that can be used in Polymer elements to
-   * coordinate the flow of resize events between "resizers" (elements that control the
-   * size or hidden state of their children) and "resizables" (elements that need to be
-   * notified when they are resized or un-hidden by their parents in order to take
-   * action on their new measurements).
-   * Elements that perform measurement should add the `IronResizableBehavior` behavior to
-   * their element definition and listen for the `iron-resize` event on themselves.
-   * This event will be fired when they become showing after having been hidden,
-   * when they are resized explicitly by another resizable, or when the window has been
-   * resized.
-   * Note, the `iron-resize` event is non-bubbling.
-   *
-   * @polymerBehavior Polymer.IronResizableBehavior
-   * @demo demo/index.html
-   **/
-  Polymer.IronResizableBehavior = {
-    properties: {
-      /**
-       * The closest ancestor element that implements `IronResizableBehavior`.
-       */
-      _parentResizable: {
-        type: Object,
-        observer: '_parentResizableChanged'
-      },
-
-      /**
-       * True if this element is currently notifying its descedant elements of
-       * resize.
-       */
-      _notifyingDescendant: {
-        type: Boolean,
-        value: false
-      }
-    },
-
-    listeners: {
-      'iron-request-resize-notifications': '_onIronRequestResizeNotifications'
-    },
-
-    created: function() {
-      // We don't really need property effects on these, and also we want them
-      // to be created before the `_parentResizable` observer fires:
-      this._interestedResizables = [];
-      this._boundNotifyResize = this.notifyResize.bind(this);
-    },
-
-    attached: function() {
-      this.fire('iron-request-resize-notifications', null, {
-        node: this,
-        bubbles: true,
-        cancelable: true
-      });
-
-      if (!this._parentResizable) {
-        window.addEventListener('resize', this._boundNotifyResize);
-        this.notifyResize();
-      }
-    },
-
-    detached: function() {
-      if (this._parentResizable) {
-        this._parentResizable.stopResizeNotificationsFor(this);
-      } else {
-        window.removeEventListener('resize', this._boundNotifyResize);
-      }
-
-      this._parentResizable = null;
-    },
-
-    /**
-     * Can be called to manually notify a resizable and its descendant
-     * resizables of a resize change.
-     */
-    notifyResize: function() {
-      if (!this.isAttached) {
-        return;
-      }
-
-      this._interestedResizables.forEach(function(resizable) {
-        if (this.resizerShouldNotify(resizable)) {
-          this._notifyDescendant(resizable);
-        }
-      }, this);
-
-      this._fireResize();
-    },
-
-    /**
-     * Used to assign the closest resizable ancestor to this resizable
-     * if the ancestor detects a request for notifications.
-     */
-    assignParentResizable: function(parentResizable) {
-      this._parentResizable = parentResizable;
-    },
-
-    /**
-     * Used to remove a resizable descendant from the list of descendants
-     * that should be notified of a resize change.
-     */
-    stopResizeNotificationsFor: function(target) {
-      var index = this._interestedResizables.indexOf(target);
-
-      if (index > -1) {
-        this._interestedResizables.splice(index, 1);
-        this.unlisten(target, 'iron-resize', '_onDescendantIronResize');
-      }
-    },
-
-    /**
-     * This method can be overridden to filter nested elements that should or
-     * should not be notified by the current element. Return true if an element
-     * should be notified, or false if it should not be notified.
-     *
-     * @param {HTMLElement} element A candidate descendant element that
-     * implements `IronResizableBehavior`.
-     * @return {boolean} True if the `element` should be notified of resize.
-     */
-    resizerShouldNotify: function(element) { return true; },
-
-    _onDescendantIronResize: function(event) {
-      if (this._notifyingDescendant) {
-        event.stopPropagation();
-        return;
-      }
-
-      // NOTE(cdata): In ShadowDOM, event retargetting makes echoing of the
-      // otherwise non-bubbling event "just work." We do it manually here for
-      // the case where Polymer is not using shadow roots for whatever reason:
-      if (!Polymer.Settings.useShadow) {
-        this._fireResize();
-      }
-    },
-
-    _fireResize: function() {
-      this.fire('iron-resize', null, {
-        node: this,
-        bubbles: false
-      });
-    },
-
-    _onIronRequestResizeNotifications: function(event) {
-      var target = event.path ? event.path[0] : event.target;
-
-      if (target === this) {
-        return;
-      }
-
-      if (this._interestedResizables.indexOf(target) === -1) {
-        this._interestedResizables.push(target);
-        this.listen(target, 'iron-resize', '_onDescendantIronResize');
-      }
-
-      target.assignParentResizable(this);
-      this._notifyDescendant(target);
-
-      event.stopPropagation();
-    },
-
-    _parentResizableChanged: function(parentResizable) {
-      if (parentResizable) {
-        window.removeEventListener('resize', this._boundNotifyResize);
-      }
-    },
-
-    _notifyDescendant: function(descendant) {
-      // NOTE(cdata): In IE10, attached is fired on children first, so it's
-      // important not to notify them if the parent is not attached yet (or
-      // else they will get redundantly notified when the parent attaches).
-      if (!this.isAttached) {
-        return;
-      }
-
-      this._notifyingDescendant = true;
-      descendant.notifyResize();
-      this._notifyingDescendant = false;
-    }
-  };
-Polymer({
-
-    is: 'iron-media-query',
-
-    properties: {
-
-      /**
-       * The Boolean return value of the media query.
-       */
-      queryMatches: {
-        type: Boolean,
-        value: false,
-        readOnly: true,
-        notify: true
-      },
-
-      /**
-       * The CSS media query to evaluate.
-       */
-      query: {
-        type: String,
-        observer: 'queryChanged'
-      },
-
-      /**
-       * If true, the query attribute is assumed to be a complete media query
-       * string rather than a single media feature.
-       */
-      full: {
-        type: Boolean,
-        value: false
-      },
-      
-      /**
-       * @type {function(MediaQueryList)}
-       */ 
-      _boundMQHandler: {
-        value: function() {
-          return this.queryHandler.bind(this);
-        }
-      },
-      
-      /**
-       * @type {MediaQueryList}
-       */ 
-      _mq: {
-        value: null
-      }
-    },
-
-    attached: function() {
-      this.queryChanged();
-    },
-
-    detached: function() {
-      this._remove();
-    },
-
-    _add: function() {
-      if (this._mq) {
-        this._mq.addListener(this._boundMQHandler);
-      }
-    },
-
-    _remove: function() {
-      if (this._mq) {
-        this._mq.removeListener(this._boundMQHandler);
-      }
-      this._mq = null;
-    },
-
-    queryChanged: function() {
-      this._remove();
-      var query = this.query;
-      if (!query) {
-        return;
-      }
-      if (!this.full && query[0] !== '(') {
-        query = '(' + query + ')';
-      }
-      this._mq = window.matchMedia(query);
-      this._add();
-      this.queryHandler(this._mq);
-    },
-
-    queryHandler: function(mq) {
-      this._setQueryMatches(mq.matches);
-    }
-
-  });
-/**
-   * @demo demo/index.html
-   * @polymerBehavior
-   */
-  Polymer.IronControlState = {
-
-    properties: {
-
-      /**
-       * If true, the element currently has focus.
-       */
-      focused: {
-        type: Boolean,
-        value: false,
-        notify: true,
-        readOnly: true,
-        reflectToAttribute: true
-      },
-
-      /**
-       * If true, the user cannot interact with this element.
-       */
-      disabled: {
-        type: Boolean,
-        value: false,
-        notify: true,
-        observer: '_disabledChanged',
-        reflectToAttribute: true
-      },
-
-      _oldTabIndex: {
-        type: Number
-      },
-
-      _boundFocusBlurHandler: {
-        type: Function,
-        value: function() {
-          return this._focusBlurHandler.bind(this);
-        }
-      }
-
-    },
-
-    observers: [
-      '_changedControlState(focused, disabled)'
-    ],
-
-    ready: function() {
-      this.addEventListener('focus', this._boundFocusBlurHandler, true);
-      this.addEventListener('blur', this._boundFocusBlurHandler, true);
-    },
-
-    _focusBlurHandler: function(event) {
-      // NOTE(cdata):  if we are in ShadowDOM land, `event.target` will
-      // eventually become `this` due to retargeting; if we are not in
-      // ShadowDOM land, `event.target` will eventually become `this` due
-      // to the second conditional which fires a synthetic event (that is also
-      // handled). In either case, we can disregard `event.path`.
-
-      if (event.target === this) {
-        this._setFocused(event.type === 'focus');
-      } else if (!this.shadowRoot && !this.isLightDescendant(event.target)) {
-        this.fire(event.type, {sourceEvent: event}, {
-          node: this,
-          bubbles: event.bubbles,
-          cancelable: event.cancelable
-        });
-      }
-    },
-
-    _disabledChanged: function(disabled, old) {
-      this.setAttribute('aria-disabled', disabled ? 'true' : 'false');
-      this.style.pointerEvents = disabled ? 'none' : '';
-      if (disabled) {
-        this._oldTabIndex = this.tabIndex;
-        this.focused = false;
-        this.tabIndex = -1;
-      } else if (this._oldTabIndex !== undefined) {
-        this.tabIndex = this._oldTabIndex;
-      }
-    },
-
-    _changedControlState: function() {
-      // _controlStateChanged is abstract, follow-on behaviors may implement it
-      if (this._controlStateChanged) {
-        this._controlStateChanged();
-      }
-    }
-
-  };
-/**
-   * @demo demo/index.html
-   * @polymerBehavior Polymer.IronButtonState
-   */
-  Polymer.IronButtonStateImpl = {
-
-    properties: {
-
-      /**
-       * If true, the user is currently holding down the button.
-       */
-      pressed: {
-        type: Boolean,
-        readOnly: true,
-        value: false,
-        reflectToAttribute: true,
-        observer: '_pressedChanged'
-      },
-
-      /**
-       * If true, the button toggles the active state with each tap or press
-       * of the spacebar.
-       */
-      toggles: {
-        type: Boolean,
-        value: false,
-        reflectToAttribute: true
-      },
-
-      /**
-       * If true, the button is a toggle and is currently in the active state.
-       */
-      active: {
-        type: Boolean,
-        value: false,
-        notify: true,
-        reflectToAttribute: true
-      },
-
-      /**
-       * True if the element is currently being pressed by a "pointer," which
-       * is loosely defined as mouse or touch input (but specifically excluding
-       * keyboard input).
-       */
-      pointerDown: {
-        type: Boolean,
-        readOnly: true,
-        value: false
-      },
-
-      /**
-       * True if the input device that caused the element to receive focus
-       * was a keyboard.
-       */
-      receivedFocusFromKeyboard: {
-        type: Boolean,
-        readOnly: true
-      },
-
-      /**
-       * The aria attribute to be set if the button is a toggle and in the
-       * active state.
-       */
-      ariaActiveAttribute: {
-        type: String,
-        value: 'aria-pressed',
-        observer: '_ariaActiveAttributeChanged'
-      }
-    },
-
-    listeners: {
-      down: '_downHandler',
-      up: '_upHandler',
-      tap: '_tapHandler'
-    },
-
-    observers: [
-      '_detectKeyboardFocus(focused)',
-      '_activeChanged(active, ariaActiveAttribute)'
-    ],
-
-    keyBindings: {
-      'enter:keydown': '_asyncClick',
-      'space:keydown': '_spaceKeyDownHandler',
-      'space:keyup': '_spaceKeyUpHandler',
-    },
-
-    _mouseEventRe: /^mouse/,
-
-    _tapHandler: function() {
-      if (this.toggles) {
-       // a tap is needed to toggle the active state
-        this._userActivate(!this.active);
-      } else {
-        this.active = false;
-      }
-    },
-
-    _detectKeyboardFocus: function(focused) {
-      this._setReceivedFocusFromKeyboard(!this.pointerDown && focused);
-    },
-
-    // to emulate native checkbox, (de-)activations from a user interaction fire
-    // 'change' events
-    _userActivate: function(active) {
-      if (this.active !== active) {
-        this.active = active;
-        this.fire('change');
-      }
-    },
-
-    _downHandler: function(event) {
-      this._setPointerDown(true);
-      this._setPressed(true);
-      this._setReceivedFocusFromKeyboard(false);
-    },
-
-    _upHandler: function() {
-      this._setPointerDown(false);
-      this._setPressed(false);
-    },
-
-    /**
-     * @param {!KeyboardEvent} event .
-     */
-    _spaceKeyDownHandler: function(event) {
-      var keyboardEvent = event.detail.keyboardEvent;
-      var target = Polymer.dom(keyboardEvent).localTarget;
-
-      // Ignore the event if this is coming from a focused light child, since that
-      // element will deal with it.
-      if (this.isLightDescendant(target))
-        return;
-
-      keyboardEvent.preventDefault();
-      keyboardEvent.stopImmediatePropagation();
-      this._setPressed(true);
-    },
-
-    /**
-     * @param {!KeyboardEvent} event .
-     */
-    _spaceKeyUpHandler: function(event) {
-      var keyboardEvent = event.detail.keyboardEvent;
-      var target = Polymer.dom(keyboardEvent).localTarget;
-
-      // Ignore the event if this is coming from a focused light child, since that
-      // element will deal with it.
-      if (this.isLightDescendant(target))
-        return;
-
-      if (this.pressed) {
-        this._asyncClick();
-      }
-      this._setPressed(false);
-    },
-
-    // trigger click asynchronously, the asynchrony is useful to allow one
-    // event handler to unwind before triggering another event
-    _asyncClick: function() {
-      this.async(function() {
-        this.click();
-      }, 1);
-    },
-
-    // any of these changes are considered a change to button state
-
-    _pressedChanged: function(pressed) {
-      this._changedButtonState();
-    },
-
-    _ariaActiveAttributeChanged: function(value, oldValue) {
-      if (oldValue && oldValue != value && this.hasAttribute(oldValue)) {
-        this.removeAttribute(oldValue);
-      }
-    },
-
-    _activeChanged: function(active, ariaActiveAttribute) {
-      if (this.toggles) {
-        this.setAttribute(this.ariaActiveAttribute,
-                          active ? 'true' : 'false');
-      } else {
-        this.removeAttribute(this.ariaActiveAttribute);
-      }
-      this._changedButtonState();
-    },
-
-    _controlStateChanged: function() {
-      if (this.disabled) {
-        this._setPressed(false);
-      } else {
-        this._changedButtonState();
-      }
-    },
-
-    // provide hook for follow-on behaviors to react to button-state
-
-    _changedButtonState: function() {
-      if (this._buttonStateChanged) {
-        this._buttonStateChanged(); // abstract
-      }
-    }
-
-  };
-
-  /** @polymerBehavior */
-  Polymer.IronButtonState = [
-    Polymer.IronA11yKeysBehavior,
-    Polymer.IronButtonStateImpl
-  ];
-/**
-   * `Polymer.PaperRippleBehavior` dynamically implements a ripple
-   * when the element has focus via pointer or keyboard.
-   *
-   * NOTE: This behavior is intended to be used in conjunction with and after
-   * `Polymer.IronButtonState` and `Polymer.IronControlState`.
-   *
-   * @polymerBehavior Polymer.PaperRippleBehavior
-   */
-  Polymer.PaperRippleBehavior = {
-
-    properties: {
-      /**
-       * If true, the element will not produce a ripple effect when interacted
-       * with via the pointer.
-       */
-      noink: {
-        type: Boolean,
-        observer: '_noinkChanged'
-      },
-
-      /**
-       * @type {Element|undefined}
-       */
-      _rippleContainer: {
-        type: Object,
-      }
-    },
-
-    /**
-     * Ensures a `<paper-ripple>` element is available when the element is
-     * focused.
-     */
-    _buttonStateChanged: function() {
-      if (this.focused) {
-        this.ensureRipple();
-      }
-    },
-
-    /**
-     * In addition to the functionality provided in `IronButtonState`, ensures
-     * a ripple effect is created when the element is in a `pressed` state.
-     */
-    _downHandler: function(event) {
-      Polymer.IronButtonStateImpl._downHandler.call(this, event);
-      if (this.pressed) {
-        this.ensureRipple(event);
-      }
-    },
-
-    /**
-     * Ensures this element contains a ripple effect. For startup efficiency
-     * the ripple effect is dynamically on demand when needed.
-     * @param {!Event=} optTriggeringEvent (optional) event that triggered the
-     * ripple.
-     */
-    ensureRipple: function(optTriggeringEvent) {
-      if (!this.hasRipple()) {
-        this._ripple = this._createRipple();
-        this._ripple.noink = this.noink;
-        var rippleContainer = this._rippleContainer || this.root;
-        if (rippleContainer) {
-          Polymer.dom(rippleContainer).appendChild(this._ripple);
-        }
-        if (optTriggeringEvent) {
-          // Check if the event happened inside of the ripple container
-          // Fall back to host instead of the root because distributed text
-          // nodes are not valid event targets
-          var domContainer = Polymer.dom(this._rippleContainer || this);
-          var target = Polymer.dom(optTriggeringEvent).rootTarget;
-          if (domContainer.deepContains( /** @type {Node} */(target))) {
-            this._ripple.uiDownAction(optTriggeringEvent);
-          }
-        }
-      }
-    },
-
-    /**
-     * Returns the `<paper-ripple>` element used by this element to create
-     * ripple effects. The element's ripple is created on demand, when
-     * necessary, and calling this method will force the
-     * ripple to be created.
-     */
-    getRipple: function() {
-      this.ensureRipple();
-      return this._ripple;
-    },
-
-    /**
-     * Returns true if this element currently contains a ripple effect.
-     * @return {boolean}
-     */
-    hasRipple: function() {
-      return Boolean(this._ripple);
-    },
-
-    /**
-     * Create the element's ripple effect via creating a `<paper-ripple>`.
-     * Override this method to customize the ripple element.
-     * @return {!PaperRippleElement} Returns a `<paper-ripple>` element.
-     */
-    _createRipple: function() {
-      return /** @type {!PaperRippleElement} */ (
-          document.createElement('paper-ripple'));
-    },
-
-    _noinkChanged: function(noink) {
-      if (this.hasRipple()) {
-        this._ripple.noink = noink;
-      }
-    }
-
-  };
-/** @polymerBehavior Polymer.PaperButtonBehavior */
-  Polymer.PaperButtonBehaviorImpl = {
-
-    properties: {
-
-      /**
-       * The z-depth of this element, from 0-5. Setting to 0 will remove the
-       * shadow, and each increasing number greater than 0 will be "deeper"
-       * than the last.
-       *
-       * @attribute elevation
-       * @type number
-       * @default 1
-       */
-      elevation: {
-        type: Number,
-        reflectToAttribute: true,
-        readOnly: true
-      }
-
-    },
-
-    observers: [
-      '_calculateElevation(focused, disabled, active, pressed, receivedFocusFromKeyboard)',
-      '_computeKeyboardClass(receivedFocusFromKeyboard)'
-    ],
-
-    hostAttributes: {
-      role: 'button',
-      tabindex: '0',
-      animated: true
-    },
-
-    _calculateElevation: function() {
-      var e = 1;
-      if (this.disabled) {
-        e = 0;
-      } else if (this.active || this.pressed) {
-        e = 4;
-      } else if (this.receivedFocusFromKeyboard) {
-        e = 3;
-      }
-      this._setElevation(e);
-    },
-
-    _computeKeyboardClass: function(receivedFocusFromKeyboard) {
-      this.classList.toggle('keyboard-focus', receivedFocusFromKeyboard);
-    },
-
-    /**
-     * In addition to `IronButtonState` behavior, when space key goes down,
-     * create a ripple down effect.
-     *
-     * @param {!KeyboardEvent} event .
-     */
-    _spaceKeyDownHandler: function(event) {
-      Polymer.IronButtonStateImpl._spaceKeyDownHandler.call(this, event);
-      if (this.hasRipple()) {
-        this._ripple.uiDownAction();
-      }
-    },
-
-    /**
-     * In addition to `IronButtonState` behavior, when space key goes up,
-     * create a ripple up effect.
-     *
-     * @param {!KeyboardEvent} event .
-     */
-    _spaceKeyUpHandler: function(event) {
-      Polymer.IronButtonStateImpl._spaceKeyUpHandler.call(this, event);
-      if (this.hasRipple()) {
-        this._ripple.uiUpAction();
-      }
-    }
-
-  };
-
-  /** @polymerBehavior */
-  Polymer.PaperButtonBehavior = [
-    Polymer.IronButtonState,
-    Polymer.IronControlState,
-    Polymer.PaperRippleBehavior,
-    Polymer.PaperButtonBehaviorImpl
-  ];
-/** @polymerBehavior Polymer.PaperItemBehavior */
-  Polymer.PaperItemBehaviorImpl = {
-    hostAttributes: {
-      role: 'option',
-      tabindex: '0'
-    }
-  };
-
-  /** @polymerBehavior */
-  Polymer.PaperItemBehavior = [
-    Polymer.IronControlState,
-    Polymer.IronButtonState,
-    Polymer.PaperItemBehaviorImpl
-  ];
-/**
-   * `Polymer.PaperInkyFocusBehavior` implements a ripple when the element has keyboard focus.
-   *
-   * @polymerBehavior Polymer.PaperInkyFocusBehavior
-   */
-  Polymer.PaperInkyFocusBehaviorImpl = {
-
-    observers: [
-      '_focusedChanged(receivedFocusFromKeyboard)'
-    ],
-
-    _focusedChanged: function(receivedFocusFromKeyboard) {
-      if (receivedFocusFromKeyboard) {
-        this.ensureRipple();
-      }
-      if (this.hasRipple()) {
-        this._ripple.holdDown = receivedFocusFromKeyboard;
-      }
-    },
-
-    _createRipple: function() {
-      var ripple = Polymer.PaperRippleBehavior._createRipple();
-      ripple.id = 'ink';
-      ripple.setAttribute('center', '');
-      ripple.classList.add('circle');
-      return ripple;
-    }
-
-  };
-
-  /** @polymerBehavior Polymer.PaperInkyFocusBehavior */
-  Polymer.PaperInkyFocusBehavior = [
-    Polymer.IronButtonState,
-    Polymer.IronControlState,
-    Polymer.PaperRippleBehavior,
-    Polymer.PaperInkyFocusBehaviorImpl
-  ];
 /**
 Polymer.IronFitBehavior fits an element in another element using `max-height` and `max-width`, and
 optionally centers it in the window or another element.
@@ -9669,60 +8710,74 @@ CSS properties               | Action
     }
 
   };
-Polymer.IronOverlayManager = (function() {
+Polymer.IronOverlayManager = {
 
-    var overlays = [];
-    var DEFAULT_Z = 10;
-    var backdrops = [];
+    _overlays: [],
+
+    // iframes have a default z-index of 100, so this default should be at least
+    // that.
+    _minimumZ: 101,
+
+    _backdrops: [],
+
+    _applyOverlayZ: function(overlay, aboveZ) {
+      this._setZ(overlay, aboveZ + 2);
+    },
+
+    _setZ: function(element, z) {
+      element.style.zIndex = z;
+    },
 
     // track overlays for z-index and focus managemant
-    function addOverlay(overlay) {
-      var z0 = currentOverlayZ();
-      overlays.push(overlay);
-      var z1 = currentOverlayZ();
-      if (z1 <= z0) {
-        applyOverlayZ(overlay, z0);
+    addOverlay: function(overlay) {
+      var minimumZ = Math.max(this.currentOverlayZ(), this._minimumZ);
+      this._overlays.push(overlay);
+      var newZ = this.currentOverlayZ();
+      if (newZ <= minimumZ) {
+        this._applyOverlayZ(overlay, minimumZ);
       }
-    }
+    },
 
-    function removeOverlay(overlay) {
-      var i = overlays.indexOf(overlay);
+    removeOverlay: function(overlay) {
+      var i = this._overlays.indexOf(overlay);
       if (i >= 0) {
-        overlays.splice(i, 1);
-        setZ(overlay, '');
+        this._overlays.splice(i, 1);
+        this._setZ(overlay, '');
       }
-    }
+    },
 
-    function applyOverlayZ(overlay, aboveZ) {
-      setZ(overlay, aboveZ + 2);
-    }
-
-    function setZ(element, z) {
-      element.style.zIndex = z;
-    }
-
-    function currentOverlay() {
-      var i = overlays.length - 1;
-      while (overlays[i] && !overlays[i].opened) {
+    currentOverlay: function() {
+      var i = this._overlays.length - 1;
+      while (this._overlays[i] && !this._overlays[i].opened) {
         --i;
       }
-      return overlays[i];
-    }
+      return this._overlays[i];
+    },
 
-    function currentOverlayZ() {
-      var z;
-      var current = currentOverlay();
+    currentOverlayZ: function() {
+      var z = this._minimumZ;
+      var current = this.currentOverlay();
       if (current) {
         var z1 = window.getComputedStyle(current).zIndex;
         if (!isNaN(z1)) {
           z = Number(z1);
         }
       }
-      return z || DEFAULT_Z;
-    }
+      return z;
+    },
 
-    function focusOverlay() {
-      var current = currentOverlay();
+    /**
+     * Ensures that the minimum z-index of new overlays is at least `minimumZ`.
+     * This does not effect the z-index of any existing overlays.
+     *
+     * @param {number} minimumZ
+     */
+    ensureMinimumZ: function(minimumZ) {
+      this._minimumZ = Math.max(this._minimumZ, minimumZ);
+    },
+
+    focusOverlay: function() {
+      var current = this.currentOverlay();
       // We have to be careful to focus the next overlay _after_ any current
       // transitions are complete (due to the state being toggled prior to the
       // transition). Otherwise, we risk infinite recursion when a transitioning
@@ -9734,36 +8789,26 @@ Polymer.IronOverlayManager = (function() {
       if (current && !current.transitioning) {
         current._applyFocus();
       }
-    }
+    },
 
-    function trackBackdrop(element) {
+    trackBackdrop: function(element) {
       // backdrops contains the overlays with a backdrop that are currently
       // visible
       if (element.opened) {
-        backdrops.push(element);
+        this._backdrops.push(element);
       } else {
-        var index = backdrops.indexOf(element);
+        var index = this._backdrops.indexOf(element);
         if (index >= 0) {
-          backdrops.splice(index, 1);
+          this._backdrops.splice(index, 1);
         }
       }
+    },
+
+    getBackdrops: function() {
+      return this._backdrops;
     }
 
-    function getBackdrops() {
-      return backdrops;
-    }
-
-    return {
-      addOverlay: addOverlay,
-      removeOverlay: removeOverlay,
-      currentOverlay: currentOverlay,
-      currentOverlayZ: currentOverlayZ,
-      focusOverlay: focusOverlay,
-      trackBackdrop: trackBackdrop,
-      getBackdrops: getBackdrops
-    };
-
-  })();
+  };
 /**
 Use `Polymer.IronOverlayBehavior` to implement an element that can be hidden or shown, and displays
 on top of other content. It includes an optional backdrop, and can be used to implement a variety
@@ -10182,6 +9227,12 @@ context. You should place this element as a child of `<body>` whenever possible.
  */
 
 /**
+ * Fired when the `iron-overlay` is canceled, but before it is closed.
+ * Cancel the event to prevent the `iron-overlay` from closing.
+ * @event iron-overlay-canceled
+ */
+
+/**
  * Fired after the `iron-overlay` closes.
  * @event iron-overlay-closed
  * @param {{canceled: (boolean|undefined)}} set to the `closingReason` attribute
@@ -10190,6 +9241,1351 @@ context. You should place this element as a child of `<body>` whenever possible.
 
   /** @polymerBehavior */
   Polymer.IronOverlayBehavior = [Polymer.IronFitBehavior, Polymer.IronResizableBehavior, Polymer.IronOverlayBehaviorImpl];
+Polymer({
+
+    is: 'iron-media-query',
+
+    properties: {
+
+      /**
+       * The Boolean return value of the media query.
+       */
+      queryMatches: {
+        type: Boolean,
+        value: false,
+        readOnly: true,
+        notify: true
+      },
+
+      /**
+       * The CSS media query to evaluate.
+       */
+      query: {
+        type: String,
+        observer: 'queryChanged'
+      },
+
+      /**
+       * If true, the query attribute is assumed to be a complete media query
+       * string rather than a single media feature.
+       */
+      full: {
+        type: Boolean,
+        value: false
+      },
+
+      /**
+       * @type {function(MediaQueryList)}
+       */
+      _boundMQHandler: {
+        value: function() {
+          return this.queryHandler.bind(this);
+        }
+      },
+
+      /**
+       * @type {MediaQueryList}
+       */
+      _mq: {
+        value: null
+      }
+    },
+
+    attached: function() {
+      this.style.display = 'none';
+      this.queryChanged();
+    },
+
+    detached: function() {
+      this._remove();
+    },
+
+    _add: function() {
+      if (this._mq) {
+        this._mq.addListener(this._boundMQHandler);
+      }
+    },
+
+    _remove: function() {
+      if (this._mq) {
+        this._mq.removeListener(this._boundMQHandler);
+      }
+      this._mq = null;
+    },
+
+    queryChanged: function() {
+      this._remove();
+      var query = this.query;
+      if (!query) {
+        return;
+      }
+      if (!this.full && query[0] !== '(') {
+        query = '(' + query + ')';
+      }
+      this._mq = window.matchMedia(query);
+      this._add();
+      this.queryHandler(this._mq);
+    },
+
+    queryHandler: function(mq) {
+      this._setQueryMatches(mq.matches);
+    }
+
+  });
+(function() {
+    'use strict';
+
+    /**
+     * Chrome uses an older version of DOM Level 3 Keyboard Events
+     *
+     * Most keys are labeled as text, but some are Unicode codepoints.
+     * Values taken from: http://www.w3.org/TR/2007/WD-DOM-Level-3-Events-20071221/keyset.html#KeySet-Set
+     */
+    var KEY_IDENTIFIER = {
+      'U+0008': 'backspace',
+      'U+0009': 'tab',
+      'U+001B': 'esc',
+      'U+0020': 'space',
+      'U+007F': 'del'
+    };
+
+    /**
+     * Special table for KeyboardEvent.keyCode.
+     * KeyboardEvent.keyIdentifier is better, and KeyBoardEvent.key is even better
+     * than that.
+     *
+     * Values from: https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent.keyCode#Value_of_keyCode
+     */
+    var KEY_CODE = {
+      8: 'backspace',
+      9: 'tab',
+      13: 'enter',
+      27: 'esc',
+      33: 'pageup',
+      34: 'pagedown',
+      35: 'end',
+      36: 'home',
+      32: 'space',
+      37: 'left',
+      38: 'up',
+      39: 'right',
+      40: 'down',
+      46: 'del',
+      106: '*'
+    };
+
+    /**
+     * MODIFIER_KEYS maps the short name for modifier keys used in a key
+     * combo string to the property name that references those same keys
+     * in a KeyboardEvent instance.
+     */
+    var MODIFIER_KEYS = {
+      'shift': 'shiftKey',
+      'ctrl': 'ctrlKey',
+      'alt': 'altKey',
+      'meta': 'metaKey'
+    };
+
+    /**
+     * Matches a keyIdentifier string.
+     */
+    var IDENT_CHAR = /U\+/;
+
+    /**
+     * Matches arrow keys in Gecko 27.0+
+     */
+    var ARROW_KEY = /^arrow/;
+
+    /**
+     * Matches space keys everywhere (notably including IE10's exceptional name
+     * `spacebar`).
+     */
+    var SPACE_KEY = /^space(bar)?/;
+
+    function transformKey(key) {
+      var validKey = '';
+      if (key) {
+        var lKey = key.toLowerCase();
+        if (lKey === ' ' || SPACE_KEY.test(lKey)) {
+          validKey = 'space';
+        } else if (lKey.length == 1) {
+          validKey = lKey;
+        } else if (ARROW_KEY.test(lKey)) {
+          validKey = lKey.replace('arrow', '');
+        } else if (lKey == 'multiply') {
+          // numpad '*' can map to Multiply on IE/Windows
+          validKey = '*';
+        } else {
+          validKey = lKey;
+        }
+      }
+      return validKey;
+    }
+
+    function transformKeyIdentifier(keyIdent) {
+      var validKey = '';
+      if (keyIdent) {
+        if (keyIdent in KEY_IDENTIFIER) {
+          validKey = KEY_IDENTIFIER[keyIdent];
+        } else if (IDENT_CHAR.test(keyIdent)) {
+          keyIdent = parseInt(keyIdent.replace('U+', '0x'), 16);
+          validKey = String.fromCharCode(keyIdent).toLowerCase();
+        } else {
+          validKey = keyIdent.toLowerCase();
+        }
+      }
+      return validKey;
+    }
+
+    function transformKeyCode(keyCode) {
+      var validKey = '';
+      if (Number(keyCode)) {
+        if (keyCode >= 65 && keyCode <= 90) {
+          // ascii a-z
+          // lowercase is 32 offset from uppercase
+          validKey = String.fromCharCode(32 + keyCode);
+        } else if (keyCode >= 112 && keyCode <= 123) {
+          // function keys f1-f12
+          validKey = 'f' + (keyCode - 112);
+        } else if (keyCode >= 48 && keyCode <= 57) {
+          // top 0-9 keys
+          validKey = String(48 - keyCode);
+        } else if (keyCode >= 96 && keyCode <= 105) {
+          // num pad 0-9
+          validKey = String(96 - keyCode);
+        } else {
+          validKey = KEY_CODE[keyCode];
+        }
+      }
+      return validKey;
+    }
+
+    function normalizedKeyForEvent(keyEvent) {
+      // fall back from .key, to .keyIdentifier, to .keyCode, and then to
+      // .detail.key to support artificial keyboard events
+      return transformKey(keyEvent.key) ||
+        transformKeyIdentifier(keyEvent.keyIdentifier) ||
+        transformKeyCode(keyEvent.keyCode) ||
+        transformKey(keyEvent.detail.key) || '';
+    }
+
+    function keyComboMatchesEvent(keyCombo, event, eventKey) {
+      return eventKey === keyCombo.key &&
+        (!keyCombo.hasModifiers || (
+          !!event.shiftKey === !!keyCombo.shiftKey &&
+          !!event.ctrlKey === !!keyCombo.ctrlKey &&
+          !!event.altKey === !!keyCombo.altKey &&
+          !!event.metaKey === !!keyCombo.metaKey)
+        );
+    }
+
+    function parseKeyComboString(keyComboString) {
+      if (keyComboString.length === 1) {
+        return {
+          combo: keyComboString,
+          key: keyComboString,
+          event: 'keydown'
+        };
+      }
+      return keyComboString.split('+').reduce(function(parsedKeyCombo, keyComboPart) {
+        var eventParts = keyComboPart.split(':');
+        var keyName = eventParts[0];
+        var event = eventParts[1];
+
+        if (keyName in MODIFIER_KEYS) {
+          parsedKeyCombo[MODIFIER_KEYS[keyName]] = true;
+          parsedKeyCombo.hasModifiers = true;
+        } else {
+          parsedKeyCombo.key = keyName;
+          parsedKeyCombo.event = event || 'keydown';
+        }
+
+        return parsedKeyCombo;
+      }, {
+        combo: keyComboString.split(':').shift()
+      });
+    }
+
+    function parseEventString(eventString) {
+      return eventString.trim().split(' ').map(function(keyComboString) {
+        return parseKeyComboString(keyComboString);
+      });
+    }
+
+    /**
+     * `Polymer.IronA11yKeysBehavior` provides a normalized interface for processing
+     * keyboard commands that pertain to [WAI-ARIA best practices](http://www.w3.org/TR/wai-aria-practices/#kbd_general_binding).
+     * The element takes care of browser differences with respect to Keyboard events
+     * and uses an expressive syntax to filter key presses.
+     *
+     * Use the `keyBindings` prototype property to express what combination of keys
+     * will trigger the event to fire.
+     *
+     * Use the `key-event-target` attribute to set up event handlers on a specific
+     * node.
+     * The `keys-pressed` event will fire when one of the key combinations set with the
+     * `keys` property is pressed.
+     *
+     * @demo demo/index.html
+     * @polymerBehavior
+     */
+    Polymer.IronA11yKeysBehavior = {
+      properties: {
+        /**
+         * The HTMLElement that will be firing relevant KeyboardEvents.
+         */
+        keyEventTarget: {
+          type: Object,
+          value: function() {
+            return this;
+          }
+        },
+
+        /**
+         * If true, this property will cause the implementing element to
+         * automatically stop propagation on any handled KeyboardEvents.
+         */
+        stopKeyboardEventPropagation: {
+          type: Boolean,
+          value: false
+        },
+
+        _boundKeyHandlers: {
+          type: Array,
+          value: function() {
+            return [];
+          }
+        },
+
+        // We use this due to a limitation in IE10 where instances will have
+        // own properties of everything on the "prototype".
+        _imperativeKeyBindings: {
+          type: Object,
+          value: function() {
+            return {};
+          }
+        }
+      },
+
+      observers: [
+        '_resetKeyEventListeners(keyEventTarget, _boundKeyHandlers)'
+      ],
+
+      keyBindings: {},
+
+      registered: function() {
+        this._prepKeyBindings();
+      },
+
+      attached: function() {
+        this._listenKeyEventListeners();
+      },
+
+      detached: function() {
+        this._unlistenKeyEventListeners();
+      },
+
+      /**
+       * Can be used to imperatively add a key binding to the implementing
+       * element. This is the imperative equivalent of declaring a keybinding
+       * in the `keyBindings` prototype property.
+       */
+      addOwnKeyBinding: function(eventString, handlerName) {
+        this._imperativeKeyBindings[eventString] = handlerName;
+        this._prepKeyBindings();
+        this._resetKeyEventListeners();
+      },
+
+      /**
+       * When called, will remove all imperatively-added key bindings.
+       */
+      removeOwnKeyBindings: function() {
+        this._imperativeKeyBindings = {};
+        this._prepKeyBindings();
+        this._resetKeyEventListeners();
+      },
+
+      keyboardEventMatchesKeys: function(event, eventString) {
+        var keyCombos = parseEventString(eventString);
+        var eventKey = normalizedKeyForEvent(event);
+        for (var i = 0; i < keyCombos.length; ++i) {
+          if (keyComboMatchesEvent(keyCombos[i], event, eventKey)) {
+            return true;
+          }
+        }
+        return false;
+      },
+
+      _collectKeyBindings: function() {
+        var keyBindings = this.behaviors.map(function(behavior) {
+          return behavior.keyBindings;
+        });
+
+        if (keyBindings.indexOf(this.keyBindings) === -1) {
+          keyBindings.push(this.keyBindings);
+        }
+
+        return keyBindings;
+      },
+
+      _prepKeyBindings: function() {
+        this._keyBindings = {};
+
+        this._collectKeyBindings().forEach(function(keyBindings) {
+          for (var eventString in keyBindings) {
+            this._addKeyBinding(eventString, keyBindings[eventString]);
+          }
+        }, this);
+
+        for (var eventString in this._imperativeKeyBindings) {
+          this._addKeyBinding(eventString, this._imperativeKeyBindings[eventString]);
+        }
+
+        // Give precedence to combos with modifiers to be checked first.
+        for (var eventName in this._keyBindings) {
+          this._keyBindings[eventName].sort(function (kb1, kb2) {
+            var b1 = kb1[0].hasModifiers;
+            var b2 = kb2[0].hasModifiers;
+            return (b1 === b2) ? 0 : b1 ? -1 : 1;
+          })
+        }
+      },
+
+      _addKeyBinding: function(eventString, handlerName) {
+        parseEventString(eventString).forEach(function(keyCombo) {
+          this._keyBindings[keyCombo.event] =
+            this._keyBindings[keyCombo.event] || [];
+
+          this._keyBindings[keyCombo.event].push([
+            keyCombo,
+            handlerName
+          ]);
+        }, this);
+      },
+
+      _resetKeyEventListeners: function() {
+        this._unlistenKeyEventListeners();
+
+        if (this.isAttached) {
+          this._listenKeyEventListeners();
+        }
+      },
+
+      _listenKeyEventListeners: function() {
+        Object.keys(this._keyBindings).forEach(function(eventName) {
+          var keyBindings = this._keyBindings[eventName];
+          var boundKeyHandler = this._onKeyBindingEvent.bind(this, keyBindings);
+
+          this._boundKeyHandlers.push([this.keyEventTarget, eventName, boundKeyHandler]);
+
+          this.keyEventTarget.addEventListener(eventName, boundKeyHandler);
+        }, this);
+      },
+
+      _unlistenKeyEventListeners: function() {
+        var keyHandlerTuple;
+        var keyEventTarget;
+        var eventName;
+        var boundKeyHandler;
+
+        while (this._boundKeyHandlers.length) {
+          // My kingdom for block-scope binding and destructuring assignment..
+          keyHandlerTuple = this._boundKeyHandlers.pop();
+          keyEventTarget = keyHandlerTuple[0];
+          eventName = keyHandlerTuple[1];
+          boundKeyHandler = keyHandlerTuple[2];
+
+          keyEventTarget.removeEventListener(eventName, boundKeyHandler);
+        }
+      },
+
+      _onKeyBindingEvent: function(keyBindings, event) {
+        if (this.stopKeyboardEventPropagation) {
+          event.stopPropagation();
+        }
+
+        // if event has been already prevented, don't do anything
+        if (event.defaultPrevented) {
+          return;
+        }
+
+        var eventKey = normalizedKeyForEvent(event);
+        for (var i = 0; i < keyBindings.length; i++) {
+          var keyCombo = keyBindings[i][0];
+          var handlerName = keyBindings[i][1];
+          if (keyComboMatchesEvent(keyCombo, event, eventKey)) {
+            this._triggerKeyHandler(keyCombo, handlerName, event);
+            // exit the loop if eventDefault was prevented
+            if (event.defaultPrevented) {
+              return;
+            }
+          }
+        }
+      },
+
+      _triggerKeyHandler: function(keyCombo, handlerName, keyboardEvent) {
+        var detail = Object.create(keyCombo);
+        detail.keyboardEvent = keyboardEvent;
+        var event = new CustomEvent(keyCombo.event, {
+          detail: detail,
+          cancelable: true
+        });
+        this[handlerName].call(this, event);
+        if (event.defaultPrevented) {
+          keyboardEvent.preventDefault();
+        }
+      }
+    };
+  })();
+/**
+   * @demo demo/index.html
+   * @polymerBehavior
+   */
+  Polymer.IronControlState = {
+
+    properties: {
+
+      /**
+       * If true, the element currently has focus.
+       */
+      focused: {
+        type: Boolean,
+        value: false,
+        notify: true,
+        readOnly: true,
+        reflectToAttribute: true
+      },
+
+      /**
+       * If true, the user cannot interact with this element.
+       */
+      disabled: {
+        type: Boolean,
+        value: false,
+        notify: true,
+        observer: '_disabledChanged',
+        reflectToAttribute: true
+      },
+
+      _oldTabIndex: {
+        type: Number
+      },
+
+      _boundFocusBlurHandler: {
+        type: Function,
+        value: function() {
+          return this._focusBlurHandler.bind(this);
+        }
+      }
+
+    },
+
+    observers: [
+      '_changedControlState(focused, disabled)'
+    ],
+
+    ready: function() {
+      this.addEventListener('focus', this._boundFocusBlurHandler, true);
+      this.addEventListener('blur', this._boundFocusBlurHandler, true);
+    },
+
+    _focusBlurHandler: function(event) {
+      // NOTE(cdata):  if we are in ShadowDOM land, `event.target` will
+      // eventually become `this` due to retargeting; if we are not in
+      // ShadowDOM land, `event.target` will eventually become `this` due
+      // to the second conditional which fires a synthetic event (that is also
+      // handled). In either case, we can disregard `event.path`.
+
+      if (event.target === this) {
+        this._setFocused(event.type === 'focus');
+      } else if (!this.shadowRoot && !this.isLightDescendant(event.target)) {
+        this.fire(event.type, {sourceEvent: event}, {
+          node: this,
+          bubbles: event.bubbles,
+          cancelable: event.cancelable
+        });
+      }
+    },
+
+    _disabledChanged: function(disabled, old) {
+      this.setAttribute('aria-disabled', disabled ? 'true' : 'false');
+      this.style.pointerEvents = disabled ? 'none' : '';
+      if (disabled) {
+        this._oldTabIndex = this.tabIndex;
+        this.focused = false;
+        this.tabIndex = -1;
+      } else if (this._oldTabIndex !== undefined) {
+        this.tabIndex = this._oldTabIndex;
+      }
+    },
+
+    _changedControlState: function() {
+      // _controlStateChanged is abstract, follow-on behaviors may implement it
+      if (this._controlStateChanged) {
+        this._controlStateChanged();
+      }
+    }
+
+  };
+/**
+   * @demo demo/index.html
+   * @polymerBehavior Polymer.IronButtonState
+   */
+  Polymer.IronButtonStateImpl = {
+
+    properties: {
+
+      /**
+       * If true, the user is currently holding down the button.
+       */
+      pressed: {
+        type: Boolean,
+        readOnly: true,
+        value: false,
+        reflectToAttribute: true,
+        observer: '_pressedChanged'
+      },
+
+      /**
+       * If true, the button toggles the active state with each tap or press
+       * of the spacebar.
+       */
+      toggles: {
+        type: Boolean,
+        value: false,
+        reflectToAttribute: true
+      },
+
+      /**
+       * If true, the button is a toggle and is currently in the active state.
+       */
+      active: {
+        type: Boolean,
+        value: false,
+        notify: true,
+        reflectToAttribute: true
+      },
+
+      /**
+       * True if the element is currently being pressed by a "pointer," which
+       * is loosely defined as mouse or touch input (but specifically excluding
+       * keyboard input).
+       */
+      pointerDown: {
+        type: Boolean,
+        readOnly: true,
+        value: false
+      },
+
+      /**
+       * True if the input device that caused the element to receive focus
+       * was a keyboard.
+       */
+      receivedFocusFromKeyboard: {
+        type: Boolean,
+        readOnly: true
+      },
+
+      /**
+       * The aria attribute to be set if the button is a toggle and in the
+       * active state.
+       */
+      ariaActiveAttribute: {
+        type: String,
+        value: 'aria-pressed',
+        observer: '_ariaActiveAttributeChanged'
+      }
+    },
+
+    listeners: {
+      down: '_downHandler',
+      up: '_upHandler',
+      tap: '_tapHandler'
+    },
+
+    observers: [
+      '_detectKeyboardFocus(focused)',
+      '_activeChanged(active, ariaActiveAttribute)'
+    ],
+
+    keyBindings: {
+      'enter:keydown': '_asyncClick',
+      'space:keydown': '_spaceKeyDownHandler',
+      'space:keyup': '_spaceKeyUpHandler',
+    },
+
+    _mouseEventRe: /^mouse/,
+
+    _tapHandler: function() {
+      if (this.toggles) {
+       // a tap is needed to toggle the active state
+        this._userActivate(!this.active);
+      } else {
+        this.active = false;
+      }
+    },
+
+    _detectKeyboardFocus: function(focused) {
+      this._setReceivedFocusFromKeyboard(!this.pointerDown && focused);
+    },
+
+    // to emulate native checkbox, (de-)activations from a user interaction fire
+    // 'change' events
+    _userActivate: function(active) {
+      if (this.active !== active) {
+        this.active = active;
+        this.fire('change');
+      }
+    },
+
+    _downHandler: function(event) {
+      this._setPointerDown(true);
+      this._setPressed(true);
+      this._setReceivedFocusFromKeyboard(false);
+    },
+
+    _upHandler: function() {
+      this._setPointerDown(false);
+      this._setPressed(false);
+    },
+
+    /**
+     * @param {!KeyboardEvent} event .
+     */
+    _spaceKeyDownHandler: function(event) {
+      var keyboardEvent = event.detail.keyboardEvent;
+      var target = Polymer.dom(keyboardEvent).localTarget;
+
+      // Ignore the event if this is coming from a focused light child, since that
+      // element will deal with it.
+      if (this.isLightDescendant(/** @type {Node} */(target)))
+        return;
+
+      keyboardEvent.preventDefault();
+      keyboardEvent.stopImmediatePropagation();
+      this._setPressed(true);
+    },
+
+    /**
+     * @param {!KeyboardEvent} event .
+     */
+    _spaceKeyUpHandler: function(event) {
+      var keyboardEvent = event.detail.keyboardEvent;
+      var target = Polymer.dom(keyboardEvent).localTarget;
+
+      // Ignore the event if this is coming from a focused light child, since that
+      // element will deal with it.
+      if (this.isLightDescendant(/** @type {Node} */(target)))
+        return;
+
+      if (this.pressed) {
+        this._asyncClick();
+      }
+      this._setPressed(false);
+    },
+
+    // trigger click asynchronously, the asynchrony is useful to allow one
+    // event handler to unwind before triggering another event
+    _asyncClick: function() {
+      this.async(function() {
+        this.click();
+      }, 1);
+    },
+
+    // any of these changes are considered a change to button state
+
+    _pressedChanged: function(pressed) {
+      this._changedButtonState();
+    },
+
+    _ariaActiveAttributeChanged: function(value, oldValue) {
+      if (oldValue && oldValue != value && this.hasAttribute(oldValue)) {
+        this.removeAttribute(oldValue);
+      }
+    },
+
+    _activeChanged: function(active, ariaActiveAttribute) {
+      if (this.toggles) {
+        this.setAttribute(this.ariaActiveAttribute,
+                          active ? 'true' : 'false');
+      } else {
+        this.removeAttribute(this.ariaActiveAttribute);
+      }
+      this._changedButtonState();
+    },
+
+    _controlStateChanged: function() {
+      if (this.disabled) {
+        this._setPressed(false);
+      } else {
+        this._changedButtonState();
+      }
+    },
+
+    // provide hook for follow-on behaviors to react to button-state
+
+    _changedButtonState: function() {
+      if (this._buttonStateChanged) {
+        this._buttonStateChanged(); // abstract
+      }
+    }
+
+  };
+
+  /** @polymerBehavior */
+  Polymer.IronButtonState = [
+    Polymer.IronA11yKeysBehavior,
+    Polymer.IronButtonStateImpl
+  ];
+/**
+   * `Polymer.PaperRippleBehavior` dynamically implements a ripple
+   * when the element has focus via pointer or keyboard.
+   *
+   * NOTE: This behavior is intended to be used in conjunction with and after
+   * `Polymer.IronButtonState` and `Polymer.IronControlState`.
+   *
+   * @polymerBehavior Polymer.PaperRippleBehavior
+   */
+  Polymer.PaperRippleBehavior = {
+
+    properties: {
+      /**
+       * If true, the element will not produce a ripple effect when interacted
+       * with via the pointer.
+       */
+      noink: {
+        type: Boolean,
+        observer: '_noinkChanged'
+      },
+
+      /**
+       * @type {Element|undefined}
+       */
+      _rippleContainer: {
+        type: Object,
+      }
+    },
+
+    /**
+     * Ensures a `<paper-ripple>` element is available when the element is
+     * focused.
+     */
+    _buttonStateChanged: function() {
+      if (this.focused) {
+        this.ensureRipple();
+      }
+    },
+
+    /**
+     * In addition to the functionality provided in `IronButtonState`, ensures
+     * a ripple effect is created when the element is in a `pressed` state.
+     */
+    _downHandler: function(event) {
+      Polymer.IronButtonStateImpl._downHandler.call(this, event);
+      if (this.pressed) {
+        this.ensureRipple(event);
+      }
+    },
+
+    /**
+     * Ensures this element contains a ripple effect. For startup efficiency
+     * the ripple effect is dynamically on demand when needed.
+     * @param {!Event=} optTriggeringEvent (optional) event that triggered the
+     * ripple.
+     */
+    ensureRipple: function(optTriggeringEvent) {
+      if (!this.hasRipple()) {
+        this._ripple = this._createRipple();
+        this._ripple.noink = this.noink;
+        var rippleContainer = this._rippleContainer || this.root;
+        if (rippleContainer) {
+          Polymer.dom(rippleContainer).appendChild(this._ripple);
+        }
+        if (optTriggeringEvent) {
+          // Check if the event happened inside of the ripple container
+          // Fall back to host instead of the root because distributed text
+          // nodes are not valid event targets
+          var domContainer = Polymer.dom(this._rippleContainer || this);
+          var target = Polymer.dom(optTriggeringEvent).rootTarget;
+          if (domContainer.deepContains( /** @type {Node} */(target))) {
+            this._ripple.uiDownAction(optTriggeringEvent);
+          }
+        }
+      }
+    },
+
+    /**
+     * Returns the `<paper-ripple>` element used by this element to create
+     * ripple effects. The element's ripple is created on demand, when
+     * necessary, and calling this method will force the
+     * ripple to be created.
+     */
+    getRipple: function() {
+      this.ensureRipple();
+      return this._ripple;
+    },
+
+    /**
+     * Returns true if this element currently contains a ripple effect.
+     * @return {boolean}
+     */
+    hasRipple: function() {
+      return Boolean(this._ripple);
+    },
+
+    /**
+     * Create the element's ripple effect via creating a `<paper-ripple>`.
+     * Override this method to customize the ripple element.
+     * @return {!PaperRippleElement} Returns a `<paper-ripple>` element.
+     */
+    _createRipple: function() {
+      return /** @type {!PaperRippleElement} */ (
+          document.createElement('paper-ripple'));
+    },
+
+    _noinkChanged: function(noink) {
+      if (this.hasRipple()) {
+        this._ripple.noink = noink;
+      }
+    }
+
+  };
+/** @polymerBehavior Polymer.PaperButtonBehavior */
+  Polymer.PaperButtonBehaviorImpl = {
+
+    properties: {
+
+      /**
+       * The z-depth of this element, from 0-5. Setting to 0 will remove the
+       * shadow, and each increasing number greater than 0 will be "deeper"
+       * than the last.
+       *
+       * @attribute elevation
+       * @type number
+       * @default 1
+       */
+      elevation: {
+        type: Number,
+        reflectToAttribute: true,
+        readOnly: true
+      }
+
+    },
+
+    observers: [
+      '_calculateElevation(focused, disabled, active, pressed, receivedFocusFromKeyboard)',
+      '_computeKeyboardClass(receivedFocusFromKeyboard)'
+    ],
+
+    hostAttributes: {
+      role: 'button',
+      tabindex: '0',
+      animated: true
+    },
+
+    _calculateElevation: function() {
+      var e = 1;
+      if (this.disabled) {
+        e = 0;
+      } else if (this.active || this.pressed) {
+        e = 4;
+      } else if (this.receivedFocusFromKeyboard) {
+        e = 3;
+      }
+      this._setElevation(e);
+    },
+
+    _computeKeyboardClass: function(receivedFocusFromKeyboard) {
+      this.classList.toggle('keyboard-focus', receivedFocusFromKeyboard);
+    },
+
+    /**
+     * In addition to `IronButtonState` behavior, when space key goes down,
+     * create a ripple down effect.
+     *
+     * @param {!KeyboardEvent} event .
+     */
+    _spaceKeyDownHandler: function(event) {
+      Polymer.IronButtonStateImpl._spaceKeyDownHandler.call(this, event);
+      if (this.hasRipple()) {
+        this._ripple.uiDownAction();
+      }
+    },
+
+    /**
+     * In addition to `IronButtonState` behavior, when space key goes up,
+     * create a ripple up effect.
+     *
+     * @param {!KeyboardEvent} event .
+     */
+    _spaceKeyUpHandler: function(event) {
+      Polymer.IronButtonStateImpl._spaceKeyUpHandler.call(this, event);
+      if (this.hasRipple()) {
+        this._ripple.uiUpAction();
+      }
+    }
+
+  };
+
+  /** @polymerBehavior */
+  Polymer.PaperButtonBehavior = [
+    Polymer.IronButtonState,
+    Polymer.IronControlState,
+    Polymer.PaperRippleBehavior,
+    Polymer.PaperButtonBehaviorImpl
+  ];
+/**
+   * `Polymer.PaperInkyFocusBehavior` implements a ripple when the element has keyboard focus.
+   *
+   * @polymerBehavior Polymer.PaperInkyFocusBehavior
+   */
+  Polymer.PaperInkyFocusBehaviorImpl = {
+
+    observers: [
+      '_focusedChanged(receivedFocusFromKeyboard)'
+    ],
+
+    _focusedChanged: function(receivedFocusFromKeyboard) {
+      if (receivedFocusFromKeyboard) {
+        this.ensureRipple();
+      }
+      if (this.hasRipple()) {
+        this._ripple.holdDown = receivedFocusFromKeyboard;
+      }
+    },
+
+    _createRipple: function() {
+      var ripple = Polymer.PaperRippleBehavior._createRipple();
+      ripple.id = 'ink';
+      ripple.setAttribute('center', '');
+      ripple.classList.add('circle');
+      return ripple;
+    }
+
+  };
+
+  /** @polymerBehavior Polymer.PaperInkyFocusBehavior */
+  Polymer.PaperInkyFocusBehavior = [
+    Polymer.IronButtonState,
+    Polymer.IronControlState,
+    Polymer.PaperRippleBehavior,
+    Polymer.PaperInkyFocusBehaviorImpl
+  ];
+/** @polymerBehavior Polymer.PaperItemBehavior */
+  Polymer.PaperItemBehaviorImpl = {
+    hostAttributes: {
+      role: 'option',
+      tabindex: '0'
+    }
+  };
+
+  /** @polymerBehavior */
+  Polymer.PaperItemBehavior = [
+    Polymer.IronControlState,
+    Polymer.IronButtonState,
+    Polymer.PaperItemBehaviorImpl
+  ];
+/**
+   * `Polymer.IronMenuBehavior` implements accessible menu behavior.
+   *
+   * @demo demo/index.html
+   * @polymerBehavior Polymer.IronMenuBehavior
+   */
+  Polymer.IronMenuBehaviorImpl = {
+
+    properties: {
+
+      /**
+       * Returns the currently focused item.
+       * @type {?Object}
+       */
+      focusedItem: {
+        observer: '_focusedItemChanged',
+        readOnly: true,
+        type: Object
+      },
+
+      /**
+       * The attribute to use on menu items to look up the item title. Typing the first
+       * letter of an item when the menu is open focuses that item. If unset, `textContent`
+       * will be used.
+       */
+      attrForItemTitle: {
+        type: String
+      }
+    },
+
+    hostAttributes: {
+      'role': 'menu',
+      'tabindex': '0'
+    },
+
+    observers: [
+      '_updateMultiselectable(multi)'
+    ],
+
+    listeners: {
+      'focus': '_onFocus',
+      'keydown': '_onKeydown',
+      'iron-items-changed': '_onIronItemsChanged'
+    },
+
+    keyBindings: {
+      'up': '_onUpKey',
+      'down': '_onDownKey',
+      'esc': '_onEscKey',
+      'shift+tab:keydown': '_onShiftTabDown'
+    },
+
+    attached: function() {
+      this._resetTabindices();
+    },
+
+    /**
+     * Selects the given value. If the `multi` property is true, then the selected state of the
+     * `value` will be toggled; otherwise the `value` will be selected.
+     *
+     * @param {string} value the value to select.
+     */
+    select: function(value) {
+      if (this._defaultFocusAsync) {
+        this.cancelAsync(this._defaultFocusAsync);
+        this._defaultFocusAsync = null;
+      }
+      var item = this._valueToItem(value);
+      if (item && item.hasAttribute('disabled')) return;
+      this._setFocusedItem(item);
+      Polymer.IronMultiSelectableBehaviorImpl.select.apply(this, arguments);
+    },
+
+    /**
+     * Resets all tabindex attributes to the appropriate value based on the
+     * current selection state. The appropriate value is `0` (focusable) for
+     * the default selected item, and `-1` (not keyboard focusable) for all
+     * other items.
+     */
+    _resetTabindices: function() {
+      var selectedItem = this.multi ? (this.selectedItems && this.selectedItems[0]) : this.selectedItem;
+
+      this.items.forEach(function(item) {
+        item.setAttribute('tabindex', item === selectedItem ? '0' : '-1');
+      }, this);
+    },
+
+    /**
+     * Sets appropriate ARIA based on whether or not the menu is meant to be
+     * multi-selectable.
+     *
+     * @param {boolean} multi True if the menu should be multi-selectable.
+     */
+    _updateMultiselectable: function(multi) {
+      if (multi) {
+        this.setAttribute('aria-multiselectable', 'true');
+      } else {
+        this.removeAttribute('aria-multiselectable');
+      }
+    },
+
+    /**
+     * Given a KeyboardEvent, this method will focus the appropriate item in the
+     * menu (if there is a relevant item, and it is possible to focus it).
+     *
+     * @param {KeyboardEvent} event A KeyboardEvent.
+     */
+    _focusWithKeyboardEvent: function(event) {
+      for (var i = 0, item; item = this.items[i]; i++) {
+        var attr = this.attrForItemTitle || 'textContent';
+        var title = item[attr] || item.getAttribute(attr);
+
+        if (title && title.trim().charAt(0).toLowerCase() === String.fromCharCode(event.keyCode).toLowerCase()) {
+          this._setFocusedItem(item);
+          break;
+        }
+      }
+    },
+
+    /**
+     * Focuses the previous item (relative to the currently focused item) in the
+     * menu.
+     */
+    _focusPrevious: function() {
+      var length = this.items.length;
+      var index = (Number(this.indexOf(this.focusedItem)) - 1 + length) % length;
+      this._setFocusedItem(this.items[index]);
+    },
+
+    /**
+     * Focuses the next item (relative to the currently focused item) in the
+     * menu.
+     */
+    _focusNext: function() {
+      var index = (Number(this.indexOf(this.focusedItem)) + 1) % this.items.length;
+      this._setFocusedItem(this.items[index]);
+    },
+
+    /**
+     * Mutates items in the menu based on provided selection details, so that
+     * all items correctly reflect selection state.
+     *
+     * @param {Element} item An item in the menu.
+     * @param {boolean} isSelected True if the item should be shown in a
+     * selected state, otherwise false.
+     */
+    _applySelection: function(item, isSelected) {
+      if (isSelected) {
+        item.setAttribute('aria-selected', 'true');
+      } else {
+        item.removeAttribute('aria-selected');
+      }
+      Polymer.IronSelectableBehavior._applySelection.apply(this, arguments);
+    },
+
+    /**
+     * Discretely updates tabindex values among menu items as the focused item
+     * changes.
+     *
+     * @param {Element} focusedItem The element that is currently focused.
+     * @param {?Element} old The last element that was considered focused, if
+     * applicable.
+     */
+    _focusedItemChanged: function(focusedItem, old) {
+      old && old.setAttribute('tabindex', '-1');
+      if (focusedItem) {
+        focusedItem.setAttribute('tabindex', '0');
+        focusedItem.focus();
+      }
+    },
+
+    /**
+     * A handler that responds to mutation changes related to the list of items
+     * in the menu.
+     *
+     * @param {CustomEvent} event An event containing mutation records as its
+     * detail.
+     */
+    _onIronItemsChanged: function(event) {
+      var mutations = event.detail;
+      var mutation;
+      var index;
+
+      for (index = 0; index < mutations.length; ++index) {
+        mutation = mutations[index];
+
+        if (mutation.addedNodes.length) {
+          this._resetTabindices();
+          break;
+        }
+      }
+    },
+
+    /**
+     * Handler that is called when a shift+tab keypress is detected by the menu.
+     *
+     * @param {CustomEvent} event A key combination event.
+     */
+    _onShiftTabDown: function(event) {
+      var oldTabIndex = this.getAttribute('tabindex');
+
+      Polymer.IronMenuBehaviorImpl._shiftTabPressed = true;
+
+      this._setFocusedItem(null);
+
+      this.setAttribute('tabindex', '-1');
+
+      this.async(function() {
+        this.setAttribute('tabindex', oldTabIndex);
+        Polymer.IronMenuBehaviorImpl._shiftTabPressed = false;
+        // NOTE(cdata): polymer/polymer#1305
+      }, 1);
+    },
+
+    /**
+     * Handler that is called when the menu receives focus.
+     *
+     * @param {FocusEvent} event A focus event.
+     */
+    _onFocus: function(event) {
+      if (Polymer.IronMenuBehaviorImpl._shiftTabPressed) {
+        // do not focus the menu itself
+        return;
+      }
+
+      this.blur();
+
+      // clear the cached focus item
+      this._defaultFocusAsync = this.async(function() {
+        // focus the selected item when the menu receives focus, or the first item
+        // if no item is selected
+        var selectedItem = this.multi ? (this.selectedItems && this.selectedItems[0]) : this.selectedItem;
+
+        this._setFocusedItem(null);
+
+        if (selectedItem) {
+          this._setFocusedItem(selectedItem);
+        } else {
+          this._setFocusedItem(this.items[0]);
+        }
+      // async 1ms to wait for `select` to get called from `_itemActivate`
+      }, 1);
+    },
+
+    /**
+     * Handler that is called when the up key is pressed.
+     *
+     * @param {CustomEvent} event A key combination event.
+     */
+    _onUpKey: function(event) {
+      // up and down arrows moves the focus
+      this._focusPrevious();
+    },
+
+    /**
+     * Handler that is called when the down key is pressed.
+     *
+     * @param {CustomEvent} event A key combination event.
+     */
+    _onDownKey: function(event) {
+      this._focusNext();
+    },
+
+    /**
+     * Handler that is called when the esc key is pressed.
+     *
+     * @param {CustomEvent} event A key combination event.
+     */
+    _onEscKey: function(event) {
+      // esc blurs the control
+      this.focusedItem.blur();
+    },
+
+    /**
+     * Handler that is called when a keydown event is detected.
+     *
+     * @param {KeyboardEvent} event A keyboard event.
+     */
+    _onKeydown: function(event) {
+      if (!this.keyboardEventMatchesKeys(event, 'up down esc')) {
+        // all other keys focus the menu item starting with that character
+        this._focusWithKeyboardEvent(event);
+      }
+      event.stopPropagation();
+    },
+
+    // override _activateHandler
+    _activateHandler: function(event) {
+      Polymer.IronSelectableBehavior._activateHandler.call(this, event);
+      event.stopPropagation();
+    }
+  };
+
+  Polymer.IronMenuBehaviorImpl._shiftTabPressed = false;
+
+  /** @polymerBehavior Polymer.IronMenuBehavior */
+  Polymer.IronMenuBehavior = [
+    Polymer.IronMultiSelectableBehavior,
+    Polymer.IronA11yKeysBehavior,
+    Polymer.IronMenuBehaviorImpl
+  ];
 /**
    * `Polymer.IronMenubarBehavior` implements accessible menubar behavior.
    *
@@ -10240,6 +10636,676 @@ context. You should place this element as a child of `<body>` whenever possible.
     Polymer.IronMenuBehavior,
     Polymer.IronMenubarBehaviorImpl
   ];
+/**
+   * Use `Polymer.NeonAnimationBehavior` to implement an animation.
+   * @polymerBehavior
+   */
+  Polymer.NeonAnimationBehavior = {
+
+    properties: {
+
+      /**
+       * Defines the animation timing.
+       */
+      animationTiming: {
+        type: Object,
+        value: function() {
+          return {
+            duration: 500,
+            easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
+            fill: 'both'
+          }
+        }
+      }
+
+    },
+
+    registered: function() {
+      new Polymer.IronMeta({type: 'animation', key: this.is, value: this.constructor});
+    },
+
+    /**
+     * Do any animation configuration here.
+     */
+    // configure: function(config) {
+    // },
+
+    /**
+     * Returns the animation timing by mixing in properties from `config` to the defaults defined
+     * by the animation.
+     */
+    timingFromConfig: function(config) {
+      if (config.timing) {
+        for (var property in config.timing) {
+          this.animationTiming[property] = config.timing[property];
+        }
+      }
+      return this.animationTiming;
+    },
+
+    /**
+     * Sets `transform` and `transformOrigin` properties along with the prefixed versions.
+     */
+    setPrefixedProperty: function(node, property, value) {
+      var map = {
+        'transform': ['webkitTransform'],
+        'transformOrigin': ['mozTransformOrigin', 'webkitTransformOrigin']
+      };
+      var prefixes = map[property];
+      for (var prefix, index = 0; prefix = prefixes[index]; index++) {
+        node.style[prefix] = value;
+      }
+      node.style[property] = value;
+    },
+
+    /**
+     * Called when the animation finishes.
+     */
+    complete: function() {}
+
+  };
+Polymer({
+
+    is: 'opaque-animation',
+
+    behaviors: [
+      Polymer.NeonAnimationBehavior
+    ],
+
+    configure: function(config) {
+      var node = config.node;
+      node.style.opacity = '0';
+      this._effect = new KeyframeEffect(node, [
+        {'opacity': '1'},
+        {'opacity': '1'}
+      ], this.timingFromConfig(config));
+      return this._effect;
+    },
+
+    complete: function(config) {
+      config.node.style.opacity = '';
+    }
+
+  });
+/**
+   * `Polymer.NeonAnimatableBehavior` is implemented by elements containing animations for use with
+   * elements implementing `Polymer.NeonAnimationRunnerBehavior`.
+   * @polymerBehavior
+   */
+  Polymer.NeonAnimatableBehavior = {
+
+    properties: {
+
+      /**
+       * Animation configuration. See README for more info.
+       */
+      animationConfig: {
+        type: Object
+      },
+
+      /**
+       * Convenience property for setting an 'entry' animation. Do not set `animationConfig.entry`
+       * manually if using this. The animated node is set to `this` if using this property.
+       */
+      entryAnimation: {
+        observer: '_entryAnimationChanged',
+        type: String
+      },
+
+      /**
+       * Convenience property for setting an 'exit' animation. Do not set `animationConfig.exit`
+       * manually if using this. The animated node is set to `this` if using this property.
+       */
+      exitAnimation: {
+        observer: '_exitAnimationChanged',
+        type: String
+      }
+
+    },
+
+    _entryAnimationChanged: function() {
+      this.animationConfig = this.animationConfig || {};
+      if (this.entryAnimation !== 'fade-in-animation') {
+        // insert polyfill hack
+        this.animationConfig['entry'] = [{
+          name: 'opaque-animation',
+          node: this
+        }, {
+          name: this.entryAnimation,
+          node: this
+        }];
+      } else {
+        this.animationConfig['entry'] = [{
+          name: this.entryAnimation,
+          node: this
+        }];
+      }
+    },
+
+    _exitAnimationChanged: function() {
+      this.animationConfig = this.animationConfig || {};
+      this.animationConfig['exit'] = [{
+        name: this.exitAnimation,
+        node: this
+      }];
+    },
+
+    _copyProperties: function(config1, config2) {
+      // shallowly copy properties from config2 to config1
+      for (var property in config2) {
+        config1[property] = config2[property];
+      }
+    },
+
+    _cloneConfig: function(config) {
+      var clone = {
+        isClone: true
+      };
+      this._copyProperties(clone, config);
+      return clone;
+    },
+
+    _getAnimationConfigRecursive: function(type, map, allConfigs) {
+      if (!this.animationConfig) {
+        return;
+      }
+
+      // type is optional
+      var thisConfig;
+      if (type) {
+        thisConfig = this.animationConfig[type];
+      } else {
+        thisConfig = this.animationConfig;
+      }
+
+      if (!Array.isArray(thisConfig)) {
+        thisConfig = [thisConfig];
+      }
+
+      // iterate animations and recurse to process configurations from child nodes
+      if (thisConfig) {
+        for (var config, index = 0; config = thisConfig[index]; index++) {
+          if (config.animatable) {
+            config.animatable._getAnimationConfigRecursive(config.type || type, map, allConfigs);
+          } else {
+            if (config.id) {
+              var cachedConfig = map[config.id];
+              if (cachedConfig) {
+                // merge configurations with the same id, making a clone lazily
+                if (!cachedConfig.isClone) {
+                  map[config.id] = this._cloneConfig(cachedConfig)
+                  cachedConfig = map[config.id];
+                }
+                this._copyProperties(cachedConfig, config);
+              } else {
+                // put any configs with an id into a map
+                map[config.id] = config;
+              }
+            } else {
+              allConfigs.push(config);
+            }
+          }
+        }
+      }
+    },
+
+    /**
+     * An element implementing `Polymer.NeonAnimationRunnerBehavior` calls this method to configure
+     * an animation with an optional type. Elements implementing `Polymer.NeonAnimatableBehavior`
+     * should define the property `animationConfig`, which is either a configuration object
+     * or a map of animation type to array of configuration objects.
+     */
+    getAnimationConfig: function(type) {
+      var map = [];
+      var allConfigs = [];
+      this._getAnimationConfigRecursive(type, map, allConfigs);
+      // append the configurations saved in the map to the array
+      for (var key in map) {
+        allConfigs.push(map[key]);
+      }
+      return allConfigs;
+    }
+
+  };
+/**
+   * `Polymer.NeonAnimationRunnerBehavior` adds a method to run animations.
+   *
+   * @polymerBehavior Polymer.NeonAnimationRunnerBehavior
+   */
+  Polymer.NeonAnimationRunnerBehaviorImpl = {
+
+    properties: {
+
+      _animationMeta: {
+        type: Object,
+        value: function() {
+          return new Polymer.IronMeta({type: 'animation'});
+        }
+      },
+
+      /** @type {?Object} */
+      _player: {
+        type: Object
+      }
+
+    },
+
+    _configureAnimationEffects: function(allConfigs) {
+      var allAnimations = [];
+      if (allConfigs.length > 0) {
+        for (var config, index = 0; config = allConfigs[index]; index++) {
+          var animationConstructor = this._animationMeta.byKey(config.name);
+          if (animationConstructor) {
+            var animation = animationConstructor && new animationConstructor();
+            var effect = animation.configure(config);
+            if (effect) {
+              allAnimations.push({
+                animation: animation,
+                config: config,
+                effect: effect
+              });
+            }
+          } else {
+            console.warn(this.is + ':', config.name, 'not found!');
+          }
+        }
+      }
+      return allAnimations;
+    },
+
+    _runAnimationEffects: function(allEffects) {
+      return document.timeline.play(new GroupEffect(allEffects));
+    },
+
+    _completeAnimations: function(allAnimations) {
+      for (var animation, index = 0; animation = allAnimations[index]; index++) {
+        animation.animation.complete(animation.config);
+      }
+    },
+
+    /**
+     * Plays an animation with an optional `type`.
+     * @param {string=} type
+     * @param {!Object=} cookie
+     */
+    playAnimation: function(type, cookie) {
+      var allConfigs = this.getAnimationConfig(type);
+      if (!allConfigs) {
+        return;
+      }
+      var allAnimations = this._configureAnimationEffects(allConfigs);
+      var allEffects = allAnimations.map(function(animation) {
+        return animation.effect;
+      });
+
+      if (allEffects.length > 0) {
+        this._player = this._runAnimationEffects(allEffects);
+        this._player.onfinish = function() {
+          this._completeAnimations(allAnimations);
+
+          if (this._player) {
+            this._player.cancel();
+            this._player = null;
+          }
+
+          this.fire('neon-animation-finish', cookie, {bubbles: false});
+        }.bind(this);
+
+      } else {
+        this.fire('neon-animation-finish', cookie, {bubbles: false});
+      }
+    },
+
+    /**
+     * Cancels the currently running animation.
+     */
+    cancelAnimation: function() {
+      if (this._player) {
+        this._player.cancel();
+      }
+    }
+  };
+
+  /** @polymerBehavior Polymer.NeonAnimationRunnerBehavior */
+  Polymer.NeonAnimationRunnerBehavior = [
+    Polymer.NeonAnimatableBehavior,
+    Polymer.NeonAnimationRunnerBehaviorImpl
+  ];
+(function() {
+    'use strict';
+
+    /**
+     * The IronDropdownScrollManager is intended to provide a central source
+     * of authority and control over which elements in a document are currently
+     * allowed to scroll.
+     */
+
+    Polymer.IronDropdownScrollManager = {
+
+      /**
+       * The current element that defines the DOM boundaries of the
+       * scroll lock. This is always the most recently locking element.
+       */
+      get currentLockingElement() {
+        return this._lockingElements[this._lockingElements.length - 1];
+      },
+
+
+      /**
+       * Returns true if the provided element is "scroll locked," which is to
+       * say that it cannot be scrolled via pointer or keyboard interactions.
+       *
+       * @param {HTMLElement} element An HTML element instance which may or may
+       * not be scroll locked.
+       */
+      elementIsScrollLocked: function(element) {
+        var currentLockingElement = this.currentLockingElement;
+        var scrollLocked;
+
+        if (this._hasCachedLockedElement(element)) {
+          return true;
+        }
+
+        if (this._hasCachedUnlockedElement(element)) {
+          return false;
+        }
+
+        scrollLocked = !!currentLockingElement &&
+          currentLockingElement !== element &&
+          !this._composedTreeContains(currentLockingElement, element);
+
+        if (scrollLocked) {
+          this._lockedElementCache.push(element);
+        } else {
+          this._unlockedElementCache.push(element);
+        }
+
+        return scrollLocked;
+      },
+
+      /**
+       * Push an element onto the current scroll lock stack. The most recently
+       * pushed element and its children will be considered scrollable. All
+       * other elements will not be scrollable.
+       *
+       * Scroll locking is implemented as a stack so that cases such as
+       * dropdowns within dropdowns are handled well.
+       *
+       * @param {HTMLElement} element The element that should lock scroll.
+       */
+      pushScrollLock: function(element) {
+        if (this._lockingElements.length === 0) {
+          this._lockScrollInteractions();
+        }
+
+        this._lockingElements.push(element);
+
+        this._lockedElementCache = [];
+        this._unlockedElementCache = [];
+      },
+
+      /**
+       * Remove an element from the scroll lock stack. The element being
+       * removed does not need to be the most recently pushed element. However,
+       * the scroll lock constraints only change when the most recently pushed
+       * element is removed.
+       *
+       * @param {HTMLElement} element The element to remove from the scroll
+       * lock stack.
+       */
+      removeScrollLock: function(element) {
+        var index = this._lockingElements.indexOf(element);
+
+        if (index === -1) {
+          return;
+        }
+
+        this._lockingElements.splice(index, 1);
+
+        this._lockedElementCache = [];
+        this._unlockedElementCache = [];
+
+        if (this._lockingElements.length === 0) {
+          this._unlockScrollInteractions();
+        }
+      },
+
+      _lockingElements: [],
+
+      _lockedElementCache: null,
+
+      _unlockedElementCache: null,
+
+      _originalBodyStyles: {},
+
+      _isScrollingKeypress: function(event) {
+        return Polymer.IronA11yKeysBehavior.keyboardEventMatchesKeys(
+          event, 'pageup pagedown home end up left down right');
+      },
+
+      _hasCachedLockedElement: function(element) {
+        return this._lockedElementCache.indexOf(element) > -1;
+      },
+
+      _hasCachedUnlockedElement: function(element) {
+        return this._unlockedElementCache.indexOf(element) > -1;
+      },
+
+      _composedTreeContains: function(element, child) {
+        // NOTE(cdata): This method iterates over content elements and their
+        // corresponding distributed nodes to implement a contains-like method
+        // that pierces through the composed tree of the ShadowDOM. Results of
+        // this operation are cached (elsewhere) on a per-scroll-lock basis, to
+        // guard against potentially expensive lookups happening repeatedly as
+        // a user scrolls / touchmoves.
+        var contentElements;
+        var distributedNodes;
+        var contentIndex;
+        var nodeIndex;
+
+        if (element.contains(child)) {
+          return true;
+        }
+
+        contentElements = Polymer.dom(element).querySelectorAll('content');
+
+        for (contentIndex = 0; contentIndex < contentElements.length; ++contentIndex) {
+
+          distributedNodes = Polymer.dom(contentElements[contentIndex]).getDistributedNodes();
+
+          for (nodeIndex = 0; nodeIndex < distributedNodes.length; ++nodeIndex) {
+
+            if (this._composedTreeContains(distributedNodes[nodeIndex], child)) {
+              return true;
+            }
+          }
+        }
+
+        return false;
+      },
+
+      _scrollInteractionHandler: function(event) {
+        if (Polymer
+              .IronDropdownScrollManager
+              .elementIsScrollLocked(event.target)) {
+          if (event.type === 'keydown' &&
+              !Polymer.IronDropdownScrollManager._isScrollingKeypress(event)) {
+            return;
+          }
+
+          event.preventDefault();
+        }
+      },
+
+      _lockScrollInteractions: function() {
+        // Memoize body inline styles:
+        this._originalBodyStyles.overflow = document.body.style.overflow;
+        this._originalBodyStyles.overflowX = document.body.style.overflowX;
+        this._originalBodyStyles.overflowY = document.body.style.overflowY;
+
+        // Disable overflow scrolling on body:
+        // TODO(cdata): It is technically not sufficient to hide overflow on
+        // body alone. A better solution might be to traverse all ancestors of
+        // the current scroll locking element and hide overflow on them. This
+        // becomes expensive, though, as it would have to be redone every time
+        // a new scroll locking element is added.
+        document.body.style.overflow = 'hidden';
+        document.body.style.overflowX = 'hidden';
+        document.body.style.overflowY = 'hidden';
+
+        // Modern `wheel` event for mouse wheel scrolling:
+        window.addEventListener('wheel', this._scrollInteractionHandler, true);
+        // Older, non-standard `mousewheel` event for some FF:
+        window.addEventListener('mousewheel', this._scrollInteractionHandler, true);
+        // IE:
+        window.addEventListener('DOMMouseScroll', this._scrollInteractionHandler, true);
+        // Mobile devices can scroll on touch move:
+        window.addEventListener('touchmove', this._scrollInteractionHandler, true);
+        // Capture keydown to prevent scrolling keys (pageup, pagedown etc.)
+        document.addEventListener('keydown', this._scrollInteractionHandler, true);
+      },
+
+      _unlockScrollInteractions: function() {
+        document.body.style.overflow = this._originalBodyStyles.overflow;
+        document.body.style.overflowX = this._originalBodyStyles.overflowX;
+        document.body.style.overflowY = this._originalBodyStyles.overflowY;
+
+        window.removeEventListener('wheel', this._scrollInteractionHandler, true);
+        window.removeEventListener('mousewheel', this._scrollInteractionHandler, true);
+        window.removeEventListener('DOMMouseScroll', this._scrollInteractionHandler, true);
+        window.removeEventListener('touchmove', this._scrollInteractionHandler, true);
+        document.removeEventListener('keydown', this._scrollInteractionHandler, true);
+      }
+    };
+  })();
+Polymer({
+
+    is: 'fade-in-animation',
+
+    behaviors: [
+      Polymer.NeonAnimationBehavior
+    ],
+
+    configure: function(config) {
+      var node = config.node;
+      this._effect = new KeyframeEffect(node, [
+        {'opacity': '0'},
+        {'opacity': '1'}
+      ], this.timingFromConfig(config));
+      return this._effect;
+    }
+
+  });
+Polymer({
+
+    is: 'fade-out-animation',
+
+    behaviors: [
+      Polymer.NeonAnimationBehavior
+    ],
+
+    configure: function(config) {
+      var node = config.node;
+      this._effect = new KeyframeEffect(node, [
+        {'opacity': '1'},
+        {'opacity': '0'}
+      ], this.timingFromConfig(config));
+      return this._effect;
+    }
+
+  });
+Polymer({
+    is: 'paper-menu-grow-height-animation',
+
+    behaviors: [
+      Polymer.NeonAnimationBehavior
+    ],
+
+    configure: function(config) {
+      var node = config.node;
+      var rect = node.getBoundingClientRect();
+      var height = rect.height;
+
+      this._effect = new KeyframeEffect(node, [{
+        height: (height / 2) + 'px'
+      }, {
+        height: height + 'px'
+      }], this.timingFromConfig(config));
+
+      return this._effect;
+    }
+  });
+
+  Polymer({
+    is: 'paper-menu-grow-width-animation',
+
+    behaviors: [
+      Polymer.NeonAnimationBehavior
+    ],
+
+    configure: function(config) {
+      var node = config.node;
+      var rect = node.getBoundingClientRect();
+      var width = rect.width;
+
+      this._effect = new KeyframeEffect(node, [{
+        width: (width / 2) + 'px'
+      }, {
+        width: width + 'px'
+      }], this.timingFromConfig(config));
+
+      return this._effect;
+    }
+  });
+
+  Polymer({
+    is: 'paper-menu-shrink-width-animation',
+
+    behaviors: [
+      Polymer.NeonAnimationBehavior
+    ],
+
+    configure: function(config) {
+      var node = config.node;
+      var rect = node.getBoundingClientRect();
+      var width = rect.width;
+
+      this._effect = new KeyframeEffect(node, [{
+        width: width + 'px'
+      }, {
+        width: width - (width / 20) + 'px'
+      }], this.timingFromConfig(config));
+
+      return this._effect;
+    }
+  });
+
+  Polymer({
+    is: 'paper-menu-shrink-height-animation',
+
+    behaviors: [
+      Polymer.NeonAnimationBehavior
+    ],
+
+    configure: function(config) {
+      var node = config.node;
+      var rect = node.getBoundingClientRect();
+      var height = rect.height;
+      var top = rect.top;
+
+      this.setPrefixedProperty(node, 'transformOrigin', '0 0');
+
+      this._effect = new KeyframeEffect(node, [{
+        height: height + 'px',
+        transform: 'translateY(0)'
+      }, {
+        height: height / 2 + 'px',
+        transform: 'translateY(-20px)'
+      }], this.timingFromConfig(config));
+
+      return this._effect;
+    }
+  });
 var _allowSwipe = false;
 /** @polymerBehavior */
 SwipeableBehavior = {
@@ -10405,6 +11471,78 @@ SwipeableBehavior = {
     }
   }
 };
+/** @polymerBehavior */
+  Polymer.PaperSpinnerBehavior = {
+
+    listeners: {
+      'animationend': '__reset',
+      'webkitAnimationEnd': '__reset'
+    },
+
+    properties: {
+      /**
+       * Displays the spinner.
+       */
+      active: {
+        type: Boolean,
+        value: false,
+        reflectToAttribute: true,
+        observer: '__activeChanged'
+      },
+
+      /**
+       * Alternative text content for accessibility support.
+       * If alt is present, it will add an aria-label whose content matches alt when active.
+       * If alt is not present, it will default to 'loading' as the alt value.
+       */
+      alt: {
+        type: String,
+        value: 'loading',
+        observer: '__altChanged'
+      },
+
+      __coolingDown: {
+        type: Boolean,
+        value: false
+      }
+    },
+
+    __computeContainerClasses: function(active, coolingDown) {
+      return [
+        active || coolingDown ? 'active' : '',
+        coolingDown ? 'cooldown' : ''
+      ].join(' ');
+    },
+
+    __activeChanged: function(active, old) {
+      this.__setAriaHidden(!active);
+      this.__coolingDown = !active && old;
+    },
+
+    __altChanged: function(alt) {
+      // user-provided `aria-label` takes precedence over prototype default
+      if (alt === this.getPropertyInfo('alt').value) {
+        this.alt = this.getAttribute('aria-label') || alt;
+      } else {
+        this.__setAriaHidden(alt==='');
+        this.setAttribute('aria-label', alt);
+      }
+    },
+
+    __setAriaHidden: function(hidden) {
+      var attr = 'aria-hidden';
+      if (hidden) {
+        this.setAttribute(attr, 'true');
+      } else {
+        this.removeAttribute(attr);
+      }
+    },
+
+    __reset: function() {
+      this.active = false;
+      this.__coolingDown = false;
+    }
+  };
 Polymer({
 
       is: 'iron-icon',
@@ -10492,529 +11630,164 @@ Polymer({
 
     });
 Polymer({
-      is: 'paper-toolbar',
 
-      hostAttributes: {
-        'role': 'toolbar'
-      },
+    is: 'iron-pages',
 
-      properties: {
-        /**
-         * Controls how the items are aligned horizontally when they are placed
-         * at the bottom.
-         * Options are `start`, `center`, `end`, `justified` and `around`.
-         *
-         * @attribute bottomJustify
-         * @type string
-         * @default ''
-         */
-        bottomJustify: {
-          type: String,
-          value: ''
-        },
-
-        /**
-         * Controls how the items are aligned horizontally.
-         * Options are `start`, `center`, `end`, `justified` and `around`.
-         *
-         * @attribute justify
-         * @type string
-         * @default ''
-         */
-        justify: {
-          type: String,
-          value: ''
-        },
-
-        /**
-         * Controls how the items are aligned horizontally when they are placed
-         * in the middle.
-         * Options are `start`, `center`, `end`, `justified` and `around`.
-         *
-         * @attribute middleJustify
-         * @type string
-         * @default ''
-         */
-        middleJustify: {
-          type: String,
-          value: ''
-        }
-
-      },
-
-      attached: function() {
-        this._observer = this._observe(this);
-        this._updateAriaLabelledBy();
-      },
-
-      detached: function() {
-        if (this._observer) {
-          this._observer.disconnect();
-        }
-      },
-
-      _observe: function(node) {
-        var observer = new MutationObserver(function() {
-          this._updateAriaLabelledBy();
-        }.bind(this));
-        observer.observe(node, {
-          childList: true,
-          subtree: true
-        });
-        return observer;
-      },
-
-      _updateAriaLabelledBy: function() {
-        var labelledBy = [];
-        var contents = Polymer.dom(this.root).querySelectorAll('content');
-        for (var content, index = 0; content = contents[index]; index++) {
-          var nodes = Polymer.dom(content).getDistributedNodes();
-          for (var node, jndex = 0; node = nodes[jndex]; jndex++) {
-            if (node.classList && node.classList.contains('title')) {
-              if (node.id) {
-                labelledBy.push(node.id);
-              } else {
-                var id = 'paper-toolbar-label-' + Math.floor(Math.random() * 10000);
-                node.id = id;
-                labelledBy.push(id);
-              }
-            }
-          }
-        }
-        if (labelledBy.length > 0) {
-          this.setAttribute('aria-labelledby', labelledBy.join(' '));
-        }
-      },
-
-      _computeBarExtraClasses: function(barJustify) {
-        if (!barJustify) return '';
-
-        return barJustify + (barJustify === 'justified' ? '' : '-justified');
-      }
-    });
-Polymer({
-
-    is: 'iron-image',
+    behaviors: [
+      Polymer.IronResizableBehavior,
+      Polymer.IronSelectableBehavior
+    ],
 
     properties: {
-      /**
-       * The URL of an image.
-       */
-      src: {
-        observer: '_srcChanged',
-        type: String,
-        value: ''
-      },
 
-      /**
-       * When true, the image is prevented from loading and any placeholder is
-       * shown.  This may be useful when a binding to the src property is known to
-       * be invalid, to prevent 404 requests.
-       */
-      preventLoad: {
-        type: Boolean,
-        value: false
-      },
-
-      /**
-       * Sets a sizing option for the image.  Valid values are `contain` (full
-       * aspect ratio of the image is contained within the element and
-       * letterboxed) or `cover` (image is cropped in order to fully cover the
-       * bounds of the element), or `null` (default: image takes natural size).
-       */
-      sizing: {
+      // as the selected page is the only one visible, activateEvent
+      // is both non-sensical and problematic; e.g. in cases where a user
+      // handler attempts to change the page and the activateEvent
+      // handler immediately changes it back
+      activateEvent: {
         type: String,
         value: null
-      },
-
-      /**
-       * When a sizing option is used (`cover` or `contain`), this determines
-       * how the image is aligned within the element bounds.
-       */
-      position: {
-        type: String,
-        value: 'center'
-      },
-
-      /**
-       * When `true`, any change to the `src` property will cause the `placeholder`
-       * image to be shown until the new image has loaded.
-       */
-      preload: {
-        type: Boolean,
-        value: false
-      },
-
-      /**
-       * This image will be used as a background/placeholder until the src image has
-       * loaded.  Use of a data-URI for placeholder is encouraged for instant rendering.
-       */
-      placeholder: {
-        type: String,
-        value: null
-      },
-
-      /**
-       * When `preload` is true, setting `fade` to true will cause the image to
-       * fade into place.
-       */
-      fade: {
-        type: Boolean,
-        value: false
-      },
-
-      /**
-       * Read-only value that is true when the image is loaded.
-       */
-      loaded: {
-        notify: true,
-        type: Boolean,
-        value: false
-      },
-
-      /**
-       * Read-only value that tracks the loading state of the image when the `preload`
-       * option is used.
-       */
-      loading: {
-        notify: true,
-        type: Boolean,
-        value: false
-      },
-
-      /**
-       * Can be used to set the width of image (e.g. via binding); size may also be
-       * set via CSS.
-       */
-      width: {
-        observer: '_widthChanged',
-        type: Number,
-        value: null
-      },
-
-      /**
-       * Can be used to set the height of image (e.g. via binding); size may also be
-       * set via CSS.
-       *
-       * @attribute height
-       * @type number
-       * @default null
-       */
-      height: {
-        observer: '_heightChanged',
-        type: Number,
-        value: null
-      },
-
-      _placeholderBackgroundUrl: {
-        type: String,
-        computed: '_computePlaceholderBackgroundUrl(preload,placeholder)',
-        observer: '_placeholderBackgroundUrlChanged'
-      },
-
-      requiresPreload: {
-        type: Boolean,
-        computed: '_computeRequiresPreload(preload,loaded)'
-      },
-
-      canLoad: {
-        type: Boolean,
-        computed: '_computeCanLoad(preventLoad, src)'
       }
 
     },
 
     observers: [
-      '_transformChanged(sizing, position)',
-      '_loadBehaviorChanged(canLoad, preload, loaded)',
-      '_loadStateChanged(src, preload, loaded)',
+      '_selectedPageChanged(selected)'
     ],
 
-    ready: function() {
-      if (!this.hasAttribute('role')) {
-        this.setAttribute('role', 'img');
-      }
-    },
-
-    _computeImageVisibility: function() {
-      return !!this.sizing;
-    },
-
-    _computePlaceholderVisibility: function() {
-      return !this.preload || (this.loaded && !this.fade);
-    },
-
-    _computePlaceholderClassName: function() {
-      if (!this.preload) {
-        return '';
-      }
-
-      if (this.loaded && this.fade) {
-        return 'faded-out';
-      }
-
-      return '';
-    },
-
-    _computePlaceholderBackgroundUrl: function() {
-      if (this.preload && this.placeholder) {
-        return 'url(' + this.placeholder + ')';
-      }
-
-      return null;
-    },
-
-    _computeRequiresPreload: function() {
-      return this.preload && !this.loaded;
-    },
-
-    _computeCanLoad: function() {
-      return Boolean(!this.preventLoad && this.src);
-    },
-
-    _widthChanged: function() {
-      this.style.width = isNaN(this.width) ? this.width : this.width + 'px';
-    },
-
-    _heightChanged: function() {
-      this.style.height = isNaN(this.height) ? this.height : this.height + 'px';
-    },
-
-    _srcChanged: function(newSrc, oldSrc) {
-      if (newSrc !== oldSrc) {
-        this.loaded = false;
-      }
-    },
-
-    _placeholderBackgroundUrlChanged: function() {
-      this.$.placeholder.style.backgroundImage =
-        this._placeholderBackgroundUrl;
-    },
-
-    _transformChanged: function() {
-      var placeholderStyle = this.$.placeholder.style;
-
-      this.style.backgroundSize =
-        placeholderStyle.backgroundSize = this.sizing;
-
-      this.style.backgroundPosition =
-        placeholderStyle.backgroundPosition =
-        this.sizing ? this.position : '';
-
-      this.style.backgroundRepeat =
-        placeholderStyle.backgroundRepeat =
-        this.sizing ? 'no-repeat' : '';
-    },
-
-    _loadBehaviorChanged: function() {
-      var img;
-
-      if (!this.canLoad) {
-        return;
-      }
-
-      if (this.requiresPreload) {
-        img = new Image();
-        img.src = this.src;
-
-        this.loading = true;
-
-        img.onload = function() {
-          this.loading = false;
-          this.loaded = true;
-        }.bind(this);
-      } else {
-        this.loaded = true;
-      }
-    },
-
-    _loadStateChanged: function() {
-      if (this.requiresPreload) {
-        return;
-      }
-
-      if (this.sizing) {
-        this.style.backgroundImage = this.src ? 'url(' + this.src + ')': '';
-      } else {
-        this.$.img.src = this.src || '';
-      }
+    _selectedPageChanged: function(selected, old) {
+      this.async(this.notifyResize);
     }
   });
 (function() {
-      Polymer({
-        is: 'paper-menu',
+      'use strict';
 
-        behaviors: [
-          Polymer.IronMenuBehavior
-        ]
-      });
-    })();
-Polymer({
-    is: 'iron-localstorage',
+      Polymer.IronA11yAnnouncer = Polymer({
+        is: 'iron-a11y-announcer',
 
-    properties: {
-      /**
-       * localStorage item key
-       */
-      name: {
-        type: String,
-        value: ''
-      },
-      /**
-       * The data associated with this storage.
-       * If set to null item will be deleted.
-       * @type {*}
-       */
-      value: {
-        type: Object,
-        notify: true
-      },
+        properties: {
 
-      /**
-       * If true: do not convert value to JSON on save/load
-       */
-      useRaw: {
-        type: Boolean,
-        value: false
-      },
+          /**
+           * The value of mode is used to set the `aria-live` attribute
+           * for the element that will be announced. Valid values are: `off`,
+           * `polite` and `assertive`.
+           */
+          mode: {
+            type: String,
+            value: 'polite'
+          },
 
-      /**
-       * Value will not be saved automatically if true. You'll have to do it manually with `save()`
-       */
-      autoSaveDisabled: {
-        type: Boolean,
-        value: false
-      },
-      /**
-       * Last error encountered while saving/loading items
-       */
-      errorMessage: {
-        type: String,
-        notify: true
-      },
+          _text: {
+            type: String,
+            value: ''
+          }
+        },
 
-      /** True if value has been loaded */
-      _loaded: {
-        type: Boolean,
-        value: false
-      }
-    },
+        created: function() {
+          if (!Polymer.IronA11yAnnouncer.instance) {
+            Polymer.IronA11yAnnouncer.instance = this;
+          }
 
-    observers: [
-      '_debounceReload(name,useRaw)',
-      '_trySaveValue(autoSaveDisabled)',
-      '_trySaveValue(value.*)'
-    ],
+          document.body.addEventListener('iron-announce', this._onIronAnnounce.bind(this));
+        },
 
-    ready: function() {
-      this._boundHandleStorage = this._handleStorage.bind(this);
-    },
+        /**
+         * Cause a text string to be announced by screen readers.
+         *
+         * @param {string} text The text that should be announced.
+         */
+        announce: function(text) {
+          this._text = '';
+          this.async(function() {
+            this._text = text;
+          }, 100);
+        },
 
-    attached: function() {
-      window.addEventListener('storage', this._boundHandleStorage);
-    },
-
-    detached: function() {
-      window.removeEventListener('storage', this._boundHandleStorage);
-    },
-
-    _handleStorage: function(ev) {
-      if (ev.key == this.name) {
-        this._load(true);
-      }
-    },
-
-    _trySaveValue: function() {
-      if (this._doNotSave) {
-        return;
-      }
-      if (this._loaded && !this.autoSaveDisabled) {
-        this.debounce('save', this.save);
-      }
-    },
-
-    _debounceReload: function() {
-      this.debounce('reload', this.reload);
-    },
-
-    /**
-     * Loads the value again. Use if you modify
-     * localStorage using DOM calls, and want to
-     * keep this element in sync.
-     */
-    reload: function() {
-      this._loaded = false;
-      this._load();
-    },
-
-    /**
-     * loads value from local storage
-     * @param {boolean=} externalChange true if loading changes from a different window
-     */
-    _load: function(externalChange) {
-      var v = window.localStorage.getItem(this.name);
-
-      if (v === null) {
-        this._loaded = true;
-        this._doNotSave = true;  // guard for save watchers
-        this.value = null;
-        this._doNotSave = false;
-        this.fire('iron-localstorage-load-empty', { externalChange: externalChange});
-      } else {
-        if (!this.useRaw) {
-          try { // parse value as JSON
-            v = JSON.parse(v);
-          } catch(x) {
-            this.errorMessage = "Could not parse local storage value";
-            console.error("could not parse local storage value", v);
-            v = null;
+        _onIronAnnounce: function(event) {
+          if (event.detail && event.detail.text) {
+            this.announce(event.detail.text);
           }
         }
-        this._loaded = true;
-        this._doNotSave = true;
-        this.value = v;
-        this._doNotSave = false;
-        this.fire('iron-localstorage-load', { externalChange: externalChange});
+      });
+
+      Polymer.IronA11yAnnouncer.instance = null;
+
+      Polymer.IronA11yAnnouncer.requestAvailability = function() {
+        if (!Polymer.IronA11yAnnouncer.instance) {
+          Polymer.IronA11yAnnouncer.instance = document.createElement('iron-a11y-announcer');
+        }
+
+        document.body.appendChild(Polymer.IronA11yAnnouncer.instance);
+      };
+    })();
+(function() {
+
+  Polymer({
+
+    is: 'iron-overlay-backdrop',
+
+    properties: {
+
+      /**
+       * Returns true if the backdrop is opened.
+       */
+      opened: {
+        readOnly: true,
+        reflectToAttribute: true,
+        type: Boolean,
+        value: false
+      },
+
+      _manager: {
+        type: Object,
+        value: Polymer.IronOverlayManager
+      }
+
+    },
+
+    /**
+     * Appends the backdrop to document body and sets its `z-index` to be below the latest overlay.
+     */
+    prepare: function() {
+      if (!this.parentNode) {
+        Polymer.dom(document.body).appendChild(this);
+        this.style.zIndex = this._manager.currentOverlayZ() - 1;
       }
     },
 
     /**
-     * Saves the value to localStorage. Call to save if autoSaveDisabled is set.
-     * If `value` is null or undefined, deletes localStorage.
+     * Shows the backdrop if needed.
      */
-    save: function() {
-      var v = this.useRaw ? this.value : JSON.stringify(this.value);
-      try {
-        if (this.value === null || this.value === undefined) {
-          window.localStorage.removeItem(this.name);
-        } else {
-          window.localStorage.setItem(this.name, /** @type {string} */ (v));
-        }
+    open: function() {
+      // only need to make the backdrop visible if this is called by the first overlay with a backdrop
+      if (this._manager.getBackdrops().length < 2) {
+        this._setOpened(true);
       }
-      catch(ex) {
-        // Happens in Safari incognito mode,
-        this.errorMessage = ex.message;
-        console.error("localStorage could not be saved. Safari incoginito mode?", ex);
+    },
+
+    /**
+     * Hides the backdrop if needed.
+     */
+    close: function() {
+      // only need to make the backdrop invisible if this is called by the last overlay with a backdrop
+      if (this._manager.getBackdrops().length < 2) {
+        this._setOpened(false);
+      }
+    },
+
+    /**
+     * Removes the backdrop from document body if needed.
+     */
+    complete: function() {
+      // only remove the backdrop if there are no more overlays with backdrops
+      if (this._manager.getBackdrops().length === 0 && this.parentNode) {
+        Polymer.dom(this.parentNode).removeChild(this);
       }
     }
 
-    /**
-     * Fired when value loads from localStorage.
-     *
-     * @event iron-localstorage-load
-     * @param {{externalChange:boolean}} detail -
-     *     externalChange: true if change occured in different window.
-     */
-
-    /**
-     * Fired when loaded value does not exist.
-     * Event handler can be used to initialize default value.
-     *
-     * @event iron-localstorage-load-empty
-     * @param {{externalChange:boolean}} detail -
-     *     externalChange: true if change occured in different window.
-     */
   });
+
+})();
 (function() {
 
   var IOS = navigator.userAgent.match(/iP(?:hone|ad;(?: U;)? CPU) OS (\d+)/);
@@ -12188,660 +12961,6 @@ Polymer({
 (function() {
       'use strict';
 
-      var SHADOW_WHEN_SCROLLING = 1;
-      var SHADOW_ALWAYS = 2;
-      var MODE_CONFIGS = {
-        outerScroll: {
-          'scroll': true
-        },
-
-        shadowMode: {
-          'standard': SHADOW_ALWAYS,
-          'waterfall': SHADOW_WHEN_SCROLLING,
-          'waterfall-tall': SHADOW_WHEN_SCROLLING
-        },
-
-        tallMode: {
-          'waterfall-tall': true
-        }
-      };
-
-      Polymer({
-        is: 'paper-header-panel',
-
-        /**
-         * Fired when the content has been scrolled.  `event.detail.target` returns
-         * the scrollable element which you can use to access scroll info such as
-         * `scrollTop`.
-         *
-         *     <paper-header-panel on-content-scroll="scrollHandler">
-         *       ...
-         *     </paper-header-panel>
-         *
-         *
-         *     scrollHandler: function(event) {
-         *       var scroller = event.detail.target;
-         *       console.log(scroller.scrollTop);
-         *     }
-         *
-         * @event content-scroll
-         */
-
-        properties: {
-          /**
-           * Controls header and scrolling behavior. Options are
-           * `standard`, `seamed`, `waterfall`, `waterfall-tall`, `scroll` and
-           * `cover`. Default is `standard`.
-           *
-           * `standard`: The header is a step above the panel. The header will consume the
-           * panel at the point of entry, preventing it from passing through to the
-           * opposite side.
-           *
-           * `seamed`: The header is presented as seamed with the panel.
-           *
-           * `waterfall`: Similar to standard mode, but header is initially presented as
-           * seamed with panel, but then separates to form the step.
-           *
-           * `waterfall-tall`: The header is initially taller (`tall` class is added to
-           * the header).  As the user scrolls, the header separates (forming an edge)
-           * while condensing (`tall` class is removed from the header).
-           *
-           * `scroll`: The header keeps its seam with the panel, and is pushed off screen.
-           *
-           * `cover`: The panel covers the whole `paper-header-panel` including the
-           * header. This allows user to style the panel in such a way that the panel is
-           * partially covering the header.
-           *
-           *     <paper-header-panel mode="cover">
-           *       <paper-toolbar class="tall">
-           *         <paper-icon-button icon="menu"></paper-icon-button>
-           *       </paper-toolbar>
-           *       <div class="content"></div>
-           *     </paper-header-panel>
-           */
-          mode: {
-            type: String,
-            value: 'standard',
-            observer: '_modeChanged',
-            reflectToAttribute: true
-          },
-
-          /**
-           * If true, the drop-shadow is always shown no matter what mode is set to.
-           */
-          shadow: {
-            type: Boolean,
-            value: false
-          },
-
-          /**
-           * The class used in waterfall-tall mode.  Change this if the header
-           * accepts a different class for toggling height, e.g. "medium-tall"
-           */
-          tallClass: {
-            type: String,
-            value: 'tall'
-          },
-
-          /**
-           * If true, the scroller is at the top
-           */
-          atTop: {
-            type: Boolean,
-            value: true,
-            readOnly: true
-          }
-        },
-
-        observers: [
-          '_computeDropShadowHidden(atTop, mode, shadow)'
-        ],
-
-        ready: function() {
-          this.scrollHandler = this._scroll.bind(this);
-        },
-        
-        attached: function() {
-          this._addListener();
-          // Run `scroll` logic once to initialze class names, etc.
-          this._keepScrollingState();
-        },
-
-        detached: function() {
-          this._removeListener();
-        },
-
-        /**
-         * Returns the header element
-         *
-         * @property header
-         * @type Object
-         */
-        get header() {
-          return Polymer.dom(this.$.headerContent).getDistributedNodes()[0];
-        },
-
-        /**
-         * Returns the scrollable element.
-         *
-         * @property scroller
-         * @type Object
-         */
-        get scroller() {
-          return this._getScrollerForMode(this.mode);
-        },
-
-        /**
-         * Returns true if the scroller has a visible shadow.
-         *
-         * @property visibleShadow
-         * @type Boolean
-         */
-        get visibleShadow() {
-          return this.$.dropShadow.classList.contains('has-shadow');
-        },
-
-        _computeDropShadowHidden: function(atTop, mode, shadow) {
-          var shadowMode = MODE_CONFIGS.shadowMode[mode];
-
-          if (this.shadow) {
-            this.toggleClass('has-shadow', true, this.$.dropShadow);
-          } else if (shadowMode === SHADOW_ALWAYS) {
-            this.toggleClass('has-shadow', true, this.$.dropShadow);
-          } else if (shadowMode === SHADOW_WHEN_SCROLLING && !atTop) {
-            this.toggleClass('has-shadow', true, this.$.dropShadow);
-          } else {
-            this.toggleClass('has-shadow', false, this.$.dropShadow);
-          }
-        },
-
-        _computeMainContainerClass: function(mode) {
-          // TODO:  It will be useful to have a utility for classes
-          // e.g. Polymer.Utils.classes({ foo: true });
-
-          var classes = {};
-
-          classes['flex'] = mode !== 'cover';
-
-          return Object.keys(classes).filter(
-            function(className) {
-              return classes[className];
-            }).join(' ');
-        },
-
-        _addListener: function() {
-          this.scroller.addEventListener('scroll', this.scrollHandler, false);
-        },
-
-        _removeListener: function() {
-          this.scroller.removeEventListener('scroll', this.scrollHandler);
-        },
-
-        _modeChanged: function(newMode, oldMode) {
-          var configs = MODE_CONFIGS;
-          var header = this.header;
-          var animateDuration = 200;
-
-          if (header) {
-            // in tallMode it may add tallClass to the header; so do the cleanup
-            // when mode is changed from tallMode to not tallMode
-            if (configs.tallMode[oldMode] && !configs.tallMode[newMode]) {
-              header.classList.remove(this.tallClass);
-              this.async(function() {
-                header.classList.remove('animate');
-              }, animateDuration);
-            } else {
-              header.classList.toggle('animate', configs.tallMode[newMode]);
-            }
-          }
-          this._keepScrollingState();
-        },
-
-        _keepScrollingState: function() {
-          var main = this.scroller;
-          var header = this.header;
-
-          this._setAtTop(main.scrollTop === 0);
-
-          if (header && this.tallClass && MODE_CONFIGS.tallMode[this.mode]) {
-            this.toggleClass(this.tallClass, this.atTop ||
-                header.classList.contains(this.tallClass) &&
-                main.scrollHeight < this.offsetHeight, header);
-          }
-        },
-
-        _scroll: function() {
-          this._keepScrollingState();
-          this.fire('content-scroll', {target: this.scroller}, {bubbles: false});
-        },
-
-        _getScrollerForMode: function(mode) {
-          return MODE_CONFIGS.outerScroll[mode] ?
-              this : this.$.mainContainer;
-        }
-      });
-    })();
-(function() {
-
-  'use strict';
-
-  Polymer.PaperScrollHeaderPanel = Polymer({
-
-    /**
-     * Fired when the content has been scrolled.
-     *
-     * @event content-scroll
-     */
-
-    /**
-     * Fired when the header is transformed.
-     *
-     * @event paper-header-transform
-     */
-
-    is: 'paper-scroll-header-panel',
-
-    behaviors: [
-      Polymer.IronResizableBehavior
-    ],
-
-    properties: {
-
-      /**
-       * If true, the header's height will condense to `condensedHeaderHeight`
-       * as the user scrolls down from the top of the content area.
-       */
-      condenses: {
-        type: Boolean,
-        value: false
-      },
-
-      /**
-       * If true, no cross-fade transition from one background to another.
-       */
-      noDissolve: {
-        type: Boolean,
-        value: false
-      },
-
-      /**
-       * If true, the header doesn't slide back in when scrolling back up.
-       */
-      noReveal: {
-        type: Boolean,
-        value: false
-      },
-
-      /**
-       * If true, the header is fixed to the top and never moves away.
-       */
-      fixed: {
-        type: Boolean,
-        value: false
-      },
-
-      /**
-       * If true, the condensed header is always shown and does not move away.
-       */
-      keepCondensedHeader: {
-        type: Boolean,
-        value: false
-      },
-
-      /**
-       * The height of the header when it is at its full size.
-       *
-       * By default, the height will be measured when it is ready.  If the height
-       * changes later the user needs to either set this value to reflect the
-       * new height or invoke `measureHeaderHeight()`.
-       */
-      headerHeight: {
-        type: Number,
-        value: 0
-      },
-
-      /**
-       * The height of the header when it is condensed.
-       *
-       * By default, `condensedHeaderHeight` is 1/3 of `headerHeight` unless
-       * this is specified.
-       */
-      condensedHeaderHeight: {
-        type: Number,
-        value: 0
-      },
-
-      /**
-       * By default, the top part of the header stays when the header is being
-       * condensed.  Set this to true if you want the top part of the header
-       * to be scrolled away.
-       */
-      scrollAwayTopbar: {
-        type: Boolean,
-        value: false
-      },
-
-      /**
-       * The state of the header. Depending on the configuration and the `scrollTop` value,
-       * the header state could change to
-       *      Polymer.PaperScrollHeaderPanel.HEADER_STATE_EXPANDED
-       *      Polymer.PaperScrollHeaderPanel.HEADER_STATE_HIDDEN
-       *      Polymer.PaperScrollHeaderPanel.HEADER_STATE_CONDENSED
-       *      Polymer.PaperScrollHeaderPanel.HEADER_STATE_INTERPOLATED
-       */
-      headerState: {
-        type: Number,
-        readOnly: true,
-        notify:true,
-        value: 0
-      },
-
-      _prevScrollTop: {
-        type: Number,
-        value: 0
-      },
-
-      _y: {
-        type: Number,
-        value: 0
-      },
-
-      /** @type {number|null} */
-      _defaultCondsensedHeaderHeight: {
-        type: Number,
-        value: 0
-      }
-    },
-
-    observers: [
-      '_setup(headerHeight, condensedHeaderHeight, fixed)',
-      '_condensedHeaderHeightChanged(condensedHeaderHeight)',
-      '_headerHeightChanged(headerHeight, condensedHeaderHeight)',
-      '_condensesChanged(condenses)',
-    ],
-
-    listeners: {
-      'iron-resize': 'measureHeaderHeight'
-    },
-
-    ready: function() {
-      this.async(this.measureHeaderHeight, 5);
-      this._scrollHandler = this._scroll.bind(this);
-      this.scroller.addEventListener('scroll', this._scrollHandler);
-    },
-
-    /**
-     * Returns the header element.
-     *
-     * @property header
-     * @type Object
-     */
-    get header() {
-      return Polymer.dom(this.$.headerContent).getDistributedNodes()[0];
-    },
-
-    /**
-     * Returns the content element.
-     *
-     * @property content
-     * @type Object
-     */
-    get content() {
-      return Polymer.dom(this.$.mainContent).getDistributedNodes()[0];
-    },
-
-    /**
-     * Returns the scrollable element.
-     *
-     * @property scroller
-     * @type Object
-     */
-    get scroller() {
-      return this.$.mainContainer;
-    },
-
-    get _headerMaxDelta() {
-      return this.keepCondensedHeader ? this._headerMargin : this.headerHeight;
-    },
-
-    get _headerMargin() {
-      return this.headerHeight - this.condensedHeaderHeight;
-    },
-
-    _y: 0,
-
-    _prevScrollTop: 0,
-
-    /**
-     * Invoke this to tell `paper-scroll-header-panel` to re-measure the header's
-     * height.
-     *
-     * @method measureHeaderHeight
-     */
-    measureHeaderHeight: function() {
-      var header = this.header;
-      if (header && header.offsetHeight) {
-        this.headerHeight = header.offsetHeight;
-      }
-    },
-
-    /**
-     * Scroll to a specific y coordinate.
-     *
-     * @method scroll
-     * @param {number} top The coordinate to scroll to, along the y-axis.
-     * @param {boolean} smooth true if the scroll position should be smoothly adjusted.
-     */
-    scroll: function(top, smooth) {
-      // the scroll event will trigger _updateScrollState directly,
-      // However, _updateScrollState relies on the previous `scrollTop` to update the states.
-      // Calling _updateScrollState will ensure that the states are synced correctly.
-
-      if (smooth) {
-        // TODO(blasten): use CSS scroll-behavior once it ships in Chrome.
-        var easingFn = function easeOutQuad(t, b, c, d) {
-          t /= d;
-          return -c * t*(t-2) + b;
-        };
-        var animationId = Math.random();
-        var duration = 200;
-        var startTime = Date.now();
-        var currentScrollTop = this.scroller.scrollTop;
-        var deltaScrollTop = top - currentScrollTop;
-
-        this._currentAnimationId = animationId;
-
-        (function updateFrame() {
-          var now = Date.now();
-          var elapsedTime = now - startTime;
-
-          if (elapsedTime > duration) {
-            this.scroller.scrollTop = top;
-            this._updateScrollState(top);
-
-          } else if (this._currentAnimationId === animationId) {
-            this.scroller.scrollTop = easingFn(elapsedTime, currentScrollTop, deltaScrollTop, duration);
-            requestAnimationFrame(updateFrame.bind(this));
-          }
-
-        }).call(this);
-
-      } else {
-        this.scroller.scrollTop = top;
-        this._updateScrollState(top);
-      }
-    },
-
-   /**
-     * Condense the header.
-     *
-     * @method condense
-     * @param {boolean} smooth true if the scroll position should be smoothly adjusted.
-     */
-    condense: function(smooth) {
-      var ctx = Polymer.PaperScrollHeaderPanel;
-      if (this.condenses && !this.fixed && !this.noReveal) {
-        switch (this.headerState) {
-          case ctx.HEADER_STATE_HIDDEN:
-            this.scroll(this.scroller.scrollTop - (this._headerMaxDelta - this._headerMargin), smooth);
-          break;
-          case ctx.HEADER_STATE_EXPANDED:
-          case ctx.HEADER_STATE_INTERPOLATED:
-            this.scroll(this._headerMargin, smooth);
-          break;
-        }
-      }
-    },
-
-    /**
-     * Scroll to the top of the content.
-     *
-     * @method scrollToTop
-     * @param {boolean} smooth true if the scroll position should be smoothly adjusted.
-     */
-    scrollToTop: function(smooth) {
-      this.scroll(0, smooth);
-    },
-
-    _headerHeightChanged: function(headerHeight) {
-      if (this._defaultCondsensedHeaderHeight !== null) {
-        this._defaultCondsensedHeaderHeight = Math.round(headerHeight * 1/3);
-        this.condensedHeaderHeight = this._defaultCondsensedHeaderHeight;
-      }
-    },
-
-    _condensedHeaderHeightChanged: function(condensedHeaderHeight) {
-      if (condensedHeaderHeight) {
-        // a user custom value
-        if (this._defaultCondsensedHeaderHeight != condensedHeaderHeight) {
-          // disable the default value
-          this._defaultCondsensedHeaderHeight = null;
-        }
-      }
-    },
-
-    _condensesChanged: function() {
-      this._updateScrollState(this.scroller.scrollTop);
-      this._condenseHeader(null);
-    },
-
-    _setup: function() {
-      var s = this.scroller.style;
-
-      s.paddingTop = this.fixed ? '' : this.headerHeight + 'px';
-      s.top = this.fixed ? this.headerHeight + 'px' : '';
-
-      if (this.fixed) {
-        this._setHeaderState(this.HEADER_STATE_EXPANDED);
-        this._transformHeader(null);
-      } else {
-        switch (this.headerState) {
-          case this.HEADER_STATE_HIDDEN:
-            this._transformHeader(this._headerMaxDelta);
-            break;
-          case this.HEADER_STATE_CONDENSED:
-            this._transformHeader(this._headerMargin);
-            break;
-        }
-      }
-    },
-
-    _transformHeader: function(y) {
-      this._translateY(this.$.headerContainer, -y);
-
-      if (this.condenses) {
-        this._condenseHeader(y);
-      }
-
-      this.fire('paper-header-transform',
-        { y: y,
-          height: this.headerHeight,
-          condensedHeight: this.condensedHeaderHeight
-        }
-      );
-    },
-
-    _condenseHeader: function(y) {
-      var reset = (y === null);
-
-      // adjust top bar in paper-header so the top bar stays at the top
-      if (!this.scrollAwayTopbar && this.header && this.header.$ && this.header.$.topBar) {
-        this._translateY(this.header.$.topBar,
-            reset ? null : Math.min(y, this._headerMargin));
-      }
-      // transition header bg
-      if (!this.noDissolve) {
-        this.$.headerBg.style.opacity = reset ? '' :
-            ( (this._headerMargin - y) / this._headerMargin);
-      }
-      // adjust header bg so it stays at the center
-      this._translateY(this.$.headerBg, reset ? null : y / 2);
-      // transition condensed header bg
-      if (!this.noDissolve) {
-        this.$.condensedHeaderBg.style.opacity = reset ? '' :
-            (y / this._headerMargin);
-
-        // adjust condensed header bg so it stays at the center
-        this._translateY(this.$.condensedHeaderBg, reset ? null : y / 2);
-      }
-    },
-
-    _translateY: function(node, y) {
-      this.transform((y === null) ? '' : 'translate3d(0, ' + y + 'px, 0)', node);
-    },
-
-    /** @param {Event=} event */
-    _scroll: function(event) {
-      if (this.header) {
-        this._updateScrollState(this.scroller.scrollTop);
-
-        this.fire('content-scroll', {
-          target: this.scroller
-        },
-        {
-          cancelable: false
-        });
-      }
-    },
-
-    _updateScrollState: function(scrollTop) {
-      var ctx = Polymer.PaperScrollHeaderPanel;
-      var deltaScrollTop = scrollTop - this._prevScrollTop;
-      var y = Math.max(0, (this.noReveal) ? scrollTop : this._y + deltaScrollTop);
-
-      if (y > this._headerMaxDelta) {
-        y = this._headerMaxDelta;
-        this._setHeaderState(ctx.HEADER_STATE_HIDDEN);
-
-      } else if (this.condenses && this._prevScrollTop >= scrollTop && scrollTop >= this._headerMargin) {
-        y = Math.max(y, this._headerMargin);
-        this._setHeaderState(ctx.HEADER_STATE_CONDENSED);
-
-      } else if (y === 0) {
-        this._setHeaderState(ctx.HEADER_STATE_EXPANDED);
-
-      } else {
-        this._setHeaderState(ctx.HEADER_STATE_INTERPOLATED);
-      }
-
-      if (!this.fixed && y !== this._y) {
-        this._transformHeader(y);
-      }
-
-      this._prevScrollTop = Math.max(scrollTop, 0);
-      this._y = y;
-    }
-  });
-
-  Polymer.PaperScrollHeaderPanel.HEADER_STATE_EXPANDED = 0;
-  Polymer.PaperScrollHeaderPanel.HEADER_STATE_HIDDEN = 1;
-  Polymer.PaperScrollHeaderPanel.HEADER_STATE_CONDENSED = 2;
-  Polymer.PaperScrollHeaderPanel.HEADER_STATE_INTERPOLATED = 3;
-
-})();
-(function() {
-      'use strict';
-
       // this would be the only `paper-drawer-panel` in
       // the whole app that can be in `dragging` state
       var sharedPanel = null;
@@ -13896,6 +14015,61 @@ Polymer({
     });
   })();
 Polymer({
+      is: 'paper-icon-button',
+
+      hostAttributes: {
+        role: 'button',
+        tabindex: '0'
+      },
+
+      behaviors: [
+        Polymer.PaperInkyFocusBehavior
+      ],
+
+      properties: {
+        /**
+         * The URL of an image for the icon. If the src property is specified,
+         * the icon property should not be.
+         */
+        src: {
+          type: String
+        },
+
+        /**
+         * Specifies the icon name or index in the set of icons available in
+         * the icon's icon set. If the icon property is specified,
+         * the src property should not be.
+         */
+        icon: {
+          type: String
+        },
+
+        /**
+         * Specifies the alternate text for the button, for accessibility.
+         */
+        alt: {
+          type: String,
+          observer: "_altChanged"
+        }
+      },
+
+      _altChanged: function(newValue, oldValue) {
+        var label = this.getAttribute('aria-label');
+
+        // Don't stomp over a user-set aria-label.
+        if (!label || oldValue == label) {
+          this.setAttribute('aria-label', newValue);
+        }
+      }
+    });
+Polymer({
+      is: 'paper-item',
+
+      behaviors: [
+        Polymer.PaperItemBehavior
+      ]
+    });
+Polymer({
     is: 'paper-material',
 
     properties: {
@@ -13929,6 +14103,892 @@ Polymer({
       }
     }
   });
+(function() {
+      Polymer({
+        is: 'paper-menu',
+
+        behaviors: [
+          Polymer.IronMenuBehavior
+        ]
+      });
+    })();
+(function() {
+      'use strict';
+
+      var SHADOW_WHEN_SCROLLING = 1;
+      var SHADOW_ALWAYS = 2;
+      var MODE_CONFIGS = {
+        outerScroll: {
+          'scroll': true
+        },
+
+        shadowMode: {
+          'standard': SHADOW_ALWAYS,
+          'waterfall': SHADOW_WHEN_SCROLLING,
+          'waterfall-tall': SHADOW_WHEN_SCROLLING
+        },
+
+        tallMode: {
+          'waterfall-tall': true
+        }
+      };
+
+      Polymer({
+        is: 'paper-header-panel',
+
+        /**
+         * Fired when the content has been scrolled.  `event.detail.target` returns
+         * the scrollable element which you can use to access scroll info such as
+         * `scrollTop`.
+         *
+         *     <paper-header-panel on-content-scroll="scrollHandler">
+         *       ...
+         *     </paper-header-panel>
+         *
+         *
+         *     scrollHandler: function(event) {
+         *       var scroller = event.detail.target;
+         *       console.log(scroller.scrollTop);
+         *     }
+         *
+         * @event content-scroll
+         */
+
+        properties: {
+          /**
+           * Controls header and scrolling behavior. Options are
+           * `standard`, `seamed`, `waterfall`, `waterfall-tall`, `scroll` and
+           * `cover`. Default is `standard`.
+           *
+           * `standard`: The header is a step above the panel. The header will consume the
+           * panel at the point of entry, preventing it from passing through to the
+           * opposite side.
+           *
+           * `seamed`: The header is presented as seamed with the panel.
+           *
+           * `waterfall`: Similar to standard mode, but header is initially presented as
+           * seamed with panel, but then separates to form the step.
+           *
+           * `waterfall-tall`: The header is initially taller (`tall` class is added to
+           * the header).  As the user scrolls, the header separates (forming an edge)
+           * while condensing (`tall` class is removed from the header).
+           *
+           * `scroll`: The header keeps its seam with the panel, and is pushed off screen.
+           *
+           * `cover`: The panel covers the whole `paper-header-panel` including the
+           * header. This allows user to style the panel in such a way that the panel is
+           * partially covering the header.
+           *
+           *     <paper-header-panel mode="cover">
+           *       <paper-toolbar class="tall">
+           *         <paper-icon-button icon="menu"></paper-icon-button>
+           *       </paper-toolbar>
+           *       <div class="content"></div>
+           *     </paper-header-panel>
+           */
+          mode: {
+            type: String,
+            value: 'standard',
+            observer: '_modeChanged',
+            reflectToAttribute: true
+          },
+
+          /**
+           * If true, the drop-shadow is always shown no matter what mode is set to.
+           */
+          shadow: {
+            type: Boolean,
+            value: false
+          },
+
+          /**
+           * The class used in waterfall-tall mode.  Change this if the header
+           * accepts a different class for toggling height, e.g. "medium-tall"
+           */
+          tallClass: {
+            type: String,
+            value: 'tall'
+          },
+
+          /**
+           * If true, the scroller is at the top
+           */
+          atTop: {
+            type: Boolean,
+            value: true,
+            readOnly: true
+          }
+        },
+
+        observers: [
+          '_computeDropShadowHidden(atTop, mode, shadow)'
+        ],
+
+        ready: function() {
+          this.scrollHandler = this._scroll.bind(this);
+        },
+
+        attached: function() {
+          this._addListener();
+          // Run `scroll` logic once to initialize class names, etc.
+          this._keepScrollingState();
+        },
+
+        detached: function() {
+          this._removeListener();
+        },
+
+        /**
+         * Returns the header element
+         *
+         * @property header
+         * @type Object
+         */
+        get header() {
+          return Polymer.dom(this.$.headerContent).getDistributedNodes()[0];
+        },
+
+        /**
+         * Returns the scrollable element.
+         *
+         * @property scroller
+         * @type Object
+         */
+        get scroller() {
+          return this._getScrollerForMode(this.mode);
+        },
+
+        /**
+         * Returns true if the scroller has a visible shadow.
+         *
+         * @property visibleShadow
+         * @type Boolean
+         */
+        get visibleShadow() {
+          return this.$.dropShadow.classList.contains('has-shadow');
+        },
+
+        _computeDropShadowHidden: function(atTop, mode, shadow) {
+          var shadowMode = MODE_CONFIGS.shadowMode[mode];
+
+          if (this.shadow) {
+            this.toggleClass('has-shadow', true, this.$.dropShadow);
+          } else if (shadowMode === SHADOW_ALWAYS) {
+            this.toggleClass('has-shadow', true, this.$.dropShadow);
+          } else if (shadowMode === SHADOW_WHEN_SCROLLING && !atTop) {
+            this.toggleClass('has-shadow', true, this.$.dropShadow);
+          } else {
+            this.toggleClass('has-shadow', false, this.$.dropShadow);
+          }
+        },
+
+        _computeMainContainerClass: function(mode) {
+          // TODO:  It will be useful to have a utility for classes
+          // e.g. Polymer.Utils.classes({ foo: true });
+
+          var classes = {};
+
+          classes['flex'] = mode !== 'cover';
+
+          return Object.keys(classes).filter(
+            function(className) {
+              return classes[className];
+            }).join(' ');
+        },
+
+        _addListener: function() {
+          this.scroller.addEventListener('scroll', this.scrollHandler, false);
+        },
+
+        _removeListener: function() {
+          this.scroller.removeEventListener('scroll', this.scrollHandler);
+        },
+
+        _modeChanged: function(newMode, oldMode) {
+          var configs = MODE_CONFIGS;
+          var header = this.header;
+          var animateDuration = 200;
+
+          if (header) {
+            // in tallMode it may add tallClass to the header; so do the cleanup
+            // when mode is changed from tallMode to not tallMode
+            if (configs.tallMode[oldMode] && !configs.tallMode[newMode]) {
+              header.classList.remove(this.tallClass);
+              this.async(function() {
+                header.classList.remove('animate');
+              }, animateDuration);
+            } else {
+              header.classList.toggle('animate', configs.tallMode[newMode]);
+            }
+          }
+          this._keepScrollingState();
+        },
+
+        _keepScrollingState: function() {
+          var main = this.scroller;
+          var header = this.header;
+
+          this._setAtTop(main.scrollTop === 0);
+
+          if (header && this.tallClass && MODE_CONFIGS.tallMode[this.mode]) {
+            this.toggleClass(this.tallClass, this.atTop ||
+                header.classList.contains(this.tallClass) &&
+                main.scrollHeight < this.offsetHeight, header);
+          }
+        },
+
+        _scroll: function() {
+          this._keepScrollingState();
+          this.fire('content-scroll', {target: this.scroller}, {bubbles: false});
+        },
+
+        _getScrollerForMode: function(mode) {
+          return MODE_CONFIGS.outerScroll[mode] ?
+              this : this.$.mainContainer;
+        }
+      });
+    })();
+(function() {
+
+  'use strict';
+
+  Polymer.PaperScrollHeaderPanel = Polymer({
+
+    /**
+     * Fired when the content has been scrolled.
+     *
+     * @event content-scroll
+     */
+
+    /**
+     * Fired when the header is transformed.
+     *
+     * @event paper-header-transform
+     */
+
+    is: 'paper-scroll-header-panel',
+
+    behaviors: [
+      Polymer.IronResizableBehavior
+    ],
+
+    properties: {
+
+      /**
+       * If true, the header's height will condense to `condensedHeaderHeight`
+       * as the user scrolls down from the top of the content area.
+       */
+      condenses: {
+        type: Boolean,
+        value: false
+      },
+
+      /**
+       * If true, no cross-fade transition from one background to another.
+       */
+      noDissolve: {
+        type: Boolean,
+        value: false
+      },
+
+      /**
+       * If true, the header doesn't slide back in when scrolling back up.
+       */
+      noReveal: {
+        type: Boolean,
+        value: false
+      },
+
+      /**
+       * If true, the header is fixed to the top and never moves away.
+       */
+      fixed: {
+        type: Boolean,
+        value: false
+      },
+
+      /**
+       * If true, the condensed header is always shown and does not move away.
+       */
+      keepCondensedHeader: {
+        type: Boolean,
+        value: false
+      },
+
+      /**
+       * The height of the header when it is at its full size.
+       *
+       * By default, the height will be measured when it is ready.  If the height
+       * changes later the user needs to either set this value to reflect the
+       * new height or invoke `measureHeaderHeight()`.
+       */
+      headerHeight: {
+        type: Number,
+        value: 0
+      },
+
+      /**
+       * The height of the header when it is condensed.
+       *
+       * By default, `condensedHeaderHeight` is 1/3 of `headerHeight` unless
+       * this is specified.
+       */
+      condensedHeaderHeight: {
+        type: Number,
+        value: 0
+      },
+
+      /**
+       * By default, the top part of the header stays when the header is being
+       * condensed.  Set this to true if you want the top part of the header
+       * to be scrolled away.
+       */
+      scrollAwayTopbar: {
+        type: Boolean,
+        value: false
+      },
+
+      /**
+       * The state of the header. Depending on the configuration and the `scrollTop` value,
+       * the header state could change to
+       *      Polymer.PaperScrollHeaderPanel.HEADER_STATE_EXPANDED
+       *      Polymer.PaperScrollHeaderPanel.HEADER_STATE_HIDDEN
+       *      Polymer.PaperScrollHeaderPanel.HEADER_STATE_CONDENSED
+       *      Polymer.PaperScrollHeaderPanel.HEADER_STATE_INTERPOLATED
+       */
+      headerState: {
+        type: Number,
+        readOnly: true,
+        notify:true,
+        value: 0
+      },
+
+      _prevScrollTop: {
+        type: Number,
+        value: 0
+      },
+
+      _y: {
+        type: Number,
+        value: 0
+      },
+
+      /** @type {number|null} */
+      _defaultCondsensedHeaderHeight: {
+        type: Number,
+        value: 0
+      }
+    },
+
+    observers: [
+      '_setup(headerHeight, condensedHeaderHeight, fixed)',
+      '_condensedHeaderHeightChanged(condensedHeaderHeight)',
+      '_headerHeightChanged(headerHeight, condensedHeaderHeight)',
+      '_condensesChanged(condenses)',
+    ],
+
+    listeners: {
+      'iron-resize': 'measureHeaderHeight'
+    },
+
+    ready: function() {
+      this.async(this.measureHeaderHeight, 5);
+      this._scrollHandler = this._scroll.bind(this);
+      this.scroller.addEventListener('scroll', this._scrollHandler);
+    },
+
+    /**
+     * Returns the header element.
+     *
+     * @property header
+     * @type Object
+     */
+    get header() {
+      return Polymer.dom(this.$.headerContent).getDistributedNodes()[0];
+    },
+
+    /**
+     * Returns the content element.
+     *
+     * @property content
+     * @type Object
+     */
+    get content() {
+      return Polymer.dom(this.$.mainContent).getDistributedNodes()[0];
+    },
+
+    /**
+     * Returns the scrollable element.
+     *
+     * @property scroller
+     * @type Object
+     */
+    get scroller() {
+      return this.$.mainContainer;
+    },
+
+    get _headerMaxDelta() {
+      return this.keepCondensedHeader ? this._headerMargin : this.headerHeight;
+    },
+
+    get _headerMargin() {
+      return this.headerHeight - this.condensedHeaderHeight;
+    },
+
+    _y: 0,
+
+    _prevScrollTop: 0,
+
+    /**
+     * Invoke this to tell `paper-scroll-header-panel` to re-measure the header's
+     * height.
+     *
+     * @method measureHeaderHeight
+     */
+    measureHeaderHeight: function() {
+      var header = this.header;
+      if (header && header.offsetHeight) {
+        this.headerHeight = header.offsetHeight;
+      }
+    },
+
+    /**
+     * Scroll to a specific y coordinate.
+     *
+     * @method scroll
+     * @param {number} top The coordinate to scroll to, along the y-axis.
+     * @param {boolean} smooth true if the scroll position should be smoothly adjusted.
+     */
+    scroll: function(top, smooth) {
+      // the scroll event will trigger _updateScrollState directly,
+      // However, _updateScrollState relies on the previous `scrollTop` to update the states.
+      // Calling _updateScrollState will ensure that the states are synced correctly.
+
+      if (smooth) {
+        // TODO(blasten): use CSS scroll-behavior once it ships in Chrome.
+        var easingFn = function easeOutQuad(t, b, c, d) {
+          t /= d;
+          return -c * t*(t-2) + b;
+        };
+        var animationId = Math.random();
+        var duration = 200;
+        var startTime = Date.now();
+        var currentScrollTop = this.scroller.scrollTop;
+        var deltaScrollTop = top - currentScrollTop;
+
+        this._currentAnimationId = animationId;
+
+        (function updateFrame() {
+          var now = Date.now();
+          var elapsedTime = now - startTime;
+
+          if (elapsedTime > duration) {
+            this.scroller.scrollTop = top;
+            this._updateScrollState(top);
+
+          } else if (this._currentAnimationId === animationId) {
+            this.scroller.scrollTop = easingFn(elapsedTime, currentScrollTop, deltaScrollTop, duration);
+            requestAnimationFrame(updateFrame.bind(this));
+          }
+
+        }).call(this);
+
+      } else {
+        this.scroller.scrollTop = top;
+        this._updateScrollState(top);
+      }
+    },
+
+   /**
+     * Condense the header.
+     *
+     * @method condense
+     * @param {boolean} smooth true if the scroll position should be smoothly adjusted.
+     */
+    condense: function(smooth) {
+      var ctx = Polymer.PaperScrollHeaderPanel;
+      if (this.condenses && !this.fixed && !this.noReveal) {
+        switch (this.headerState) {
+          case ctx.HEADER_STATE_HIDDEN:
+            this.scroll(this.scroller.scrollTop - (this._headerMaxDelta - this._headerMargin), smooth);
+          break;
+          case ctx.HEADER_STATE_EXPANDED:
+          case ctx.HEADER_STATE_INTERPOLATED:
+            this.scroll(this._headerMargin, smooth);
+          break;
+        }
+      }
+    },
+
+    /**
+     * Scroll to the top of the content.
+     *
+     * @method scrollToTop
+     * @param {boolean} smooth true if the scroll position should be smoothly adjusted.
+     */
+    scrollToTop: function(smooth) {
+      this.scroll(0, smooth);
+    },
+
+    _headerHeightChanged: function(headerHeight) {
+      if (this._defaultCondsensedHeaderHeight !== null) {
+        this._defaultCondsensedHeaderHeight = Math.round(headerHeight * 1/3);
+        this.condensedHeaderHeight = this._defaultCondsensedHeaderHeight;
+      }
+    },
+
+    _condensedHeaderHeightChanged: function(condensedHeaderHeight) {
+      if (condensedHeaderHeight) {
+        // a user custom value
+        if (this._defaultCondsensedHeaderHeight != condensedHeaderHeight) {
+          // disable the default value
+          this._defaultCondsensedHeaderHeight = null;
+        }
+      }
+    },
+
+    _condensesChanged: function() {
+      this._updateScrollState(this.scroller.scrollTop);
+      this._condenseHeader(null);
+    },
+
+    _setup: function() {
+      var s = this.scroller.style;
+
+      s.paddingTop = this.fixed ? '' : this.headerHeight + 'px';
+      s.top = this.fixed ? this.headerHeight + 'px' : '';
+
+      if (this.fixed) {
+        this._setHeaderState(this.HEADER_STATE_EXPANDED);
+        this._transformHeader(null);
+      } else {
+        switch (this.headerState) {
+          case this.HEADER_STATE_HIDDEN:
+            this._transformHeader(this._headerMaxDelta);
+            break;
+          case this.HEADER_STATE_CONDENSED:
+            this._transformHeader(this._headerMargin);
+            break;
+        }
+      }
+    },
+
+    _transformHeader: function(y) {
+      this._translateY(this.$.headerContainer, -y);
+
+      if (this.condenses) {
+        this._condenseHeader(y);
+      }
+
+      this.fire('paper-header-transform',
+        { y: y,
+          height: this.headerHeight,
+          condensedHeight: this.condensedHeaderHeight
+        }
+      );
+    },
+
+    _condenseHeader: function(y) {
+      var reset = (y === null);
+
+      // adjust top bar in paper-header so the top bar stays at the top
+      if (!this.scrollAwayTopbar && this.header && this.header.$ && this.header.$.topBar) {
+        this._translateY(this.header.$.topBar,
+            reset ? null : Math.min(y, this._headerMargin));
+      }
+      // transition header bg
+      if (!this.noDissolve) {
+        this.$.headerBg.style.opacity = reset ? '' :
+            ( (this._headerMargin - y) / this._headerMargin);
+      }
+      // adjust header bg so it stays at the center
+      this._translateY(this.$.headerBg, reset ? null : y / 2);
+      // transition condensed header bg
+      if (!this.noDissolve) {
+        this.$.condensedHeaderBg.style.opacity = reset ? '' :
+            (y / this._headerMargin);
+
+        // adjust condensed header bg so it stays at the center
+        this._translateY(this.$.condensedHeaderBg, reset ? null : y / 2);
+      }
+    },
+
+    _translateY: function(node, y) {
+      this.transform((y === null) ? '' : 'translate3d(0, ' + y + 'px, 0)', node);
+    },
+
+    /** @param {Event=} event */
+    _scroll: function(event) {
+      if (this.header) {
+        this._updateScrollState(this.scroller.scrollTop);
+
+        this.fire('content-scroll', {
+          target: this.scroller
+        },
+        {
+          cancelable: false
+        });
+      }
+    },
+
+    _updateScrollState: function(scrollTop) {
+      var ctx = Polymer.PaperScrollHeaderPanel;
+      var deltaScrollTop = scrollTop - this._prevScrollTop;
+      var y = Math.max(0, (this.noReveal) ? scrollTop : this._y + deltaScrollTop);
+
+      if (y > this._headerMaxDelta) {
+        y = this._headerMaxDelta;
+        this._setHeaderState(ctx.HEADER_STATE_HIDDEN);
+
+      } else if (this.condenses && this._prevScrollTop >= scrollTop && scrollTop >= this._headerMargin) {
+        y = Math.max(y, this._headerMargin);
+        this._setHeaderState(ctx.HEADER_STATE_CONDENSED);
+
+      } else if (y === 0) {
+        this._setHeaderState(ctx.HEADER_STATE_EXPANDED);
+
+      } else {
+        this._setHeaderState(ctx.HEADER_STATE_INTERPOLATED);
+      }
+
+      if (!this.fixed && y !== this._y) {
+        this._transformHeader(y);
+      }
+
+      this._prevScrollTop = Math.max(scrollTop, 0);
+      this._y = y;
+    }
+  });
+
+  Polymer.PaperScrollHeaderPanel.HEADER_STATE_EXPANDED = 0;
+  Polymer.PaperScrollHeaderPanel.HEADER_STATE_HIDDEN = 1;
+  Polymer.PaperScrollHeaderPanel.HEADER_STATE_CONDENSED = 2;
+  Polymer.PaperScrollHeaderPanel.HEADER_STATE_INTERPOLATED = 3;
+
+})();
+(function() {
+      // Keeps track of the toast currently opened.
+      var currentToast = null;
+
+      Polymer({
+        is: 'paper-toast',
+
+        behaviors: [
+          Polymer.IronOverlayBehavior
+        ],
+
+        properties: {
+          /**
+           * The duration in milliseconds to show the toast.
+           * Set to `0`, a negative number, or `Infinity`, to disable the
+           * toast auto-closing.
+           */
+          duration: {
+            type: Number,
+            value: 3000
+          },
+
+          /**
+           * The text to display in the toast.
+           */
+          text: {
+            type: String,
+            value: ''
+          },
+
+          /**
+           * Overridden from `IronOverlayBehavior`.
+           * Set to false to enable closing of the toast by clicking outside it.
+           */
+          noCancelOnOutsideClick: {
+            type: Boolean,
+            value: true
+          },
+        },
+
+        /**
+         * Read-only. Deprecated. Use `opened` from `IronOverlayBehavior`.
+         * @property visible
+         * @deprecated
+         */
+        get visible() {
+          console.warn('`visible` is deprecated, use `opened` instead');
+          return this.opened;
+        },
+
+        /**
+         * Read-only. Can auto-close if duration is a positive finite number.
+         * @property _canAutoClose
+         */
+        get _canAutoClose() {
+          return this.duration > 0 && this.duration !== Infinity;
+        },
+
+        created: function() {
+          Polymer.IronA11yAnnouncer.requestAvailability();
+        },
+
+        /**
+         * Show the toast. Same as `open()` from `IronOverlayBehavior`.
+         */
+        show: function() {
+          this.open();
+        },
+
+        /**
+         * Hide the toast. Same as `close()` from `IronOverlayBehavior`.
+         */
+        hide: function() {
+          this.close();
+        },
+
+        /**
+         * Overridden from `IronOverlayBehavior`.
+         * Called when the value of `opened` changes.
+         */
+        _openedChanged: function() {
+          if (this.opened) {
+            if (currentToast && currentToast !== this) {
+              currentToast.close();
+            }
+            currentToast = this;
+            this.fire('iron-announce', {
+              text: this.text
+            });
+            if (this._canAutoClose) {
+              this.debounce('close', this.close, this.duration);
+            }
+          } else if (currentToast === this) {
+            currentToast = null;
+          }
+          Polymer.IronOverlayBehaviorImpl._openedChanged.apply(this, arguments);
+        },
+
+        /**
+         * Overridden from `IronOverlayBehavior`.
+         */
+        _renderOpened: function() {
+          this.classList.add('paper-toast-open');
+        },
+
+        /**
+         * Overridden from `IronOverlayBehavior`.
+         */
+        _renderClosed: function() {
+          this.classList.remove('paper-toast-open');
+        },
+
+        /**
+         * Overridden from `IronOverlayBehavior`.
+         * iron-fit-behavior will set the inline style position: static, which
+         * causes the toast to be rendered incorrectly when opened by default.
+         */
+        _onIronResize: function() {
+          Polymer.IronOverlayBehaviorImpl._onIronResize.apply(this, arguments);
+          if (this.opened) {
+            // Make sure there is no inline style for position.
+            this.style.position = '';
+          }
+        }
+
+        /**
+         * Fired when `paper-toast` is opened.
+         *
+         * @event 'iron-announce'
+         * @param {Object} detail
+         * @param {String} detail.text The text that will be announced.
+         */
+      });
+    })();
+Polymer({
+      is: 'paper-toolbar',
+
+      hostAttributes: {
+        'role': 'toolbar'
+      },
+
+      properties: {
+        /**
+         * Controls how the items are aligned horizontally when they are placed
+         * at the bottom.
+         * Options are `start`, `center`, `end`, `justified` and `around`.
+         */
+        bottomJustify: {
+          type: String,
+          value: ''
+        },
+
+        /**
+         * Controls how the items are aligned horizontally.
+         * Options are `start`, `center`, `end`, `justified` and `around`.
+         */
+        justify: {
+          type: String,
+          value: ''
+        },
+
+        /**
+         * Controls how the items are aligned horizontally when they are placed
+         * in the middle.
+         * Options are `start`, `center`, `end`, `justified` and `around`.
+         */
+        middleJustify: {
+          type: String,
+          value: ''
+        }
+
+      },
+
+      attached: function() {
+        this._observer = this._observe(this);
+        this._updateAriaLabelledBy();
+      },
+
+      detached: function() {
+        if (this._observer) {
+          this._observer.disconnect();
+        }
+      },
+
+      _observe: function(node) {
+        var observer = new MutationObserver(function() {
+          this._updateAriaLabelledBy();
+        }.bind(this));
+        observer.observe(node, {
+          childList: true,
+          subtree: true
+        });
+        return observer;
+      },
+
+      _updateAriaLabelledBy: function() {
+        var labelledBy = [];
+        var contents = Polymer.dom(this.root).querySelectorAll('content');
+        for (var content, index = 0; content = contents[index]; index++) {
+          var nodes = Polymer.dom(content).getDistributedNodes();
+          for (var node, jndex = 0; node = nodes[jndex]; jndex++) {
+            if (node.classList && node.classList.contains('title')) {
+              if (node.id) {
+                labelledBy.push(node.id);
+              } else {
+                var id = 'paper-toolbar-label-' + Math.floor(Math.random() * 10000);
+                node.id = id;
+                labelledBy.push(id);
+              }
+            }
+          }
+        }
+        if (labelledBy.length > 0) {
+          this.setAttribute('aria-labelledby', labelledBy.join(' '));
+        }
+      },
+
+      _computeBarExtraClasses: function(barJustify) {
+        if (!barJustify) return '';
+
+        return barJustify + (barJustify === 'justified' ? '' : '-justified');
+      }
+    });
 Polymer({
     is: 'paper-fab',
 
@@ -13979,11 +15039,367 @@ Polymer({
     }
   });
 Polymer({
-      is: 'paper-item',
+      is: 'paper-tab',
 
       behaviors: [
-        Polymer.PaperItemBehavior
-      ]
+        Polymer.IronControlState,
+        Polymer.IronButtonState,
+        Polymer.PaperRippleBehavior
+      ],
+
+      hostAttributes: {
+        role: 'tab'
+      },
+
+      listeners: {
+        down: '_updateNoink'
+      },
+
+      ready: function() {
+        var ripple = this.getRipple();
+        ripple.initialOpacity = 0.95;
+        ripple.opacityDecayVelocity = 0.98;
+      },
+
+      attached: function() {
+        this._updateNoink();
+      },
+
+      get _parentNoink () {
+        var parent = Polymer.dom(this).parentNode;
+        return !!parent && !!parent.noink;
+      },
+
+      _updateNoink: function() {
+        this.noink = !!this.noink || !!this._parentNoink;
+      }
+    });
+Polymer({
+      is: 'paper-tabs',
+
+      behaviors: [
+        Polymer.IronResizableBehavior,
+        Polymer.IronMenubarBehavior
+      ],
+
+      properties: {
+        /**
+         * If true, ink ripple effect is disabled. When this property is changed,
+         * all descendant `<paper-tab>` elements have their `noink` property
+         * changed to the new value as well.
+         */
+        noink: {
+          type: Boolean,
+          value: false,
+          observer: '_noinkChanged'
+        },
+
+        /**
+         * If true, the bottom bar to indicate the selected tab will not be shown.
+         */
+        noBar: {
+          type: Boolean,
+          value: false
+        },
+
+        /**
+         * If true, the slide effect for the bottom bar is disabled.
+         */
+        noSlide: {
+          type: Boolean,
+          value: false
+        },
+
+        /**
+         * If true, tabs are scrollable and the tab width is based on the label width.
+         */
+        scrollable: {
+          type: Boolean,
+          value: false
+        },
+
+        /**
+         * If true, dragging on the tabs to scroll is disabled.
+         */
+        disableDrag: {
+          type: Boolean,
+          value: false
+        },
+
+        /**
+         * If true, scroll buttons (left/right arrow) will be hidden for scrollable tabs.
+         */
+        hideScrollButtons: {
+          type: Boolean,
+          value: false
+        },
+
+        /**
+         * If true, the tabs are aligned to bottom (the selection bar appears at the top).
+         */
+        alignBottom: {
+          type: Boolean,
+          value: false
+        },
+
+        /**
+         * Gets or sets the selected element. The default is to use the index of the item.
+         */
+        selected: {
+          type: String,
+          notify: true
+        },
+
+        selectable: {
+          type: String,
+          value: 'paper-tab'
+        },
+
+        _step: {
+          type: Number,
+          value: 10
+        },
+
+        _holdDelay: {
+          type: Number,
+          value: 1
+        },
+
+        _leftHidden: {
+          type: Boolean,
+          value: false
+        },
+
+        _rightHidden: {
+          type: Boolean,
+          value: false
+        },
+
+        _previousTab: {
+          type: Object
+        }
+      },
+
+      hostAttributes: {
+        role: 'tablist'
+      },
+
+      listeners: {
+        'iron-resize': '_onResize',
+        'iron-select': '_onIronSelect',
+        'iron-deselect': '_onIronDeselect'
+      },
+
+      created: function() {
+        this._holdJob = null;
+      },
+
+      ready: function() {
+        this.setScrollDirection('y', this.$.tabsContainer);
+      },
+
+      _noinkChanged: function(noink) {
+        var childTabs = Polymer.dom(this).querySelectorAll('paper-tab');
+        childTabs.forEach(noink ? this._setNoinkAttribute : this._removeNoinkAttribute);
+      },
+
+      _setNoinkAttribute: function(element) {
+        element.setAttribute('noink', '');
+      },
+
+      _removeNoinkAttribute: function(element) {
+        element.removeAttribute('noink');
+      },
+
+      _computeScrollButtonClass: function(hideThisButton, scrollable, hideScrollButtons) {
+        if (!scrollable || hideScrollButtons) {
+          return 'hidden';
+        }
+
+        if (hideThisButton) {
+          return 'not-visible';
+        }
+
+        return '';
+      },
+
+      _computeTabsContentClass: function(scrollable) {
+        return scrollable ? 'scrollable' : 'horizontal';
+      },
+
+      _computeSelectionBarClass: function(noBar, alignBottom) {
+        if (noBar) {
+          return 'hidden';
+        } else if (alignBottom) {
+          return 'align-bottom';
+        }
+      },
+
+      // TODO(cdata): Add `track` response back in when gesture lands.
+
+      _onResize: function() {
+        this.debounce('_onResize', function() {
+          this._scroll();
+          this._tabChanged(this.selectedItem);
+        }, 10);
+      },
+
+      _onIronSelect: function(event) {
+        this._tabChanged(event.detail.item, this._previousTab);
+        this._previousTab = event.detail.item;
+        this.cancelDebouncer('tab-changed');
+      },
+
+      _onIronDeselect: function(event) {
+        this.debounce('tab-changed', function() {
+          this._tabChanged(null, this._previousTab);
+        // See polymer/polymer#1305
+        }, 1);
+      },
+
+      get _tabContainerScrollSize () {
+        return Math.max(
+          0,
+          this.$.tabsContainer.scrollWidth -
+            this.$.tabsContainer.offsetWidth
+        );
+      },
+
+
+      _scroll: function(e, detail) {
+        if (!this.scrollable) {
+          return;
+        }
+
+        var ddx = (detail && -detail.ddx) || 0;
+        this._affectScroll(ddx);
+      },
+
+      _down: function(e) {
+        // go one beat async to defeat IronMenuBehavior
+        // autorefocus-on-no-selection timeout
+        this.async(function() {
+          if (this._defaultFocusAsync) {
+            this.cancelAsync(this._defaultFocusAsync);
+            this._defaultFocusAsync = null;
+          }
+        }, 1);
+      },
+
+      _affectScroll: function(dx) {
+        this.$.tabsContainer.scrollLeft += dx;
+
+        var scrollLeft = this.$.tabsContainer.scrollLeft;
+
+        this._leftHidden = scrollLeft === 0;
+        this._rightHidden = scrollLeft === this._tabContainerScrollSize;
+      },
+
+      _onLeftScrollButtonDown: function() {
+        this._scrollToLeft();
+        this._holdJob = setInterval(this._scrollToLeft.bind(this), this._holdDelay);
+      },
+
+      _onRightScrollButtonDown: function() {
+        this._scrollToRight();
+        this._holdJob = setInterval(this._scrollToRight.bind(this), this._holdDelay);
+      },
+
+      _onScrollButtonUp: function() {
+        clearInterval(this._holdJob);
+        this._holdJob = null;
+      },
+
+      _scrollToLeft: function() {
+        this._affectScroll(-this._step);
+      },
+
+      _scrollToRight: function() {
+        this._affectScroll(this._step);
+      },
+
+      _tabChanged: function(tab, old) {
+        if (!tab) {
+          this._positionBar(0, 0);
+          return;
+        }
+
+        var r = this.$.tabsContent.getBoundingClientRect();
+        var w = r.width;
+        var tabRect = tab.getBoundingClientRect();
+        var tabOffsetLeft = tabRect.left - r.left;
+
+        this._pos = {
+          width: this._calcPercent(tabRect.width, w),
+          left: this._calcPercent(tabOffsetLeft, w)
+        };
+
+        if (this.noSlide || old == null) {
+          // position bar directly without animation
+          this._positionBar(this._pos.width, this._pos.left);
+          return;
+        }
+
+        var oldRect = old.getBoundingClientRect();
+        var oldIndex = this.items.indexOf(old);
+        var index = this.items.indexOf(tab);
+        var m = 5;
+
+        // bar animation: expand
+        this.$.selectionBar.classList.add('expand');
+
+        if (oldIndex < index) {
+          this._positionBar(this._calcPercent(tabRect.left + tabRect.width - oldRect.left, w) - m,
+              this._left);
+        } else {
+          this._positionBar(this._calcPercent(oldRect.left + oldRect.width - tabRect.left, w) - m,
+              this._calcPercent(tabOffsetLeft, w) + m);
+        }
+
+        if (this.scrollable) {
+          this._scrollToSelectedIfNeeded(tabRect.width, tabOffsetLeft);
+        }
+      },
+
+      _scrollToSelectedIfNeeded: function(tabWidth, tabOffsetLeft) {
+        var l = tabOffsetLeft - this.$.tabsContainer.scrollLeft;
+        if (l < 0) {
+          this.$.tabsContainer.scrollLeft += l;
+        } else {
+          l += (tabWidth - this.$.tabsContainer.offsetWidth);
+          if (l > 0) {
+            this.$.tabsContainer.scrollLeft += l;
+          }
+        }
+      },
+
+      _calcPercent: function(w, w0) {
+        return 100 * w / w0;
+      },
+
+      _positionBar: function(width, left) {
+        width = width || 0;
+        left = left || 0;
+
+        this._width = width;
+        this._left = left;
+        this.transform(
+            'translate3d(' + left + '%, 0, 0) scaleX(' + (width / 100) + ')',
+            this.$.selectionBar);
+      },
+
+      _onBarTransitionEnd: function(e) {
+        var cl = this.$.selectionBar.classList;
+        // bar animation: expand -> contract
+        if (cl.contains('expand')) {
+          cl.remove('expand');
+          cl.add('contract');
+          this._positionBar(this._pos.width, this._pos.left);
+        // bar animation done
+        } else if (cl.contains('contract')) {
+          cl.remove('contract');
+        }
+      }
     });
 Polymer({
       is: 'paper-icon-item',
@@ -13992,747 +15408,644 @@ Polymer({
         Polymer.PaperItemBehavior
       ]
     });
-Polymer({
-      is: 'paper-icon-button',
-
-      hostAttributes: {
-        role: 'button',
-        tabindex: '0'
-      },
-
-      behaviors: [
-        Polymer.PaperInkyFocusBehavior
-      ],
-
-      properties: {
-        /**
-         * The URL of an image for the icon. If the src property is specified,
-         * the icon property should not be.
-         */
-        src: {
-          type: String
-        },
-
-        /**
-         * Specifies the icon name or index in the set of icons available in
-         * the icon's icon set. If the icon property is specified,
-         * the src property should not be.
-         */
-        icon: {
-          type: String
-        },
-
-        /**
-         * Specifies the alternate text for the button, for accessibility.
-         */
-        alt: {
-          type: String,
-          observer: "_altChanged"
-        }
-      },
-
-      _altChanged: function(newValue, oldValue) {
-        var label = this.getAttribute('aria-label');
-
-        // Don't stomp over a user-set aria-label.
-        if (!label || oldValue == label) {
-          this.setAttribute('aria-label', newValue);
-        }
-      }
-    });
-Polymer({
-      is: 'paper-spinner',
-
-      listeners: {
-        'animationend': 'reset',
-        'webkitAnimationEnd': 'reset'
-      },
-
-      properties: {
-        /**
-         * Displays the spinner.
-         *
-         * @attribute active
-         * @type boolean
-         * @default false
-         */
-        active: {
-          type: Boolean,
-          value: false,
-          reflectToAttribute: true,
-          observer: '_activeChanged'
-        },
-
-        /**
-         * Alternative text content for accessibility support.
-         * If alt is present, it will add an aria-label whose content matches alt when active.
-         * If alt is not present, it will default to 'loading' as the alt value.
-         *
-         * @attribute alt
-         * @type string
-         * @default 'loading'
-         */
-        alt: {
-          type: String,
-          value: 'loading',
-          observer: '_altChanged'
-        },
-
-        /**
-         * True when the spinner is going from active to inactive. This is represented by a fade
-         * to 0% opacity to the user.
-         */
-        _coolingDown: {
-          type: Boolean,
-          value: false
-        },
-
-        _spinnerContainerClassName: {
-          type: String,
-          computed: '_computeSpinnerContainerClassName(active, _coolingDown)'
-        }
-      },
-
-      _computeSpinnerContainerClassName: function(active, coolingDown) {
-        return [
-          active || coolingDown ? 'active' : '',
-          coolingDown ? 'cooldown' : ''
-        ].join(' ');
-      },
-
-      _activeChanged: function(active, old) {
-        this._setAriaHidden(!active);
-        this._coolingDown = !active && old;
-      },
-
-      _altChanged: function(alt) {
-        // user-provided `aria-label` takes precedence over prototype default
-        if (alt === this.getPropertyInfo('alt').value) {
-          this.alt = this.getAttribute('aria-label') || alt;
-        } else {
-          this._setAriaHidden(alt==='');
-          this.setAttribute('aria-label', alt);
-        }
-      },
-
-      _setAriaHidden: function(hidden) {
-        var attr = 'aria-hidden';
-        if (hidden) {
-          this.setAttribute(attr, 'true');
-        } else {
-          this.removeAttribute(attr);
-        }
-      },
-
-      reset: function() {
-        this.active = false;
-        this._coolingDown = false;
-      }
-    });
 (function() {
       'use strict';
 
-      Polymer.IronA11yAnnouncer = Polymer({
-        is: 'iron-a11y-announcer',
-
-        properties: {
-
-          /**
-           * The value of mode is used to set the `aria-live` attribute
-           * for the element that will be announced. Valid values are: `off`,
-           * `polite` and `assertive`.
-           */
-          mode: {
-            type: String,
-            value: 'polite'
-          },
-
-          _text: {
-            type: String,
-            value: ''
-          }
-        },
-
-        created: function() {
-          if (!Polymer.IronA11yAnnouncer.instance) {
-            Polymer.IronA11yAnnouncer.instance = this;
-          }
-
-          document.body.addEventListener('iron-announce', this._onIronAnnounce.bind(this));
-        },
-
-        /**
-         * Cause a text string to be announced by screen readers.
-         *
-         * @param {string} text The text that should be announced.
-         */
-        announce: function(text) {
-          this._text = '';
-          this.async(function() {
-            this._text = text;
-          }, 100);
-        },
-
-        _onIronAnnounce: function(event) {
-          if (event.detail && event.detail.text) {
-            this.announce(event.detail.text);
-          }
-        }
-      });
-
-      Polymer.IronA11yAnnouncer.instance = null;
-
-      Polymer.IronA11yAnnouncer.requestAvailability = function() {
-        if (!Polymer.IronA11yAnnouncer.instance) {
-          Polymer.IronA11yAnnouncer.instance = document.createElement('iron-a11y-announcer');
-        }
-
-        document.body.appendChild(Polymer.IronA11yAnnouncer.instance);
-      };
-    })();
-(function() {
-
-  Polymer({
-
-    is: 'iron-overlay-backdrop',
-
-    properties: {
-
-      /**
-       * Returns true if the backdrop is opened.
-       */
-      opened: {
-        readOnly: true,
-        reflectToAttribute: true,
-        type: Boolean,
-        value: false
-      },
-
-      _manager: {
-        type: Object,
-        value: Polymer.IronOverlayManager
-      }
-
-    },
-
-    /**
-     * Appends the backdrop to document body and sets its `z-index` to be below the latest overlay.
-     */
-    prepare: function() {
-      if (!this.parentNode) {
-        Polymer.dom(document.body).appendChild(this);
-        this.style.zIndex = this._manager.currentOverlayZ() - 1;
-      }
-    },
-
-    /**
-     * Shows the backdrop if needed.
-     */
-    open: function() {
-      // only need to make the backdrop visible if this is called by the first overlay with a backdrop
-      if (this._manager.getBackdrops().length < 2) {
-        this._setOpened(true);
-      }
-    },
-
-    /**
-     * Hides the backdrop if needed.
-     */
-    close: function() {
-      // only need to make the backdrop invisible if this is called by the last overlay with a backdrop
-      if (this._manager.getBackdrops().length < 2) {
-        this._setOpened(false);
-      }
-    },
-
-    /**
-     * Removes the backdrop from document body if needed.
-     */
-    complete: function() {
-      // only remove the backdrop if there are no more overlays with backdrops
-      if (this._manager.getBackdrops().length === 0 && this.parentNode) {
-        Polymer.dom(this.parentNode).removeChild(this);
-      }
-    }
-
-  });
-
-})();
-(function() {
-      var PaperToast = Polymer({
-        is: 'paper-toast',
+      Polymer({
+        is: 'iron-dropdown',
 
         behaviors: [
-          Polymer.IronOverlayBehavior
+          Polymer.IronControlState,
+          Polymer.IronA11yKeysBehavior,
+          Polymer.IronOverlayBehavior,
+          Polymer.NeonAnimationRunnerBehavior
         ],
 
         properties: {
           /**
-           * The duration in milliseconds to show the toast.
+           * The orientation against which to align the dropdown content
+           * horizontally relative to the dropdown trigger.
            */
-          duration: {
-            type: Number,
-            value: 3000
-          },
-
-          /**
-           * The text to display in the toast.
-           */
-          text: {
+          horizontalAlign: {
             type: String,
-            value: ''
+            value: 'left',
+            reflectToAttribute: true
           },
 
           /**
-           * Set to false to enable closing of the toast by clicking outside it.
+           * The orientation against which to align the dropdown content
+           * vertically relative to the dropdown trigger.
            */
-          noCancelOnOutsideClick: {
-            type: Boolean,
-            value: true
+          verticalAlign: {
+            type: String,
+            value: 'top',
+            reflectToAttribute: true
           },
-        },
 
-        get visible() {
-          console.warn('`visible` is deprecated, use `opened` instead');
-          return this.opened;
-        },
+          /**
+           * A pixel value that will be added to the position calculated for the
+           * given `horizontalAlign`. Use a negative value to offset to the
+           * left, or a positive value to offset to the right.
+           */
+          horizontalOffset: {
+            type: Number,
+            value: 0,
+            notify: true
+          },
 
-        created: function() {
-          Polymer.IronA11yAnnouncer.requestAvailability();
-        },
+          /**
+           * A pixel value that will be added to the position calculated for the
+           * given `verticalAlign`. Use a negative value to offset towards the
+           * top, or a positive value to offset towards the bottom.
+           */
+          verticalOffset: {
+            type: Number,
+            value: 0,
+            notify: true
+          },
 
-        /**
-         * Show the toast.
-         * @method show
-         */
-        show: function() {
-          this.open();
-        },
+          /**
+           * The element that should be used to position the dropdown when
+           * it is opened.
+           */
+          positionTarget: {
+            type: Object,
+            observer: '_positionTargetChanged'
+          },
 
-        /**
-         * Hide the toast
-         */
-        hide: function() {
-          this.close();
-        },
+          /**
+           * An animation config. If provided, this will be used to animate the
+           * opening of the dropdown.
+           */
+          openAnimationConfig: {
+            type: Object
+          },
 
-        /**
-         * Overridden from `IronOverlayBehavior`.
-         * Called when the value of `opened` changes.
-         */
-        _openedChanged: function() {
-          if (this.opened) {
-            if (PaperToast.currentToast && PaperToast.currentToast !== this) {
-              PaperToast.currentToast.close();
-            }
-            PaperToast.currentToast = this;
-            this.fire('iron-announce', {
-              text: this.text
-            });
-            // auto-close if duration is a positive finite number
-            if (this.duration > 0 && this.duration !== Infinity) {
-              this.debounce('close', this.close, this.duration);
-            }
-          } else if (PaperToast.currentToast === this) {
-            PaperToast.currentToast = null;
+          /**
+           * An animation config. If provided, this will be used to animate the
+           * closing of the dropdown.
+           */
+          closeAnimationConfig: {
+            type: Object
+          },
+
+          /**
+           * If provided, this will be the element that will be focused when
+           * the dropdown opens.
+           */
+          focusTarget: {
+            type: Object
+          },
+
+          /**
+           * Set to true to disable animations when opening and closing the
+           * dropdown.
+           */
+          noAnimations: {
+            type: Boolean,
+            value: false
+          },
+
+          /**
+           * By default, the dropdown will constrain scrolling on the page
+           * to itself when opened.
+           * Set to true in order to prevent scroll from being constrained
+           * to the dropdown when it opens.
+           */
+          allowOutsideScroll: {
+            type: Boolean,
+            value: false
+          },
+
+          /**
+           * We memoize the positionTarget bounding rectangle so that we can
+           * limit the number of times it is queried per resize / relayout.
+           * @type {?Object}
+           */
+          _positionRectMemo: {
+            type: Object
           }
-          Polymer.IronOverlayBehaviorImpl._openedChanged.apply(this, arguments);
+        },
+
+        listeners: {
+          'neon-animation-finish': '_onNeonAnimationFinish'
+        },
+
+        observers: [
+          '_updateOverlayPosition(verticalAlign, horizontalAlign, verticalOffset, horizontalOffset)'
+        ],
+
+        attached: function() {
+          if (this.positionTarget === undefined) {
+            this.positionTarget = this._defaultPositionTarget;
+          }
+        },
+
+        /**
+         * The element that is contained by the dropdown, if any.
+         */
+        get containedElement() {
+          return Polymer.dom(this.$.content).getDistributedNodes()[0];
+        },
+
+        /**
+         * The element that should be focused when the dropdown opens.
+         */
+        get _focusTarget() {
+          return this.focusTarget || this.containedElement;
+        },
+
+        /**
+         * The element that should be used to position the dropdown when
+         * it opens, if no position target is configured.
+         */
+        get _defaultPositionTarget() {
+          var parent = Polymer.dom(this).parentNode;
+
+          if (parent.nodeType === Node.DOCUMENT_FRAGMENT_NODE) {
+            parent = parent.host;
+          }
+
+          return parent;
+        },
+
+        /**
+         * The bounding rect of the position target.
+         */
+        get _positionRect() {
+          if (!this._positionRectMemo && this.positionTarget) {
+            this._positionRectMemo = this.positionTarget.getBoundingClientRect();
+          }
+
+          return this._positionRectMemo;
+        },
+
+        /**
+         * The horizontal offset value used to position the dropdown.
+         */
+        get _horizontalAlignTargetValue() {
+          var target;
+
+          if (this.horizontalAlign === 'right') {
+            target = document.documentElement.clientWidth - this._positionRect.right;
+          } else {
+            target = this._positionRect.left;
+          }
+
+          target += this.horizontalOffset;
+
+          return Math.max(target, 0);
+        },
+
+        /**
+         * The vertical offset value used to position the dropdown.
+         */
+        get _verticalAlignTargetValue() {
+          var target;
+
+          if (this.verticalAlign === 'bottom') {
+            target = document.documentElement.clientHeight - this._positionRect.bottom;
+          } else {
+            target = this._positionRect.top;
+          }
+
+          target += this.verticalOffset;
+
+          return Math.max(target, 0);
+        },
+
+        /**
+         * Called when the value of `opened` changes.
+         *
+         * @param {boolean} opened True if the dropdown is opened.
+         */
+        _openedChanged: function(opened) {
+          if (opened && this.disabled) {
+            this.cancel();
+          } else {
+            this.cancelAnimation();
+            this._prepareDropdown();
+            Polymer.IronOverlayBehaviorImpl._openedChanged.apply(this, arguments);
+          }
+
+          if (this.opened) {
+            this._focusContent();
+          }
         },
 
         /**
          * Overridden from `IronOverlayBehavior`.
          */
         _renderOpened: function() {
-          this.classList.add('paper-toast-open');
+          if (!this.allowOutsideScroll) {
+            Polymer.IronDropdownScrollManager.pushScrollLock(this);
+          }
+
+          if (!this.noAnimations && this.animationConfig && this.animationConfig.open) {
+            this.$.contentWrapper.classList.add('animating');
+            this.playAnimation('open');
+          } else {
+            Polymer.IronOverlayBehaviorImpl._renderOpened.apply(this, arguments);
+          }
         },
+
         /**
          * Overridden from `IronOverlayBehavior`.
          */
         _renderClosed: function() {
-          this.classList.remove('paper-toast-open');
+          Polymer.IronDropdownScrollManager.removeScrollLock(this);
+          if (!this.noAnimations && this.animationConfig && this.animationConfig.close) {
+            this.$.contentWrapper.classList.add('animating');
+            this.playAnimation('close');
+          } else {
+            Polymer.IronOverlayBehaviorImpl._renderClosed.apply(this, arguments);
+          }
         },
 
         /**
-         * Overridden from `IronOverlayBehavior`.
-         * iron-fit-behavior will set the inline style position: static, which
-         * causes the toast to be rendered incorrectly when opened by default.
+         * Called when animation finishes on the dropdown (when opening or
+         * closing). Responsible for "completing" the process of opening or
+         * closing the dropdown by positioning it or setting its display to
+         * none.
          */
-        _onIronResize: function(){
-          Polymer.IronOverlayBehaviorImpl._onIronResize.apply(this, arguments);
+        _onNeonAnimationFinish: function() {
+          this.$.contentWrapper.classList.remove('animating');
           if (this.opened) {
-            // Make sure there is no inline style for position.
-            this.style.position = '';
+            Polymer.IronOverlayBehaviorImpl._renderOpened.apply(this);
+          } else {
+            Polymer.IronOverlayBehaviorImpl._renderClosed.apply(this);
           }
+        },
+
+        /**
+         * Called when an `iron-resize` event fires.
+         */
+        _onIronResize: function() {
+          var containedElement = this.containedElement;
+          var scrollTop;
+          var scrollLeft;
+
+          if (containedElement) {
+            scrollTop = containedElement.scrollTop;
+            scrollLeft = containedElement.scrollLeft;
+          }
+
+          if (this.opened) {
+            this._updateOverlayPosition();
+          }
+
+          Polymer.IronOverlayBehaviorImpl._onIronResize.apply(this, arguments);
+
+          if (containedElement) {
+            containedElement.scrollTop = scrollTop;
+            containedElement.scrollLeft = scrollLeft;
+          }
+        },
+
+        /**
+         * Called when the `positionTarget` property changes.
+         */
+        _positionTargetChanged: function() {
+          this._updateOverlayPosition();
+        },
+
+        /**
+         * Constructs the final animation config from different properties used
+         * to configure specific parts of the opening and closing animations.
+         */
+        _updateAnimationConfig: function() {
+          var animationConfig = {};
+          var animations = [];
+
+          if (this.openAnimationConfig) {
+            // NOTE(cdata): When making `display:none` elements visible in Safari,
+            // the element will paint once in a fully visible state, causing the
+            // dropdown to flash before it fades in. We prepend an
+            // `opaque-animation` to fix this problem:
+            animationConfig.open = [{
+              name: 'opaque-animation',
+            }].concat(this.openAnimationConfig);
+            animations = animations.concat(animationConfig.open);
+          }
+
+          if (this.closeAnimationConfig) {
+            animationConfig.close = this.closeAnimationConfig;
+            animations = animations.concat(animationConfig.close);
+          }
+
+          animations.forEach(function(animation) {
+            animation.node = this.containedElement;
+          }, this);
+
+          this.animationConfig = animationConfig;
+        },
+
+        /**
+         * Prepares the dropdown for opening by updating measured layout
+         * values.
+         */
+        _prepareDropdown: function() {
+          this.sizingTarget = this.containedElement || this.sizingTarget;
+          this._updateAnimationConfig();
+          this._updateOverlayPosition();
+        },
+
+        /**
+         * Updates the overlay position based on configured horizontal
+         * and vertical alignment, and re-memoizes these values for the sake
+         * of behavior in `IronFitBehavior`.
+         */
+        _updateOverlayPosition: function() {
+          this._positionRectMemo = null;
+
+          if (!this.positionTarget) {
+            return;
+          }
+
+          this.style[this.horizontalAlign] =
+            this._horizontalAlignTargetValue + 'px';
+
+          this.style[this.verticalAlign] =
+            this._verticalAlignTargetValue + 'px';
+
+          // NOTE(cdata): We re-memoize inline styles here, otherwise
+          // calling `refit` from `IronFitBehavior` will reset inline styles
+          // to whatever they were when the dropdown first opened.
+          if (this._fitInfo) {
+            this._fitInfo.inlineStyle[this.horizontalAlign] =
+              this.style[this.horizontalAlign];
+
+            this._fitInfo.inlineStyle[this.verticalAlign] =
+              this.style[this.verticalAlign];
+          }
+        },
+
+        /**
+         * Focuses the configured focus target.
+         */
+        _focusContent: function() {
+          // NOTE(cdata): This is async so that it can attempt the focus after
+          // `display: none` is removed from the element.
+          this.async(function() {
+            if (this._focusTarget) {
+              this._focusTarget.focus();
+            }
+          });
         }
       });
     })();
-Polymer({
+(function() {
+    'use strict';
 
-    is: 'paper-tab',
-
-    behaviors: [
-      Polymer.IronControlState,
-      Polymer.IronButtonState,
-      Polymer.PaperRippleBehavior
-    ],
-
-    hostAttributes: {
-      role: 'tab'
-    },
-
-    listeners: {
-      down: '_updateNoink'
-    },
-
-    ready: function() {
-      var ripple = this.getRipple();
-      ripple.initialOpacity = 0.95;
-      ripple.opacityDecayVelocity = 0.98;
-    },
-
-    attached: function() {
-      this._updateNoink();
-    },
-
-    get _parentNoink () {
-      var parent = Polymer.dom(this).parentNode;
-      return !!parent && !!parent.noink;
-    },
-
-    _updateNoink: function() {
-      this.noink = !!this.noink || !!this._parentNoink;
-    }
-  });
-Polymer({
-
-    is: 'paper-tabs',
-
-    behaviors: [
-      Polymer.IronResizableBehavior,
-      Polymer.IronMenubarBehavior
-    ],
-
-    properties: {
+    var PaperMenuButton = Polymer({
+      is: 'paper-menu-button',
 
       /**
-       * If true, ink ripple effect is disabled. When this property is changed,
-       * all descendant `<paper-tab>` elements have their `noink` property
-       * changed to the new value as well.
+       * Fired when the dropdown opens.
+       *
+       * @event paper-dropdown-open
        */
-      noink: {
-        type: Boolean,
-        value: false,
-        observer: '_noinkChanged'
-      },
 
       /**
-       * If true, the bottom bar to indicate the selected tab will not be shown.
+       * Fired when the dropdown closes.
+       *
+       * @event paper-dropdown-close
        */
-      noBar: {
-        type: Boolean,
-        value: false
-      },
 
-      /**
-       * If true, the slide effect for the bottom bar is disabled.
-       */
-      noSlide: {
-        type: Boolean,
-        value: false
-      },
+      behaviors: [
+        Polymer.IronA11yKeysBehavior,
+        Polymer.IronControlState
+      ],
 
-      /**
-       * If true, tabs are scrollable and the tab width is based on the label width.
-       */
-      scrollable: {
-        type: Boolean,
-        value: false
-      },
+      properties: {
 
-      /**
-       * If true, dragging on the tabs to scroll is disabled.
-       */
-      disableDrag: {
-        type: Boolean,
-        value: false
-      },
+        /**
+         * True if the content is currently displayed.
+         */
+        opened: {
+          type: Boolean,
+          value: false,
+          notify: true,
+          observer: '_openedChanged'
+        },
 
-      /**
-       * If true, scroll buttons (left/right arrow) will be hidden for scrollable tabs.
-       */
-      hideScrollButtons: {
-        type: Boolean,
-        value: false
-      },
+        /**
+         * The orientation against which to align the menu dropdown
+         * horizontally relative to the dropdown trigger.
+         */
+        horizontalAlign: {
+          type: String,
+          value: 'left',
+          reflectToAttribute: true
+        },
 
-      /**
-       * If true, the tabs are aligned to bottom (the selection bar appears at the top).
-       */
-      alignBottom: {
-        type: Boolean,
-        value: false
-      },
+        /**
+         * The orientation against which to align the menu dropdown
+         * vertically relative to the dropdown trigger.
+         */
+        verticalAlign: {
+          type: String,
+          value: 'top',
+          reflectToAttribute: true
+        },
 
-      /**
-       * Gets or sets the selected element. The default is to use the index of the item.
-       */
-      selected: {
-        type: String,
-        notify: true
-      },
+        /**
+         * A pixel value that will be added to the position calculated for the
+         * given `horizontalAlign`. Use a negative value to offset to the
+         * left, or a positive value to offset to the right.
+         */
+        horizontalOffset: {
+          type: Number,
+          value: 0,
+          notify: true
+        },
 
-      selectable: {
-        type: String,
-        value: 'paper-tab'
-      },
+        /**
+         * A pixel value that will be added to the position calculated for the
+         * given `verticalAlign`. Use a negative value to offset towards the
+         * top, or a positive value to offset towards the bottom.
+         */
+        verticalOffset: {
+          type: Number,
+          value: 0,
+          notify: true
+        },
 
-      _step: {
-        type: Number,
-        value: 10
-      },
+        /**
+         * Set to true to disable animations when opening and closing the
+         * dropdown.
+         */
+        noAnimations: {
+          type: Boolean,
+          value: false
+        },
 
-      _holdDelay: {
-        type: Number,
-        value: 1
-      },
+        /**
+         * Set to true to disable automatically closing the dropdown after
+         * a selection has been made.
+         */
+        ignoreSelect: {
+          type: Boolean,
+          value: false
+        },
 
-      _leftHidden: {
-        type: Boolean,
-        value: false
-      },
+        /**
+         * An animation config. If provided, this will be used to animate the
+         * opening of the dropdown.
+         */
+        openAnimationConfig: {
+          type: Object,
+          value: function() {
+            return [{
+              name: 'fade-in-animation',
+              timing: {
+                delay: 100,
+                duration: 200
+              }
+            }, {
+              name: 'paper-menu-grow-width-animation',
+              timing: {
+                delay: 100,
+                duration: 150,
+                easing: PaperMenuButton.ANIMATION_CUBIC_BEZIER
+              }
+            }, {
+              name: 'paper-menu-grow-height-animation',
+              timing: {
+                delay: 100,
+                duration: 275,
+                easing: PaperMenuButton.ANIMATION_CUBIC_BEZIER
+              }
+            }];
+          }
+        },
 
-      _rightHidden: {
-        type: Boolean,
-        value: false
-      },
+        /**
+         * An animation config. If provided, this will be used to animate the
+         * closing of the dropdown.
+         */
+        closeAnimationConfig: {
+          type: Object,
+          value: function() {
+            return [{
+              name: 'fade-out-animation',
+              timing: {
+                duration: 150
+              }
+            }, {
+              name: 'paper-menu-shrink-width-animation',
+              timing: {
+                delay: 100,
+                duration: 50,
+                easing: PaperMenuButton.ANIMATION_CUBIC_BEZIER
+              }
+            }, {
+              name: 'paper-menu-shrink-height-animation',
+              timing: {
+                duration: 200,
+                easing: 'ease-in'
+              }
+            }];
+          }
+        },
 
-      _previousTab: {
-        type: Object
-      }
-    },
-
-    hostAttributes: {
-      role: 'tablist'
-    },
-
-    listeners: {
-      'iron-resize': '_onResize',
-      'iron-select': '_onIronSelect',
-      'iron-deselect': '_onIronDeselect'
-    },
-
-    created: function() {
-      this._holdJob = null;
-    },
-
-    ready: function() {
-      this.setScrollDirection('y', this.$.tabsContainer);
-    },
-
-    _noinkChanged: function(noink) {
-      var childTabs = Polymer.dom(this).querySelectorAll('paper-tab');
-      childTabs.forEach(noink ? this._setNoinkAttribute : this._removeNoinkAttribute);
-    },
-
-    _setNoinkAttribute: function(element) {
-      element.setAttribute('noink', '');
-    },
-
-    _removeNoinkAttribute: function(element) {
-      element.removeAttribute('noink');
-    },
-
-    _computeScrollButtonClass: function(hideThisButton, scrollable, hideScrollButtons) {
-      if (!scrollable || hideScrollButtons) {
-        return 'hidden';
-      }
-
-      if (hideThisButton) {
-        return 'not-visible';
-      }
-
-      return '';
-    },
-
-    _computeTabsContentClass: function(scrollable) {
-      return scrollable ? 'scrollable' : 'horizontal';
-    },
-
-    _computeSelectionBarClass: function(noBar, alignBottom) {
-      if (noBar) {
-        return 'hidden';
-      } else if (alignBottom) {
-        return 'align-bottom';
-      }
-    },
-
-    // TODO(cdata): Add `track` response back in when gesture lands.
-
-    _onResize: function() {
-      this.debounce('_onResize', function() {
-        this._scroll();
-        this._tabChanged(this.selectedItem);
-      }, 10);
-    },
-
-    _onIronSelect: function(event) {
-      this._tabChanged(event.detail.item, this._previousTab);
-      this._previousTab = event.detail.item;
-      this.cancelDebouncer('tab-changed');
-    },
-
-    _onIronDeselect: function(event) {
-      this.debounce('tab-changed', function() {
-        this._tabChanged(null, this._previousTab);
-      // See polymer/polymer#1305
-      }, 1);
-    },
-
-    get _tabContainerScrollSize () {
-      return Math.max(
-        0,
-        this.$.tabsContainer.scrollWidth -
-          this.$.tabsContainer.offsetWidth
-      );
-    },
-
-
-    _scroll: function(e, detail) {
-      if (!this.scrollable) {
-        return;
-      }
-
-      var ddx = (detail && -detail.ddx) || 0;
-      this._affectScroll(ddx);
-    },
-
-    _down: function(e) {
-      // go one beat async to defeat IronMenuBehavior
-      // autorefocus-on-no-selection timeout
-      this.async(function() {
-        if (this._defaultFocusAsync) {
-          this.cancelAsync(this._defaultFocusAsync);
-          this._defaultFocusAsync = null;
+        /**
+         * This is the element intended to be bound as the focus target
+         * for the `iron-dropdown` contained by `paper-menu-button`.
+         */
+        _dropdownContent: {
+          type: Object
         }
-      }, 1);
-    },
+      },
 
-    _affectScroll: function(dx) {
-      this.$.tabsContainer.scrollLeft += dx;
+      hostAttributes: {
+        role: 'group',
+        'aria-haspopup': 'true'
+      },
 
-      var scrollLeft = this.$.tabsContainer.scrollLeft;
+      listeners: {
+        'iron-select': '_onIronSelect'
+      },
 
-      this._leftHidden = scrollLeft === 0;
-      this._rightHidden = scrollLeft === this._tabContainerScrollSize;
-    },
+      /**
+       * The content element that is contained by the menu button, if any.
+       */
+      get contentElement() {
+        return Polymer.dom(this.$.content).getDistributedNodes()[0];
+      },
 
-    _onLeftScrollButtonDown: function() {
-      this._scrollToLeft();
-      this._holdJob = setInterval(this._scrollToLeft.bind(this), this._holdDelay);
-    },
+      /**
+       * Make the dropdown content appear as an overlay positioned relative
+       * to the dropdown trigger.
+       */
+      open: function() {
+        if (this.disabled) {
+          return;
+        }
 
-    _onRightScrollButtonDown: function() {
-      this._scrollToRight();
-      this._holdJob = setInterval(this._scrollToRight.bind(this), this._holdDelay);
-    },
+        this.$.dropdown.open();
+      },
 
-    _onScrollButtonUp: function() {
-      clearInterval(this._holdJob);
-      this._holdJob = null;
-    },
+      /**
+       * Hide the dropdown content.
+       */
+      close: function() {
+        this.$.dropdown.close();
+      },
 
-    _scrollToLeft: function() {
-      this._affectScroll(-this._step);
-    },
+      /**
+       * When an `iron-select` event is received, the dropdown should
+       * automatically close on the assumption that a value has been chosen.
+       *
+       * @param {CustomEvent} event A CustomEvent instance with type
+       * set to `"iron-select"`.
+       */
+      _onIronSelect: function(event) {
+        if (!this.ignoreSelect) {
+          this.close();
+        }
+      },
 
-    _scrollToRight: function() {
-      this._affectScroll(this._step);
-    },
+      /**
+       * When the dropdown opens, the `paper-menu-button` fires `paper-open`.
+       * When the dropdown closes, the `paper-menu-button` fires `paper-close`.
+       *
+       * @param {boolean} opened True if the dropdown is opened, otherwise false.
+       * @param {boolean} oldOpened The previous value of `opened`.
+       */
+      _openedChanged: function(opened, oldOpened) {
+        if (opened) {
+          // TODO(cdata): Update this when we can measure changes in distributed
+          // children in an idiomatic way.
+          // We poke this property in case the element has changed. This will
+          // cause the focus target for the `iron-dropdown` to be updated as
+          // necessary:
+          this._dropdownContent = this.contentElement;
+          this.fire('paper-dropdown-open');
+        } else if (oldOpened != null) {
+          this.fire('paper-dropdown-close');
+        }
+      },
 
-    _tabChanged: function(tab, old) {
-      if (!tab) {
-        this._positionBar(0, 0);
-        return;
-      }
-
-      var r = this.$.tabsContent.getBoundingClientRect();
-      var w = r.width;
-      var tabRect = tab.getBoundingClientRect();
-      var tabOffsetLeft = tabRect.left - r.left;
-
-      this._pos = {
-        width: this._calcPercent(tabRect.width, w),
-        left: this._calcPercent(tabOffsetLeft, w)
-      };
-
-      if (this.noSlide || old == null) {
-        // position bar directly without animation
-        this._positionBar(this._pos.width, this._pos.left);
-        return;
-      }
-
-      var oldRect = old.getBoundingClientRect();
-      var oldIndex = this.items.indexOf(old);
-      var index = this.items.indexOf(tab);
-      var m = 5;
-
-      // bar animation: expand
-      this.$.selectionBar.classList.add('expand');
-
-      if (oldIndex < index) {
-        this._positionBar(this._calcPercent(tabRect.left + tabRect.width - oldRect.left, w) - m,
-            this._left);
-      } else {
-        this._positionBar(this._calcPercent(oldRect.left + oldRect.width - tabRect.left, w) - m,
-            this._calcPercent(tabOffsetLeft, w) + m);
-      }
-
-      if (this.scrollable) {
-        this._scrollToSelectedIfNeeded(tabRect.width, tabOffsetLeft);
-      }
-    },
-
-    _scrollToSelectedIfNeeded: function(tabWidth, tabOffsetLeft) {
-      var l = tabOffsetLeft - this.$.tabsContainer.scrollLeft;
-      if (l < 0) {
-        this.$.tabsContainer.scrollLeft += l;
-      } else {
-        l += (tabWidth - this.$.tabsContainer.offsetWidth);
-        if (l > 0) {
-          this.$.tabsContainer.scrollLeft += l;
+      /**
+       * If the dropdown is open when disabled becomes true, close the
+       * dropdown.
+       *
+       * @param {boolean} disabled True if disabled, otherwise false.
+       */
+      _disabledChanged: function(disabled) {
+        Polymer.IronControlState._disabledChanged.apply(this, arguments);
+        if (disabled && this.opened) {
+          this.close();
         }
       }
-    },
+    });
 
-    _calcPercent: function(w, w0) {
-      return 100 * w / w0;
-    },
+    PaperMenuButton.ANIMATION_CUBIC_BEZIER = 'cubic-bezier(.3,.95,.5,1)';
+    PaperMenuButton.MAX_ANIMATION_TIME_MS = 400;
 
-    _positionBar: function(width, left) {
-      width = width || 0;
-      left = left || 0;
-
-      this._width = width;
-      this._left = left;
-      this.transform(
-          'translate3d(' + left + '%, 0, 0) scaleX(' + (width / 100) + ')',
-          this.$.selectionBar);
-    },
-
-    _onBarTransitionEnd: function(e) {
-      var cl = this.$.selectionBar.classList;
-      // bar animation: expand -> contract
-      if (cl.contains('expand')) {
-        cl.remove('expand');
-        cl.add('contract');
-        this._positionBar(this._pos.width, this._pos.left);
-      // bar animation done
-      } else if (cl.contains('contract')) {
-        cl.remove('contract');
-      }
-    }
-
-  });
+    Polymer.PaperMenuButton = PaperMenuButton;
+  })();
 Polymer({
     is: 'profile-img',
 
@@ -14756,11 +16069,55 @@ Polymer({
 
   });
 Polymer({
+    is: 'mail-folder',
+
+    properties: {
+
+      folderName: {
+        type: String,
+        value: '',
+        reflectToAttribute: true,
+      },
+
+      folderId: {
+        type: String,
+        value: '',
+        reflectToAttribute: true,
+      },
+
+      route: { 
+        type: String,
+        value: '',
+        reflectToAttribute: true,
+      }
+
+    },
+
+    created: function() {
+
+    },
+
+    ready: function() {
+      this.target = this.$.thread;
+    },
+
+    _decodeHTMLEntities: function(val) {
+      var t = document.createElement('textarea');
+      t.innerHTML = val;
+      return t.textContent;
+    },
+
+    _onOpenFolder: function(e) {
+      this.fire('open-folder', {folder: this});
+    },
+    
+  });
+Polymer({
     is: 'mail-thread',
 
     behaviors: [
       SwipeableBehavior
-      // Polymer.IronMenuBehavior
+      //Polymer.IronMenuBehavior
     ],
 
     _HOLD_DELAY: 400, // wait delay (ms) to fire hold event.
@@ -14804,7 +16161,8 @@ Polymer({
 
       unread: {
         type: Boolean,
-        value: true
+        value: true,
+        reflectToAttribute: true
       },
 
       /**
@@ -14845,6 +16203,12 @@ Polymer({
         type: String,
         value: '',
         computed: '_computeStarredIcon(starred)'
+      },
+
+      headerClasses: {
+        type: String,
+        value: '',
+        computed: '_computeHeaderClasses(unread)'
       },
 
       from: {
@@ -14896,7 +16260,8 @@ Polymer({
 
       starred: {
         type: Boolean,
-        value: false
+        value: false,
+        reflectToAttribute: true
       },
 
     },
@@ -14957,6 +16322,10 @@ Polymer({
       return 'icons:star' + (starred ? '' : '-border');
     },
 
+    _computeHeaderClasses: function(unread) {
+      return 'layout vertical flex ' + (unread ? 'unread' : '');
+    },
+
     _onHighlightStar: function(e) {
       e.stopPropagation();
       this.thread.starred = !this.thread.starred;
@@ -15002,7 +16371,9 @@ Polymer({
       if (Polymer.dom(e).localTarget === this.$.profileimage) {
         e.stopPropagation();
         this.selected = !this.selected;
-        this.fire('thread-select', {thread: this});
+
+        var message = { msgid: this.get('msgid'), folderid: this.get('folderid'), selected: this.selected };
+        this.fire('thread-select', {thread: message});
       }
     },
 
@@ -15047,220 +16418,50 @@ Polymer({
     }
   });
 Polymer({
-
-    is: "iron-scroll-threshold",
-
-    properties: {
-
-      /**
-       * When set, the given element is observed for scroll position.  When undefined,
-       * children can be placed inside and element itself can be used as the scrollable
-       * element.
-       */
-      scrollTarget: {
-        type: Object,
-        value: null
-      },
-
-      /**
-       * Orientation of the scroller to be observed (`v` for vertical, `h` for horizontal)
-       */
-      orient: {
-        type: String,
-        value: 'v'
-      },
-
-      /**
-       * Distance from the top (or left, for horizontal) bound of the scroller
-       * where the "upper trigger" will fire.
-       */
-      upperThreshold: {
-        type: Number,
-        value: null
-      },
-
-      /**
-       * Distance from the bottom (or right, for horizontal) bound of the scroller
-       * where the "lower trigger" will fire.
-       */
-      lowerThreshold: {
-        type: Number,
-        value: null
-      },
-
-      /**
-       * Read-only value that tracks the triggered state of the upper threshold
-       */
-      upperTriggered: {
-        type: Boolean,
-        value: false,
-        readOnly: true,
-        notify: true
-      },
-
-      /**
-       * Read-only value that tracks the triggered state of the lower threshold
-       */
-      lowerTriggered: {
-        type: Boolean,
-        value: false,
-        readOnly: true,
-        notify: true
-      },
-    },
-
-    observers: [
-      'setup(upperThreshold, lowerThreshold, scrollTarget, orient)'
-    ],
-
-    ready: function() {
-      this._boundScrollHandler = this.checkThreshold.bind(this);
-    },
-
-    detached: function() {
-      // Remove listener for any previous scroll target
-      if (this._scrollTarget) {
-        this._scrollTarget.removeEventListener('scroll', this._boundScrollHandler);
-      }
-    },
-
-    setup: function() {
-      var target = this.scrollTarget || this;
-
-      // Remove listener for any previous scroll target
-      if (this._scrollTarget && (this._scrollTarget != target)) {
-        this._scrollTarget.removeEventListener('scroll', this._boundScrollHandler);
-      }
-
-      // Add listener for new scroll target
-      if (target && this._boundScrollHandler) {
-        this._scrollTarget = target;
-        this._scrollTarget.addEventListener('scroll', this._boundScrollHandler);
-      }
-
-      // If we're listening on ourself, make us auto in case someone put
-      // content inside
-      this.style.overflow = (target == this) ? 'auto' : null;
-
-      // Setup extents based on orientation
-      this.scrollPosition = (this.orient == 'v') ? 'scrollTop' : 'scrollLeft';
-      this.sizeExtent = (this.orient == 'v') ? 'offsetHeight' : 'offsetWidth';
-      this.scrollExtent = (this.orient == 'v') ? 'scrollHeight' : 'scrollWidth';
-
-      // Clear trigger state if user has cleared the threshold
-      if (!this.upperThreshold) {
-        this._setUpperTriggered(false);
-      }
-      if (!this.lowerThreshold) {
-        this._setLowerTriggered(false);
-      }
-    },
-
-    checkThreshold: function(e) {
-      var top = this._scrollTarget[this.scrollPosition];
-      if (!this.upperTriggered && this.upperThreshold !== null) {
-        if (top < this.upperThreshold) {
-
-          // No longer fire scroll events if there's no lower threshold or it
-          // has been triggered.
-          if (this.lowerThreshold === null || this.lowerTriggered) {
-            this._scrollTarget.removeEventListener('scroll', this._boundScrollHandler);
-          }
-
-          this._setUpperTriggered(true);
-          this.fire('upper-trigger');
-        }
-      }
-      if (!this.lowerTriggered && this.lowerThreshold !== null) {
-        var bottom = top + this._scrollTarget[this.sizeExtent];
-        var size = this._scrollTarget[this.scrollExtent];
-        if ((size - bottom) < this.lowerThreshold) {
-
-          // No longer fire scroll events if there's no upper threshold or it
-          // has been triggered.
-          if (this.upperThreshold === null || this.upperTriggered) {
-            this._scrollTarget.removeEventListener('scroll', this._boundScrollHandler);
-          }
-
-          this._setLowerTriggered(true);
-          this.fire('lower-trigger');
-        }
-      }
-    },
-
-    /**
-     * Clear the upper threshold, following an `upper-trigger` event.
-     *
-     * @method clearUpper
-     */
-    clearUpper: function(waitForMutation) {
-      if (waitForMutation) {
-        this._waitForMutation(function() {
-          this.clearUpper();
-        }.bind(this));
-      } else {
-        this.async(function() {
-          this._setUpperTriggered(false);
-          this._scrollTarget.addEventListener('scroll', this._boundScrollHandler);
-        });
-      }
-    },
-
-    /**
-     * Clear the lower threshold, following a `lower-trigger` event.
-     *
-     * @method clearLower
-     */
-    clearLower: function(waitForMutation) {
-      if (waitForMutation) {
-        this._waitForMutation(function() {
-          this.clearLower();
-        }.bind(this));
-      } else {
-        this.async(function() {
-          this._setLowerTriggered(false);
-          this._scrollTarget.addEventListener('scroll', this._boundScrollHandler);
-        });
-      }
-    },
-
-    _waitForMutation: function(listener) {
-      var observer = new MutationObserver(function(mutations) {
-        listener.call(this, observer, mutations);
-        observer.disconnect();
-      }.bind(this));
-      observer.observe(this._scrollTarget, {attributes: true, childList: true, subtree: true});
-    }
-
-  });
-Polymer({
     is: 'mail-messages',
 
     onScroll: function(e) {
 
-        Polymer.dom(this.$.loadingArea).setAttribute('style', 'display: inline;');
+      if ((this.hasMoreMessages) && (!this.isLoadingNextPage)) {
+
         if (e.target.scrollTop + e.target.offsetHeight >= e.target.scrollHeight - 500) {
+
+          Polymer.dom(this.$.loadingArea).classList.remove('hidden');
+          this.isLoadingNextPage = true;
           this.fire('lower-trigger');
-          
 
         }
+      }
+
+    },
+
+    addItems: function(nextPageItems) {
+
+      //HAS FINISHED LOADING PAGES
+      this.isLoadingNextPage = false;
+
+      if (nextPageItems.length == 0) {
+      
+        this.hasMoreMessages = false;
+
+      } else {
+
+        var that = this;
+
+        _.each(nextPageItems, function(message){ 
+          that.push('items',message);
+        });
+
+      }
+
     },
 
     ready: function() {
-      // this.$.threshold.scrollTarget = this.$.scrollList._scroller;
 
-      Polymer.dom(this.$.scrollList).setAttribute('style', 'height: ' + (document.body.clientHeight - 40) + 'px;');
-
+      Polymer.dom(this.$.scrollList).setAttribute('style', 'height: ' + (document.body.clientHeight - 50) + 'px;');
 
     },
-    loadMore: function() {
 
-      var scope = this;
-      this.fire('load-next-page');
-      scope.$.threshold.clearLower();
-      //this.isLowerTriggered = false;
-
-    },
 
     starredMessage: function(event) {
       var messageView = event.currentTarget;
@@ -15287,36 +16488,108 @@ Polymer({
 
     },
 
-    _onThreadSelectChange: function(event) {
-      console.log("_onThreadSelectChange");
-      console.log(this.selectedMessages);
+    _openFolder: function(event) {
 
-      console.log(event);
+      var folderView = event.currentTarget;
+
+      var folderId = folderView.get("folderId");
+
+      this.currentFolder = {"folderId": folderId};
+
+      this.fire('evt-open-folder', {folder: this});
+
+    },
+
+    _onThreadSelectorChange: function(event) {
+      console.log("_onThreadSelectorChange");
+      //console.log(event);
       // console.log(event.detail.get('items'));
 
       for (var thread in this.selectedMessages) {
-        console.log(this.selectedMessages[thread].get('msgid'));
+        //console.log(this.selectedMessages[thread].get('msgid'));
         // console.log("obj." + thread.get('msgid') + " = " + thread.get('folderid'));
       }
 
       this.fire('evt-select-messages', {thread: this});
     },
 
-    getSelectedMessages: function() {
-      var arrMessages = [];
-       for (var thread in this.selectedMessages) {
-        arrMessages.push({msgid: this.selectedMessages[thread].get('msgid'), folderid: this.selectedMessages[thread].get('folderid')});
+    _onThreadSelectChange: function(event) {
+
+      var message = {};
+
+      for (var thread in this.tempMessages) {
+
+        msgID = this.tempMessages[thread].get('msgid');
+        folderID = this.tempMessages[thread].get('folderid');
+        message = { msgid: msgID, folderid: folderID, selected: true };
       }
-      return arrMessages;
+
+      var found = false;
+      var newArr = [];
+      for (var thread in this.selectedMessages) {
+        if (thread.msgid == message.msgid) {
+          found = true;
+        } else {
+          newArr.push(thread);
+        }
+      }
+
+      if (!found) {
+        this.selectedMessages.push(message);
+      } else {
+        this.selectedMessages = newArr;
+      }
+
+      console.log(this.selectedMessages);
+
+      // this.fire('evt-select-messages', {thread: this});
+
+      this.fire('evt-selector-messages', {thread: message});
+    },
+
+    getSelectedMessages: function() {
+
+      return this.selectedMessages;
+      // var arrMessages = [];
+      //  for (var thread in this.selectedMessages) {
+      //   arrMessages.push({msgid: this.selectedMessages[thread].get('msgid'), folderid: this.selectedMessages[thread].get('folderid')});
+      // }
+      // return arrMessages;
+    },
+
+    _computeShowMoreMessagesStyle: function(hasMoreMessages) {
+      if (!hasMoreMessages) {
+        return '';
+      } else {
+        return 'display: none;';
+      }
+      
+    },
+
+    _computeShowLoadingNextPageStyle: function(isLoadingNextPage) {
+      if (isLoadingNextPage) {
+        return '';
+      } else {
+        return 'display: none;';
+      }
+      
     },
 
     resize: function() {
-      Polymer.dom(this.$.scrollList).setAttribute('style', 'height: ' + (document.body.clientHeight - 40) + 'px;');
+      // Polymer.dom(this.$.scrollList).setAttribute('style', 'height: ' + (document.body.clientHeight - 50) + 'px;');
     },
 
     properties: {
       items: {
         type: Array, 
+        value: [],
+        reflectAttribute: true
+      },
+
+
+      tempMessages: {
+        type: Array, 
+        reflectAttribute: true,
         value: []
       },
       selectedMessages: {
@@ -15328,9 +16601,19 @@ Polymer({
         type: Array,
         value: []
       },
-      isLowerTriggered: {
-        type: Boolean,
+      currentFolder: {
+        type: Array,
+        value: []
+      },
+      hasMoreMessages: {
+        type: Number,
         value: true,
+        reflectAttribute: true,
+      },
+      isLoadingNextPage: {
+        type: Number,
+        value: false,
+        reflectAttribute: true,
       }
     }
 
@@ -15445,6 +16728,22 @@ Polymer({
       return narrow ? 'core-narrow' : '';
     }
   });
+Polymer({
+      is: 'menu-tabs',
+      properties: {
+        selected: {
+          type: Number,
+          value: 0
+        }
+      }
+    });
+Polymer({
+      is: 'paper-spinner',
+
+      behaviors: [
+        Polymer.PaperSpinnerBehavior
+      ]
+    });
 var lastTouchY=0,
       touchmoveDisable=function(e){
         var o=e.touches[0].clientY,
@@ -15649,6 +16948,193 @@ var lastTouchY=0,
       }
     });
   })();
+Polymer({
+
+    is: "iron-scroll-threshold",
+
+    properties: {
+
+      /**
+       * When set, the given element is observed for scroll position.  When undefined,
+       * children can be placed inside and element itself can be used as the scrollable
+       * element.
+       */
+      scrollTarget: {
+        type: Object,
+        value: null
+      },
+
+      /**
+       * Orientation of the scroller to be observed (`v` for vertical, `h` for horizontal)
+       */
+      orient: {
+        type: String,
+        value: 'v'
+      },
+
+      /**
+       * Distance from the top (or left, for horizontal) bound of the scroller
+       * where the "upper trigger" will fire.
+       */
+      upperThreshold: {
+        type: Number,
+        value: null
+      },
+
+      /**
+       * Distance from the bottom (or right, for horizontal) bound of the scroller
+       * where the "lower trigger" will fire.
+       */
+      lowerThreshold: {
+        type: Number,
+        value: null
+      },
+
+      /**
+       * Read-only value that tracks the triggered state of the upper threshold
+       */
+      upperTriggered: {
+        type: Boolean,
+        value: false,
+        readOnly: true,
+        notify: true
+      },
+
+      /**
+       * Read-only value that tracks the triggered state of the lower threshold
+       */
+      lowerTriggered: {
+        type: Boolean,
+        value: false,
+        readOnly: true,
+        notify: true
+      },
+    },
+
+    observers: [
+      'setup(upperThreshold, lowerThreshold, scrollTarget, orient)'
+    ],
+
+    ready: function() {
+      this._boundScrollHandler = this.checkThreshold.bind(this);
+    },
+
+    detached: function() {
+      // Remove listener for any previous scroll target
+      if (this._scrollTarget) {
+        this._scrollTarget.removeEventListener('scroll', this._boundScrollHandler);
+      }
+    },
+
+    setup: function() {
+      var target = this.scrollTarget || this;
+
+      // Remove listener for any previous scroll target
+      if (this._scrollTarget && (this._scrollTarget != target)) {
+        this._scrollTarget.removeEventListener('scroll', this._boundScrollHandler);
+      }
+
+      // Add listener for new scroll target
+      if (target && this._boundScrollHandler) {
+        this._scrollTarget = target;
+        this._scrollTarget.addEventListener('scroll', this._boundScrollHandler);
+      }
+
+      // If we're listening on ourself, make us auto in case someone put
+      // content inside
+      this.style.overflow = (target == this) ? 'auto' : null;
+
+      // Setup extents based on orientation
+      this.scrollPosition = (this.orient == 'v') ? 'scrollTop' : 'scrollLeft';
+      this.sizeExtent = (this.orient == 'v') ? 'offsetHeight' : 'offsetWidth';
+      this.scrollExtent = (this.orient == 'v') ? 'scrollHeight' : 'scrollWidth';
+
+      // Clear trigger state if user has cleared the threshold
+      if (!this.upperThreshold) {
+        this._setUpperTriggered(false);
+      }
+      if (!this.lowerThreshold) {
+        this._setLowerTriggered(false);
+      }
+    },
+
+    checkThreshold: function(e) {
+      var top = this._scrollTarget[this.scrollPosition];
+      if (!this.upperTriggered && this.upperThreshold !== null) {
+        if (top < this.upperThreshold) {
+
+          // No longer fire scroll events if there's no lower threshold or it
+          // has been triggered.
+          if (this.lowerThreshold === null || this.lowerTriggered) {
+            this._scrollTarget.removeEventListener('scroll', this._boundScrollHandler);
+          }
+
+          this._setUpperTriggered(true);
+          this.fire('upper-trigger');
+        }
+      }
+      if (!this.lowerTriggered && this.lowerThreshold !== null) {
+        var bottom = top + this._scrollTarget[this.sizeExtent];
+        var size = this._scrollTarget[this.scrollExtent];
+        if ((size - bottom) < this.lowerThreshold) {
+
+          // No longer fire scroll events if there's no upper threshold or it
+          // has been triggered.
+          if (this.upperThreshold === null || this.upperTriggered) {
+            this._scrollTarget.removeEventListener('scroll', this._boundScrollHandler);
+          }
+
+          this._setLowerTriggered(true);
+          this.fire('lower-trigger');
+        }
+      }
+    },
+
+    /**
+     * Clear the upper threshold, following an `upper-trigger` event.
+     *
+     * @method clearUpper
+     */
+    clearUpper: function(waitForMutation) {
+      if (waitForMutation) {
+        this._waitForMutation(function() {
+          this.clearUpper();
+        }.bind(this));
+      } else {
+        this.async(function() {
+          this._setUpperTriggered(false);
+          this._scrollTarget.addEventListener('scroll', this._boundScrollHandler);
+        });
+      }
+    },
+
+    /**
+     * Clear the lower threshold, following a `lower-trigger` event.
+     *
+     * @method clearLower
+     */
+    clearLower: function(waitForMutation) {
+      if (waitForMutation) {
+        this._waitForMutation(function() {
+          this.clearLower();
+        }.bind(this));
+      } else {
+        this.async(function() {
+          this._setLowerTriggered(false);
+          this._scrollTarget.addEventListener('scroll', this._boundScrollHandler);
+        });
+      }
+    },
+
+    _waitForMutation: function(listener) {
+      var observer = new MutationObserver(function(mutations) {
+        listener.call(this, observer, mutations);
+        observer.disconnect();
+      }.bind(this));
+      observer.observe(this._scrollTarget, {attributes: true, childList: true, subtree: true});
+    }
+
+  });
 (function() {
 
 	Polymer({

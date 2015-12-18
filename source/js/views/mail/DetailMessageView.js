@@ -15,17 +15,17 @@ var DetailMessageView = Backbone.View.extend({
     search: '',
     page: 1,
 
+    elementIndex: 0,
+
     scrollRefresh: false,
 
     scrollDetail: '',
 
     render: function() {
 
-        var elementID = "#contentDetail";
+        // var elementID = "#content_" + this.elementIndex;
 
-        if (Shared.isSmartPhoneResolution()) {
-            elementID = "#content";
-        }
+        // var elementID = PelementID;
 
         this.$el.html("");
 
@@ -33,86 +33,100 @@ var DetailMessageView = Backbone.View.extend({
 
         if (this.msgID) {
 
-            var loadingView = new LoadingView({
-                el: $(elementID)
-            });
-            loadingView.render();
+            // var loadingView = new LoadingView({
+            //     el: $(elementID)
+            // });
+            // loadingView.render();
 
             var messagesData = new MessagesCollection();
 
-            messagesData.getMessagesInFolder(this.folderID, this.msgID, this.search, this.page).done(function(data) {
+            messagesData.getMessagesInFolder(this.folderID, this.msgID, this.search, this.page).done(function(Pdata) {
 
-                var message = data.models[0];
+                var message = Pdata.models[0];
 
-                var qtdMessages = data.models.length;
+                var tabTitle = message.get("msgSubject");
 
-                var data = {
-                    messages: data.models,
-                    _: _,
-                    Shared: Shared,
-                    $: $
-                };
+                var thot = that;
 
-                var htmlTemplate = _.template(detailMessageTemplate);
-                var compiledTemplate = htmlTemplate(data);
+                var doneAddTab = function(elementIndex, elementID) {
 
-                that.$el.html(compiledTemplate);
+                    console.log('elementID' + elementID + 'elementIndex:' + elementIndex);
 
-                $(elementID).empty().append(that.$el);
+                    var qtdMessages = Pdata.models.length;
 
-                that.renderAttachments(message);
+                    var data = {
+                        messages: Pdata.models,
+                        _: _,
+                        Shared: Shared,
+                        $: $
+                    };
 
-                var folderType = 5;
-                if (Shared.folders != undefined) {
-                    var currentFolder = Shared.folders.getFolderByID(that.folderID);
+                    var htmlTemplate = _.template(detailMessageTemplate);
+                    var compiledTemplate = htmlTemplate(data);
 
-                    if (currentFolder.get != undefined) {
-                        folderType = currentFolder.get("folderType");
-                    }
-                }
+                    thot.$el.html(compiledTemplate);
 
-                //Shared.setCurrentPageTitle(message.get("msgSubject"));
+                    $(elementID).empty().append(thot.$el);
 
-                Shared.menuView.renderContextMenu('detailMessage', {
-                    folderID: that.folderID,
-                    msgID: that.msgID,
-                    folderType: folderType,
-                    qtdMessages: qtdMessages
-                });
+                    thot.renderAttachments(message);
 
+                    var folderType = 5;
+                    if (Shared.folders != undefined) {
+                        var currentFolder = Shared.folders.getFolderByID(thot.folderID);
 
-                setTimeout(function() {
-
-                    $.each($("#contentMessageBody img"), function() {
-
-                        var max_width = $("#wrapperDetail").width();
-                        max_width = max_width - 40;
-                        var current_height = $(this).height();
-                        var current_width = $(this).width();
-                        if (current_width > max_width) {
-                            var new_width = max_width;
-                            var new_height = max_width * (current_height / current_width);
-                            $("#contentMessageBody").width(max_width);
-                            $(this).css("max-width", max_width);
-                            $(this).css("max-height", current_height);
-                            $(this).css("height", new_height);
-                            $(this).css("width", new_width);
+                        if (currentFolder.get != undefined) {
+                            folderType = currentFolder.get("folderType");
                         }
+                    }
 
+                    //Shared.setCurrentPageTitle(message.get("msgSubject"));
+
+                    Shared.menuView.renderContextMenu('detailMessage', {
+                        folderID: thot.folderID,
+                        msgID: thot.msgID,
+                        folderType: folderType,
+                        qtdMessages: qtdMessages,
+                        tabIndex: elementIndex
                     });
 
-                    // $('#contentMessageBody').parents('detailRow').addClass('reset-this');
 
-                    that.loaded();
+                    setTimeout(function() {
 
-                }, 500);
+                        $.each($("#contentMessageBody img"), function() {
+
+                            var max_width = $("#wrapperDetail").width();
+                            max_width = max_width - 40;
+                            var current_height = $(this).height();
+                            var current_width = $(this).width();
+                            if (current_width > max_width) {
+                                var new_width = max_width;
+                                var new_height = max_width * (current_height / current_width);
+                                $("#contentMessageBody").width(max_width);
+                                $(this).css("max-width", max_width);
+                                $(this).css("max-height", current_height);
+                                $(this).css("height", new_height);
+                                $(this).css("width", new_width);
+                            }
+
+                        });
+
+                        // $('#contentMessageBody').parents('detailRow').addClass('reset-this');
+
+                        thot.loaded();
+
+                    }, 500);
+                
+                
+                };
+
+                Shared.homeView.addTab(tabTitle,doneAddTab);
 
 
             }).fail(function(result) {
 
                 Shared.handleErrors(result.error);
 
-                $(elementID).empty();
+                // $(elementID).empty();
 
                 return false;
             }).execute();

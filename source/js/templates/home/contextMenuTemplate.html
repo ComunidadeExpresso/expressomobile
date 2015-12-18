@@ -1,4 +1,17 @@
-<div class="mdl-layout-spacer"></div>
+<% if (menuItems.length > 1) { %>
+<paper-fab-speed-dial id="contextMenuItems" class="expresso-fab-button animation-scale-fadein" style="bottom: 0px; right: 0px;">
+  <% _.each(menuItems, function(menuItem){ %>
+  	<paper-fab-speed-dial-action icon="icons:create" href="<%=menuItem.get("route")%>" <% if (menuItem.get('action') != undefined) { %>data-action="<%= menuItem.get('action') %>"<% } %>><%=menuItem.get("title")%></paper-fab-speed-dial-action>
+  <% }); %>
+</paper-fab-speed-dial>
+<% } else { %>
+<div class="expresso-fab-button animation-scale-fadein">
+	<button id="btn-primary-action" class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored">
+	  <i class="material-icons">create</i>
+	</button>
+</div>
+<% } %>
+<!-- <div class="mdl-layout-spacer"></div>
 <label id="searchButton" class="mdl-button mdl-js-button mdl-button--icon">
   <i class="material-icons">search</i>
 </label>
@@ -17,14 +30,12 @@
 			<li class="mdl-menu__item"><a id="<%=menuItem.get("id")%>" href="<%=menuItem.get("route")%>" <% if (menuItem.get('action') != undefined) { %>data-action="<%= menuItem.get('action') %>"<% } %> title="<%=menuItem.get("title")%>"><%=menuItem.get("title")%></a></li>
 		<% } %>
 	<% }); %>
-</ul>
+</ul> 
+-->
 
 
-<div class="expresso-fab-button animation-scale-fadein">
-	<button id="btn-primary-action" class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored">
-	  <i class="material-icons">create</i>
-	</button>
-</div>
+<!-- 
+ -->
 <!-- <div id="primaryButtonAction">
 	<button id="btn-primary-action" class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored">
 	  <i class="material-icons">send</i>
