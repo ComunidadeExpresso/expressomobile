@@ -1,4 +1,5 @@
-define(['jquery','moment'], function($,moment){
+import $ from 'jquery';
+import moment from 'moment';
 	
 
 moment.lang('pt-br', {
@@ -45,4 +46,4 @@ moment.lang('pt-br', {
   });
 
 
-});
+

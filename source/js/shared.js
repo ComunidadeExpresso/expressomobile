@@ -6,9 +6,33 @@ import expressoAPI from 'expressoAPI';
 import expressoIM from 'expressoIM';
 import UserMessageView from 'UserMessageView';
 import expressoService from 'expressoService';
-import moment from 'moment';
+
+import elements from 'elements';
+
+
   
   var Shared = {};
+
+  Shared.usersPictures = [];
+
+  Shared.addUserPicture = function(Pemail,Ppicture) {
+    //console.log("addUserPicture:" + Pemail + " - " + Ppicture);
+    var data = {
+      email: Pemail,
+      picture: Ppicture,
+    }
+    Shared.usersPictures.push(data);
+  }
+
+  Shared.getUserPicture = function(Pemail) {
+    var picFound = false;
+    _.each(Shared.usersPictures,function(data) {
+      if (data.email == Pemail) {
+        picFound = data.picture;
+      }
+    });
+    return picFound;
+  }
 
   //USE THIS IF YOU WANT TO SET THIS VERSION AS BETA FOR YOUR USERS.
   Shared.betaVersion = false;

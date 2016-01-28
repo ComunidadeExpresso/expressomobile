@@ -1,180 +1,163 @@
 <% if (messages.length != 0) { %>
 <% _.each(messages, function(message){ %>
-<div class="expresso-email animation-fadein">
-<!-- <div class="mdl-card mdl-shadow--2dp card-detailMessage"> -->
-  <div class="mdl-card__title mdl-card--expand mdl-color--blue-100">
-    <h2 class="mdl-card__title-text"><%= message.get("msgSubject") %></h2>
-  </div>
- 
-<article id="wrapperDetail" class="contentScroll" style="overflow: auto; width: 100%;">
-  <div id="scrollerDetail">
-    <table id="messageDetails"> 
-      <tr class="detailRow">
-        <td class="item detailCol">
-          De:
-        </td>
-        <td class="description detailCol">
-          <span class="badge-big badge-write-message">
-             <%= message.get("msgFrom").mailAddress %>
-          </span>
-        </td>
-        <td class="detailCol">
-          <div class="msg-list-images" style="width: 150px;">
-            <% if (message.get("msgHasAttachments") == '1') { %>
-            <div class="icon-msg-details icon-msg-details-attachments"></div>
-            <% } %>
-            <% if (message.get("msgFlagged") == '1') { %>
-            <div class="icon-msg-details icon-msg-details-flagged"></div>
-            <% } %>
-            <% if (message.get("msgForwarded") == '1') { %>
-            <div class="icon-msg-details icon-msg-details-forwarded"></div>
-            <% } %>
-            <div class="clear"></div>
-          </div>
-        </td>
-      </tr> 
-      <div id="msgDetails" class="hidden">
-        <tr class="detailRow">
-          <td class="item detailCol">
-            Para:
-          </td>
-          <td class="description detailCol" colspan="2">
-            <% if (message.get("msgTo")) {  %>
-              <% if (message.get("msgTo").length > 3) { %>
-                <div style="float: right;">
-                  <a href="#" class="showMoreMsgTo">e mais <%=(message.get("msgTo").length - 3)%> pessoas...</a>
-                </div>
-              <% } %>
-                <% var qtdMsgTo = 1; %>
-                <% _.each(message.get("msgTo"), function(msgRecipient){ %>
-                    <span class="detailMsgTo badge-big badge-write-message <% if (qtdMsgTo >= 4) { %>hidden<% } %>" data-mail="<%=msgRecipient.mailAddress%>">
-                      
-                    <% if ($.trim(msgRecipient.fullName) != '') { %> 
-                      <%=$.trim(msgRecipient.fullName)%>
-                    <% } else { %>
-                      <%=msgRecipient.mailAddress%>
-                    <% } %>
-                    
-                    </span>
-                    <% qtdMsgTo = qtdMsgTo + 1; %>
-                <% }); %>
-            <% } %>
-          </td>
-        </tr> 
-      
-        <% if (message.get("msgCC").length) {  %>
-        <tr class="detailRow">
-          <td class="item detailCol">
-            Cc:
-          </td>
-          <td class="description detailCol" colspan="2">
-              <% if (message.get("msgCC").length > 3) { %>
-                <div style="float: right;">
-                  <a href="#" class="showMoreMsgCc">e mais <%=(message.get("msgCC").length - 3)%> pessoas...</a>
-                </div>
-              <% } %>
-              <% var qtdMsgCc = 1; %>
-              <% _.each(message.get("msgCC"), function(msgRecipientCc){ %>
-                <span class="detailMsgCc badge-big badge-write-message <% if (qtdMsgCc >= 4) { %>hidden<% } %>">
-                <% if ($.trim(msgRecipientCc.fullName) != '') { %> 
-                  <%=$.trim(msgRecipientCc.fullName)%>
-                <% } else { %>
-                  <%=msgRecipientCc.mailAddress%>
-                <% } %>
-                </span>
-                <% qtdMsgCc = qtdMsgCc + 1; %>
-              <% }); %>
-            
-          </td>
-        </tr> 
-        <% } %>
-        <% if (message.get("msgBcc").length) {  %>
-        <tr class="detailRow">
-          <td class="item detailCol">
-            Bcc:
-          </td>
-          <td class="description detailCol" colspan="2">
-              <% _.each(message.get("msgBcc"), function(msgRecipientBcc){ %>
-                <span class="badge-big badge-write-message">
-                <% if ($.trim(msgRecipientBcc.fullName) != '') { %> 
-                  <%=$.trim(msgRecipientBcc.fullName)%>
-                <% } else { %>
-                  <%=msgRecipientBcc.mailAddress%>
-                <% } %>
-                </span>
-              <% }); %>
-          </td>
-        </tr> 
-        <% } %>
-      </div>
-      <tr class="detailRow">
-        <td class="item detailCol">
-          Data:
-        </td>
-        <td class="description detailCol" colspan="2">
-          <%=message.get("msgDate")%>&nbsp;(<%=message.getTimeAgo()%>)
-        </td>
-      </tr> 
-      <!-- <tr class="detailRow">
-        <td class="item detailCol">
-          Assunto:
-        </td>
-        <td class="description detailCol" colspan="2">
-          <%= message.get("msgSubject") %>
-        </td>
-      </tr> -->
-      <% if (message.get("msgAttachments")) {  %>
-      <tr class="detailRow">
-        <td class="item detailCol">
-          Anexos:
-        </td>
-        <td class="description detailCol" colspan="2">
-            <div id="msgAttachmentsRecipients">
+<div style="margin: 20px;">
+  <paper-card heading="<%= message.get("msgSubject") %>" class="fancy">
 
+    <div class="card-actions">
+      <paper-icon-button icon="reply" title="Responder">Responder</paper-icon-button>
+      <paper-icon-button icon="reply-all" title="Responder para Todos">Responder p/ Todos</paper-icon-button>
+      <paper-icon-button icon="forward" title="Encaminhar">Encaminhar</paper-icon-button>
+      <paper-icon-button icon="delete" title="Excluir">Excluir</paper-icon-button>
+    </div>
+
+    <div class="card-content">
+      <table id="messageDetails"> 
+        <tr class="detailRow">
+          <td class="item detailCol">
+            De:
+          </td>
+          <td class="description detailCol">
+            <span class="badge-big badge-write-message">
+               <%= message.get("msgFrom").mailAddress %>
+            </span>
+          </td>
+          <td class="detailCol">
+            <div class="msg-list-images" style="width: 150px;">
+              <% if (message.get("msgHasAttachments") == '1') { %>
+              <div class="icon-msg-details icon-msg-details-attachments"></div>
+              <% } %>
+              <% if (message.get("msgFlagged") == '1') { %>
+              <div class="icon-msg-details icon-msg-details-flagged"></div>
+              <% } %>
+              <% if (message.get("msgForwarded") == '1') { %>
+              <div class="icon-msg-details icon-msg-details-forwarded"></div>
+              <% } %>
+              <div class="clear"></div>
             </div>
-
-        </td>
-      </tr> 
-      <% } %>
-      <tr>
-        <td colspan="3">
-          <div class="mdl-card__actions mdl-card--border">
-            <a href="#" class="mdl-button mdl-js-button mdl-js-ripple-effect"><i class="material-icons" role="presentation">reply</i></a>
-            <a href="#" class="mdl-button mdl-js-button mdl-js-ripple-effect"><i class="material-icons" role="presentation">reply_all</i></a>
-            <a href="#" class="mdl-button mdl-js-button mdl-js-ripple-effect"><i class="material-icons" role="presentation">forward</i></a>
-            <a href="#" class="mdl-button mdl-js-button mdl-js-ripple-effect"><i class="material-icons" role="presentation">delete</i></a>
+          </td>
+        </tr> 
+        <div id="msgDetails" class="hidden">
+          <tr class="detailRow">
+            <td class="item detailCol">
+              Para:
+            </td>
+            <td class="description detailCol" colspan="2">
+              <% if (message.get("msgTo")) {  %>
+                <% if (message.get("msgTo").length > 3) { %>
+                  <div style="float: right;">
+                    <a href="#" class="showMoreMsgTo">e mais <%=(message.get("msgTo").length - 3)%> pessoas...</a>
+                  </div>
+                <% } %>
+                  <% var qtdMsgTo = 1; %>
+                  <% _.each(message.get("msgTo"), function(msgRecipient){ %>
+                      <span class="detailMsgTo badge-big badge-write-message <% if (qtdMsgTo >= 4) { %>hidden<% } %>" data-mail="<%=msgRecipient.mailAddress%>">
+                        
+                      <% if ($.trim(msgRecipient.fullName) != '') { %> 
+                        <%=$.trim(msgRecipient.fullName)%>
+                      <% } else { %>
+                        <%=msgRecipient.mailAddress%>
+                      <% } %>
+                      
+                      </span>
+                      <% qtdMsgTo = qtdMsgTo + 1; %>
+                  <% }); %>
+              <% } %>
+            </td>
+          </tr> 
+        
+          <% if (message.get("msgCC").length) {  %>
+          <tr class="detailRow">
+            <td class="item detailCol">
+              Cc:
+            </td>
+            <td class="description detailCol" colspan="2">
+                <% if (message.get("msgCC").length > 3) { %>
+                  <div style="float: right;">
+                    <a href="#" class="showMoreMsgCc">e mais <%=(message.get("msgCC").length - 3)%> pessoas...</a>
+                  </div>
+                <% } %>
+                <% var qtdMsgCc = 1; %>
+                <% _.each(message.get("msgCC"), function(msgRecipientCc){ %>
+                  <span class="detailMsgCc badge-big badge-write-message <% if (qtdMsgCc >= 4) { %>hidden<% } %>">
+                  <% if ($.trim(msgRecipientCc.fullName) != '') { %> 
+                    <%=$.trim(msgRecipientCc.fullName)%>
+                  <% } else { %>
+                    <%=msgRecipientCc.mailAddress%>
+                  <% } %>
+                  </span>
+                  <% qtdMsgCc = qtdMsgCc + 1; %>
+                <% }); %>
+              
+            </td>
+          </tr> 
+          <% } %>
+          <% if (message.get("msgBcc").length) {  %>
+          <tr class="detailRow">
+            <td class="item detailCol">
+              Bcc:
+            </td>
+            <td class="description detailCol" colspan="2">
+                <% _.each(message.get("msgBcc"), function(msgRecipientBcc){ %>
+                  <span class="badge-big badge-write-message">
+                  <% if ($.trim(msgRecipientBcc.fullName) != '') { %> 
+                    <%=$.trim(msgRecipientBcc.fullName)%>
+                  <% } else { %>
+                    <%=msgRecipientBcc.mailAddress%>
+                  <% } %>
+                  </span>
+                <% }); %>
+            </td>
+          </tr> 
+          <% } %>
         </div>
-        </td>
-      </tr>
-      <tr class="detailRow">
-        <td id="contentMessageBody" class="itemBody detailCol" colspan="3">
-          <div id="disable-all-css">
-          <%=message.getMessageBody(false)%>
-          </div>
-        </td>
-      </tr> 
-    </table>
+        <tr class="detailRow">
+          <td class="item detailCol">
+            Data:
+          </td>
+          <td class="description detailCol" colspan="2">
+            <%=message.get("msgDate")%>&nbsp;(<%=message.getTimeAgo()%>)
+          </td>
+        </tr> 
+        <% if (message.get("msgAttachments")) {  %>
+        <tr class="detailRow">
+          <td class="item detailCol">
+            Anexos:
+          </td>
+          <td class="description detailCol" colspan="2">
+              <div id="msgAttachmentsRecipients">
 
-  </div>
-</article>
-  <!-- <div class="mdl-card__actions mdl-card--border">
-      <a href="#" class="mdl-button mdl-js-button mdl-js-ripple-effect"><i class="material-icons" role="presentation">reply</i>Responder</a>
-      <a href="#" class="mdl-button mdl-js-button mdl-js-ripple-effect"><i class="material-icons" role="presentation">reply_all</i>Responder p/ Todos</a>
-      <a href="#" class="mdl-button mdl-js-button mdl-js-ripple-effect"><i class="material-icons" role="presentation">forward</i>Encaminhar</a>
-      <a href="#" class="mdl-button mdl-js-button mdl-js-ripple-effect"><i class="material-icons" role="presentation">delete</i>Apagar</a>
-    </div> -->
+              </div>
+          </td>
+        </tr> 
+        <% } %>
+        <tr class="detailRow">
+          <td id="contentMessageBody" class="itemBody detailCol" colspan="3">
+            <div id="disable-all-css">
+            <%=message.getMessageBody(false)%>
+            </div>
+          </td>
+        </tr> 
+      </table>
+    </div>
+    <div class="card-actions">
+      <paper-icon-button icon="reply" title="reply"></paper-icon-button>
+      <paper-icon-button icon="reply-all" title="reply-all"></paper-icon-button>
+      <paper-icon-button icon="forward" title="forward"></paper-icon-button>
+      <paper-icon-button icon="delete" title="delete"></paper-icon-button>
+    </div>
+  </paper-card>
 </div>
+
 <% }); %>
 <% } else { %>
-<h2 class="font-big"><span class="font-small-info"></span>&nbsp;</h2>
-<article id="wrapperDetail" class="content">
-  <div id="scrollerDetail">
+<div style="margin: 20px;">
+  <paper-card heading="" class="fancy">
     <br><br>
     <center>
       <span>
         Nenhuma mensagem foi selecionada...
       </span>
     </center>
-  </div>
-</article>
+  </paper-card>
+</div>
 <% } %>

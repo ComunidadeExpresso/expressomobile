@@ -115,7 +115,7 @@ var MessagesCollection = Backbone.Collection.extend({
     getNextPage: function() {
         this.currentPage = this.currentPage + 1;
         return this.getMessagesInFolder(this.currentFolder, this.currentSearch, this.currentPage);
-    }
+    },
 
 
 });

@@ -2,16 +2,16 @@
 <link rel="import" href="../bower_components/iron-icon/iron-icon.html">
 <link rel="import" href="../bower_components/paper-styles/paper-styles.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
-<link rel="import" href="profile-img.html">
+<link rel="import" href="profile-img/profile-img.html">
 <link rel="import" href="swipeable-item.html">
 
 <dom-module id="mail-thread">
   <style>
-    :host {
+   :host {
       display: block;
       background-color: var(--paper-green-800);
       transition: max-height 200ms ease-in-out 200ms;
-      max-height: 120px; /* bigger than thread can ever be. */
+      max-height: 120px; 
     }
     :host(:focus) {
       z-index: 1;
@@ -33,7 +33,7 @@
     #container {
       position: relative;
       z-index: 0;
-    }
+    } 
     #thread {
       background-color: #fafafa;
       padding: 16px;
@@ -48,6 +48,7 @@
     .messagecount {
       color: #9e9e9e;
       margin-left: 5px;
+      font-size: 12px;
     }
     header {
       margin-left: 16px;
@@ -158,6 +159,7 @@
         <profile-img id="profileimage"
                      src="[[profileSrc]]"
                      letter="[[from.0]]"
+                     email="[[fromemail]]"
                      selected="[[selected]]" on-tap="_onSelectThread"
                      on-transitionend="_eatEvent"></profile-img>
         <div class="flex layout horizontal">
@@ -167,7 +169,7 @@
             <span class="layout horizontal center justified" on-tap="_onOpenMessage">
               <span class="name">
                 <span>{{_decodeHTMLEntities(from)}}</span>
-                <!-- <span class="messagecount" hidden="{{!showMessageCount}}">{{messages.length}}</span> -->
+                <span class="messagecount">{{fromemail}}</span> 
               </span>
               <time>{{date}}</time>
             </span>
@@ -180,6 +182,7 @@
                          class$="[[_objectItem('labels', id, 'color')]]">[[_objectItem('labels', id, 'name')]]</label>
                 </template>
               </span>
+              <iron-icon id="attachment" icon="icons:attachment" hidden$="{{!hasAttachments}}"></iron-icon>
               <iron-icon id="star" icon="[[starredIcon]]" on-tap="_onHighlightStar" starred$="{{starred}}"></iron-icon>
             </span>
 
@@ -303,6 +306,11 @@
         value: '',
       },
 
+      fromemail: {
+        type: String,
+        value: '',
+      },
+
       subject: {
         type: String,
         value: '',
@@ -346,6 +354,12 @@
       },
 
       starred: {
+        type: Boolean,
+        value: false,
+        reflectToAttribute: true
+      },
+
+      hasAttachments: {
         type: Boolean,
         value: false,
         reflectToAttribute: true

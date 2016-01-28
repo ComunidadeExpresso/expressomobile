@@ -71,11 +71,32 @@ var ContactsListCollection = Backbone.Collection.extend({
         return that;
     },
 
+    getContactImagePictureByEmail: function(email,callback) {
+        var that = this;
+        this.done(function(result){
+
+            _.each(result.models,function(contact){
+
+                var contactEmail = contact.get("contactMails")[0];
+
+                if (contactEmail == email) {
+                    var contactID = contact.get("contactID");
+                    contactID = decodeURIComponent(contactID);
+                    that.getContactImagePicture(contactID,callback);
+                }
+            }); 
+
+            
+        }).fail(function(error) {
+            callback("");
+        }).getContacts(email,2,false);
+    },
+
     getContactImagePicture: function(pContactID, callback) {
         this.api
             .resource('Catalog/ContactPicture')
             .params({
-                contactID: this.pContactID,
+                contactID: pContactID,
                 contactType: '2'
             })
             .done(function(result) {

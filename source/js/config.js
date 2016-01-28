@@ -6,6 +6,7 @@
   map: {
     text : "js/text.js",
     traceur: './bower_components/traceur/traceur.min.js',
+    "traceur-runtime": "bower_components/traceur-runtime/traceur-runtime.min.js",
     "html": "bower_components/systemjs-plugin-html/html.js",
     "polymer": "bower_components",
     "webcomponentsjs": "bower_components/webcomponentsjs"
@@ -20,6 +21,15 @@
     app:                                          "js/app.js",
 
     Polymer:                                      "bower_components/polymer/polymer.html!",
+
+    //ELEMENTS
+    elements:                                     "js/elements.js",
+    mailDetail:                                   "elements/mail-detail/mail-detail.js",
+    materialSearch:                               "elements/material-search/material-search.js",
+    profileImg:                                   "elements/profile-img/profile-img.js",
+    contactList:                                  "elements/contacts/contact-list.js",
+    contactEdit:                                  "elements/contacts/contact-edit.js",
+    contactCard:                                  "elements/contacts/contact-card.js",
 
     //MODELS
     EventCategoryModel:                           "js/models/EventCategoryModel.js",
@@ -109,7 +119,7 @@
     generalContactsListTemplate:                  "js/templates/contacts/generalContactsListTemplate.html!text",
     personalContactsListTemplate:                 "js/templates/contacts/personalContactsListTemplate.html!text",
     pictureImageContactTemplate:                  "js/templates/contacts/pictureImageContactTemplate.html!text",
-    contextMenuTemplate:                          "js/templates/home/contextMenuTemplate.html!text",
+    // contextMenuTemplate:                          "js/templates/home/contextMenuTemplate.html!text",
     loadingTemplate:                              "js/templates/home/loadingTemplate.html!text",
     menuTemplate:                                 "js/templates/home/menuTemplate.html!text",
     offlineTemplate:                              "js/templates/home/offlineTemplate.html!text",
@@ -154,12 +164,15 @@
     jquery_linkify:                               "bower_components/linkifyjs/src/jquery.linkify.js",
     wijmo:                                        "bower_components/wijmo/wijmo/jquery.wijmo.wijutil.js",
     wijdialog:                                    "bower_components/wijmo/wijmo/jquery.wijmo.wijdialog.js",
-    jqueryui_datepicker_ptBR:                     "js/libs/lang/jquery.ui.datepicker-pt-BR.js",
-    moment_ptBR:                                  "js/libs/lang/moment-pt-BR.js",
+
     expressoAPI:                                  "js/libs/expresso/expressoAPI.js",
     expressoIM:                                   "js/libs/expresso/expressoIM.js",
     expressoService:                              "js/libs/expresso/expressoService.js",
     im:                                           "js/libs/messenger/im.js",
+
+    jqueryui_datepicker_ptBR:                     "js/libs/lang/jquery.ui.datepicker-pt-BR.js",
+    moment_ptBR:                                  "js/libs/lang/moment-pt-BR.js",
+  
     jquery_xmpp:                                  "js/libs/jquery.xmpp/jquery.xmpp.js",
     autocomplete:                                 "js/libs/jquery.backbone.widget/jquery.backbone.widgets.js",
     contextmenu:                                  "js/libs/jquery.contextmenu/jquery.contextMenu.js",

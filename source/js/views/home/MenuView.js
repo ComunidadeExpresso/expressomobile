@@ -285,56 +285,70 @@ var MenuView = Backbone.View.extend({
 
         console.log("renderContextMenu: " + menuID + ' - elementID:' + elementID);
 
-        this.context = new ContextMenuView();
+        
         var contextMenuCollection = new ContextMenuCollection();
+        var collection;
         if (menuID == 'detailMessage') {
-            this.context.collection = contextMenuCollection.getDetailMessageMenu(params.folderID, params.msgID, params.folderType, params.qtdMessages);
+            collection = contextMenuCollection.getDetailMessageMenu(params.folderID, params.msgID, params.folderType, params.qtdMessages);
         }
         if (menuID == 'messageList') {
-            this.context.collection = contextMenuCollection.getMessagesListMenu(params.folderID, params.folderName, params.folderType, params.qtdMessages);
+            collection = contextMenuCollection.getMessagesListMenu(params.folderID, params.folderName, params.folderType, params.qtdMessages);
         }
         if (menuID == 'newMessage') {
-            this.context.collection = contextMenuCollection.getSendMessageMenu(params);
+            collection = contextMenuCollection.getSendMessageMenu(params);
         }
         if (menuID == 'newMessageWithCc') {
-            this.context.collection = contextMenuCollection.getSendMessageMenuWithCC(params);
+            collection = contextMenuCollection.getSendMessageMenuWithCC(params);
         }
         if (menuID == 'personalContacts') {
-            this.context.collection = contextMenuCollection.getPersonalContactsMenu();
+            collection = contextMenuCollection.getPersonalContactsMenu();
         }
         if (menuID == 'generalContacts') {
-            this.context.collection = contextMenuCollection.getGeneralContactsMenu();
+            collection = contextMenuCollection.getGeneralContactsMenu();
         }
         if (menuID == 'detailsContact') {
-            this.context.collection = contextMenuCollection.getDetailsContactMenu(params.email, params.contactID, params.contactType);
+            collection = contextMenuCollection.getDetailsContactMenu(params.email, params.contactID, params.contactType);
         }
         if (menuID == 'calendar') {
-            this.context.collection = contextMenuCollection.getCalendarMenu(params.year, params.month, params.day);
+            collection = contextMenuCollection.getCalendarMenu(params.year, params.month, params.day);
         }
         if (menuID == 'mailsignature') {
-            this.context.collection = contextMenuCollection.getMailSignatureMenu();
+            collection = contextMenuCollection.getMailSignatureMenu();
         }
         if (menuID == 'changePassword') {
-            this.context.collection = contextMenuCollection.getChangePasswordMenu(params);
+            collection = contextMenuCollection.getChangePasswordMenu(params);
         }
         if (menuID == 'calendarAddEvent') {
-            this.context.collection = contextMenuCollection.getCalendarAddEventMenu(params);
+            collection = contextMenuCollection.getCalendarAddEventMenu(params);
         }
         if (menuID == 'calendarAddEventParticipant') {
-            this.context.collection = contextMenuCollection.getCalendarAddEventParticipantMenu(params);
+            collection = contextMenuCollection.getCalendarAddEventParticipantMenu(params);
         }
         if (menuID == 'calendarDetailsEvent') {
-            this.context.collection = contextMenuCollection.getCalendarDetailsEventMenu(params.isOwner, params.eventID, params.year, params.month, params.day);
+            collection = contextMenuCollection.getCalendarDetailsEventMenu(params.isOwner, params.eventID, params.year, params.month, params.day);
         }
         if (menuID == 'editFolder') {
-            this.context.collection = contextMenuCollection.getEditFolderMenu(params);
+            collection = contextMenuCollection.getEditFolderMenu(params);
         }
         if (menuID == 'support') {
-            this.context.collection = contextMenuCollection.getSupportMenu(params);
+            collection = contextMenuCollection.getSupportMenu(params);
         }
         if (menuID == 'chatOffline') {
-            this.context.collection = contextMenuCollection.getChatOfflineMenu(params);
+            collection = contextMenuCollection.getChatOfflineMenu(params);
         }
+        // console.log("ITEMS");
+        var menuItems = "";
+        if (collection != undefined) {
+            menuItems = JSON.stringify(collection.toJSON());
+        } 
+        var attrs = {
+            items: menuItems,
+        };
+
+
+
+        this.context = new ContextMenuView({"attributes": attrs });
+        this.context.collection = collection;
         this.context.render(elementID);
     },
 

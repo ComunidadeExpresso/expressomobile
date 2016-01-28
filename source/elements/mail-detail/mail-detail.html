@@ -1,0 +1,256 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="../../bower_components/paper-tabs/paper-tab.html">
+<link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../bower_components/neon-animation/neon-animated-pages.html">
+<link rel="import" href="../../bower_components/neon-animation/neon-animatable.html">
+<link rel="import" href="../../bower_components/neon-animation/animations/slide-from-left-animation.html">
+<link rel="import" href="../../bower_components/neon-animation/animations/slide-from-right-animation.html">
+<link rel="import" href="../../bower_components/neon-animation/animations/fade-out-animation.html">
+<link rel="import" href="../../bower_components/neon-animation/animations/slide-up-animation.html">
+<link rel="import" href="../../bower_components/neon-animation/animations/slide-down-animation.html">
+
+<link rel="import" href="../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+
+<link rel="import" href="../../bower_components/paper-menu-button/paper-menu-button.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../bower_components/paper-menu/paper-menu.html">
+<link rel="import" href="../../bower_components/paper-tooltip/paper-tooltip.html">
+
+<link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../bower_components/paper-styles/color.html">
+<link rel="import" href="../../bower_components/paper-dialog-scrollable/paper-dialog-scrollable.html">
+
+<link rel="import" href="../../bower_components/expanded-card/expanded-card.html">
+
+<dom-module id="echo-html">
+
+  <template>
+    <span>{{html}}</span>
+  </template>
+
+  <script>
+    Polymer({
+      is: 'echo-html',
+      properties: {
+          html: {
+              type: String,
+              value: ''
+          }
+      },
+      ready: function() {
+          this.innerHTML = this.html;
+      }
+    });
+  </script>
+
+</dom-module>
+
+<dom-module is="mail-detail">
+  <style>
+    
+    .card-content {
+      margin: 20px;
+    }
+
+    #thread {
+      background-color: #fafafa;
+      padding: 16px;
+      border-bottom: 1px solid #e0e0e0;
+      will-change: transform, opacity;
+    }
+    #lastline,
+    #actionicons,
+    time {
+      color: #9e9e9e;
+    }
+    .messagecount {
+      color: #9e9e9e;
+      margin-left: 5px;
+    }
+    header {
+      margin-left: 16px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+/*    .unread .name,
+    .unread .subject,
+    .unread time {
+      font-weight: 500;
+    }
+    .unread time {
+      color: var(--paper-light-blue-500);
+    }*/
+    header span.name {
+      font-size: 18px;
+    }
+    header span.subject {
+      margin: 6px 0;
+    }
+    header span.snippet,
+    header span.subject,
+    header span.name {
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+      max-width: 90%;
+    }
+    header span.name {
+      max-width: 80%;
+    }
+    time {
+      font-size: 12px;
+      font-weight: 400;
+      letter-spacing: 1px;
+      max-height: 12px;
+    }
+    #star {
+      cursor: pointer;
+    }
+    #star[starred] {
+      cursor: pointer;
+      color: var(--paper-yellow-700);
+    }
+
+    .labels label {
+      font-size: 10px;
+      background-color: #bdbdbd;
+      padding: 3px 5px;
+      color: #fff;
+      border-radius: 2px;
+      margin-right: 5px;
+    }
+    
+    .with-tooltip {
+      display: inline-block;
+      margin-bottom: 30px;
+      overflow: hidden;
+    }
+
+    .badge-recipient {
+      margin: 7px;
+      font-size: 10px;
+/*      padding: 10px;
+      
+      font-size: 12px;
+      line-height: 20px;
+      color: #000; */
+      background-color: #EFEFEF; 
+/*      border-radius: 5px 5px 5px 5px; 
+      display: inline-block;*/
+    }
+
+    .msgRecipient {
+      background-color: #fafafa;
+      padding-left: 16px;
+      padding-right: 16px;
+      border-bottom: 1px solid #e0e0e0;
+      will-change: transform, opacity;
+      cursor: pointer;
+    }
+
+    .extraRecipientsInfo {
+      position: absolute;
+      right: 0px;
+      min-width: 250px;
+      font-size: 12px;
+      margin-top: 10px;
+      text-align: right;
+      padding-right: 50px;
+    }
+
+    .expanded-card {
+      margin-top: -48px;
+    }
+
+  </style>
+  <template>
+      <paper-dialog id="dialogReply">
+      <h2>Scrolling</h2>
+      <paper-dialog-scrollable>
+        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+      </paper-dialog-scrollable>
+      <div class="buttons">
+        <paper-button dialog-dismiss>Cancel</paper-button>
+        <paper-button dialog-confirm autofocus>OK</paper-button>
+      </div>
+    </paper-dialog>
+      <div class="card-content">
+        <paper-card heading="{{_decodeHTMLEntities(message.attributes.msgSubject)}}" class="fancy">
+
+          <div id="thread" class="layout horizontal">
+            <profile-img id="profileimage" email="[[message.attributes.msgFrom.mailAddress]]" letter="[[message.attributes.msgFrom.fullName.0]]"></profile-img>
+            <div class="flex layout horizontal">
+              
+              <header class="layout vertical flex">
+                <span class="layout horizontal center justified">
+                  <span class="name">
+                    <span>{{_decodeHTMLEntities(message.attributes.msgFrom.fullName)}}</span>
+                  </span>
+                  <time>{{timeAgo}}</time>
+                </span>
+                <span class="subject">{{_decodeHTMLEntities(message.attributes.msgFrom.mailAddress)}}</span>
+                <span id="lastline" class="layout horizontal center justified">
+                  &nbsp;
+                  <iron-icon id="star" icon="[[starredIcon]]" on-tap="_onHighlightStar" starred$="{{starred}}"></iron-icon>
+                </span>
+
+              </header>
+              
+            </div>
+            <div style="position: relative;">
+              <paper-menu-button class="menu-more-vert" horizontal-align="right">
+                  <paper-icon-button icon="more-vert" class="dropdown-trigger" alt="more-vert"></paper-icon-button>
+                  <paper-menu class="dropdown-content">
+                    <paper-item on-tap="_onReply"><iron-icon icon="reply"></iron-icon>&nbsp;Responder</paper-item>
+                    <paper-item on-tap="_onReplyAll"><iron-icon icon="reply-all"></iron-icon>&nbsp;Responder p/ Todos</paper-item>
+                    <paper-item on-tap="_onForward"><iron-icon icon="forward"></iron-icon>&nbsp;Encaminhar</paper-item>
+                    <paper-item on-tap="_onDelete"><iron-icon icon="delete"></iron-icon>&nbsp;Excluir</paper-item>
+                  </paper-menu>
+                </paper-menu-button>
+            </div>
+          </div>
+
+          <div id="recipientsMsgTo"></div>
+          <div id="recipientsMsgCc"></div>
+          <div id="recipientsMsgBcc"></div>
+  
+          <expanded-card expanded title="Ocultar Conteúdo">
+            <div id="msgBody"></div>
+          </expanded-card>
+
+          <expanded-card id="attachments" hidden?="[[hasAttachments]]" expanded>
+            <div id="{{_computeAttachmentsId(message.attributes.folderID,message.attributes.msgID)}}"></div>
+          </expanded-card>
+          <div class="card-actions">
+            <paper-icon-button icon="reply" title="Responder" on-tap="_onReply">Responder</paper-icon-button>
+                <paper-icon-button icon="reply-all" title="Responder para Todos" on-tap="_onReplyAll">Responder p/ Todos</paper-icon-button>
+                <paper-icon-button icon="forward" title="Encaminhar" on-tap="_onForward">Encaminhar</paper-icon-button>
+                <paper-icon-button icon="delete" title="Excluir" on-tap="_onDelete">Excluir</paper-icon-button>
+          </div> 
+        </paper-card>
+      </div>
+  </template>
+  <script>
+    //THIS ELEMENT SCRIPT IS LOADED IN elements.js
+  </script>
+</dom-module>

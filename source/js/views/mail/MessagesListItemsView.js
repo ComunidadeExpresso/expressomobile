@@ -39,7 +39,7 @@ var MessagesListItemsView = Backbone.View.extend({
             this.el.addItems(nextPageItems);
 
         } else {
-            console.log("#messagesList_" + elementIndex);
+            // console.log("#messagesList_" + elementIndex);
             $("#messagesList_" + elementIndex).empty().append(this.el);
         }
 

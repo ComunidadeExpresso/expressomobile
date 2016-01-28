@@ -11,7 +11,7 @@ var del             = require('del');
 var url             = require('url');
 var proxy           = require('proxy-middleware');
 var browserSync     = require('browser-sync'); 
-var run             = require('gulp-run');
+// var run             = require('gulp-run');
 
 var argv = require('yargs')
     .default('buildFolder', 'www')
@@ -50,8 +50,8 @@ gulp.task('minify-css','Minify CSS files on the build folder.', function() {
 });
 
 gulp.task('install','Install all project dependencies NODE_MODULES and BOWER.',function() {
-    run('npm install').exec();
-    run('bower install').exec();
+    // run('npm install').exec();
+    // run('bower install').exec();
 });
 
 gulp.task('minify-scripts','Minify JS files on the build folder.', function () {
@@ -90,6 +90,8 @@ gulp.task('copy:build','Copy all necessary files from source to build folder.',f
     gulp.src(['source/bower_components/charto-polymer-shim/**/*']).pipe(gulp.dest(folder + '/bower_components/charto-polymer-shim/'));
     gulp.src(['source/bower_components/systemjs-plugin-html/**/*']).pipe(gulp.dest(folder + '/bower_components/systemjs-plugin-html/'));
     gulp.src(['source/bower_components/expandjs/**/*']).pipe(gulp.dest(folder + '/bower_components/expandjs/'));
+    gulp.src(['source/bower_components/traceur/**/*']).pipe(gulp.dest(folder + '/bower_components/traceur/'));
+    gulp.src(['source/bower_components/traceur-runtime/**/*']).pipe(gulp.dest(folder + '/bower_components/traceur-runtime/'));
     gulp.src(['source/bower_components/xp-observer/**/*']).pipe(gulp.dest(folder + '/bower_components/xp-observer/'));
     gulp.src(['source/imgs/**/*']).pipe(gulp.dest(folder + '/imgs/'));
     // gulp.src(['source/config/**/*']).pipe(gulp.dest(folder + '/config/'));
@@ -101,6 +103,7 @@ gulp.task('copy:build','Copy all necessary files from source to build folder.',f
     gulp.src(['source/js/libs/mdl-iconfont/**/*']).pipe(gulp.dest(folder + '/js/libs/mdl-iconfont/'));
     gulp.src(['source/js/libs/mdl-iconfont/**/*']).pipe(gulp.dest(folder + '/js/libs/mdl-iconfont/'));
     gulp.src(['source/js/libs/messenger/**/*']).pipe(gulp.dest(folder + '/js/libs/messenger/'));
+    gulp.src(['source/js/elements.js']).pipe(gulp.dest(folder + '/js/'));
     gulp.src(['source/js/config.js']).pipe(gulp.dest(folder + '/js/'));
     
 
@@ -137,13 +140,6 @@ gulp.task('connect', false, function() {
 });
 
 
-
-var paths =  {
-    css:     ['./source/css/styles.css' ,'./source/css/*.css'],
-    js:      ['./source/js/', './source/js/templates/*.html'],
-    polymer: ['./source/elements/*.html'],
-};
-
 gulp.task('browser-sync-source',false, function() {
 
     var proxyOptions = url.parse('http://127.0.0.1:8000/source/api/dispatch.php');
@@ -175,20 +171,69 @@ gulp.task('browser-sync-www',false, function() {
         }
     });
 });
-// 
+
+
+var paths =  {
+    css:            ['./source/css/styles.css' ,'./source/css/*.css'],
+    js:             ['./source/js/**/*.js', './source/js/templates/**/*.html','./source/elements/**/*.js'],
+    polymer_html:   ['./source/elements/**/*.html'],
+};
+
+var paths_www =  {
+    css:            ['./www/css/*.css'],
+    js:             ['./www/js/**/*.js','./www/*.js'],
+    polymer_html:   ['./www/*.html'],
+};
 
 // Stream the style changes to the page
 gulp.task('reload-css', false, function() {
     gulp.src(paths.css).pipe(browserSync.reload({stream: true}));
 });
 
-// Watch Files For Changes
-gulp.task('watch', false, function() {
-    gulp.watch(paths.css, ['reload-css']);
+gulp.task('reload-js', false, function() {
+    gulp.src(paths.js).pipe(browserSync.reload({stream: true}));
 });
 
-gulp.task('serve', 'Starts a local server on the folder (source).',['browser-sync-source', 'watch', 'connect']);
-gulp.task('serve-www', 'Starts a local server on the build folder (www).',['browser-sync-www', 'watch', 'connect']);
+var tinylr;
+gulp.task('livereload', function() {
+  tinylr = require('tiny-lr')();
+  tinylr.listen(35729);
+});
+
+function notifyLiveReload(event) {
+  var fileName = require('path').relative(__dirname + "/www/", event.path);
+
+  console.log("liveReload: " + fileName);
+
+  tinylr.changed({
+    body: {
+      files: [fileName]
+    }
+  });
+}
+
+gulp.task('watch-source', function() {
+  gulp.watch(paths.js, notifyLiveReload);
+});
+
+gulp.task('watch-source', function() {
+  gulp.watch(paths.js, notifyLiveReload);
+});
+
+
+
+// Watch Files For Changes
+gulp.task('watch', false, function() {
+    gulp.watch(paths.css, ['minify-css']);
+    gulp.watch(paths.polymer_html, ['vulcanize']);
+    gulp.watch(paths.js, ['minify-scripts']);
+    gulp.watch(paths_www.js, notifyLiveReload);
+    gulp.watch(paths_www.css, notifyLiveReload);
+    gulp.watch(paths_www.html, notifyLiveReload);
+});
+
+gulp.task('serve', 'Starts a local server on the folder (source).',['browser-sync-source', 'livereload' , 'watch-source', 'connect']);
+gulp.task('serve-www', 'Starts a local server on the build folder (www).',['browser-sync-www', 'livereload', 'watch', 'connect']);
 
 
 

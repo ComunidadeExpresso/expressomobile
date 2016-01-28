@@ -648,9 +648,14 @@ var ComposeMessageView = Backbone.View.extend({
 
         if (this.secondViewName == "ReplyToAll") {
 
-
-
             var ReplyOnGetMessage = function(result) {
+
+
+                // var callBackTabAdded = function() {
+
+                // }
+
+                // Shared.homeView.addTab("Re: " + originalMessage.get("msgSubject"),callBackTabAdded);
 
                 var originalMessage = result.models[0];
 
@@ -688,11 +693,6 @@ var ComposeMessageView = Backbone.View.extend({
 
             };
 
-            var loadingView = new LoadingView({
-                el: $(elementID)
-            });
-            loadingView.render();
-
             var mCollection = new MessagesCollection();
 
             mCollection.getMessageByID(this.folderID, this.msgID).done(ReplyOnGetMessage).fail(ReplyOnGetMessageFailed).execute();
@@ -715,18 +715,25 @@ var ComposeMessageView = Backbone.View.extend({
 
                 Shared.currentDraftMessage = newMessage;
 
-                that.renderComposeMessage(newMessage, true, 'reply', originalMessage);
+                var thot = that;
+
+                var callBackTabAdded = function(elementIndex, elementID) {
+                    thot.renderComposeMessage(newMessage, true, 'reply', originalMessage);
+                }
+
+                Shared.homeView.addTab("Re: " + originalMessage.get("msgSubject"),callBackTabAdded);
 
 
             };
+
             var ReplyOnGetMessageFailed = function() {
 
             };
 
-            var loadingView = new LoadingView({
-                el: $(elementID)
-            });
-            loadingView.render();
+            // var loadingView = new LoadingView({
+            //     el: $(elementID)
+            // });
+            // loadingView.render();
 
             var mCollection = new MessagesCollection();
 

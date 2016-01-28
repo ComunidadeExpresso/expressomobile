@@ -20,9 +20,13 @@ var PreviewAttachmentMessageView = Backbone.View.extend({
     hasPreview: false,
     forceDownloadFile: false,
 
-    render: function() {
+    render: function(elementID) {
 
-        var elementID = "#msgAttachmentsRecipients";
+        if (elementID == undefined) {
+            elementID = "#msgAttachmentsRecipients";
+        } 
+
+        //var elementID = "#msgAttachmentsRecipients";
 
         var newData = {
             fileID: this.fileID,

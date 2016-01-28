@@ -39,7 +39,7 @@ import ChatListView from 'ChatListView';
       'Mail/Message/:secondViewName' : 'composeMessageView',
       'Mail/Messages/:forceReload/:msgID/*folderID' : 'detailMessageView',
       'Contacts' : 'contactsListView',
-      'Contacts/Add/:contactID' : 'addContactView',
+      // 'Contacts/Add/:contactID' : 'addContactView',
       'Contacts/Delete/:contactID' : 'deleteContactView',
       'Contacts/:secondViewName/OK' : 'deleteContactsListView',
       'Contacts/:secondViewName/:contactID/:status' : 'detailsContactView',
@@ -230,6 +230,8 @@ import ChatListView from 'ChatListView';
           composeMessageView.secondViewName = secondViewName;
           composeMessageView.msgID = msgID;
           composeMessageView.folderID = folderID;
+
+          
           composeMessageView.render();
           
         });
@@ -266,9 +268,24 @@ import ChatListView from 'ChatListView';
 
         app_router.on('route:contactsListView', function (secondViewName) {
 
-          var contListView = new ContactsListView();
-          contListView.secondViewName = secondViewName;
-          contListView.render();          
+          var tabTitle    = "Contatos Pessoais";
+
+          var doneAddTab = function(PelementIndex, PelementID) {
+
+            var data = {
+              attributes: { elementIndex: PelementIndex, elementID: PelementID }
+            }
+
+            var contListView = new ContactsListView(data);
+            contListView.render();
+
+          }
+
+          Shared.homeView.addTab(tabTitle,doneAddTab);
+
+          
+          // contListView.secondViewName = secondViewName;
+          
       
         });
 
@@ -301,14 +318,20 @@ import ChatListView from 'ChatListView';
 
         app_router.on('route:addContactView', function (contactID, email) {
 
-          var addContactView = new AddContactView();
-          addContactView.contactID = contactID;
-          addContactView.email = email;
-          addContactView.render();
 
-          Shared.menuView.selectMenu(3);
+          // var contListView = new ContactsListView(data);
+          // contListView.addContact();
 
-          Shared.deviceType(Shared.isSmartPhoneResolution());
+
+          
+          // var addContactView = new AddContactView();
+          // addContactView.contactID = contactID;
+          // addContactView.email = email;
+          // addContactView.render();
+
+          // Shared.menuView.selectMenu(3);
+
+          // Shared.deviceType(Shared.isSmartPhoneResolution());
         });
 
         app_router.on('route:deleteContactView', function (contactID) {

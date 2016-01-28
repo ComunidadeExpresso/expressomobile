@@ -1,0 +1,110 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="../bower_components/paper-tabs/paper-tab.html">
+<link rel="import" href="../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../bower_components/neon-animation/neon-animated-pages.html">
+<link rel="import" href="../bower_components/neon-animation/neon-animatable.html">
+<link rel="import" href="../bower_components/neon-animation/animations/slide-from-left-animation.html">
+<link rel="import" href="../bower_components/neon-animation/animations/slide-from-right-animation.html">
+<link rel="import" href="../bower_components/neon-animation/animations/fade-out-animation.html">
+<link rel="import" href="../bower_components/neon-animation/animations/slide-up-animation.html">
+<link rel="import" href="../bower_components/neon-animation/animations/slide-down-animation.html">
+
+<link rel="import" href="../bower_components/paper-fab/paper-fab.html">
+<link rel="import" href="../bower_components/paper-fab-speed-dial/paper-fab-speed-dial-action.html">
+<link rel="import" href="../bower_components/paper-fab-speed-dial/paper-fab-speed-dial.html">
+
+<dom-module is="menu-fab">
+  <style>
+      paper-fab.blue {
+        --paper-fab-background: var(--paper-light-blue-500);
+        --paper-fab-keyboard-focus-background: var(--paper-light-blue-900);
+        position: absolute;
+        bottom: 16px;
+        right: 16px;
+      }
+
+      paper-fab.paper-fab-1 {
+        position: fixed;
+      }
+
+      .open.paper-fab-speed-dial {
+        position: fixed;
+      }
+
+      paper-fab-speed-dial.open {
+        position: fixed !important;
+      }
+
+  </style>
+  <template>
+      <template is="dom-if" if="{{_isPrimary(items)}}">
+        <paper-fab-speed-dial id="paperFabDial">
+        <template is="dom-repeat" items="{{items}}">
+          <paper-fab-speed-dial-action icon="{{item.iconClass}}" href="{{item.route}}" data-action="_clickMenuFabItem({{item.route}})" data-route="{{item.route}}" on-tap="_clickMenuFabItem">{{item.title}}</paper-fab-speed-dial-action>
+        </template>
+        </paper-fab-speed-dial>
+      </template>
+
+      <template is="dom-if" if="{{!_isPrimary(items)}}">
+        <template is="dom-repeat" items="{{items}}">
+          <paper-fab icon="{{item.iconClass}}" title="{{item.title}}" data-route="{{item.route}}" class="blue" on-tap="_clickMenuFabItem"></paper-fab>
+        </template>
+      </template>
+
+      
+  </template>
+  <script>
+    Polymer({
+      is: 'menu-fab',
+      properties: {
+        items: {
+          type: Array, 
+          value: [],
+          reflectAttribute: true
+        },
+        currentMenu: {
+          type: Array, 
+          value: [],
+          reflectAttribute: true
+        },
+      },
+
+      ready: function() {
+        //console.log(this.items);
+      },
+
+      _isPrimary: function(items) {
+        if (items != undefined) {
+          if (items.length == 1) { 
+            return false;
+          } else {
+            return true;
+          } 
+        }
+        
+      },
+
+      _clickMenuFabItem: function(e, detail, sender) {
+        e.stopPropagation();
+        // Polymer.dom(this).querySelector('paper-fab-speed-dial').close();
+        if (this.$$('#paperFabDial')) {
+          this.$$('#paperFabDial').close();
+        }
+        this.currentMenu = e.model;
+        this.fire('evt-click-menu-fab-item', {view: this});
+      },
+
+    });
+  </script>
+</dom-module>

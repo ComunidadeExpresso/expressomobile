@@ -38,7 +38,6 @@
 
     --paper-fab-speed-dial-background: rgb(68,138,255);
 
-
   }
 
   /* General styles */
@@ -46,12 +45,12 @@
   body {
     @apply(--layout-fullbleed);
   }
-  paper-scroll-header-panel {
+/*  paper-scroll-header-panel {
     @apply(--layout-fit);
     @apply(--layout-vertical);
     @apply(--paper-font-common-base);
     background-color: var(--paper-grey-200, #eee);
-  }
+  }*/
 
   #drawerToolbar {
     color: var(--secondary-text-color);
@@ -176,6 +175,8 @@
 
   }
 
+
+
   /* Material Design Adaptive Breakpoints */
   /*
     Below you'll find CSS media queries based on the breakpoint guidance
@@ -220,7 +221,7 @@
 
 
 
-/* Global custom props 
+/* Global custom props  */
 :root {
   --header-red-color: var(--paper-red-600);
 
@@ -232,18 +233,8 @@
   };
 }
 
-paper-scroll-header-panel {
-  --paper-scroll-header-panel-full-header: {
-    background: url(images/gmail.png) no-repeat 115% 56px;
-    background-size: 200px;
-    background-color: var(--header-red-color) !important;
-  };
-  --paper-scroll-header-panel-condensed-header: {
-    background-color: var(--header-red-color);
-    opacity: 1 !important;
-  };
-}
 
+/*
 #mainheader::shadow .title {
   isolation: isolate; 
 }

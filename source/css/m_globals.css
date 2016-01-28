@@ -49,13 +49,21 @@ a {
     overflow: auto;
 }
 
-.expresso-email .mdl-card__title {
+
+
+/*#mainToolbar {
+  background-image: url('../imgs/bg_card_expresso_logo.png');
+  background-position: 90% 40%;
+  background-repeat: no-repeat;
+}*/
+
+/*.expresso-email .mdl-card__title {
   min-height: 200px;
 
   background-image: url('../imgs/bg_card_expresso_logo.png');
   background-position: 90% 100%;
   background-repeat: no-repeat;
-}
+}*/
 .expresso-cards .mdl-card__actions a {
   color: #00BCD4;
   text-decoration: none;
@@ -70,7 +78,7 @@ a {
 }
 
 .expresso-loading-spacer {
-  margin-top: 100px;
+  padding-top: 100px;
   width: 100%;
   text-align: center;
 }
@@ -184,9 +192,21 @@ pull-to-action {
 
 
 
+#paperDrawerPanel paper-header-panel paper-menu {
+  margin: 16px 0 0 0;
+}
 
+
+
+#scrollheader::shadow #condensedHeaderBg {
+  background-color: #e51c23;
+  opacity: 1 !important; /* Prevents the background color from dissolving. */
+}
+
+
+/*
 #content {
 
   height: 100%;
 }
-
+*/

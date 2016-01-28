@@ -25,7 +25,6 @@ var EditFolderView = Backbone.View.extend({
 
             foldersCol.getFolders(this.folderID, this.search).done(function(foldersData) {
 
-
                     var currentFolder = foldersData.getFolderByID(that.folderID);
 
                     that.folderName = currentFolder.get("folderName");

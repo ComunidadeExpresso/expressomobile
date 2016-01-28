@@ -28,32 +28,32 @@ var ContextMenuCollection = Backbone.Collection.extend({
             route: "/Mail/Message/New",
             id: "1",
             title: "Nova Mensagem",
-            iconClass: 'btn-compose',
+            iconClass: 'create',
             primary: true
         };
         var addFolder = {
             route: "/Mail/AddFolder/" + folderID + "",
             id: "2",
-            iconClass: 'context-add-folder',
+            iconClass: 'folder',
             title: "Adicionar Pasta"
         };
         var renameFolder = {
             route: "/Mail/RenameFolder/" + folderID + "",
             id: "3",
-            iconClass: 'context-rename-folder',
+            iconClass: 'folder',
             title: "Renomear Pasta"
         };
         var deleteFolder = {
             route: "/Mail/DeleteFolder/" + folderID + "",
             id: "4",
-            iconClass: 'context-del-folder',
+            iconClass: 'delete',
             title: "Apagar Pasta"
         };
 
         var cleanTrash = {
             route: "/Mail/CleanTrash/" + folderID + "",
             id: "5",
-            iconClass: 'context-delete-message',
+            iconClass: 'delete',
             title: "Limpar Lixeira"
         };
 
@@ -86,6 +86,7 @@ var ContextMenuCollection = Backbone.Collection.extend({
         var menuItems = [{
             route: "/Settings/SaveMailSignature",
             title: "Salvar",
+            iconClass: 'save',
             primary: true
         }];
 
@@ -145,55 +146,55 @@ var ContextMenuCollection = Backbone.Collection.extend({
             route: "/Mail/Message/New",
             id: "0",
             title: "Nova Mensagem",
-            iconClass: 'btn-compose',
+            iconClass: 'icons:create',
             primary: true
         };
         var replyMessage = {
             route: "/Mail/Message/ReplyMessage/" + msgID + "/" + folderID,
             id: "1",
-            iconClass: 'context-reply',
+            iconClass: 'icons:reply',
             title: "Responder"
         };
         var replyMessageToAll = {
             route: "/Mail/Message/ReplyToAll/" + msgID + "/" + folderID,
             id: "2",
-            iconClass: 'context-reply-all',
+            iconClass: 'icons:reply-all',
             title: "Responder p/ Todos"
         };
         var forwardMessage = {
             route: "/Mail/Message/Forward/" + msgID + "/" + folderID,
             id: "3",
-            iconClass: 'context-forward',
+            iconClass: 'icons:forward',
             title: "Encaminhar"
         };
         var deleteMessage = {
             route: "/Mail/Message/DelMessage/" + msgID + "/" + folderID,
             id: "4",
-            iconClass: 'context-delete-message',
+            iconClass: 'icons:delete',
             title: "Apagar Mensagem"
         };
         var addFolder = {
             route: "/Mail/AddFolder/" + folderID + "",
             id: "5",
-            iconClass: 'context-add-folder',
+            iconClass: 'icons:folder',
             title: "Adicionar Pasta"
         };
         var renameFolder = {
             route: "/Mail/RenameFolder/" + folderID + "",
             id: "6",
-            iconClass: 'context-rename-folder',
+            iconClass: 'icons:folder-open',
             title: "Renomear Pasta"
         };
         var deleteFolder = {
             route: "/Mail/DeleteFolder/" + folderID + "",
             id: "7",
-            iconClass: 'context-del-folder',
+            iconClass: 'icons:delete',
             title: "Apagar Pasta"
         };
         var cleanTrash = {
             route: "/Mail/CleanTrash/" + folderID + "",
             id: "5",
-            iconClass: 'context-delete-message',
+            iconClass: 'icons:delete',
             title: "Limpar Lixeira"
         };
 
@@ -236,7 +237,7 @@ var ContextMenuCollection = Backbone.Collection.extend({
             callBack: params.sendCallBack,
             parentCallBack: params.parentCallBack,
             title: "Enviar",
-            iconClass: '',
+            iconClass: 'send',
             primary: true
         }, {
             route: "#",
@@ -244,7 +245,7 @@ var ContextMenuCollection = Backbone.Collection.extend({
             callBack: params.addCcBccCallBack,
             parentCallBack: params.parentCallBack,
             title: "Adicionar CC/BCC",
-            iconClass: 'icon-add-ccbcc',
+            iconClass: 'add-box',
             primary: false
         }];
 
@@ -254,7 +255,7 @@ var ContextMenuCollection = Backbone.Collection.extend({
             callBack: params.takePictureCallBack,
             parentCallBack: params.parentCallBack,
             title: "Tirar Foto",
-            iconClass: 'icon-take-picture',
+            iconClass: 'image:photo-camera',
             primary: false
         };
         var selectPicture = {
@@ -263,7 +264,7 @@ var ContextMenuCollection = Backbone.Collection.extend({
             callBack: params.selectPictureCallBack,
             parentCallBack: params.parentCallBack,
             title: "Escolher Foto",
-            iconClass: 'icon-select-picture',
+            iconClass: 'image:photo-album',
             primary: false
         };
         var addAttachment = {
@@ -272,7 +273,7 @@ var ContextMenuCollection = Backbone.Collection.extend({
             callBack: params.selectAttachmentFileCallBack,
             parentCallBack: params.parentCallBack,
             title: "Adicionar Anexo",
-            iconClass: 'icon-select-picture',
+            iconClass: 'image:photo-album',
             primary: false
         };
 
@@ -296,7 +297,7 @@ var ContextMenuCollection = Backbone.Collection.extend({
             callBack: params.sendCallBack,
             parentCallBack: params.parentCallBack,
             title: "Enviar",
-            iconClass: '',
+            iconClass: 'send',
             primary: true
         }, {
             route: "#",
@@ -304,7 +305,7 @@ var ContextMenuCollection = Backbone.Collection.extend({
             callBack: params.removeCcBccCallBack,
             parentCallBack: params.parentCallBack,
             title: "Remover CC/BCC",
-            iconClass: 'icon-remove-ccbcc',
+            iconClass: 'clear',
             primary: false
         }];
 
@@ -314,7 +315,7 @@ var ContextMenuCollection = Backbone.Collection.extend({
             callBack: params.takePictureCallBack,
             parentCallBack: params.parentCallBack,
             title: "Tirar Foto",
-            iconClass: 'icon-take-picture',
+            iconClass: 'image:photo-camera',
             primary: false
         };
         var selectPicture = {
@@ -323,7 +324,7 @@ var ContextMenuCollection = Backbone.Collection.extend({
             callBack: params.selectPictureCallBack,
             parentCallBack: params.parentCallBack,
             title: "Escolher Foto",
-            iconClass: 'icon-select-picture',
+            iconClass: 'image:photo-album',
             primary: false
         };
         var addAttachment = {
@@ -332,7 +333,7 @@ var ContextMenuCollection = Backbone.Collection.extend({
             callBack: params.selectAttachmentFileCallBack,
             parentCallBack: params.parentCallBack,
             title: "Adicionar Anexo",
-            iconClass: 'icon-select-picture',
+            iconClass: 'image:photo-album',
             primary: false
         };
 

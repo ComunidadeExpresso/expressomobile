@@ -1,7 +1,5 @@
-define([
-  'jquery',
-  'backbone',
-], function($,Backbone){
+import $ from 'jquery';
+import Backbone from 'backbone';
 // THIS AUTOCOMPLETE WIDGET WAS MODIFIED TO WORK IN OUR APPLICATION,
 // THINK TWICE BEFORE UPDATING THIS FILE TO A NEW VERSION.
 //
@@ -260,7 +258,7 @@ define([
 				}
 				if (em.length) {
 					var model_id = em.attr('model_id');
-					model = collection.getContactByID(model_id);
+					var model = collection.getContactByID(model_id);
 					if (options.onselect) {
 						options.onselect(model);
 						list_em.empty();
@@ -340,4 +338,5 @@ define([
 })(jQuery);
 
 
-});
+
+

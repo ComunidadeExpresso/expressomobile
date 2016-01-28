@@ -26,9 +26,6 @@ var FoldersModel = Backbone.Model.extend({
         return '/Mail/Messages/1/0/' + this.get("folderID") + '#';
     },
 
-
-
-
 });
 
 export default FoldersModel;

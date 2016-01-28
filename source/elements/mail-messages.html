@@ -8,7 +8,7 @@
 <link rel="import" href="../bower_components/iron-menu-behavior/iron-menu-behavior.html">
 
 <link rel="import" href="mail-folder.html">
-<link rel="import" href="profile-img.html">
+<link rel="import" href="profile-img/profile-img.html">
 <link rel="import" href="swipeable-item.html">
 <link rel="import" href="mail-thread.html">
 
@@ -17,15 +17,11 @@
   <style>
     :host {
       height: 100%;
-      overflow: hidden;
-      /*overflow: hidden;*/
-    }
-  
-    iron-list {
-      padding-bottom: 16px;
     }
 
     iron-list {
+      /*padding-bottom: 16px;*/
+      /*height: 10px;*/
       /*overflow: hidden;*/
     }
 
@@ -84,7 +80,7 @@
                        selected-items="{{tempMessages}}"
                        on-iron-select="_onThreadSelectChange"
                        on-iron-deselect="_onThreadSelectChange">
-           <mail-thread folderid="{{item.folderID}}" msgid='{{item.msgID}}' subject="{{item.subject}}" from="{{item.from}}" date="{{item.date}}" bodyresume="{{item.bodyresume}}" route="{{item.route}}" unread="{{item.unread}}" starred="{{item.starred}}" on-open-message="openMessage" on-starred-message="starredMessage" data-thread-index$="{{item.index}}"></mail-thread>
+           <mail-thread folderid="{{item.folderID}}" msgid='{{item.msgID}}' subject="{{item.subject}}" fromemail="{{item.fromemail}}" from="{{item.from}}" date="{{item.date}}" bodyresume="{{item.bodyresume}}" route="{{item.route}}" unread="{{item.unread}}" has-attachments="{{item.hasAttachments}}" starred="{{item.starred}}" on-open-message="openMessage" on-starred-message="starredMessage" data-thread-index$="{{item.index}}"></mail-thread>
            </iron-selector>
         </template>
       </div>
@@ -104,7 +100,24 @@
 
     onScroll: function(e) {
 
+      // console.log("onScroll");
+      // console.log(e);
+
+      // var deltaHeight = e.target.scrollTop * -1;
+      // var newHeight =  ((64 * 3) + deltaHeight);
+      // if (newHeight < 64) {
+      //   newHeight = 64;
+      // }
+      // document.getElementById('mainToolbar').setAttribute('style', 'height: ' + newHeight + 'px;');
+
+      // $("paper-toolbar.paper-toolbar-0.tall")
+
       if ((this.hasMoreMessages) && (!this.isLoadingNextPage)) {
+
+        // console.log(e.target.scrollTop);
+        // console.log(e.target.offsetHeight);
+        // console.log(e.target.scrollHeight);
+
 
         if (e.target.scrollTop + e.target.offsetHeight >= e.target.scrollHeight - 500) {
 
@@ -115,6 +128,8 @@
         }
         
       }
+
+      // this.fire('iron-resize');
 
     },
 
@@ -141,7 +156,7 @@
 
     ready: function() {
 
-      Polymer.dom(this.$.scrollList).setAttribute('style', 'height: ' + (document.body.clientHeight - 50) + 'px;');
+      Polymer.dom(this.$.scrollList).setAttribute('style', 'height: ' + (document.body.clientHeight) + 'px;');
 
     },
 
@@ -195,6 +210,8 @@
 
       this.fire('evt-select-messages', {thread: this});
     },
+
+    
 
     _onThreadSelectChange: function(event) {
 
@@ -268,8 +285,11 @@
         value: [],
         reflectAttribute: true
       },
-
-
+      hostElementID: {
+        type: String,
+        value: 'content_HostID',
+        reflectAttribute: true,
+      },
       tempMessages: {
         type: Array, 
         reflectAttribute: true,

@@ -60,6 +60,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/neon-animation/neon-animated-pages.html">
 <link rel="import" href="../bower_components/neon-animation/neon-animatable.html">
 <link rel="import" href="../bower_components/neon-animation/animations/slide-from-left-animation.html">
+<link rel="import" href="../bower_components/neon-animation/animations/fade-in-animation.html">
 <link rel="import" href="../bower_components/neon-animation/animations/fade-out-animation.html">
 <link rel="import" href="../bower_components/neon-animation/animations/slide-up-animation.html">
 <link rel="import" href="../bower_components/neon-animation/animations/slide-down-animation.html">
@@ -89,10 +90,39 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       margin-top: 100px;
     }
 
+    :root {
+      --header-red-color: var(--paper-red-600);
 
-    body.core-narrow {
-      padding: 8px;
+      --gmail-toast-action: {
+        color: #ffa726;
+        text-transform: uppercase;
+        cursor: pointer;
+        font-weight: 400;
+      };
     }
+
+
+    paper-scroll-header-panel {
+      --paper-scroll-header-panel-full-header: {
+        background: url(../imgs/bg_card_expresso_logo.png) no-repeat 115% 56px;
+        background-size: 200px;
+        background-color: var(--header-red-color) !important;
+      };
+      --paper-scroll-header-panel-condensed-header: {
+        background-color: var(--header-red-color);
+        opacity: 1 !important;
+      };
+    }
+
+  #drawerPanel:not([narrow]) paper-scroll-header-panel .scroll-content {
+      padding: 30px 0;
+      background-color: #fafafa;
+  }
+
+
+/*    body.core-narrow {
+      padding: 8px;
+    }*/
     
     paper-tabs, core-toolbar {
       color: #fff;
@@ -127,6 +157,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     paper-tabs.transparent-teal paper-tab::shadow #ink {
       color: #00bcd4;
     }
+
+    paper-scroll-header-panel {
+      @apply(--layout-fit);
+      @apply(--layout-vertical);
+      @apply(--paper-font-common-base);
+    }
+
+    paper-scroll-header-panel .scroll-content {
+        height: 100%;
+    }
+
+    paper-toolbar.tall {
+      font-size: 40px;
+      overflow: visible;
+      -webkit-transform-origin: left center;
+      transform-origin: left center;
+    }
     
     h3 {
       font-size: 16px;
@@ -136,7 +183,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   </style>
   <template>
-
+  
     <paper-drawer-panel id="paperDrawerPanel">
     <!-- Drawer Scroll Header Panel -->
     <paper-scroll-header-panel drawer fixed>
@@ -155,7 +202,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <paper-scroll-header-panel id="scrollheader" class="fit" main keep-condensed-header condenses>
 
       <!-- Main Toolbar -->
-      <paper-toolbar id="mainToolbar" class="tall">
+      <paper-toolbar  id="mainheader" class="tall">
         <paper-icon-button id="paperToggle" icon="menu" paper-drawer-toggle></paper-icon-button>
         <span class="flex"></span>
 
@@ -179,54 +226,31 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               </template>
             </paper-tabs>
           
-
-          <!-- <mat-tabs id="mainTabs" scrollable selected="{{selected}}" target="homePages">
-            <template is="dom-repeat" items="{{tabs}}">
-              <mat-tab name="{{item.index}}" label="{{item.name}}" closable$="{{item.closable}}"></mat-tab>
-            </template>
-          </mat-tabs> -->
           <div class="bottom flex"></div>
 
           
       </paper-toolbar>
       
-
       <!-- Main Content -->
+      <div class="scroll-content">
 
-      <!-- 
-      <mat-pages id="homePages" selected="{{selected}}">
-          <template is="dom-repeat" items="{{tabs}}">
-            <mat-page index="{{item.index}}" id="content_{{item.index}}" class="content">
-
-              <div id="refresh" class="fit layout vertical center-center">
-                <div id="refresh-spinner-container" class="layout vertical center-center shrink">
-                  <paper-spinner alt="Carregando" active></paper-spinner>
-                  {{item.content}}
+        <neon-animated-pages style="margin-top: 192px; " id="homeTabs" class="fit" selected="{{selected}}" entry-animation="fade-in-animation" exit-animation="fade-out-animation" on-neon-animation-finish="_onPageChange">
+          <template is="dom-repeat" items="{{pageTabs}}">
+            <neon-animatable>
+              <div id="pull-to-action-loader-{{item.index}}"></div>
+              <div id="content_{{item.index}}">
+                <div id="refresh" class="layout vertical center-center">
+                  <div id="refresh-spinner-container" class="layout vertical center-center shrink">
+                    <paper-spinner alt="Carregando" active></paper-spinner>
+                  </div>
                 </div>
               </div>
-            
-            </mat-page>
+              <div id="paper-fab-menu-{{item.index}}"></div>
+            </neon-animatable>
           </template>
-      </mat-pages>    
-      -->
-
-
-  
-      <neon-animated-pages id="homeTabs" class="flex" selected="{{selected}}" entry-animation="slide-down-animation" exit-animation="fade-out-animation">
-        <template is="dom-repeat" items="{{pageTabs}}">
-          <neon-animatable>
-            <div id="pull-to-action-loader-{{item.index}}"></div>
-            <div id="content_{{item.index}}" class="content">
-              <div id="refresh" class="fit layout vertical center-center">
-                <div id="refresh-spinner-container" class="layout vertical center-center shrink">
-                  <paper-spinner alt="Carregando" active></paper-spinner>
-                </div>
-              </div>
-            </div>
-            <div id="paper-fab-menu-{{item.index}}"></div>
-          </neon-animatable>
-        </template>
-      </neon-animated-pages>
+        </neon-animated-pages>
+    
+      </div>
             
 
     </paper-scroll-header-panel>
@@ -282,6 +306,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           this.selected = this.tabs.length - 1;
         }
 
+      },
+
+      _onPageChange:function(e,a) {
+          var lists = a.toPage.querySelectorAll("iron-list");
+          for(i=0;i<lists.length;i++) {
+              lists[i].fire("iron-resize");
+          }
+
+          // document.querySelector("#scrollheader").measureHeaderHeight();
       },
 
 
@@ -351,12 +384,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     //     var detail = event.detail;
     //     var deltaHeight = detail.height - detail.condensedHeight;
     //     var scale = Math.max(0.6, (deltaHeight - detail.y) / (deltaHeight / 0.4)  + 0.6);
-    //     $("#currentPageTitle").css({transform: 'scale(' + scale + ') translateZ(0)'});
+    //     // $("#currentPageTitle").css({transform: 'scale(' + scale + ') translateZ(0)'});
 
     //     if (scale <= 0.8) {
-    //       $('#currentPageTitle').css({'margin-top':'130px'});
+    //       $('#homeTabs').css({'margin-top':'130px'});
     //     } else {
-    //       $('#currentPageTitle').css({'margin-top':'0px'});
+    //       $('#homeTabs').css({'margin-top':'0px'});
     //     }
     // });
   </script>

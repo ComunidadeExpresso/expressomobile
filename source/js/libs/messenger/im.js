@@ -1,23 +1,20 @@
-define([
-  'jquery',
-  'underscore',
-  'backbone',
-  'jquery_xmpp',
-  'jquery_migrate',
-  'jqueryui',
-  'wijmo',
-  'tinysort_charorder',
-  'tinysort',
-  'tinysort_open',
-  'contextmenu',
-  'linkify',
-  'jquery_linkify',
-  'wijdialog',
-  'jquery_autogrow',
-  'material',
-  'tweenmax',
-  // 'jquery_scrollTo',
-], function($, _, Backbone, jquery_xmpp,jquery_migrate,jqueryui,wijmo,tinysort_charorder,tinysort,tinysort_open,contextmenu,linkify,jquery_linkify,wijdialog,jquery_autogrow,Material,TweenMax){
+import $ from 'jquery';
+import _ from 'underscore';
+import Backbone from 'backbone';
+import jquery_xmpp from 'jquery_xmpp';
+import jquery_migrate from 'jquery_migrate';
+import jqueryui from 'jqueryui';
+import wijmo from 'wijmo';
+import tinysort_charorder from 'tinysort_charorder';
+import tinysort from 'tinysort';
+import tinysort_open from 'tinysort_open';
+import contextmenu from 'contextmenu';
+import linkify from 'linkify';
+import jquery_linkify from 'jquery_linkify';
+import wijdialog from 'wijdialog';
+import jquery_autogrow from 'jquery_autogrow';
+import Material from 'material';
+import TweenMax from 'tweenmax';
 
 
 	/**
@@ -427,7 +424,7 @@ var MD5 = (function () {
   		statusClasses = settings.onlineClass + " " + settings.awayClass + " " + settings.busyClass + " " + settings.offlineClass,
 		t = null,
 		user = settings.username;//settings.jid.split("@")[0],
-		contacts = [];
+		var contacts = [];
 		
   		prepare($container, user);
 
@@ -941,6 +938,7 @@ var MD5 = (function () {
 						contact.click(function(){
 							var id = md5_contact+"_chat";
 							var conversation = $("#"+id);
+                            var conversationDialog;
 							if(conversation.length == 0){
 								conversationDialog = openChat({"title":from, "from": _rosterJid, "id": id, "md5_id":md5_contact});
 								conversationDialog.parent().find(".ui-dialog-titlebar").prepend(status.clone().removeClass("chatting"));
@@ -1249,6 +1247,7 @@ var MD5 = (function () {
 				contact.click(function(){
 					var id = md5_contact+"_chat";
 					var conversation = $("#"+id);
+                    var conversationDialog;
 					if(conversation.length == 0){
 						conversationDialog = openChat({title:from, from: presence[settings.contactNameIndex], id: id, md5_id:md5_contact});
 						conversationDialog.parent().find(".ui-dialog-titlebar").prepend(status.clone().removeClass("chatting"));
@@ -1695,4 +1694,5 @@ var MD5 = (function () {
   	};
 
 
-});
+
+

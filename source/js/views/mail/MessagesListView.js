@@ -110,8 +110,8 @@ var MessagesListView = Backbone.View.extend({
                     elementIndex: thot.elementIndex
                 };
 
-                console.log("doneAddTab");
-                console.log(elementID);
+                // console.log("doneAddTab");
+                // console.log(elementID);
 
                 var htmlTemplate = _.template(messagesListTemplate);
                 var htmlWithData = htmlTemplate(newData);
@@ -147,6 +147,11 @@ var MessagesListView = Backbone.View.extend({
             if (!appendAtEnd) {
 
                 Shared.homeView.addTab(that.currentFolder.get("folderName"),doneAddTab);
+
+            } else {
+
+                console.log("appendAtEnd = " + thot.elementIndex);
+
 
             }
 
@@ -193,15 +198,60 @@ var MessagesListView = Backbone.View.extend({
 
         } else {
 
-            var detailMessageView = new DetailMessageView();
-            detailMessageView.folderID = that.folderID;
-            detailMessageView.msgID = that.msgID;
-            detailMessageView.render();
+            that.openMessage(that.folderID,that.msgID);
+
+            // var detailMessageView = new DetailMessageView();
+            // detailMessageView.folderID = that.folderID;
+            // detailMessageView.msgID = that.msgID;
+            // detailMessageView.render();
             
         }
 
 
 
+    },
+
+    openMessage: function(PfolderID, PmsgID,PSubject) {
+
+        var messagesData = new MessagesCollection();
+
+        messagesData.getMessagesInFolder(PfolderID, PmsgID, '', 1).done(function(Pdata) {
+
+            var PSubject = ""; 
+
+            PSubject = Pdata.models[0].get("msgSubject");
+
+            var attrs = {
+                msg: PmsgID,
+                folder: PfolderID,
+                subject: PSubject,
+            };
+            var detailMessageView = new DetailMessageView({"attributes": attrs });
+            detailMessageView.render();
+
+        }).execute();
+
+        
+
+        
+
+        //     var messageItems = "";
+        //     if (Pdata != undefined) {
+        //         messageItems = JSON.stringify(Pdata.toJSON());
+        //     } 
+        //     var attrs = {
+        //         messages: messageItems,
+        //     };
+
+        //     var detailMessageView = new DetailMessageView({"attributes": attrs , "collection": Pdata});
+        //     detailMessageView.render();
+
+        // }).fail(function(result) {
+
+        //     Shared.handleErrors(result.error);
+        //     return false;
+
+        
     },
 
     events: {
@@ -210,8 +260,10 @@ var MessagesListView = Backbone.View.extend({
     },
 
     loadNextPage: function(e) {
-        console.log("loadNextPage");
-        this.pullUpAction();
+        var pElementIndex = e.currentTarget.firstChild.getAttribute('data-index');
+        // console.log(e.currentTarget.firstChild.getAttribute('data-index'));
+        // console.log("loadNextPage");
+        this.pullUpAction(pElementIndex);
     },
 
     searchMessage: function(e) {
@@ -310,12 +362,18 @@ var MessagesListView = Backbone.View.extend({
                             attrs["isFolder"] = false; //MESSAGE
                             attrs["subject"] = message.get("msgSubject");
                             attrs["from"] = message.get("msgFrom").fullName;
+                            attrs["fromemail"] = message.get("msgFrom").mailAddress;
                             attrs["date"] = message.getTimeAgo();
                             attrs["bodyresume"] = message.get("msgBodyResume");
                             attrs["msgID"] = message.get("msgID");
                             attrs["folderID"] = message.get("folderID");
                             attrs["route"] = message.route();
 
+                            if (message.get("msgHasAttachments") == "1") {
+                                attrs["hasAttachments"] = true;
+                            } else {
+                                attrs["hasAttachments"] = false;
+                            }
 
                             if (message.get("msgFlagged") == "1") {
                                 attrs["starred"] = true;
@@ -338,6 +396,7 @@ var MessagesListView = Backbone.View.extend({
                         if (!appendAtEnd) {
                             var attrs = [];
                             attrs["items"] = JSON.stringify(arr_items);
+                            attrs["hostElementID"] = "#content_";
                             that.messagesListItemsView = new MessagesListItemsView({
                                 attributes: attrs
                             });
@@ -381,7 +440,6 @@ var MessagesListView = Backbone.View.extend({
             })
             .execute();
 
-
     },
 
 
@@ -391,10 +449,19 @@ var MessagesListView = Backbone.View.extend({
         getMessages(this.folderID, this.search, this.page, false, true);
     },
 
-    pullUpAction: function() {
-        console.log("pullUpAction:" + this.elementID);
+    pullUpAction: function(PelementIndex) {
+
+        var elementIndex = PelementIndex;
+
+        var that = this;
+
+        var doneRefreshCallback = function(arr_items, appendAtEnd) {
+            that.messagesListItemsView.render(elementIndex,appendAtEnd, arr_items);
+        };
+
+        // console.log("pullUpAction:" + this.elementID + elementIndex);
         this.page = this.page + 1;
-        this.getMessages(this.folderID, this.search, this.page, true, false);
+        this.getMessages(this.folderID, this.search, this.page, true, false,function(){}, doneRefreshCallback);
     }
 
 });

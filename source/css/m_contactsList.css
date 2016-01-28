@@ -31,12 +31,6 @@ dl#contactsList dd ul li.selected { background: #bbdefb; }
     background: url('../imgs/contactPhotoFrameNone.png') center center no-repeat;
 }
 
-.expresso-avatar {
-  width: 48px;
-  height: 48px;
-  border-radius: 24px;
-}
-
 
 dl#contactsList dd ul li a div.picture_image { height: 48px; width: 48px;  border-radius: 24px; margin-top: 15px; float: left; background: url('../imgs/contactPhotoFrameNone.png') center center no-repeat; }
 

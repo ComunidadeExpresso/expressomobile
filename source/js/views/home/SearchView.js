@@ -34,7 +34,7 @@ var SearchView = Backbone.View.extend({
 
     _doSearch: function(event) {
 
-        var searchView = event.currentTarget;
+     /*   var searchView = event.currentTarget;
 
         var searchValue = searchView.get("searchValue");
         console.log("search-changed:" + searchValue);
@@ -50,7 +50,7 @@ var SearchView = Backbone.View.extend({
 
         searchView.set("previousSearches", searches);
 
-        console.log(event.currentTarget);
+        console.log(event.currentTarget); */
 
     },
 
