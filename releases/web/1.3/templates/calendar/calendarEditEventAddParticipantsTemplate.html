@@ -1,0 +1,50 @@
+<% if (typeof(contacts) != 'undefined' && contacts.length > 0) { %>
+
+	<dl id="participantsList">
+
+		<% var summaryLetter = _.first(contacts).get('contactFirstName').charAt(0).toUpperCase(); %>
+
+		<dt><%=summaryLetter%></dt>
+		<dd>
+			<ul>
+				<% _.each(contacts, function(c) { %>
+
+					<% if (!_.isEqual(summaryLetter, c.get('contactFirstName').charAt(0).toUpperCase())) { %>
+					
+						<% summaryLetter = c.get('contactFirstName').charAt(0).toUpperCase(); %>
+						
+						</ul>
+							</dd>
+							<dt><%=summaryLetter%></dt>
+							<dd>
+								<ul>
+
+					<% } %>
+
+					<%
+						var checked = _.contains(listParticipants, c.get('contactUIDNumber')) ? "checked='checked'" : '';
+						var selected = _.contains(listParticipants, c.get('contactUIDNumber')) ? " class='selected'" : '';
+					%>
+
+					<li<%= checked %>>
+						
+
+						<input type="checkbox" class="check css-checkbox" <%= checked %> name="<%= c.get('contactUIDNumber') %>" id="<%= c.get('contactUIDNumber') %>" data-name="<%=c.get('contactFullName')%>" data-mail="<%=c.get('contactMails')[0]%>" value="<%= c.get('contactUIDNumber') %>" />
+						<label class="css-label" for="<%= c.get('contactUIDNumber') %>"><%=c.get('contactFullName')%><br><%=c.get('contactMails')[0]%></label>
+					</li>					
+
+				<% }); %>
+
+			</ul>
+		</dd>
+	</dl>
+
+<% } else { %>
+
+	<% if (!_.isObject(error)) { %>
+
+		<p class="erro">Nenhum registro encontrado</p>
+		
+	<% } %>
+
+<% } %>

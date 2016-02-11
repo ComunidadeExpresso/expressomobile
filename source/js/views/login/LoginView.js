@@ -27,10 +27,17 @@ define([
 
       collection.done(function (data) {
 
+        var showClassicLink = false;
+
+        if (ORIGIN_SERVER != undefined) {
+          showClassicLink = true;
+        }
+
         var newData = {
           servers: data.models,
           Shared: Shared,
-          _: _
+          _: _,
+          showClassicLink: showClassicLink
         }
 
         var compiledTemplate = _.template( loginTemplate, newData );
@@ -98,6 +105,14 @@ define([
       "keydown #username" : "keydownUserName",
       "keydown #password" : "keydownPassword",
       "click #helpLink" : "showHelp",
+      "click #classicLink" : "goBackToClassicVersion",
+    },
+
+    goBackToClassicVersion: function(e) {
+
+      if (ORIGIN_SERVER != undefined) {
+        window.location.href = ORIGIN_SERVER + '?ignore_mobile=true';
+      }
     },
 
     showHelp: function(e) {
