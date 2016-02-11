@@ -790,29 +790,29 @@ document.addEventListener('deviceready', function () {
 
 });
 
-  var exitFunction = function(){
+  // var exitFunction = function(){
 
-    if (Shared.userHasModule("chat")) {
-      Shared.im.disconnect();
-    }
+  //   if (Shared.userHasModule("chat")) {
+  //     Shared.im.disconnect();
+  //   }
 
-    window.location.href = "/";
+  //   window.location.href = "/";
     
-  };
+  // };
 
-    if(window.onpagehide || window.onpagehide === null){
-       window.addEventListener('pagehide', exitFunction, false);
-    } else {
-       window.addEventListener('unload', exitFunction, false);
-    }
+    // if(window.onpagehide || window.onpagehide === null){
+    //    window.addEventListener('pagehide', exitFunction, false);
+    // } else {
+    //    window.addEventListener('unload', exitFunction, false);
+    // }
 
-    window.onunload=exitFunction;
+    // window.onunload=exitFunction;
 
-    window.onbeforeunload = function () {
+    // window.onbeforeunload = function () {
 
-      exitFunction();
+    //   exitFunction();
 
-    }; 
+    // }; 
 
 
   //Shared.router is created in App.js

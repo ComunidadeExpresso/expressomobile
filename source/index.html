@@ -21,6 +21,11 @@
   <script>
     var intent_auth = null;
     var IS_PHONEGAP = false;
+    var ORIGIN_SERVER = '';
+    if (window.localStorage != undefined) {
+      ORIGIN_SERVER = window.localStorage.getItem('ORIGIN_SERVER');
+    }
+    
   </script>
 
 	<script data-main="js/main" src="./js/libs/require/require.js"></script>
