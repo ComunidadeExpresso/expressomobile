@@ -92,7 +92,9 @@ gulp.task('copy:build','Copy all necessary files from source to build folder.',f
     gulp.src(['source/bower_components/expandjs/**/*']).pipe(gulp.dest(folder + '/bower_components/expandjs/'));
     gulp.src(['source/bower_components/traceur/**/*']).pipe(gulp.dest(folder + '/bower_components/traceur/'));
     gulp.src(['source/bower_components/traceur-runtime/**/*']).pipe(gulp.dest(folder + '/bower_components/traceur-runtime/'));
+    gulp.src(['source/bower_components/promise-polyfill/**/*']).pipe(gulp.dest(folder + '/bower_components/promise-polyfill/'));
     gulp.src(['source/bower_components/xp-observer/**/*']).pipe(gulp.dest(folder + '/bower_components/xp-observer/'));
+    gulp.src(['source/elements/**/*']).pipe(gulp.dest(folder + '/elements/'));
     gulp.src(['source/imgs/**/*']).pipe(gulp.dest(folder + '/imgs/'));
     // gulp.src(['source/config/**/*']).pipe(gulp.dest(folder + '/config/'));
     // gulp.src(['source/css/**/*']).pipe(gulp.dest(folder + '/css/'));
@@ -197,7 +199,8 @@ gulp.task('reload-js', false, function() {
 var tinylr;
 gulp.task('livereload', function() {
   tinylr = require('tiny-lr')();
-  tinylr.listen(35729);
+  tinylr.listen(
+    );
 });
 
 function notifyLiveReload(event) {

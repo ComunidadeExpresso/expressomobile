@@ -1,0 +1,159 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="../bower_components/paper-tabs/paper-tab.html">
+<link rel="import" href="../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+
+<link rel="import" href="../bower_components/paper-toolbar/paper-toolbar.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+
+<link rel="import" href="../bower_components/paper-menu-button/paper-menu-button.html">
+<link rel="import" href="../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../bower_components/paper-menu/paper-menu.html">
+<link rel="import" href="../bower_components/paper-tooltip/paper-tooltip.html">
+
+
+<dom-module is="app-toolbars">
+  <style>
+
+    :host {
+        z-index: 100;
+        padding-top: 0px;
+    }
+
+
+
+    
+    paper-toolbar {
+      /* custom toolbar height */
+      height: 256px;
+      /*background-color: transparent;*/
+      overflow: visible;
+    }
+    paper-icon-button {
+      margin: 0 8px;
+      --paper-icon-button-ink-color: white;
+    }
+    .bottom-text {
+      -webkit-transform: translateZ(0);
+      transform: translateZ(0);
+      font-size: 20px;
+      padding-bottom: 10px;
+    }
+    .subtitle {
+      padding-top: 4px;
+      font-size: 16px;
+      color: #ccc;
+    }
+
+
+    .spacer {
+      @apply(--layout-flex);
+    }
+
+  </style>
+  <template>
+
+    <paper-toolbar id="mainToolbar" class="tall">
+          <paper-icon-button id="paperToggle" icon="menu" paper-drawer-toggle></paper-icon-button>
+          <template is="dom-if" if="{{backButton}}">
+            <paper-icon-button icon="arrow-back" on-down="_onTapBackButton"></paper-icon-button>
+          </template>
+          <div class="spacer"></div>
+          <template is="dom-if" if="{{refreshButton}}">
+            <paper-icon-button id="refreshButton" icon="refresh" on-down="_onTapRefreshButton"></paper-icon-button>
+          </template>
+          <paper-icon-button id="searchButton" icon="search" on-down="_onTapSearchButton"></paper-icon-button> 
+          <template is="dom-if" if="{{!_hasItems(items)}}">
+          <paper-menu-button on-tap="menuMoreSelected" class="">
+            <paper-icon-button icon="more-vert" class="dropdown-trigger"></paper-icon-button>
+            <paper-menu class="dropdown-content">
+              <template is="dom-repeat" items="{{items}}">
+                <paper-item><iron-icon icon="{{item.iconClass}}" item-icon></iron-icon>{{item.title}}</paper-item>
+              </template>
+            </paper-menu>
+          </paper-menu-button>
+          </template>
+          <div id="currentPageTitle" class="bottom title">{{title}}</div>
+    </paper-toolbar>
+      
+  </template>
+  <script>
+    Polymer({
+      is: 'app-toolbars',
+      properties: {
+        title: {
+          type: String, 
+          value: '',
+          reflectAttribute: true
+        },
+        refreshButton: {
+          type: Number, 
+          value: 1,
+          reflectAttribute: true
+        },
+        items: {
+          type: Array,
+          value: [],
+          reflectAttribute: true
+        },
+        backButton: {
+          type: Number, 
+          value: 0,
+          reflectAttribute: true
+        },
+      },
+
+      _hasItems: function(items) {
+        if (items != undefined) {
+          if (items.length == 1) { 
+            return false;
+          } else {
+            return true;
+          } 
+        }
+        
+      },
+
+      ready: function() {
+        //console.log(this.items);
+      },
+
+      menuItemsSelected: function(e) {
+        console.log()
+      },
+
+      _onTapBackButton: function(e) {
+        e.stopPropagation();
+        console.log("Toolbar Back");
+        this.fire('evt-toolbar-back');
+      },
+
+      _onTapRefreshButton: function(e) {
+        e.stopPropagation();
+        console.log("Toolbar Refresh");
+        this.fire('evt-toolbar-refresh');
+      },
+
+      _onTapSearchButton: function(e) {
+        e.stopPropagation();
+        console.log("Toolbar Search");
+        this.fire('evt-toolbar-search', {view: this});
+        //evt-search-view
+        //this.fire('evt-toolbar-search');
+      },
+
+    });
+  </script>
+</dom-module>

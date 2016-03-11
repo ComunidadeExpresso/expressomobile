@@ -16,9 +16,10 @@
 <link rel="import" href="../../bower_components/neon-animation/animations/fade-in-animation.html">
 <link rel="import" href="../../bower_components/neon-animation/animations/fade-out-animation.html">
 
-
-<link rel="import" href="../contacts/contact-list.html">
 <link rel="import" href="../profile-img/profile-img.html">
+<link rel="import" href="../mail-messages/mail-messages.html">
+<link rel="import" href="../contacts/contact-list.html">
+
 
 <dom-module id="material-search">
 <style>
@@ -85,7 +86,7 @@
     };
   }
 
-  .avatar {
+/*  .avatar {
     display: inline-block;
     width: 40px;
     height: 40px;
@@ -97,81 +98,40 @@
 
   paper-item iron-icon {
     margin-right: 24px !important;
-  }
+  }*/
 </style>
 <template>
   <paper-header-panel mode="standard" class="fit">
 
 
     <paper-toolbar id="core_toolbar" class="medium-tall">
-        <paper-icon-button icon="arrow-back" id="paper_icon_button" on-tap="toggle"></paper-icon-button>
-
-          <input id="searchbox" placeholder="Procurar" class="flex"
-             value="{{searchValue::change}}"
-             on-keyup="doSearch">
-            
-          <div class="mdl-layout-spacer"></div>
-          <paper-icon-button icon="av:mic" on-tap="getSpeechInput"></paper-icon-button>
-        <div class="bottom fit" horizontal layout>
+      <paper-icon-button icon="arrow-back" id="paper_icon_button" on-tap="toggle"></paper-icon-button>
+      <input id="searchbox" placeholder="Procurar" class="flex" value="{{searchValue::change}}" on-keyup="doSearch">
+      <div class="mdl-layout-spacer"></div>
+      <paper-icon-button icon="av:mic" on-tap="getSpeechInput"></paper-icon-button>
+      <div class="bottom fit" horizontal layout>
         <paper-tabs selected="{{activeTab}}" selectedindex="{{activeTab}}" id="paper_tabs" flex style="">
             <paper-tab inline flex center-center horizontal layout active><iron-icon icon="communication:email"></iron-icon>&nbsp;Email</paper-tab>
             <paper-tab inline flex center-center horizontal layout active><iron-icon icon="social:people"></iron-icon>&nbsp;Contatos Pessoais</paper-tab>
             <paper-tab inline flex center-center horizontal layout active><iron-icon icon="social:people"></iron-icon>&nbsp;Catálogo Geral</paper-tab>
             <!-- <paper-tab id="paper_tab" inline flex center-center horizontal layout active><iron-icon icon="icons:event"></iron-icon>&nbsp;Agenda</paper-tab> -->
         </paper-tabs>
-        </div>
-      </paper-toolbar>
+      </div>
+    </paper-toolbar>
 
-     <neon-animated-pages style="" id="searchTabs" class="fit" selected="{{activeTab}}" entry-animation="fade-in-animation" exit-animation="fade-out-animation" on-neon-animation-finish="_onPageChange">
+    <neon-animated-pages style="" id="searchTabs" class="fit" selected="{{activeTab}}" entry-animation="fade-in-animation" exit-animation="fade-out-animation" on-neon-animation-finish="_onPageChange">
 
         <neon-animatable>
-            <paper-menu on-iron-activate="onSelect">
-              <template is="dom-repeat" items="{{previousSearches}}">
-                <paper-item class="relative" data-value$="{{item}}">
-                  <iron-icon icon="history"></iron-icon><span>{{item}}</span>
-                  <paper-ripple></paper-ripple>
-                </paper-item>
-              </template>
-              <template is="dom-repeat" items="{{mailResults}}">
-                <paper-item class="relative" data-value$="{{_decodeHTMLEntities(item.route)}}">
-                  <iron-icon icon="communication:email"></iron-icon><span>{{_decodeHTMLEntities(item.title)}}</span>
-                  <paper-ripple></paper-ripple>
-                </paper-item>
-              </template>
-            </paper-menu>
+          <mail-messages id="mailSearch" folder-id="INBOX" search="{{searchValue}}" toolbar-hidden="1"></mail-messages>
         </neon-animatable>
 
         <neon-animatable> 
-
-          <contact-list search="{{searchValue::change}}"></contact-list>
-          
+          <contact-list id="contactListPersonal" search="{{searchValue}}" toolbar-hidden="1"></contact-list>
         </neon-animatable>
 
         <neon-animatable>
-            <paper-menu on-iron-activate="onSelect">
-              <template is="dom-repeat" items="{{previousSearches}}">
-                <paper-item class="relative" data-value$="{{item}}">
-                  <iron-icon icon="history"></iron-icon><span>{{item}}</span>
-                  <paper-ripple></paper-ripple>
-                </paper-item>
-              </template>
-              <template is="dom-repeat" items="{{contactsResults}}">
-                <paper-icon-item>
-                  <div item-icon><profile-img id="profileimage" email="{{item.subtitle}}" letter="[[item.subtitle.0]]"></profile-img></div>
-                  <paper-item-body two-line>
-                    <div>{{item.title}}</div>
-                    <div secondary>{{item.subtitle}}</div>
-                  </paper-item-body>
-                </paper-icon-item>
-                <!-- <paper-item class="relative" data-value$="{{item.title}}">
-                  <iron-icon icon="social:person"></iron-icon><span>{{item.title}} - {{item.subtitle}}</span>
-                  <paper-ripple></paper-ripple>
-                </paper-item> -->
-              </template>
-            </paper-menu>
+          <contact-list id="contactListGeneral"  search="{{searchValue}}" personal-contacts="{{personalContacts}}" toolbar-hidden="1"></contact-list>
         </neon-animatable>
-
-        
 
     </neon-animated-pages>
     

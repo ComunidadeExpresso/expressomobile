@@ -1,0 +1,222 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../bower_components/paper-styles/paper-styles.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../profile-img/profile-img.html">
+<link rel="import" href="../swipeable-item.html">
+
+<dom-module id="mail-folder">
+  <style>
+    :host {
+      display: block;
+      background-color: var(--paper-green-800);
+      transition: max-height 200ms ease-in-out 200ms;
+      max-height: 120px; /* bigger than thread can ever be. */
+    }
+    :host(:focus) {
+      z-index: 1;
+      position: relative;
+    }
+    :host(.shrink) {
+      max-height: 0;
+    }
+    :host([selected]) #thread {
+      background-color: #eee;
+    }
+    :host([narrow]) #actionicons {
+      display: none;
+    }
+    :host([archived][undo]) #archived {
+      opacity: 1;
+      transition: opacity 200ms ease-in-out 400ms;
+    }
+    #container {
+      position: relative;
+      z-index: 0;
+    }
+    #thread {
+      background-color: #fafafa;
+      padding: 16px;
+      border-bottom: 1px solid #e0e0e0;
+      will-change: transform, opacity;
+    }
+    #lastline,
+    #actionicons,
+    time {
+      color: #9e9e9e;
+    }
+    .messagecount {
+      color: #9e9e9e;
+      margin-left: 5px;
+    }
+    header {
+      margin-left: 16px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .unread .name,
+    .unread .subject,
+    .unread time {
+      font-weight: 500;
+    }
+    .unread time {
+      color: var(--paper-light-blue-500);
+    }
+    header span.name {
+      font-size: 18px;
+    }
+    header span.subject {
+      margin: 6px 0;
+    }
+    header span.snippet,
+    header span.subject,
+    header span.name {
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+      max-width: 90%;
+    }
+    header span.name {
+      max-width: 80%;
+    }
+    time {
+      font-size: 12px;
+      font-weight: 400;
+      letter-spacing: 1px;
+      max-height: 12px;
+    }
+    #star {
+      cursor: pointer;
+    }
+    /*#star .starred {*/
+    #star[starred] {
+      cursor: pointer;
+      color: var(--paper-yellow-700);
+    }
+    .undo {
+      @apply(--gmail-undo-action);
+      cursor: pointer;
+      font-weight: 500;
+    }
+    #archived {
+      color: white;
+      z-index: -1;
+      opacity: 0;
+      will-change: opacity;
+    }
+    #archived > * {
+      padding: 16px;
+    }
+    .labels label {
+      font-size: 10px;
+      background-color: #bdbdbd;
+      padding: 3px 5px;
+      color: #fff;
+      border-radius: 2px;
+      margin-right: 5px;
+    }
+    .offscreen {
+      @apply(--swipeable-transition);
+    }
+    .offscreen.right {
+      @apply(--swipeable-pos-right);
+    }
+    .fade {
+      @apply(--swipeable-fade);
+    }
+    .swiping {
+      @apply(--swipeable-swiping);
+    }
+    .snapback {
+      @apply(--swipeable-snapback);
+    }
+    label.pink {
+      @apply(--label-pink);
+    }
+    label.orange {
+      @apply(--label-orange);
+    }
+    label.green {
+      @apply(--label-green);
+    }
+    label.blue {
+      @apply(--label-blue);
+    }
+    label.yellow {
+      @apply(--label-yellow);
+    }
+    label.teal {
+      @apply(--label-teal);
+    }
+    label.purple {
+      @apply(--label-purple);
+    }
+  </style>
+  <template>
+    <div id="container">
+      <div id="thread" class="layout horizontal">
+        
+        <div class="flex layout horizontal">
+
+          <iron-icon id="star" icon="folder"></iron-icon>
+
+          <header class="layout vertical flex">
+            <span class="layout horizontal center justified" on-tap="_onOpenFolder">
+              <span class="name">
+                <span>{{_decodeHTMLEntities(folderName)}}</span>
+              </span>
+            </span>
+           
+          </header>
+        </div>
+      </div>
+
+    </div>
+  </template>
+  <script>
+  Polymer({
+    is: 'mail-folder',
+
+    properties: {
+
+      folderName: {
+        type: String,
+        value: '',
+        reflectToAttribute: true,
+      },
+
+      folderId: {
+        type: String,
+        value: '',
+        reflectToAttribute: true,
+      },
+
+      route: { 
+        type: String,
+        value: '',
+        reflectToAttribute: true,
+      }
+
+    },
+
+    created: function() {
+
+    },
+
+    ready: function() {
+      this.target = this.$.thread;
+    },
+
+    _decodeHTMLEntities: function(val) {
+      var t = document.createElement('textarea');
+      t.innerHTML = val;
+      return t.textContent;
+    },
+
+    _onOpenFolder: function(e) {
+      this.fire('open-folder', {folder: this});
+    },
+    
+  });
+</script>
+</dom-module>

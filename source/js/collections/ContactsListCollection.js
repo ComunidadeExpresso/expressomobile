@@ -49,7 +49,9 @@ var ContactsListCollection = Backbone.Collection.extend({
             });
 
         if (ignoreCache) {
-            console.log("ignoreCache");
+            // console.log("search: " + pSearch);
+            // console.log("contactType:" + pContactType);
+            // console.log("ignoreCache");
             Shared.api.ignoreCache(ignoreCache);
         }
 

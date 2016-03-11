@@ -2,15 +2,32 @@
 import ContactsListCollection from 'ContactsListCollection';
 import ContactModel from 'ContactModel';
 import Shared from 'shared';
+import AppPageBehavior from 'AppPageBehavior';
 
 Polymer({
     is: 'contact-card',
+
+    behaviors: [
+      AppPageBehavior
+    ],
+
+    listeners: {
+      'evt-click-menu-fab-item': 'clickFabMenu',
+    },
+
 
     properties: {
 
 	  menuItems: {
         type: Array,
         value: [{iconClass: "icons:create", route: "contact-edit",title: "Editar Contato"}],
+        notify: true,
+        reflectToAttribute: true,
+      },
+
+      cardImage: {
+        type: String,
+        value: '',
         notify: true,
         reflectToAttribute: true,
       },
@@ -28,6 +45,8 @@ Polymer({
       name: {
         type: String,
         value: '',
+        notify: true,
+        reflectToAttribute: true,
       },
 
       email: {
@@ -40,6 +59,12 @@ Polymer({
         value: '',
       },
 
+      personalContact: {
+        type: Boolean,
+        value: true,
+        observer: '_personalContactChanged'
+      },
+
     },
 
     open: function() {
@@ -50,22 +75,58 @@ Polymer({
 
     },
 
+    attributeChanged: function(name, type) {
+        if (name == 'name') {
+          this.updateCardImage();
+        }
+    },
+
+    updateCardImage: function() {
+      this.cardImage = this.getRandomCardBackground('../../imgs/paper-card-backgrounds/');
+    },
+
     ready: function() {
+      this.updateCardImage();
+    },
+
+    refreshMenuItems: function() {
+
+      var menuNormal = [
+        {iconClass: "icons:create", route: "contact-edit",title: "Editar Contato"}
+      ];
+      var menuGeneralContact = [ 
+        {iconClass: "social:person-add", route: "contact-create",title: "Novo Contato"},
+      ];
+
+      var menuItems = [];
+      if (this.personalContact) {
+        menuItems = menuNormal;
+      } else {
+        menuItems = menuGeneralContact;
+      }
+
+      this.setMenuItems(menuItems);
 
     },
 
-    listeners: {
-      'evt-click-menu-fab-item': 'clickFabMenu',
+    _personalContactChanged: function() {
+      this.refreshMenuItems();
     },
 
     clickFabMenu: function(e) {
       e.stopPropagation();
       var route = e.target.get("currentMenu").get("item.route");
-      console.log("route");
-      console.log(route);
+      console.log("route:" + route);
 
-      if (route == 'contact-save') {
-        this.submitForm();
+      if (route == 'contact-edit') {
+        this.fire('evt-edit-contact',{contact: this});
+      }
+
+      if (route == 'contact-create') {
+        var newContact = this;
+        newContact.contactId = '';
+        newContact.phone = this.phones[0];
+        this.fire('evt-edit-contact',{contact: newContact});
       }
 
     },
@@ -81,14 +142,7 @@ Polymer({
       })
       .done(function(data) {
 
-        Shared.showMessage({
-              type: "success",
-              icon: 'icon-expresso',
-              title: "Contato removido com sucesso!",
-              description: "",
-              timeout: 3000,
-              elementID: "#pageMessage",
-          });
+        that.showMessage("Contato removido com sucesso!");
 
         that.fire('evt-delete-success');
           
@@ -100,19 +154,10 @@ Polymer({
 
 
     composeEmail: function() {
-      console.log("composeEmail: " + this.email);
+      console.warn("//TODO: compose-email : Escrever email para " + this.email);
     },
 
-    showMessage: function(message) {
-      Shared.showMessage({
-        type: "success",
-        icon: 'icon-expresso',
-        title: message,
-        description: "",
-        timeout: 3000,
-        elementID: "#pageMessage",
-      });
-    },
+    
 
     closeCard: function() {
     	this.fire('evt-edit-cancel');

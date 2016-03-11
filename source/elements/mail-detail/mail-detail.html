@@ -35,6 +35,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <link rel="import" href="../../bower_components/expanded-card/expanded-card.html">
 
+<link rel="import" href="../app-toolbar.html">
+
 <dom-module id="echo-html">
 
   <template>
@@ -175,27 +177,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       margin-top: -48px;
     }
 
+    .inherit {
+      color: inherit;
+      background-color: inherit;
+    }
+
   </style>
   <template>
-      <paper-dialog id="dialogReply">
-      <h2>Scrolling</h2>
-      <paper-dialog-scrollable>
-        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-      </paper-dialog-scrollable>
-      <div class="buttons">
-        <paper-button dialog-dismiss>Cancel</paper-button>
-        <paper-button dialog-confirm autofocus>OK</paper-button>
-      </div>
-    </paper-dialog>
-      <div class="card-content">
-        <paper-card heading="{{_decodeHTMLEntities(message.attributes.msgSubject)}}" class="fancy">
+
+      <div class="card-content" hidden$="{{isLoading}}">
+        <paper-card heading="{{_decodeHTMLEntities(message.attributes.msgSubject)}}" class="fancy" style="width: 100%;">
 
           <div id="thread" class="layout horizontal">
             <profile-img id="profileimage" email="[[message.attributes.msgFrom.mailAddress]]" letter="[[message.attributes.msgFrom.fullName.0]]"></profile-img>
@@ -242,10 +233,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <div id="{{_computeAttachmentsId(message.attributes.folderID,message.attributes.msgID)}}"></div>
           </expanded-card>
           <div class="card-actions">
-            <paper-icon-button icon="reply" title="Responder" on-tap="_onReply">Responder</paper-icon-button>
-                <paper-icon-button icon="reply-all" title="Responder para Todos" on-tap="_onReplyAll">Responder p/ Todos</paper-icon-button>
-                <paper-icon-button icon="forward" title="Encaminhar" on-tap="_onForward">Encaminhar</paper-icon-button>
-                <paper-icon-button icon="delete" title="Excluir" on-tap="_onDelete">Excluir</paper-icon-button>
+            <a href="{{baseUrl}}/mail-reply/{{message.attributes.msgID}}/{{message.attributes.folderID}}" class="inherit"><paper-icon-button icon="reply" title="Responder">Responder</paper-icon-button></a>
+
+            <a href="{{baseUrl}}/mail-reply-all/{{message.attributes.msgID}}/{{message.attributes.folderID}}" class="inherit"><paper-icon-button icon="reply-all" title="Responder para Todos">Responder p/ Todos</paper-icon-button></a>
+
+            <a href="{{baseUrl}}/mail-forward/{{message.attributes.msgID}}/{{message.attributes.folderID}}" class="inherit"><paper-icon-button icon="forward" title="Encaminhar">Encaminhar</paper-icon-button></a>
+
+            <paper-icon-button icon="delete" title="Excluir" on-tap="_onDelete">Excluir</paper-icon-button>
           </div> 
         </paper-card>
       </div>

@@ -4,13 +4,12 @@ import $ from 'jquery';
 import Backbone from 'backbone';
 import expressoAPI from 'expressoAPI';
 import expressoIM from 'expressoIM';
-import UserMessageView from 'UserMessageView';
+// import UserMessageView from 'UserMessageView';
 import expressoService from 'expressoService';
 
 import elements from 'elements';
 
 
-  
   var Shared = {};
 
   Shared.usersPictures = [];
@@ -160,6 +159,12 @@ import elements from 'elements';
     return (/iphone|ipad/gi).test(navigator.appVersion);
   };
 
+  Shared.getRandomCardBackground = function() {
+    var number = Math.floor((Math.random() * 12) + 1);
+    var image = 'bg-' + number + '.jpg';
+    return image;
+  };
+
   Shared.scrollerRefresh = function () {
     // console.log("Shared.scrollerRefresh");
     // if (Shared.scrollDetail) {
@@ -272,19 +277,24 @@ import elements from 'elements';
 
   };
 
+  // Shared.showMessage = function(message, msgType) {
+
+  // };
+
   Shared.showMessage = function( message) {
-    var messageView = new UserMessageView();
-    messageView.msgType = message.type;
-    messageView.msgTitle = message.title;
-    messageView.msgDescription = message.description;
-    messageView.elementID = message.elementID;
-    messageView.msgRoute = message.route;
-    messageView.msgIcon = message.icon;
-    messageView.timeout = message.timeout;
-    if (message.animate == false) {
-      messageView.animate = false;
-    }
-    messageView.render();
+    console.log(message);
+    // var messageView = new UserMessageView();
+    // messageView.msgType = message.type;
+    // messageView.msgTitle = message.title;
+    // messageView.msgDescription = message.description;
+    // messageView.elementID = message.elementID;
+    // messageView.msgRoute = message.route;
+    // messageView.msgIcon = message.icon;
+    // messageView.timeout = message.timeout;
+    // if (message.animate == false) {
+    //   messageView.animate = false;
+    // }
+    // messageView.render();
   };
 
   Shared.deviceType = function(smartphone) {
@@ -369,7 +379,7 @@ import elements from 'elements';
     Shared.checkForNewMessages();
     setInterval(Shared.checkForNewMessages, 70000);
 
-    setInterval(Shared.refreshFolders, 3 * 60000);
+    // setInterval(Shared.refreshFolders, 3 * 60000);
   };
 
   Shared.refreshFolders = function() {
@@ -861,31 +871,31 @@ document.addEventListener('deviceready', function () {
 
 });
 
-  var exitFunction = function(){
+  // var exitFunction = function(){
 
-    if (Shared.userHasModule("chat")) {
-      Shared.im.disconnect();
-    }
+  //   if (Shared.userHasModule("chat")) {
+  //     Shared.im.disconnect();
+  //   }
 
-    window.location.href = Shared.serverContext + "/";
+  //   window.location.href = Shared.serverContext + "/";
     
-  };
+  // };
 
-  if (!IS_BUILTINEXPRESSO) {
-    if(window.onpagehide || window.onpagehide === null){
-       window.addEventListener('pagehide', exitFunction, false);
-    } else {
-       window.addEventListener('unload', exitFunction, false);
-    }
+  // if (!IS_BUILTINEXPRESSO) {
+  //   if(window.onpagehide || window.onpagehide === null){
+  //      window.addEventListener('pagehide', exitFunction, false);
+  //   } else {
+  //      window.addEventListener('unload', exitFunction, false);
+  //   }
 
-    window.onunload=exitFunction;
+  //   window.onunload=exitFunction;
 
-    window.onbeforeunload = function () {
+  //   window.onbeforeunload = function () {
 
-      exitFunction();
+  //     exitFunction();
 
-    }; 
-  }
+  //   }; 
+  // }
 
   
 

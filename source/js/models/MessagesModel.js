@@ -123,7 +123,7 @@ var MessagesModel = Backbone.Model.extend({
     },
 
     route: function() {
-        return '/Mail/Messages/0/' + this.get("msgID") + "/" + this.get("folderID");
+        return '/mail-detail/' + this.get("msgID") + "/" + this.get("folderID");
     },
 
     listItemID: function() {

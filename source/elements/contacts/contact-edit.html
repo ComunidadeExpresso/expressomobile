@@ -39,6 +39,48 @@
       padding: 5px;
     }
 
+    :host {
+
+    }
+
+    .header {
+      height: 150px !important;
+      background-color: #efefef !important;
+    }
+
+    .title-text {
+      position: relative !important;
+      top: 85px !important;
+      left: 72px !important;
+    }
+  
+    paper-card {
+      width: 100%;
+        --paper-card-header-color: #FFF;
+        --paper-card-header-text : { margin-left: 85px; };
+    }
+
+    .horizontal {
+      @apply(--layout-horizontal);
+    }
+    .justified {
+      @apply(--layout-justified);
+    }
+    
+    .card-margin {
+      margin: 20px;
+    }
+
+    profile-img {
+      margin-top: -72px; 
+      margin-left: 10px; 
+      position: absolute;
+    }
+
+    /* paper-icon-button {
+      color: #FFF;
+    }*/
+ /*
     paper-card {
 
     }
@@ -54,7 +96,7 @@
       height: 150px;
       padding-left: 90px;
       background: #448aff;
-      /*background: url('../../imgs/material_backgrounds/bkg_01_january.jpg') center / cover;*/
+     background: url('../../imgs/material_backgrounds/bkg_01_january.jpg') center / cover;
     }
     .demo-card-wide > .mdl-card__menu {
       color: #fff;
@@ -64,20 +106,23 @@
       padding: 20px;
     }
 
+    paper-icon-button {
+      color: #FFF;
+    }
+*/
   </style>
   <template>
-  
-    <div class="card-padding">
+
+    <div class="card-margin">
+
+    <paper-card heading="{{pageTitle}}" image="{{cardImage}}" preload-image="true" fade-image="true">
+      <div class="card-content">
+
       <form is="iron-form" id="formGet" method="post" action="/AddContact">
         <input type="hidden" id="name" name="name" value="{{name}}"> 
         <input type="hidden" id="email" name="email" value="{{email}}">
         <input type="hidden" id="phone" name="phone" value="{{phone}}">
-        <div class="demo-card-wide mdl-card mdl-shadow--2dp">
-          
-          <div class="mdl-card__title">
-            <h2 class="mdl-card__title-text">Novo Contato</h2>
-          </div>
-          <div class="create-card-content">
+
 
             <paper-icon-item>
               <iron-icon icon="social:person" item-icon></iron-icon>
@@ -103,13 +148,13 @@
               </paper-item-body>
             </paper-icon-item>
             
-          </div>
-          <div class="mdl-card__menu">
-              <paper-icon-button icon="icons:close" on-tap="closeCard"></paper-icon-button>
-          </div>
-        </div>
       </form>
     </div>
+    <div class="card-actions">
+        <paper-icon-button icon="icons:close" on-tap="closeCard"></paper-icon-button>
+        <paper-icon-button icon="icons:refresh" on-tap="updateCardImage"></paper-icon-button>
+      </div>
+    </paper-card>
     <menu-fab items="{{menuItems}}"></menu-fab>
 
   </template>

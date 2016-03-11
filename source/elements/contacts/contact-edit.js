@@ -15,9 +15,27 @@ Polymer({
         reflectToAttribute: true,
       },
 
+      isEdition: {
+        type: Boolean,
+        value: false
+      },
+
+      pageTitle: { 
+        type: String,
+        value: 'Novo Contato',
+      },
+
+      cardImage: {
+        type: String,
+        value: '',
+      },
+
       contactId: {
         type: String,
         value: '',
+        notify: true,
+        reflectToAttribute: true,
+        observer: '_contactIdChanged',
       },
 
       phone: {
@@ -28,6 +46,8 @@ Polymer({
       name: {
         type: String,
         value: '',
+        notify: true,
+        reflectToAttribute: true,
       },
 
       email: {
@@ -35,6 +55,26 @@ Polymer({
         value: '',
       },
 
+    },
+
+    updateCardImage: function() {
+      // console.log('updateCardImage');
+      var RandomCard = Shared.getRandomCardBackground();
+      this.cardImage = '../../imgs/paper-card-backgrounds/' + RandomCard;
+    },
+
+     attributeChanged: function(name, type) {
+        
+        if (name == 'name') {
+
+          this.updateCardImage();
+        }
+
+        if (this.isEdition) {
+          this.pageTitle = 'Alterar Contato';
+        } else {
+          this.pageTitle = 'Novo Contato';
+        }
     },
 
     open: function() {
@@ -46,7 +86,7 @@ Polymer({
     },
 
     ready: function() {
-
+      this.updateCardImage();
     },
 
     clean: function() {
@@ -63,6 +103,7 @@ Polymer({
 
     clickFabMenu: function(e) {
       e.stopPropagation();
+
       var route = e.target.get("currentMenu").get("item.route");
       console.log("route");
       console.log(route);
@@ -75,47 +116,76 @@ Polymer({
 
     submitForm: function(event) {
 
-	    var params = {
-	        contactAlias: this.name,
-	        contactGivenName: this.name,
-	        contactFamilyName: '',
-	        contactEmail: this.email,
-	        contactPhone: this.phone,
-	    };
+      if (this.$.formGet.validate()) {
 
-	    var that = this;
+  	    var params = {
+  	        contactAlias: this.name,
+  	        contactGivenName: this.name,
+  	        contactFamilyName: '',
+  	        contactEmail: this.email,
+  	        contactPhone: this.phone,      
+  	    };
 
-	    var contactModel = new ContactModel();
-	    contactModel.addContact(params)
-	    .done(function(data) {
+        var that = this;
 
-        that.showMessage("Contato adicionado com sucesso!");
-        that.fire('evt-edit-success');
-	        
-	    })
-	    .fail(function(error) {
-	      console.log("Erro adicionando");
-          var codeError = error.error.code;
-          console.log(codeError);
+        if (this.isEdition) {
 
-          var msg = "Não foi possível adicionar o contato!";
-          if (codeError == "1053") {
-            msg = "Já existe um contato cadastrado com esse email.";
-          }
-          that.showMessage(msg);
-	    });
+          this.showMessage('Esta função ainda não está disponível.','error');
+          console.warn("//TODO: edit-contact : Alterar a API para permitir a edição de contatos passando o contactID. ");
+          params.contactID = this.contactId;
+
+        } else {
+
+          var contactModel = new ContactModel();
+          contactModel.addContact(params)
+          .done(function(data) {
+
+            that.showMessage("Contato adicionado com sucesso!");
+            that.fire('evt-edit-success');
+              
+          })
+          .fail(function(data) {
+
+              Shared.handleErrors(data.error);
+
+              var codeError = data.error.code;
+              
+              var msg = "Não foi possível adicionar o contato!";
+              if (codeError == "1053") {
+                msg = "Já existe um contato cadastrado com esse email.";
+              }
+              that.showMessage(msg,"error");
+          });
+
+        }
+
+	    }
 
     },
 
-    showMessage: function(message) {
-      Shared.showMessage({
-        type: "success",
-        icon: 'icon-expresso',
-        title: message,
-        description: "",
-        timeout: 3000,
-        elementID: "#pageMessage",
+    _contactIdChanged: function() {
+      var retVal = true;
+      if (this.contactId == '') {
+        retVal = false;
+      }
+      this.isEdition = retVal;
+      // console.log("isEdition: "+ this.isEdition);
+    },
+
+    showMessage: function(message,msgType) {
+
+      if (msgType == undefined) {
+        msgType = 'info';
+      }
+
+      this.fire('iron-signal', {
+        name: 'toaster-bake',
+        data: {
+          text: message,
+          type: msgType,
+        }
       });
+
     },
 
     closeCard: function() {

@@ -19,7 +19,7 @@
 <link rel="import" href="../../bower_components/neon-animation/animations/slide-up-animation.html">
 <link rel="import" href="../../bower_components/neon-animation/animations/slide-down-animation.html">
 <link rel="import" href="../../bower_components/paper-spinner/paper-spinner.html"> 
-
+<link rel="import" href="../../bower_components/neon-animation/neon-animations.html">
 
 <link rel="import" href="../../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
@@ -37,7 +37,9 @@
 <link rel="import" href="./contact-card.html">
 <link rel="import" href="./contact-edit.html">
 
-<dom-module id="contact-list">
+<!-- <link rel="import" href="../app-page.html"> -->
+
+<dom-module id="contact-list" extends="app-page">
   <style>
     :host {
         @apply(--layout-fit);
@@ -165,7 +167,6 @@
     }
     
 
-
     .title-text {
       padding-left: 87px;
       font-size: 24px;
@@ -192,10 +193,6 @@
       margin-top: 100px;
     }
 
-/*    #contact-card {
-      padding: 20px;
-    }*/
-
     .create-card-content { 
       margin: 20px;
     }
@@ -212,22 +209,94 @@
     .demo-card-wide > .mdl-card__menu {
       color: #fff;
     }
+
+    #card {
+      -webkit-tap-highlight-color: rgba(0,0,0,0);
+    }
+
+    .info-card-content { 
+      margin: 20px;
+    }
+    
+    .card-padding {
+      padding: 20px;
+    }
   </style>
   <template>
 
+    <iron-signals on-iron-signal-contact-delete="_signalContactDelete"></iron-signals>
+    <iron-signals on-iron-signal-contact-compose="_signalContactCompose"></iron-signals>
+    
+    <paper-dialog id="confirmDeleteDialog">
+      <h2>Confirmação</h2>
+
+      <paper-dialog-scrollable>
+        <p>
+        Deseja realmente apagar {{selectedItems.length}} contato(s) dos seus contatos pessoais?
+        </p>
+      </paper-dialog-scrollable>
+      <div class="buttons">
+        <paper-button on-tap="_closeDeleteConfirmationDialog">Cancelar</paper-button>
+        <paper-button on-tap="_deleteSelectedContacts">Continuar</paper-button>
+      </div>
+    </paper-dialog>
     
     <neon-animated-pages class="flex" selected="{{selectedPage}}" entry-animation="slide-down-animation" exit-animation="fade-out-animation">
       <neon-animatable id="contact-list">
 
-        <template is="dom-if" if="[[isLoading]]">
+        <!-- <template is="dom-if" if="[[isLoading]]">
           <div id="refresh" class="layout vertical center-center">
             <div id="refresh-spinner-container" class="layout vertical center-center shrink">
               <paper-spinner alt="Carregando..." active></paper-spinner>
             </div>
           </div>
+        </template> -->
+  
+
+        <template is="dom-if" if="[[searchMustBeMoreSpecific]]">
+          <div id="tooLite" class="card-padding">
+              <div class="demo-card-wide mdl-card mdl-shadow--2dp">
+                
+                <div class="mdl-card__title">
+                  <h2 class="mdl-card__title-text">Sua busca no Catálogo Geral  deve ser específica.</h2>
+                </div>
+                <div class="create-card-content">
+                    Para facilitar sua consulta no Catálogo Geral siga algumas das instruções abaixo:
+
+                    <ul>
+                      <li>Sua consulta deve ter no mínimo 3 caracteres.</li>
+                      <li>Procure pelo nome e sobrenome.</li>
+                      <li>Nenhum resultado será exibido caso a sua busca retorne mais do que 200 contatos.</li>
+                    </ul> 
+                </div>
+              </div>
+          </div>
         </template>
 
+        <template is="dom-if" if="[[searchReturnedTooManyResults]]">
+          <div id="tooLite" class="card-padding">
+              <div class="demo-card-wide mdl-card mdl-shadow--2dp">
+                
+                <div class="mdl-card__title">
+                  <h2 class="mdl-card__title-text">Nenhum resultado encontrado.</h2>
+                </div>
+                <div class="create-card-content">
+                    Para facilitar sua consulta no Catálogo Geral siga algumas das instruções abaixo:
+
+                    <ul>
+                      <li>Sua consulta deve ter no mínimo 3 caracteres.</li>
+                      <li>Procure pelo nome e sobrenome.</li>
+                      <li>Nenhum resultado será exibido caso a sua busca retorne mais do que 200 contatos.</li>
+                    </ul> 
+                </div>
+              </div>
+          </div>
+        </template>
+
+
+
           <div id="itemsListContainer">
+            <!-- <app-toolbar title="{{pageTitle}}" hidden$="{{toolbarHidden}}"></app-toolbar> -->
             <div class="twoColumns">
               <!-- Main List for the items -->
               
@@ -257,14 +326,14 @@
                   </template>
                 </iron-list>
               </div>
-              <menu-fab items="{{menuItems}}"></menu-fab>
+              <!-- <menu-fab items="{{menuItems}}"></menu-fab> -->
             </div>
           </div>
 
       </neon-animatable>
       <neon-animatable id="contact-card">
         
-        <contact-card id="contactCard" contact-id="[[currentContact.contactID]]" name="[[currentContact.contactFullName]]" email="[[currentContact.contactMails.0]]" phones="[[currentContact.contactPhones]]" notes="[[currentContact.contactNotes]]"></contact-card>
+        <contact-card id="contactCard" contact-id="[[currentContact.contactID]]" name="[[currentContact.contactFullName]]" email="[[currentContact.contactMails.0]]" phones="[[currentContact.contactPhones]]" notes="[[currentContact.contactNotes]]" persona-contact="{{currentContact.personalContact}}"></contact-card>
         
       </neon-animatable>
       <neon-animatable id="contact-create">

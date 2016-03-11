@@ -2,7 +2,7 @@ import $ from 'jquery';
 import _ from 'underscore';
 import Backbone from 'backbone';
 import Shared from 'shared';
-import LoadingView from 'LoadingView';
+// import LoadingView from 'LoadingView';
 import previewAttachmentMessageTemplate from 'previewAttachmentMessageTemplate';
 
 var PreviewAttachmentMessageView = Backbone.View.extend({

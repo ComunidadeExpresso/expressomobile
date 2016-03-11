@@ -96,7 +96,7 @@ var MessagesCollection = Backbone.Collection.extend({
             });
 
         if (this._ignoreCache) {
-            console.log("ignoreCache");
+            // console.log("ignoreCache");
             this.api.ignoreCache(true);
         }
 

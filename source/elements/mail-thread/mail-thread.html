@@ -1,0 +1,216 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../bower_components/paper-styles/paper-styles.html">
+<link rel="import" href="../../bower_components/paper-menu-button/paper-menu-button.html">
+<link rel="import" href="../../bower_components/paper-menu/paper-menu.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../profile-img/profile-img.html">
+<link rel="import" href="../swipeable-item.html">
+
+<dom-module id="mail-thread">
+  <style>
+   :host {
+      display: block;
+      background-color: var(--paper-green-800);
+      transition: max-height 200ms ease-in-out 200ms;
+      max-height: 111px; 
+    }
+    :host(:focus) {
+      z-index: 1;
+      position: relative;
+    }
+    :host(.shrink) {
+      max-height: 0;
+    }
+    :host([selected]) #thread {
+      background-color: #eee;
+    }
+
+    @media screen and (max-width: 900px) { 
+      #actionicons {
+        display: none;
+      }
+    }
+
+    :host([archived][undo]) #archived {
+      opacity: 1;
+      transition: opacity 200ms ease-in-out 400ms;
+    }
+    #container {
+      position: relative;
+      z-index: 0;
+    } 
+    #thread {
+      background-color: #fafafa;
+      padding: 16px;
+      border-bottom: 1px solid #e0e0e0;
+      will-change: transform, opacity;
+    }
+    #lastline,
+    #actionicons,
+    time {
+      color: #9e9e9e;
+    }
+    .messagecount {
+      color: #9e9e9e;
+      margin-left: 5px;
+      font-size: 12px;
+    }
+    header {
+      margin-left: 16px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .unread .name,
+    .unread .subject,
+    .unread time {
+      font-weight: 500;
+    }
+    .unread time {
+      color: var(--paper-light-blue-500);
+    }
+    .name {
+      font-size: 18px;
+    }
+    .subject {
+      margin: 6px 0;
+    }
+    .snippet,
+    .subject,
+    .name {
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+      max-width: 90%;
+    }
+    .name {
+      max-width: 80%;
+    }
+    time {
+      font-size: 12px;
+      font-weight: 400;
+      letter-spacing: 1px;
+      max-height: 12px;
+    }
+    #star {
+      cursor: pointer;
+    }
+    /*#star .starred {*/
+    #star[starred] {
+      cursor: pointer;
+      color: var(--paper-yellow-700);
+    }
+    .undo {
+      @apply(--gmail-undo-action);
+      cursor: pointer;
+      font-weight: 500;
+    }
+    #archived {
+      color: white;
+      z-index: -1;
+      opacity: 0;
+      will-change: opacity;
+    }
+    #archived > * {
+      padding: 16px;
+    }
+    .labels label {
+      font-size: 10px;
+      background-color: #bdbdbd;
+      padding: 3px 5px;
+      color: #fff;
+      border-radius: 2px;
+      margin-right: 5px;
+    }
+    .offscreen {
+      @apply(--swipeable-transition);
+    }
+    .offscreen.right {
+      @apply(--swipeable-pos-right);
+    }
+    .fade {
+      @apply(--swipeable-fade);
+    }
+    .swiping {
+      @apply(--swipeable-swiping);
+    }
+    .snapback {
+      @apply(--swipeable-snapback);
+    }
+    label.pink {
+      @apply(--label-pink);
+    }
+    label.orange {
+      @apply(--label-orange);
+    }
+    label.green {
+      @apply(--label-green);
+    }
+    label.blue {
+      @apply(--label-blue);
+    }
+    label.yellow {
+      @apply(--label-yellow);
+    }
+    label.teal {
+      @apply(--label-teal);
+    }
+    label.purple {
+      @apply(--label-purple);
+    }
+    .inherit {
+      color: inherit;
+      background-color: inherit;
+    }
+  </style>
+  <template>
+    <div id="container">
+      <div id="thread" class="layout horizontal">
+        <profile-img id="profileimage"
+                     src="[[profileSrc]]"
+                     letter="[[from.0]]"
+                     email="[[fromemail]]"
+                     selected="[[selected]]" on-tap="_onSelectThread"
+                     on-transitionend="_eatEvent"></profile-img>
+        <div class="flex layout horizontal">
+          
+          <header class$="[[headerClasses]]" unread="{{unread}}"
+                  on-down="_onDown" on-up="_onUp" style="width: 50px;">
+            <span class="layout horizontal center justified" on-tap="_onOpenMessage">
+              <span class="name">
+                <span>{{_decodeHTMLEntities(from)}}</span>
+                <span class="messagecount">{{fromemail}}</span> 
+              </span>
+              <time>{{date}}</time>
+            </span>
+            <span class="subject" on-tap="_onOpenMessage">{{_decodeHTMLEntities(subject)}}</span>
+            <span id="lastline" class="layout horizontal center justified">
+              <span class="snippet flex" on-tap="_onOpenMessage">[[_decodeHTMLEntities(bodyresume)]]</span>
+              <span class="labels">
+                <template is="dom-repeat" items="[[thread.labelIds]]" as="id">
+                  <label hidden="{{_hideThreadLabel(id)}}"
+                         class$="[[_objectItem('labels', id, 'color')]]">[[_objectItem('labels', id, 'name')]]</label>
+                </template>
+              </span>
+              <iron-icon id="attachment" icon="icons:attachment" hidden$="{{!hasAttachments}}"></iron-icon>
+              <iron-icon id="star" icon="[[starredIcon]]" on-tap="_onHighlightStar" starred$="{{starred}}"></iron-icon>
+            </span>
+
+          </header>
+          <div id="actionicons" on-transitionend="_eatEvent" class="self-start">
+            <a href="{{baseUrl}}/mail-reply/{{msgid}}/{{folderid}}" class="inherit"><paper-icon-button icon="reply"></paper-icon-button></a>
+            <a href="{{baseUrl}}/mail-reply-all/{{msgid}}/{{folderid}}" class="inherit"><paper-icon-button icon="reply-all"></paper-icon-button></a>
+            <a href="{{baseUrl}}/mail-forward/{{msgid}}/{{folderid}}" class="inherit"><paper-icon-button icon="forward"></paper-icon-button></a> 
+          </div>
+        </div>
+      </div>
+      <div id="archived" class="layout horizontal center justified fit" aria-hidden="true">
+        <span>Movido para Lixeira</span>
+        <span class="undo layout horizontal center self-stretch" on-tap="_onUndo">DESFAZER</span>
+      </div>
+    </div>
+  </template>
+  <script>
+
+</script>
+</dom-module>

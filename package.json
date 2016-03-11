@@ -35,6 +35,7 @@
     "del": "^2.1.0",
     "gulp": "^3.9.0",
     "gulp-babel": "^6.1.1",
+    "gulp-browserify": "^0.5.1",
     "gulp-connect-php": "0.0.7",
     "gulp-crisper": "^1.0.0",
     "gulp-help": "^1.6.1",

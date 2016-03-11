@@ -83,6 +83,8 @@ var ExpressoAPI = new function() {
 
 	var _debug = true;
 
+	var _autoConfig = true;
+
 	var _dataType = '';
 
 	var _data = {};
@@ -183,6 +185,60 @@ var ExpressoAPI = new function() {
 	this.defaultErrorCallback = function(response) {
 		//if(response && response.error && response.error.message) alert(response.error.message);
 	};
+
+	this.autoConfig = function() {
+
+		var that = this;
+
+		var foundCB = function(expressoValue) {
+
+			// console.log("autoconfig:" );
+			// console.log(expressoValue);
+
+			if (expressoValue != null) {
+
+                that.phoneGap(expressoValue.phoneGap);
+
+                if (expressoValue.phoneGap) {
+                    that.context(expressoValue.serverAPI).crossdomain(expressoValue.serverAPI);
+                } else {
+                    that.context("/api/").crossdomain(expressoValue.serverAPI);
+                }
+
+            }
+
+		};
+		var erroCB = function() {
+			console.log("expresso not found in localStorage");
+		};
+		
+		this.getLocalStorageValue("expresso",foundCB,erroCB);
+	};
+
+	/*
+
+Shared.api.getLocalStorageValue("expresso", function(expressoValue) {
+
+            if (expressoValue != null) {
+
+                Shared.profile = expressoValue.profile;
+
+                var userName = expressoValue.username;
+                var passwd = Shared.password;
+
+                Shared.api.phoneGap(expressoValue.phoneGap);
+
+                if (expressoValue.phoneGap) {
+                    Shared.api.context(expressoValue.serverAPI).crossdomain(expressoValue.serverAPI);
+                } else {
+                    Shared.api.context(Shared.context).crossdomain(expressoValue.serverAPI);
+                }
+
+                $("#mainAppPageContent").empty().append(that.el);
+
+            }
+
+	*/
 
 
 
@@ -550,6 +606,12 @@ var ExpressoAPI = new function() {
 	this.debug = function(value) {
 		if(value == undefined) return _debug;
 		_debug = (String(value).toLowerCase() == 'true');
+		return this;
+	};
+
+	this.enableAutoConfig = function(value) {
+		if(value == undefined) return _autoConfig;
+		_autoConfig = (String(value).toLowerCase() == 'true');
 		return this;
 	};
 
@@ -944,6 +1006,10 @@ var ExpressoAPI = new function() {
 
 		var that = this;
 
+		if (_autoConfig == true) {
+			this.autoConfig();
+		}
+
 		var conf = this.conf();
 
 		_debug = false;
@@ -952,6 +1018,8 @@ var ExpressoAPI = new function() {
 			console.log('ExpressoAPI - Execute:' + this.resource());
 			console.log(conf);
 		}
+
+		
 
 		var networkError = { error: { code: 100, message: "Verifique sua conexão com a Internet."} };
 		var networkTimeoutError = { error: { code: 100, message: "Esgotou-se o tempo limite da solicitação."} };
@@ -1027,7 +1095,14 @@ var ExpressoAPI = new function() {
 						jQuery.ajax(conf).done(function(response) {
 
 							if ((!response.result) && (!response.error)) {
-								response = JSON.parse(response);
+								try {
+									response = JSON.parse(response);
+								} catch (e) {
+									console.warn("expressoAPI: Resposta não é um JSON: " + response);
+									console.log(CacheRequest);
+									response = {error: { code: '999' }};
+								}
+
 							}
 
 							//if (that.isCachedResource(CacheRequest)) {
@@ -1121,8 +1196,6 @@ var ExpressoAPI = new function() {
 
 			};
 
-		
-		
 
 		this.getCacheResponse(CacheRequest,successCallBackCache);
 

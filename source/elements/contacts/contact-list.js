@@ -1,10 +1,17 @@
 
+import Shared from 'shared';
+import expressoAPI from 'expressoAPI';
 import ContactsListCollection from 'ContactsListCollection';
 import ContactModel from 'ContactModel';
-import Shared from 'shared';
+import page from 'page';
+import AppPageBehavior from 'AppPageBehavior';
 
 Polymer({
     is: 'contact-list',
+
+    behaviors: [
+      AppPageBehavior
+    ],
 
     properties: {
 
@@ -58,11 +65,11 @@ Polymer({
         notify: true,
         reflectAttribute: true,
       },
-      tempItems: {
-        type: Array, 
-        reflectAttribute: true,
-        value: []
-      },
+      // tempItems: {
+      //   type: Array, 
+      //   reflectAttribute: true,
+      //   value: []
+      // },
       selectedPage: {
         type: Number,
         value: 0
@@ -72,15 +79,26 @@ Polymer({
         value: false,
         observer: '_showSelectionChanged'
       },
-      isLoading: {
-        type: Boolean,
-        value: true,
-      },
+      // isLoading: {
+      //   type: Boolean,
+      //   value: true,
+      // },
 
 
       currentContact: {
         type: Object
-      }
+      },
+
+
+      searchMustBeMoreSpecific: {
+        type: Boolean,
+        value: false,
+      },
+
+      searchReturnedTooManyResults: {
+        type: Boolean,
+        value: false,
+      },
 
     },
 
@@ -89,20 +107,11 @@ Polymer({
       'evt-unselect-item' : '_onUnSelectItem',
       'evt-select-item' : '_onSelectItem',
       'evt-select-row' : '_onSelectRow',
-      'evt-edit-cancel': '_CancelEdit',
+      'evt-edit-cancel': '_cancelEdit',
       'evt-edit-success': '_hasEditedContact',
       'evt-delete-success': '_hasEditedContact',
+      'evt-edit-contact' : '_editContact',
     },
-
-    created: function() {
-
-    },
-
-    _CancelEdit: function() {
-      this.selectedPage = 0;
-    },
-
-    
 
     ready: function() {
 
@@ -174,33 +183,47 @@ Polymer({
       return isSelected ? 'star' : 'star-border';
     },
 
+    setPageTitle: function(Ptitle,Psubtitle) {
+      this.fire('iron-signal', {
+        name: 'page-title',
+        data: {
+          title: Ptitle,
+          subtitle: Psubtitle,
+        }
+      });
+    },
+
     refreshMenuItems: function() {
 
       var menuNormal = [
-        {iconClass: "social:person-add", route: "contact-create",title: "Novo Contato"}
+        {iconClass: "social:person-add", type: 'route', route: "contact-create",title: "Novo Contato"}
       ];
       var menuSingleSelect = [ 
-        {iconClass: "social:person-add", route: "contact-create",title: "Novo Contato"},
-        {iconClass: "delete", route: "contact-delete",title: "Apagar Contato"},
-        {iconClass: "social:person", route: "contact-edit",title: "Editar Contato"},
-        {iconClass: "create", route: "contact-compose",title: "Escrever Email"},
+        {iconClass: "social:person-add", type: 'route', route: "contact-create",title: "Novo Contato"},
+        {iconClass: "delete",  type: 'signal', route: "contact-delete",title: "Apagar Contato"},
+        {iconClass: "social:person", type: 'route', route: "contact-edit",title: "Alterar Contato"},
+        {iconClass: "create", type: 'route', route: "contact-compose",title: "Escrever Email"},
       ];
       var menuMultiSelected = [
-        {iconClass: "social:person-add", route: "contact-create",title: "Novo Contato"},
-        {iconClass: "delete", route: "contact-delete",title: "Apagar Contato(s)"},
-        {iconClass: "create", route: "contact-compose",title: "Escrever Email"},
+        {iconClass: "social:person-add", type: 'route', route: "contact-create",title: "Novo Contato"},
+        {iconClass: "delete", type: 'signal', route: "contact-delete",title: "Apagar Contato(s)"},
+        {iconClass: "create", type: 'signal', route: "contact-compose",title: "Escrever Email"},
       ];
 
+      var menuItems = [];
+
       if (this.showSelection == false) {
-        this.menuItems = menuNormal;
+        menuItems = menuNormal;
       } else {
         if (this.selectedItems.length == 1) {
-          this.menuItems = menuSingleSelect;
+          menuItems = menuSingleSelect;
         } else {
-          this.menuItems = menuMultiSelected;
+          menuItems = menuMultiSelected;
         }
         
       }
+
+      this.setMenuItems(menuItems);
 
     },
     _computedClass: function(isSelected) {
@@ -211,11 +234,22 @@ Polymer({
       return classes;
     },
 
-    _searchChanged: function() {
+    reloadContent: function() {
+      this.searchMustBeMoreSpecific = false;
+      this.searchReturnedTooManyResults = false;
+      this.setBackButtonEnabled(false);
+      this.setRefreshButtonEnabled(false);
       if (this.personalContacts) {
         this.getContacts(this.search,1,this.ignoreCache);
       } else {
         this.getContacts(this.search,2,this.ignoreCache);
+      }
+    },
+
+    _searchChanged: function() {
+      if (this.search != '') {
+        console.log('searchChanged');
+        this.reloadContent();
       }
     },
 
@@ -229,9 +263,9 @@ Polymer({
 
     attributeChanged: function(name, type) {
       // console.log(this.localName + '#' + this.id + ' attribute ' + name + ' was changed to ' + this.getAttribute(name));
-      if (name == 'selectedItems') {
-        this.refreshMenuItems();
-      }
+      // if (name == 'selectedItems') {
+      //   this.refreshMenuItems();
+      // }
     },
 
     getContact: function(contactID) {
@@ -240,7 +274,16 @@ Polymer({
 
     getContacts: function(pSearch,ptype,ignorecache) {
 
-      this.isLoading = true;
+      this.searchMustBeMoreSpecific = false;
+      this.searchReturnedTooManyResults = false;
+      this.setLoading(true);
+      // this.isLoading = true;
+
+      if (ptype == 1) {
+        this.pageTitle = "Contatos Pessoais";
+        this.setPageTitle(this.pageTitle);
+      } 
+      
 
       this.contacts = [];
 
@@ -256,12 +299,12 @@ Polymer({
           _.each(data.models, function(item) {
 
               var currentLetter = item.get("contactFullName")[0];
-              if (currentLetter != lastLetter) {
+              if (currentLetter.toUpperCase() != lastLetter.toUpperCase()) {
 
                 lastLetter = currentLetter;
                 var data = {};
                 data["isContact"] = false;
-                data["letter"] = lastLetter;
+                data["letter"] = lastLetter.toUpperCase();
 
                 arr_items.push(data);
               }
@@ -269,11 +312,28 @@ Polymer({
               var attrs = {};
               currentIndex = currentIndex + 1;
 
+              var hasImagePicture = true;
+
+              //PERFORMANCE ISSUE
+              //ONLY DON'T LOAD PICTURES FROM GENERAL CONTACTS THAT DOESN'T HAVE.
+              if (!that.personalContacts) {
+                  if (item.get("contactHasImagePicture") == 0) {
+                    hasImagePicture = false;
+                  }
+              }
+
+              if (that.personalContacts) {
+                attrs["personalContact"] = true;
+              } else {
+                attrs["personalContact"] = false;
+              }
+
               attrs["isContact"] = true;
               attrs["index"] = currentIndex;
               attrs["contactID"] = item.get("contactID"); 
               attrs["contactFullName"] = item.get("contactFullName"); 
               attrs["contactMail"] = item.get("contactMails")[0];
+              attrs["contactHasImagePicture"] = hasImagePicture;
 
               arr_items.push(attrs);
 
@@ -281,16 +341,29 @@ Polymer({
 
           that.contacts = arr_items;
 
-          that.isLoading = false;
+          that.setLoading(false);
+          // that.isLoading = false;
 
           that.refreshMenuItems();
 
       })
       .fail(function(data) {
-          // callbackFail({
-          //     error: data.error,
-          //     _: _
-          // });
+
+        console.log(data.error)
+
+        var error = data.error;
+
+        that.setLoading(false);
+        // that.isLoading = false;
+
+        if (error.code == "1001") {
+          that.searchMustBeMoreSpecific = true;
+        }
+
+        if (error.code == "1019") {
+           that.searchReturnedTooManyResults = true;
+        }
+        
       }).getContacts(pSearch, ptype, true);
     },
 
@@ -298,9 +371,17 @@ Polymer({
       var contactID = e.detail.eventData.get('contactId');
       var contact = this.getContact(contactID);
 
-      this.currentContact = contact.attributes;
+      // this.$.contactCard.personalContact = this.personalContacts;
+      var personal = '2';
+      if (this.personalContacts) {
+        personal = '1';
+      } 
 
-      this.selectedPage = 1;
+      var app = document.querySelector('#app');
+      page(app.baseUrl + 'contact-detail/' + personal + '/' + contactID);
+
+      // this.currentContact = contact.attributes;
+      // this.selectedPage = 1;
 
     },
 
@@ -312,8 +393,12 @@ Polymer({
       this.getContacts(this.search,1,true);
     },
 
-    formResponse: function(event) {
+    _signalContactDelete: function() {
+      this.$.confirmDeleteDialog.open();
+    },
 
+    _signalContactCompose: function() {
+      this._composeEmailToSelectedContacts();
     },
 
 
@@ -326,46 +411,78 @@ Polymer({
     },
 
     clickFabMenu: function(e) {
-      e.stopPropagation();
+      // e.stopPropagation();
       var route = e.target.get("currentMenu").get("item.route");
-      // console.log(route);
+
 
       if (route == 'contact-create') {
         this.$.contactEdit.clean();
         this.selectedPage = 2;
       }
 
-
-      if (route == 'contact-delete') {
-
-        var contactIds = '';
-        for (var i in this.selectedItems) {
-          contactIds = contactIds + "," + this.selectedItems[i].contactId;
-        }
-
-        contactIds = contactIds.substr(1,contactIds.length);
-
-        console.log("contact-delete: " + contactIds);
-
+      if (route == 'contact-edit') {
+        this._editSelectedContact();
       }
 
-      if (route == 'contact-compose') {
+    },
 
-        var contactEmails = '';
-        for (var i in this.selectedItems) {
-          contactEmails = contactEmails + "," + this.selectedItems[i].email;
-        }
+    _closeDeleteConfirmationDialog: function() {
+      this.$.confirmDeleteDialog.close();
+    },
 
-        contactEmails = contactEmails.substr(1,contactEmails.length);
+    _cancelEdit: function() {
+      this.selectedPage = 0;
+    },
 
-        console.log("contact-compose: " + contactEmails);
+    _editContact: function(e) {
+      console.log("_editContact");
+      var contact = e.detail.contact;
+      this._setContactEdit(contact);
+      this.selectedPage = 2;
+    },
 
+    _setContactEdit: function(contact) {
+      this.$.contactEdit.contactId = contact.contactId;
+      this.$.contactEdit.name = contact.name;
+      this.$.contactEdit.email = contact.email;
+      this.$.contactEdit.phone = contact.phone;
+    },
+
+    _editSelectedContact: function() {
+      console.log("_editSelectedContact");
+      var contact = this.selectedItems[0];
+      this._setContactEdit(contact);
+      this.selectedPage = 2;
+    },
+
+    _composeEmailToSelectedContacts: function() {
+      var contactEmails = '';
+      for (var i in this.selectedItems) {
+        contactEmails = contactEmails + "," + this.selectedItems[i].email;
       }
-      //contact-delete
-      //contact-create
-      //contact-edit
-      //contact-compose
 
+      contactEmails = contactEmails.substr(1,contactEmails.length);
+
+      var app = document.querySelector('#app');
+      page(app.baseUrl + 'mail-compose/' + contactEmails);
+
+      console.warn("//TODO: contact-compose: " + contactEmails);
+      // this.showMessage("Esta função ainda não está disponível.","error");
+    },
+
+    _deleteSelectedContacts: function() {
+
+      this.$.confirmDeleteDialog.close();
+
+      var contactIds = '';
+      for (var i in this.selectedItems) {
+        contactIds = contactIds + "," + this.selectedItems[i].contactId;
+      }
+
+      contactIds = contactIds.substr(1,contactIds.length);
+
+      console.log("//TODO: contact-delete: " + contactIds);
+      this.showMessage("Esta função ainda não está disponível.","error");
     },
 
     _eatEvent: function(e) {
@@ -376,6 +493,34 @@ Polymer({
       var t = document.createElement('textarea');
       t.innerHTML = val;
       return t.textContent;
+    },
+
+    showMessage: function(message,msgType) {
+
+      if (msgType == undefined) {
+        msgType = 'info';
+      }
+
+      this.fire('iron-signal', {
+        name: 'toaster-bake',
+        data: {
+          text: message,
+          type: msgType,
+        }
+      });
+
+    },
+
+    toolbarChange: function(title,subtitle) {
+
+      this.fire('iron-signal', {
+        name: 'toolbarchange',
+        data: {
+          title: title,
+          subtitle: subtitle,
+        }
+      });
+
     },
     
   });

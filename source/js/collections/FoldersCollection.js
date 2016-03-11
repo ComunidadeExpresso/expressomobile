@@ -10,6 +10,7 @@ var FoldersCollection = Backbone.Collection.extend({
     diskSizeUsed: 0,
     diskSizeLimit: 0,
     diskSizePercent: 0,
+    _ignoreCache: false,
 
     _data: {},
 
@@ -70,6 +71,38 @@ var FoldersCollection = Backbone.Collection.extend({
             .params({
                 folderName: PfolderName,
                 folderID: PfolderID
+            })
+            .done(function(result) {
+
+                if (that._data.done) {
+                    that._data.done(result);
+                }
+            })
+            .fail(function(error) {
+                if (that._data.fail) {
+                    that._data.fail(error);
+                }
+            });
+
+        return that;
+
+    },
+
+    moveMessages: function(currentFolderId, PmsgID, PtoFolderID) {
+        var that = this;
+
+        that._data = {};
+
+        var thatModel = FoldersModel;
+
+        var data = this._data;
+
+        this.api
+            .resource('/Mail/MoveMessages')
+            .params({
+                folderID: currentFolderId,
+                msgID: PmsgID,
+                toFolderID: PtoFolderID,
             })
             .done(function(result) {
 
@@ -175,6 +208,11 @@ var FoldersCollection = Backbone.Collection.extend({
 
     },
 
+    ignoreCache: function(value) {
+        this._ignoreCache = value;
+        return this;
+    },
+
     getFolders: function(PfolderID, Psearch) {
 
         var that = this;
@@ -219,6 +257,11 @@ var FoldersCollection = Backbone.Collection.extend({
                     that._data.fail(error);
                 }
             });
+
+        if (this._ignoreCache) {
+            console.log("ignoreCache /Mail/Folders");
+            this.api.ignoreCache(true);
+        }
 
         return that;
 

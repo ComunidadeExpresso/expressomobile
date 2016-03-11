@@ -1,5 +1,6 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../bower_components/iron-image/iron-image.html">
 
 <dom-module id="profile-img">
   <style>
@@ -24,7 +25,11 @@
       will-change: transform;
       cursor: pointer;
     }
-    img,
+ /*   iron-image {
+      --iron-image-height: 55px; 
+    }*/
+
+    iron-image,
     .letter {
       border-radius: inherit;
       width: 100%;
@@ -45,9 +50,11 @@
   </style>
   <template>
     <div class="profile">
-      <template is="dom-if" if="[[src]]"><img src$="[[src]]"></template>
+      <template is="dom-if" if="[[src]]"><iron-image src$="[[src]]" sizing="cover" preload fade placeholder="../../imgs/loading_2.gif"></iron-image></template>
       <span class="letter layout horizontal center-center" hidden$="[[src]]">{{letter}}</span>
       <iron-icon icon="check"></iron-icon>
+
+      <!-- <img src$="[[src]]"> -->
     </div>
   </template>
 

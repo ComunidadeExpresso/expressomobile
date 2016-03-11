@@ -1,6 +1,6 @@
 <?php
 
-//ini_set('error_reporting','0');
+ini_set('error_reporting','0');
 
 // Set return header to json
 header('Content-Type: application/json');

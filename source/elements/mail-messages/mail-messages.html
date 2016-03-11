@@ -1,0 +1,336 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../bower_components/iron-list/iron-list.html">
+<link rel="import" href="../../bower_components/paper-styles/paper-styles.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/iron-selector/iron-selector.html">
+<link rel="import" href="../../bower_components/iron-menu-behavior/iron-menu-behavior.html">
+
+<link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../bower_components/paper-dialog-scrollable/paper-dialog-scrollable.html">
+<link rel="import" href="../../bower_components/paper-styles/typography.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../bower_components/neon-animation/neon-animated-pages.html">
+<link rel="import" href="../../bower_components/neon-animation/neon-animatable.html">
+<link rel="import" href="../../bower_components/neon-animation/animations/slide-from-left-animation.html">
+<link rel="import" href="../../bower_components/neon-animation/animations/slide-from-right-animation.html">
+<link rel="import" href="../../bower_components/neon-animation/animations/fade-out-animation.html">
+<link rel="import" href="../../bower_components/neon-animation/animations/slide-up-animation.html">
+<link rel="import" href="../../bower_components/neon-animation/animations/slide-down-animation.html">
+<link rel="import" href="../../bower_components/paper-spinner/paper-spinner.html"> 
+<link rel="import" href="../../bower_components/neon-animation/neon-animations.html">
+
+<link rel="import" href="../../bower_components/paper-drawer-panel/paper-drawer-panel.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../bower_components/paper-material/paper-material.html">
+<link rel="import" href="../../bower_components/paper-menu/paper-menu.html">
+<link rel="import" href="../../bower_components/paper-header-panel/paper-header-panel.html">
+<link rel="import" href="../../bower_components/paper-scroll-header-panel/paper-scroll-header-panel.html">
+<link rel="import" href="../../bower_components/paper-styles/paper-styles-classes.html">
+<link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../../bower_components/paper-toolbar/paper-toolbar.html">
+<link rel="import" href="../../bower_components/iron-signals/iron-signals.html">
+
+
+<link rel="import" href="../../bower_components/pull-to-action/pull-to-action.html">
+
+<link rel="import" href="../profile-img/profile-img.html">
+<link rel="import" href="../swipeable-item.html">
+
+<link rel="import" href="../mail-folder/mail-folder.html">
+<link rel="import" href="../mail-folders/mail-folders.html">
+<link rel="import" href="../mail-thread/mail-thread.html">
+
+<!-- <link rel="import" href="../app-toolbar.html"> -->
+
+
+<dom-module id="mail-messages">
+  <style>
+    :host {
+        @apply(--layout-flex);
+        @apply(--layout-vertical);
+        @apply(--paper-font-common-base);
+        display: block;
+        font-family: sans-serif;
+        height:100%;
+    }
+
+    hidden {
+      display: none;
+    }
+
+    mail-thread {
+      width: 100%;
+    }
+
+    paper-spinner.blue {
+      --paper-spinner-layer-1-color: var(--paper-light-blue-500);
+      --paper-spinner-layer-2-color: var(--paper-light-blue-500);
+      --paper-spinner-layer-3-color: var(--paper-light-blue-500);
+      --paper-spinner-layer-4-color: var(--paper-light-blue-500);
+    }
+
+    #loadingArea {
+      margin-top: 200px;
+      margin-bottom: 10px;
+      margin-left: 50%;
+    }
+
+    #hasMoreMessagesArea {
+      margin-top: 20px;
+      margin-bottom: 20px;
+      width: 100%;
+      margin-left: 20px;
+      text-align: center;
+    }
+
+    #mail-list {
+      /*@apply(--layout-fit);*/
+      /*@apply(--layout-vertical);*/
+    }
+
+    /*#itemsListContainer {
+      padding-top: 148px;
+      margin-top: 64px;
+      padding-bottom: 16px;
+    }*/
+
+    #itemsListContainer {
+      height: 100%;
+      @apply(--layout-flex);
+      @apply(--layout-vertical);
+    }
+
+    #selectedItemsList,
+    #scrollList {
+      @apply(--layout-flex);
+    }
+    #scrollList{
+      @apply(--layout-vertical);
+    }
+    .item {
+      @apply(--layout-horizontal);
+      cursor: pointer;
+      padding: 16px 22px;
+      border-bottom: 1px solid #DDD;
+    }
+    .item:hover {
+      background-color: var(--google-grey-100);
+    }
+    .item:focus,
+    .item.selected:focus {
+      outline: 0;
+    }
+  
+    #starredView {
+      width: 200px;
+      border-left: 1px solid #ddd;
+    }
+    paper-item {
+      white-space: nowrap;
+      cursor: pointer;
+      position: relative;
+    }
+    paper-item:focus {
+      outline: 0;
+      background-color: #ddd;
+    }
+    paper-item:hover::after {
+      content: "－";
+      width: 16px;
+      height: 16px;
+      display: block;
+      border-radius: 50% 50%;
+      background-color: var(--google-red-300);
+      margin-left: 10px;
+      line-height: 16px;
+      text-align: center;
+      color: white;
+      font-weight: bold;
+      text-decoration: none;
+      position: absolute;
+      right: 15px;
+      top: calc(50% - 8px);
+    }
+    .noSelection {
+      color: #999;
+      margin-left: 10px;
+      line-height: 50px;
+    }
+    .twoColumns {
+      @apply(--layout-flex);
+      @apply(--layout-horizontal);
+      overflow: hidden;
+    }
+    #starredView {
+      @apply(--layout-vertical);
+    }
+
+    .avatar {
+      height: 40px;
+      width: 40px;
+      border-radius: 20px;
+      box-sizing: border-box;
+      background-color: #DDD;
+    }
+    .pad {
+      @apply(--layout-flex);
+      @apply(--layout-vertical);
+      padding: 0 16px;
+    }
+    .pad.small {
+      padding: 0px;
+    }
+    .primary {
+      font-size: 14px;
+    }
+    .secondary {
+      font-size: 12px;
+    }
+
+
+    .refresh {
+      background-color:#fff;
+      border-radius:50%;
+
+    }
+    .refreshSpinner {
+      padding:5px;
+      width:22px;
+      height:22px
+    }
+    .refreshStem {
+      stroke-dasharray: 35;
+      fill:rgba(0, 0, 0, 0);
+      stroke-width:1
+    }
+
+    .scale {
+      -webkit-animation:scaleAway .5s;
+      -moz-animation:scaleAway .5s;
+      -o-animation:scaleAway .5s;
+      animation:scaleAway .5s
+    }
+    .refreshShadow {
+      width:32px;
+      height:32px;
+      border-radius:50%;
+      margin:0 auto;
+      margin-bottom: -38px;
+      border-color:#fff;
+      border-style: solid;
+      border-width: 3px;
+      position: absolute;
+      z-index: 1000;
+      margin-left: 50%;
+      margin-top: 200px;
+    }
+    @-webkit-keyframes scaleAway {
+      0% {transform:scale(1)}
+      100% {transform:scale(0)}
+    }
+    @-moz-keyframes scaleAway {
+      0% {transform:scale(1)}
+      100% {transform:scale(0)}
+    }
+    @-o-keyframes scaleAway {
+      0% {transform:scale(1)}
+      100% {transform:scale(0)}
+    }
+    @keyframes scaleAway {
+      0% {transform:scale(1)}
+      100% {transform:scale(0)}
+    }
+
+
+    
+  </style>
+  <template>
+
+    <!-- <template is="dom-if" if="{{toolbarHidden}}"> -->
+
+      <iron-signals on-iron-signal-mail-move="_mailMove"></iron-signals>
+      <iron-signals on-iron-signal-mail-delete="_mailDelete"></iron-signals>
+      <iron-signals on-iron-signal-mail-messages-refresh-folder="_refreshFolder"></iron-signals>
+
+      
+
+    <!-- </template> -->
+
+    <paper-dialog id="dialogMoveMessages">
+      <h2>Selecione uma pasta</h2>
+      <paper-dialog-scrollable>
+        <mail-folders with-title="false" with-badges="false" only-main-folders="false" open-folder="evt-move-selected-messages"></mail-folders>
+      </paper-dialog-scrollable>
+      <div class="buttons">
+        <paper-button dialog-dismiss>Cancelar</paper-button>
+        <paper-button dialog-confirm autofocus>Mover</paper-button>
+      </div>
+    </paper-dialog>
+    
+    <!--  <neon-animated-pages class="flex" selected="{{selectedPage}}" entry-animation="slide-down-animation" exit-animation="fade-out-animation">
+      <neon-animatable id="mail-list">
+ -->
+      <div id="itemsListContainer">
+
+        <div class="twoColumns">
+
+          <!-- Main List for the items -->
+            
+<!--             <paper-material id='loadingArea' class="refreshShadow" elevation="2" style$="[[_computeShowLoadingNextPageStyle(isLoadingNextPage)]]">
+              <paper-spinner class="refresh refreshSpinner blue" active></paper-spinner>
+            </paper-material> -->
+
+            <iron-list id="scrollList" items="{{items}}" as="item" on-scroll="onScroll">
+            <template>
+               <div>
+              <template is="dom-if" if="[[item.isFolder]]">
+                <mail-folder folder-name="{{item.folderName}}" folder-id="{{item.folderID}}" route="{{item.route}}" on-open-folder="_openFolder"></mail-folder>
+              </template>
+              <template is="dom-if" if="[[!item.isFolder]]">
+
+                 <mail-thread folderid="{{item.folderID}}" msgid='{{item.msgID}}' subject="{{item.subject}}" fromemail="{{item.fromemail}}" from="{{item.from}}" date="{{item.date}}" bodyresume="{{item.bodyresume}}" route="{{item.route}}" unread="{{item.unread}}" has-attachments="{{item.hasAttachments}}" starred="{{item.starred}}" on-open-message="openMessage" on-starred-message="starredMessage" data-thread-index$="{{item.index}}" selected="{{_isSelected(item.msgID)}}"></mail-thread>
+
+              </template>
+            </div>
+              
+            </template>
+            </iron-list>
+
+              <div id='hasMoreMessagesArea' class="layout flex center" style$="[[_computeShowMoreMessagesStyle(hasMoreMessages)]]">Esta pasta n&atilde;o cont&eacute;m mais mensagens...</div>
+
+          <div id="starredView" hidden$="[[!showSelection]]">
+            <template is="dom-if" if="[[!selectedItems.length]]">
+              <div class="noSelection">Selecione uma mensagem</div>
+            </template>
+            <!-- List for the selected items -->
+            <iron-list id="selectedItemsList" items="[[selectedItems]]" hidden$="[[!selectedItems.length]]">
+              <template>
+
+                <paper-item on-tap="_onUnSelectItem" tabindex="0">
+                  <profile-img id="profileimgSelected" class="small" email="[[item.fromemail]]" letter="[[item.fromemail.0]]"></profile-img>
+                  <div class="pad small">
+                    <div class="primary name">[[_decodeHTMLEntities(item.subject)]]</div>
+                    <div class="secondary dim name">[[_decodeHTMLEntities(item.fromemail)]]</div>
+                  </div>
+                  <paper-ripple></paper-ripple>
+                </paper-item>
+              </template>
+            </iron-list>
+          </div>
+        </div>
+      </div>
+
+      <!-- </neon-animatable>
+       <neon-animatable id="mail-detail">
+        <mail-detail is="app-page" id="mailDetail" folder="{{currentMessage.folderid}}" msg="{{currentMessage.msgid}}" toolbar-hidden="{{toolbarHidden}}"></mail-detail> 
+      </neon-animatable>
+    </neon-animated-pages> 
+  -->
+
+  </template>
+  <script>
+  
+</script>
+</dom-module>

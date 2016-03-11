@@ -3,10 +3,16 @@ import MessagesCollection from 'MessagesCollection';
 import ContactsListCollection from 'ContactsListCollection';
 import Shared from 'shared';
 import PreviewAttachmentMessageView from 'PreviewAttachmentMessageView';
+import AppPageBehavior from 'AppPageBehavior';
 
 
 Polymer({
   is: 'mail-detail',
+
+  behaviors: [
+      AppPageBehavior
+  ],
+
   properties: {
     folder: {
       type: String, 
@@ -31,6 +37,11 @@ Polymer({
     from: {
       type: String,
       value: '',
+    },
+    isLoading: {
+      type: Number,
+      value: false,
+      reflectToAttribute: true
     },
     hasAttachments: {
       type: Boolean,
@@ -234,12 +245,18 @@ Polymer({
 
   },
 
+  clearHtml: function(elementToClear) {
+
+  },
+
   bindHtml: function(elementToBind,htmlToBind,elementId) {
 
     // var div = document.createElement('echo-html');
     // // div.html = htmlToBind;
     // div.innerHTML = htmlToBind;
     // elementToBind.appendChild(div);
+
+    elementToBind.innerHTML = '';
 
     var domBind = document.createElement('template', 'dom-bind');
     domBind.id = elementId;
@@ -256,9 +273,12 @@ Polymer({
     elementToBind.appendChild(domBind);
   },
 
-  attached: function () {
-
+  loadMessage: function() {
     var that = this;
+
+    this.isLoading = true;
+
+    console.log("loadMessage:" + this.folder + " - " + this.msg);
 
     this.messagesCollection = new MessagesCollection();
     this.messagesCollection.getMessagesInFolder(this.folder, this.msg, '', 1).done(function(Pdata) {
@@ -267,6 +287,13 @@ Polymer({
 
       that.timeAgo = that.message.getTimeAgo();
       that.messageBodyFormated = that.message.getMessageBody(false);
+
+      // that.pageTitle = that.message.get("msgSubject");
+      that.setPageTitle(that.message.get("msgSubject"),that.message.get('msgFrom').mailAddress);
+      that.setBackButtonEnabled(true);
+      that.setRefreshButtonEnabled(false);
+      // that.backButton = true;
+      // that.refreshButton = false;
 
       var msgFlagged = that.message.get("msgFlagged");
       if (msgFlagged == "1") {
@@ -290,8 +317,6 @@ Polymer({
 
       that.bindHtml(that.$.recipientsMsgCc,that.getMsgRecipientsHTML(that.message.get('msgCc'),'Cc'));
       that.bindHtml(that.$.recipientsMsgBcc,that.getMsgRecipientsHTML(that.message.get('msgBcc'),'Bcc'));
-
-
 
 
       if (that.message != undefined) {
@@ -327,17 +352,26 @@ Polymer({
               preview.render(elementID);
           }
 
+          that.isLoading = false;
+
       }
 
     }).fail(function(result) {
 
 
     }).execute();
-
-     
   },
 
+  attached: function () {
+    // this.loadMessage();     
+  },
 
+  attributeChanged: function(name, type) {
+      // console.log('mail-detail - attribute: '+ name);
+      // if (name == 'msg') {
+      //   this.loadMessage();
+      // }
+  },
 
 
   ready: function() {

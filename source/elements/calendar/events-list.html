@@ -1,0 +1,130 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../bower_components/iron-icons/social-icons.html">
+<link rel="import" href="../../bower_components/iron-list/iron-list.html">
+<link rel="import" href="../../bower_components/paper-styles/paper-styles.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/iron-selector/iron-selector.html">
+<link rel="import" href="../../bower_components/iron-menu-behavior/iron-menu-behavior.html">
+
+<link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../bower_components/paper-dialog-scrollable/paper-dialog-scrollable.html">
+<link rel="import" href="../../bower_components/paper-styles/typography.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../bower_components/neon-animation/neon-animated-pages.html">
+<link rel="import" href="../../bower_components/neon-animation/neon-animatable.html">
+<link rel="import" href="../../bower_components/neon-animation/animations/slide-from-left-animation.html">
+<link rel="import" href="../../bower_components/neon-animation/animations/slide-from-right-animation.html">
+<link rel="import" href="../../bower_components/neon-animation/animations/fade-out-animation.html">
+<link rel="import" href="../../bower_components/neon-animation/animations/slide-up-animation.html">
+<link rel="import" href="../../bower_components/neon-animation/animations/slide-down-animation.html">
+<link rel="import" href="../../bower_components/paper-spinner/paper-spinner.html"> 
+<link rel="import" href="../../bower_components/neon-animation/neon-animations.html">
+
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../../bower_components/paper-menu/paper-menu.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../bower_components/iron-form/iron-form.html">
+
+<link rel="import" href="../profile-img/profile-img.html">
+<link rel="import" href="../swipeable-item.html">
+<link rel="import" href="../menu-fab.html">
+
+<link rel="import" href="./events-month.html">
+
+<dom-module id="events-list">
+  <style>
+    :host {
+        @apply(--layout-fit);
+        @apply(--layout-vertical);
+        @apply(--paper-font-common-base);
+        display: block;
+        font-family: sans-serif;
+    }
+
+    #itemsListContainer {
+      @apply(--layout-fit);
+      @apply(--layout-vertical);
+    }
+
+    #selectedItemsList,
+    #itemsList {
+      @apply(--layout-flex);
+    }
+    #itemsList{
+      @apply(--layout-vertical);
+    }
+
+    .item {
+      position: relative !important;
+      /*padding: 0px 0px;*/
+      border-bottom: 1px solid #DDD;
+      height: 200px;
+    }
+
+    .eventItem {
+      position: relative !important;
+      /*padding: 0px 0px;*/
+      border-bottom: 1px solid #DDD;
+    }
+
+    #loadingArea {
+      margin-top: 20px;
+      margin-bottom: 10px;
+      margin-left: 50%;
+    }
+
+  </style>
+  <template>  
+  
+    <div id="itemsListContainer">
+        <!-- <div id='loadingArea' class="layout flex center" hidden$="[[!isLoading]]"><paper-spinner class="blue" alt="Carregando..." active></paper-spinner></div> -->
+      <iron-list id="itemsList" items="[[months]]" on-scroll="onScroll">
+      <!-- <template is="dom-repeat" items="[[months]]"> -->
+      <template>
+        <div>
+          <template is="dom-if" if="[[item.isMonth]]">
+
+            
+            <events-month month="{{item.month}}" year="{{item.year}}" is-loading="{{item.isLoading}}" is-month="{{item.isMonth}}" event-data="{{item.eventData}}" class="item"></events-month>
+
+<!--             <div class="create-card-content">
+              <div id="event-list">
+ -->
+                
+
+<!--               </div>
+            </div> -->
+          </template>
+          
+          <template is="dom-if" if="[[item.isLoading]]">
+            <div id='loadingArea' class="layout flex center"><paper-spinner class="blue" alt="Carregando..." active></paper-spinner></div>
+          </template>
+          
+          
+
+          <template is="dom-if" if="[[!item.isMonth]]">
+            <paper-item tabindex="0" class="eventItem">
+              <profile-img id="profileimgSelected" class="small" letter="[[item.eventData.eventDay]]"></profile-img>
+              <div class="pad small">
+                <div class="primary name">&nbsp;[[_decodeHTMLEntities(item.eventData.eventName)]]</div>
+                <div class="secondary dim name"></div>
+              </div>
+              <paper-ripple></paper-ripple>
+            </paper-item>
+          </template>
+
+
+        </div>
+      </template>
+      </iron-list>
+    </div>
+        
+  </template>
+  <script>
+  
+</script>
+</dom-module>

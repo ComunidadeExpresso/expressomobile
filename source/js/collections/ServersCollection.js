@@ -27,13 +27,15 @@ var ServersCollection = Backbone.Collection.extend({
 
     getServersFromExpressoLivre: function() {
 
-        var that = this;
-
         var data = this._data;
+
+        var that = this;
 
         var isPhoneGap = Shared.api.phoneGap();
 
         var serverURL = Shared.ComunityServerURL;
+        // var serverURL = "http://api.expressolivre.org/";
+
 
         if (isPhoneGap) {
             Shared.api.context(serverURL).crossdomain(serverURL);
@@ -42,7 +44,7 @@ var ServersCollection = Backbone.Collection.extend({
         }
 
         Shared.api
-            .resource('AvailableServers')
+            .resource('AvailableServers').enableAutoConfig(false)
             .params({})
             .done(function(result) {
 
@@ -51,16 +53,16 @@ var ServersCollection = Backbone.Collection.extend({
                     that.add(currentModel);
                 }
 
-                if (that._data.done) {
-                    that._data.done(that);
+                if (data.done) {
+                    data.done(that);
                 }
 
                 return false;
             })
             .fail(function(error) {
 
-                if (that._data.fail) {
-                    that._data.fail(error);
+                if (data.fail) {
+                    data.fail(error);
                 }
 
                 return false;
@@ -70,13 +72,15 @@ var ServersCollection = Backbone.Collection.extend({
 
     getServers: function() {
 
-        var that = this;
-
         var data = this._data;
+
+        var that = this;
 
         var isPhoneGap = Shared.api.phoneGap();
 
         if (!isPhoneGap) {
+
+            // console.log("!isPhoneGap");
 
             var jqxhr = $.ajax("servers.json").done(function(tempData) {
                 try {
@@ -88,11 +92,13 @@ var ServersCollection = Backbone.Collection.extend({
                         that.add(currentModel);
                     }
 
-                    if (that._data.done) {
-                        that._data.done(that);
+
+                    if (data.done) {
+                        data.done(that);
                     }
 
                 } catch (error) {
+
 
                     //NAO CONSEGUIU FAZER O PARSER DO JSON LOCAL PORQUE RETORNOU UM HTML (DEVIDO AO HTACCESS).
                     //NAO ACHOU O ARQUIVO SERVERS.JSON LOCALMENTE E ESTÁ TENTANDO BUSCAR A LISTA DE SERVIDORES NA URL DO EXPRESSOLIVRE.
@@ -103,6 +109,8 @@ var ServersCollection = Backbone.Collection.extend({
             });
 
         } else {
+
+            // console.log("isPhoneGap");
 
             //NO PHONEGAP - SOMENTE RETORNA A LISTA DE SERVIDORES DO EXPRESSOLIVRE.
             that.getServersFromExpressoLivre();
