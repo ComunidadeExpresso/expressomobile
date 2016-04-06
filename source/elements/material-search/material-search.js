@@ -1,48 +1,37 @@
 
-import _ from 'underscore';
+// import _ from 'underscore';
 import Shared from 'shared';
 import MessagesCollection from 'MessagesCollection';
-import ContactsListCollection from 'ContactsListCollection';
-
+import AppPageBehavior from 'AppPageBehavior';
+import SharedBehavior from 'SharedBehavior';
 
 Polymer({
     is: 'material-search',
 
+    behaviors: [
+      AppPageBehavior,
+      SharedBehavior,
+    ],
+
     properties: {
+
+      isLoading: {
+        type: Boolean,
+        value: false,
+        reflectToAttribute: true,
+        notify: true
+      },
+
       previousSearches: {
         type: Array,
         value: [],
-        // notify: true,
-        // reflectToAttribute: true,
-      },
-
-      // mailResults: {
-      //   type: Array,
-      //   value: function() { return []; },
-      //   notify: true
-      // },
-
-      // contactsResults: {
-      //   type: Array,
-      //   value: function() { return []; },
-      //   notify: true
-      // },
-
-      tabs: {
-        type: Array,
-        value: function() { return ['Email','Contatos','Agenda']; },
-        // notify: true
+        notify: true,
+        reflectToAttribute: true,
       },
 
       activeTab: {
         type: Number,
         value: 0,
-        // reflectToAttribute: true,
-      },
-
-      narrow: {
-        type: Boolean,
-        value: false
       },
 
       active: {
@@ -52,20 +41,6 @@ Polymer({
         notify: true
       },
 
-      loading: {
-        type: Boolean,
-        value: false,
-        reflectToAttribute: true,
-        notify: true
-      },
-
-      // personalContacts: {
-      //   type: Boolean,
-      //   value: false,
-      //   reflectToAttribute: true,
-      //   notify: true
-      // },
-
       searchValue: {
         type: String,
         value: '',
@@ -74,17 +49,14 @@ Polymer({
 
     },
 
-    onSelect: function(e, detail) {
-      // this.async(function() {
-      //   var route = detail.item.dataset.value;
+    ready: function() {
+      this._updateBackgroundImage();
+    },
 
-      //   console.log(route);
-
-      //   this.active = false;
-
-      //   //Shared.router.navigate(route,{trigger: true});
-
-      // }, 250); // Introduce small delay so user sees ripple.
+    _updateBackgroundImage: function() {
+      var number = Math.floor((Math.random() * 12) + 1);
+      var image = 'bkg_' + number + '.jpg';
+      //this.$.searchTabs.style.backgroundImage = 'url(../../imgs/material_backgrounds/' + image + ')';
     },
 
     toggle: function() {
@@ -115,101 +87,57 @@ Polymer({
       }
     },
 
-    // searchEmail: function() {
-    //   var that = this;
-
-    //   if ((this.searchValue != undefined) && (this.searchValue != '')) {
-
-    //     this.messagesCollection = new MessagesCollection();
-    //     this.messagesCollection.getMessagesInFolder('INBOX', '', this.searchValue, 1).done(function(Pdata) {
-
-    //       var messages = Pdata.models;
-
-    //       var newResults = [];
-    //       _.each(messages, function(message){
-
-    //         var subject = message.get("msgSubject");
-    //         var route = "Mail/Messages/0/" + message.get("msgID") + "/" + message.get("folderID");
-    //         var mail = { 
-    //           title: subject,
-    //           route: route,
-    //         };
-    //         newResults.push(mail);
-
-    //       });
-
-    //       that.mailResults = newResults;
-
-    //     }).fail(function(result) {
-
-    //     }).execute();
-
-    //   }
-    // },
-
-    /** Fired when a search is made.
-     *
-     * @event search-change
-     * @param {Object} detail
-     * @param {Object} detail.searchValue The search string.
-     */
-
     _searchValueChanged: function() {
-      if ((this.searchValue != undefined) && (this.searchValue != '')) {
-        console.log(this.get("previousSearches"));
-        //this.fire('search-change', {value: this.searchValue},{value: this.searchValue});
-        if (this.activeTab == 0) {
 
-          // this.$.mailSearch.page = 0;
-          this.$.mailSearch.doSearch(this.searchValue);
+      if (this.searchValue.length <= 3) {
+        this.showMessage('Sua busca deve ter mais do que 3 caracteres.','error');
+      } else {
+
+        if ((this.searchValue != undefined) && (this.searchValue.trim() != '')) {
+
+          var found = false;
+          for (var i = 0; i< this.previousSearches.length; i++) {
+            if (this.previousSearches[i] == this.searchValue.trim()) {
+              found = true;
+            }
+          }
+
+          if (!found) {
+            this.previousSearches.push(this.searchValue.trim());
+          }
+          
+
+          this._onPageChange();
 
         }
-        
-        this.previousSearches.push(this.searchValue);
-        //this.searchValue = '';
-      }
-      if (this.activeTab == 1) {
-        this.$.contactListPersonal.reloadContent();
+        if ((this.activeTab == 1) && (this.searchValue.trim() == '')) {
+          // this._onPageChange();
+          this.$.contactListPersonal.reloadContent(true);
+        }
+
       }
     },
 
     _onPageChange:function(e,a) {
 
-      // if (this.activeTab == 0) {
-      //   this.searchEmail();
-      // }
+      if (this.activeTab == 0) {
+        this.$.mailSearch.doSearch(this.searchValue);
+      }
       if (this.activeTab == 1) {
-        this.$.contactListPersonal.reloadContent();
+        this.$.contactListPersonal.search = this.searchValue;
+      }
+      if (this.activeTab == 2) {
+        this.$.contactListGeneral.search = this.searchValue;
       }
 
     },
 
-    _decodeHTMLEntities: function(val) {
-      var t = document.createElement('textarea');
-      t.innerHTML = val;
-      return t.textContent;
+    _computeShowLoadingStyle: function(isLoadingActive) {
+      if (isLoadingActive) {
+        return '';
+      } else {
+        return 'display: none;';
+      }
     },
-
-    _computeHeaderClass: function(narrow) {
-      return narrow ? 'core-narrow' : '';
-    },
-
-    removeAccents: function(strAccents) {
-        var strAccents = strAccents.split('');
-        var strAccentsOut = new Array();
-        var strAccentsLen = strAccents.length;
-        var accents = 'ÀÁÂÃÄÅàáâãäåÒÓÔÕÕÖØòóôõöøÈÉÊËèéêëðÇçÐÌÍÎÏìíîïÙÚÛÜùúûüÑñŠšŸÿýŽž';
-        var accentsOut = "AAAAAAaaaaaaOOOOOOOooooooEEEEeeeeeCcDIIIIiiiiUUUUuuuuNnSsYyyZz";
-
-        for (var y = 0; y < strAccentsLen; y++) {
-            if (accents.indexOf(strAccents[y]) != -1)
-                strAccentsOut[y] = accentsOut.substr(accents.indexOf(strAccents[y]), 1);
-            else
-                strAccentsOut[y] = strAccents[y];
-        }
-
-        strAccentsOut = strAccentsOut.join('');
-
-        return strAccentsOut;
-    },
+    
   });

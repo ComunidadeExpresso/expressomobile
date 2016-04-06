@@ -55,6 +55,7 @@ var initialize = function(){
       
     };
 
+
     app.closeDrawer = function() {
       if (app.$.paperDrawerPanel != undefined) {
         app.$.paperDrawerPanel.closeDrawer();
@@ -118,7 +119,7 @@ var initialize = function(){
         });
 
         page('/', function() {
-          app.route = 'mail-messages';
+          // app.route = 'mail-messages';
           // app.fire('evt-open-folder', { folder: { folderID: "INBOX" } });
         });
 
@@ -195,12 +196,19 @@ var initialize = function(){
         page('/contact-detail/:contactType/:contactId', function(data) {
           app.route = 'contact-detail';
           var params =  { contactType: data.params.contactType, contactId: data.params.contactId };
-          app.fire('evt-open-contacts');
+          app.fire('evt-open-contact-detail',params);
         });
 
-        page('/contact-create', function(data) {
-          app.route = 'contact-create';
-          // app.fire('evt-open-contacts');
+        page('/contact-edit/:contactType/:contactId', function(data) {
+          app.route = 'contact-edit';
+          var params =  { contactType: data.params.contactType, contactId: data.params.contactId };
+          app.fire('evt-open-contact-edit',params);
+        });
+
+        page('/contact-edit', function(data) {
+          app.route = 'contact-edit';
+          var params =  { };
+          app.fire('evt-open-contact-edit',params);
         });
 
         page('/events-list', function(data) {

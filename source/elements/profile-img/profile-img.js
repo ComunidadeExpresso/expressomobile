@@ -1,7 +1,7 @@
 
 import Shared from 'shared';
 import expressoAPI from 'expressoAPI';
-import ContactsListCollection from 'ContactsListCollection';
+import contactsApi from 'contactsApi';
 
 Polymer({
     is: 'profile-img',
@@ -36,17 +36,49 @@ Polymer({
       }
     },
 
+    getContactImagePictureByEmail: function(email,callback) {
+      contactsApi
+      .init()
+      .ignoreCache(false)
+      .contactType(2)
+      .search(email)
+      .done(function(result) { 
+        if (result.length != 0) {
+          for (var i in result) {
+            var contactEmail = result[i]["contactMails"][0];
+
+            if (contactEmail == email) {
+                var contactID = result[i]["contactID"];
+                contactID = decodeURIComponent(contactID);
+
+                contactsApi
+                .init()
+                .ignoreCache(false)
+                .contactID(contactID)
+                .done(function(result) { 
+                  callback(result);
+                }).getContactImagePicture();
+
+            }
+          } 
+        }
+      })
+      .fail(function(error) {
+        callback("");
+      })
+      .getContacts();
+
+    },
+
     attributeChanged: function(name, type) {
 
       if (this.autoLoad) {
-
 
         if (name == 'email') {
           //console.log(this.localName + '#' + this.id + ' attribute ' + name + ' was changed to ' + this.getAttribute(name));
           this.src = null;
           var currentEmail = this.getAttribute(name);
           var that = this;
-          that.contactListCollection = new ContactsListCollection();
 
           var gShared = Shared;
           var hasPicture = Shared.getUserPicture(currentEmail);
@@ -66,7 +98,7 @@ Polymer({
             
             if (that.email != '') {
               that.src = null;
-              that.contactListCollection.getContactImagePictureByEmail(currentEmail,that.whenDone);
+              that.getContactImagePictureByEmail(currentEmail,that.whenDone);
             }
 
           } else {

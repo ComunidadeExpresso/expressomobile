@@ -17,6 +17,80 @@ Polymer({
       AppPageBehavior
     ],
 
+    properties: {
+      items: {
+        type: Array, 
+        value: [],
+        reflectAttribute: true
+      },
+      selectedItems: {
+        type: Array, 
+        value: [],
+        notify: true,
+        reflectAttribute: true,
+      },
+      showSelection: {
+        type: Boolean,
+        value: false,
+        observer: '_showSelectionChanged'
+      },
+      selectedPage: {
+        type: Number,
+        value: 0
+      },
+
+      hostElementID: {
+        type: String,
+        value: 'content_HostID',
+        reflectAttribute: true,
+      },
+      
+      tempMessages: {
+        type: Array, 
+        reflectAttribute: true,
+        value: []
+      },
+      selectedMessages: {
+        type: Array, 
+        reflectAttribute: true,
+        value: []
+      },
+      currentMessage: {
+        type: Array,
+        value: [],
+        reflectAttribute: true,
+        notify: true,
+      },
+      currentFolder: {
+        type: Array,
+        value: []
+      },
+      folderId: {
+        type: String,
+        value: 'INBOX',
+        notify: true, 
+        reflectAttribute: true,
+      },
+      search: {
+        type: String,
+        value: '',
+        notify: true, 
+        reflectAttribute: true,
+      },
+      page: {
+        type: Number,
+        value: 0,
+        notify: true, 
+        reflectAttribute: true,
+      },
+      hasMoreMessages: {
+        type: Number,
+        value: true,
+        reflectAttribute: true,
+      },
+    },
+
+
     listeners: {
       'evt-click-menu-fab-item': 'clickFabMenu',
       // 'evt-mail-messages-reload-first-page': 'reloadFirstPage',
@@ -85,7 +159,7 @@ Polymer({
       this.foldersCollection = new FoldersCollection();
       this.foldersCollection.moveMessages(this.folderId, msgsIDs, destinFolder.folderID).done(function(data) {
 
-        that.reloadFirstPage();
+        that.reloadFirstPage(true);
         that.showMessage(qtdMsgs + ' mensagen(s) movida(s) para pasta "' + destinFolderName + '".');
       }).fail(function(data) {
         that.showMessage('Não foi possível mover as mensagens.','warn');
@@ -218,6 +292,8 @@ Polymer({
       this.items = [];
       this.page = 0;
       this.selectedPage = 0;
+      this.pageTitle = '';
+      this.setPageTitle('');
 
       this.setBackButtonEnabled(false);
       this.setRefreshButtonEnabled(true,'mail-messages-refresh-folder');
@@ -277,6 +353,7 @@ Polymer({
     },
 
     _mailMove: function(e) {
+      this.$.moveMessagesMailFolders._refreshFolders();
       this.$.dialogMoveMessages.open();
     },
 
@@ -307,7 +384,7 @@ Polymer({
     },
 
     attributeChanged: function(name, type) {
-      console.log('attribute: '+ name);
+      // console.log('attribute: '+ name);
       if (name == 'folder-id') {
         this.page = 0;
         this.loadPage();
@@ -421,6 +498,8 @@ Polymer({
                             } else {
                                 attrs["unread"] = false;
                             }
+
+                            attrs["archived"] = false;
 
                             arr_items.push(attrs);
 
@@ -560,22 +639,6 @@ Polymer({
       // return arrMessages;
     },
 
-    showMessage: function(message,msgType) {
-
-      if (msgType == undefined) {
-        msgType = 'info';
-      }
-
-      this.fire('iron-signal', {
-        name: 'toaster-bake',
-        data: {
-          text: message,
-          type: msgType,
-        }
-      });
-
-    },
-
     toolbarChange: function(title,subtitle) {
 
       this.fire('iron-signal', {
@@ -613,88 +676,13 @@ Polymer({
       // }
     },
 
-    _decodeHTMLEntities: function(val) {
-      var t = document.createElement('textarea');
-      t.innerHTML = val;
-      return t.textContent;
-    },
+
 
     resize: function() {
        // Polymer.dom(this.$.scrollList).setAttribute('style', 'height: ' + (document.body.clientHeight - 500) + 'px;');
     },
 
-    properties: {
-      items: {
-        type: Array, 
-        value: [],
-        reflectAttribute: true
-      },
-      selectedItems: {
-        type: Array, 
-        value: [],
-        notify: true,
-        reflectAttribute: true,
-      },
-      showSelection: {
-        type: Boolean,
-        value: false,
-        observer: '_showSelectionChanged'
-      },
-      selectedPage: {
-        type: Number,
-        value: 0
-      },
-
-      hostElementID: {
-        type: String,
-        value: 'content_HostID',
-        reflectAttribute: true,
-      },
-      
-      tempMessages: {
-        type: Array, 
-        reflectAttribute: true,
-        value: []
-      },
-      selectedMessages: {
-        type: Array, 
-        reflectAttribute: true,
-        value: []
-      },
-      currentMessage: {
-        type: Array,
-        value: [],
-        reflectAttribute: true,
-        notify: true,
-      },
-      currentFolder: {
-        type: Array,
-        value: []
-      },
-      folderId: {
-        type: String,
-        value: 'INBOX',
-        notify: true, 
-        reflectAttribute: true,
-      },
-      search: {
-        type: String,
-        value: '',
-        notify: true, 
-        reflectAttribute: true,
-      },
-      page: {
-        type: Number,
-        value: 0,
-        notify: true, 
-        reflectAttribute: true,
-      },
-      hasMoreMessages: {
-        type: Number,
-        value: true,
-        reflectAttribute: true,
-      },
-    }
+    
 
     
   });

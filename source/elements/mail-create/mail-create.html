@@ -1,0 +1,118 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-toolbar/paper-toolbar.html">
+<link rel="import" href="../../bower_components/paper-menu/paper-menu.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../bower_components/paper-item/paper-icon-item.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item-body.html">
+<link rel="import" href="../../bower_components/paper-ripple/paper-ripple.html">
+<link rel="import" href="../../bower_components/paper-header-panel/paper-header-panel.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/iron-icons/av-icons.html">
+
+
+<link rel="import" href="../../bower_components/neon-animation/neon-animated-pages.html">
+<link rel="import" href="../../bower_components/neon-animation/neon-animatable.html">
+<link rel="import" href="../../bower_components/neon-animation/animations/slide-from-left-animation.html">
+<link rel="import" href="../../bower_components/neon-animation/animations/fade-in-animation.html">
+<link rel="import" href="../../bower_components/neon-animation/animations/fade-out-animation.html">
+
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+
+<link rel="import" href="../mail-recipient/mail-recipient.html">
+
+<link rel="import" href="../../bower_components/expanded-card/expanded-card.html">
+
+
+
+<dom-module id="mail-create">
+<style>
+  :host {
+
+  }
+
+    .card-container {
+      position: relative;
+      width: 720px;
+      margin: 100px auto 40px;
+    }
+
+    paper-card {
+      padding: 8px 0 8px 80px;
+      width: 100%;
+      sizing: border-box;
+    }
+    paper-card p {
+      margin: 12px 0;
+      color: #999;
+    }
+
+    paper-input {
+      padding: 0px;
+    }
+
+    .recipient-item {
+      margin: 0px 0;
+      /*border: 1px solid #EFEFEF;*/
+      /*background-color: #EFEFEF;*/
+      @apply(--layout-horizontal);
+    }
+    .recipient-title {
+      margin-left: -80px;
+      width: 60px;
+      padding-right: 20px;
+      padding-top: 14px;
+      color: rgb(33, 169, 143);
+      text-align: right;
+    }
+    .recipient-name {
+      @apply(--layout-flex);
+    }
+
+        .expanded-card {
+      margin-top: -48px;
+    }
+
+    iron-collapse {
+      padding: 0px;
+    }
+</style>
+<template>
+
+   <div class="card-container">
+
+    <paper-card heading="">
+      <div class="card-content">
+
+        <div class="recipient-item">
+          <div class="recipient-title">Assunto:</div>
+          <div class="recipient-name">
+            <paper-input id="subjectField" label="" class="flex" value="{{msgSubject}}" no-label-float></paper-input>
+          </div>
+        </div>
+
+        <mail-recipient id="msgTo" visible="true" recipient-title="Para:" recipients="{{msgTo}}"></mail-recipient>
+        <!-- <template is="dom-if" if="{{!ccVisible}}"> -->
+          <a href="#" on-tap="showCc">CC:</a>
+        <!-- </template> -->
+
+        <mail-recipient id="msgCc" visible="{{ccVisible}}" recipient-title="Cc:" recipients="{{msgCc}}"></mail-recipient>
+        <mail-recipient id="msgBcc" visible="{{bccVisible}}" recipient-title="Bcc:" recipients="{{msgBcc}}"></mail-recipient>
+
+        <p>
+          ESCREVER MENSAGEM. <br>
+          action: {{action}}<br>
+          folderid: {{folderId}}<br>
+          msgid: {{msgId}} <br> 
+          emails: {{emails}}
+        </p>
+
+      </div>
+    </paper-card>
+
+  </div>
+
+</template>
+<script>
+  
+</script>
+</dom-module>

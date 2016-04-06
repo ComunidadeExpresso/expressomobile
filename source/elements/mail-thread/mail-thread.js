@@ -71,6 +71,7 @@ import page from 'page';
       archived: {
         type: Boolean,
         value: false,
+        notify: true,
         reflectToAttribute: true,
         observer: '_archivedChanged'
       },

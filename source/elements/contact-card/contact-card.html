@@ -1,0 +1,100 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../bower_components/paper-styles/paper-styles.html">
+<link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/paper-dialog-scrollable/paper-dialog-scrollable.html">
+<link rel="import" href="../../bower_components/paper-styles/typography.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../../bower_components/paper-menu/paper-menu.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../../bower_components/iron-form/iron-form.html">
+
+<link rel="import" href="../profile-img/profile-img.html">
+
+<dom-module id="contact-card">
+  <style>
+
+    .card-container {
+      position: relative;
+      width: 720px;
+      margin: 300px auto 40px;
+    }
+    profile-img {
+      position: absolute;
+      margin-top: -63px;
+      margin-left: -64px;
+    }
+
+    paper-card {
+      padding: 16px 0 16px 100px;
+      width: 100%;
+      height: 100%;
+      sizing: border-box;
+    }
+
+    @media (max-width: 720px) {
+      .card-container {
+        width: 100%;
+        margin: 150px 0 0;
+      }
+    }
+
+  </style>
+  <template>
+
+    <template is="dom-if" if="{{!isLoading}}">
+      <div class="card-container">
+          <paper-card heading="{{name}}">
+            <div class="card-content">
+
+                <profile-img 
+                        id="detailProfileimage" 
+                        email="{{email}}" 
+                        letter="[[name.0]]" 
+                        on-transitionend="_eatEvent" auto-load="true">
+                      </profile-img>
+      
+                  <paper-icon-item on-tap="composeEmail">
+                    <iron-icon icon="communication:email" item-icon></iron-icon>
+                    <paper-item-body two-line>
+                      <div>{{email}}</div>
+                      <div secondary></div>
+                      <paper-ripple></paper-ripple>
+                    </paper-item-body>
+                  </paper-icon-item>
+          
+                  <template is="dom-repeat" items="{{phones}}">
+                  <paper-icon-item>
+                    <iron-icon icon="communication:phone" item-icon></iron-icon>
+                    <paper-item-body two-line>
+                      <div>{{item}}</div>
+                      <div secondary></div>
+                    </paper-item-body>
+                  </paper-icon-item>
+                  </template>
+          
+                  <template is="dom-if" if="{{notes}}">
+                  Observações:<br>
+                  {{notes}}
+                  </template>
+              
+            </div>
+            <div class="card-actions">
+              <template is="dom-if" if="[[personalContact]]">
+                <paper-icon-button icon="icons:delete" on-tap="deleteContact"></paper-icon-button>
+              </template>
+            </div>
+          </paper-card>
+
+      </div>
+    </template>
+  </template>
+
+</dom-module>

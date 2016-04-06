@@ -161,7 +161,7 @@ import elements from 'elements';
 
   Shared.getRandomCardBackground = function() {
     var number = Math.floor((Math.random() * 12) + 1);
-    var image = 'bg-' + number + '.jpg';
+    var image = 'bg-landscape-ipad-' + number + '.jpg';
     return image;
   };
 

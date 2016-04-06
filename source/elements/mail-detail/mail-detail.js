@@ -1,6 +1,5 @@
 
 import MessagesCollection from 'MessagesCollection';
-import ContactsListCollection from 'ContactsListCollection';
 import Shared from 'shared';
 import PreviewAttachmentMessageView from 'PreviewAttachmentMessageView';
 import AppPageBehavior from 'AppPageBehavior';

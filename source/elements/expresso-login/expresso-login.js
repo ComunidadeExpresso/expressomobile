@@ -1,19 +1,23 @@
 
-import $ from 'jquery';
-import _ from 'underscore';
-import Backbone from 'backbone';
+// import $ from 'jquery';
+// import _ from 'underscore';
+// import Backbone from 'backbone';
 import Shared from 'shared';
-import HomeView from 'HomeView';
+// import HomeView from 'HomeView';
 import ServersCollection from 'ServersCollection';
 
-// import loginTemplate from 'loginTemplate';
-// import expressoIM from 'expressoIM';
 
   Polymer({
 
     is: 'expresso-login',
 
     properties: {
+          isLogged: {
+            type: Boolean,
+            value: false,
+            reflectToAttribute: true,
+            notify: true
+          },
           AvailableServers: {
               type: Array,
               reflectToAttribute: true,
@@ -62,15 +66,12 @@ import ServersCollection from 'ServersCollection';
 
     serversLoaded: function (data) {
         this.AvailableServers = data.detail.response.result.servers;
-
         console.log(this.AvailableServers);
     },
 
     doLogin: function(e) {
 
-
     	var server = this.AvailableServers[this.selectedServer];
-
     	var serverApiUrl = server.serverUrl + server.serverContext;
 
        	this.loginUser(this.user,this.password,serverApiUrl);

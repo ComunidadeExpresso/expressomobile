@@ -4,9 +4,15 @@ import Shared from 'shared';
 import _ from 'underscore';
 import FoldersModel from 'FoldersModel';
 import FoldersCollection from 'FoldersCollection';
+import SharedBehavior from 'SharedBehavior';
+import page from 'page';
 
 Polymer({
 	is: 'mail-folders',
+
+    behaviors: [
+      SharedBehavior
+    ],
 
 	properties: {
 
@@ -14,17 +20,30 @@ Polymer({
 			type: Array,
 			value: []
 		},
+        diskSizeUsed: {
+            type: Number,
+            value: 0,
+        },
+        diskSizeLimit: {
+            type: Number,
+            value: 0,
+        },
 		quotaPercent: {
 			type: Number,
 			value: 0,
+            computed: 'computeQuotaPercent(diskSizeUsed, diskSizeLimit)',
 		},
 		quotaInfo: {
 			type: String,
-			value: '',
+            computed: 'computeQuotaInfo(diskSizeUsed, diskSizeLimit)',
 		},
         excludeFolder: {
             type: String,
             value: '',
+        },
+        withLink: {
+            type: Number,
+            value: true,
         },
         withBadges: {
             type: Number,
@@ -45,8 +64,38 @@ Polymer({
         isLoading: {
             type: Number,
             value: false,
+            notify: true,
+            reflectAttribute: true,
+        },
+        refreshFolders: {
+            type: Number,
+            value: false,
+            observer: 'refreshFoldersChanged',
+        },
+        ignoreCache: {
+            type: Number,
+            value: true,
+        },
+        autoLoadFromCache: {
+            type: Number,
+            value: false,
+            observer: 'autoLoadFromCacheChanged',
         },
 	},
+
+    autoLoadFromCacheChanged: function(value) {
+        if (value == true) {
+            this.ignoreCache = false;
+            this._refreshFolders();
+        }
+    },
+
+    refreshFoldersChanged: function(value) {
+        if (value == true) {
+            this._refreshFolders();
+            this.refreshFolders = false;
+        }
+    },
 
 	bytesToSize: function(bytes, precision) {
         var kilobyte = 1024;
@@ -89,7 +138,9 @@ Polymer({
         .done(function(data) {
 
         	// console.log(data);
-        	// that.setQuota(data.diskSizeUsed,data.diskSizeLimit);
+            that.diskSizeLimit = data.diskSizeLimit;
+            that.diskSizeUsed = data.diskSizeUsed;
+        	//that.setQuota(data.diskSizeUsed,data.diskSizeLimit);
 
             var arr_items = [];
 
@@ -133,53 +184,78 @@ Polymer({
 
             that.folders = arr_items;
 
-            that.isLoading = true;
+            that.isLoading = false;
 
 
         })
         .fail(function(error) {
-            Shared.handleErrors(error);
+            console.warn('ERROR: Mail/Folders');
+            console.warn(error);
+            that.handleErrors(error);
+            // Shared.handleErrors(error);
         })
         .execute();
 	},
 
-    refreshFolders: function() {
-        this.getFolders("INBOX","",true);
+    _refreshFolders: function() {
+        console.log('refreshFolders');
+        this.isLoading = true;
+        this.getFolders("INBOX","",this.ignoreCache);
     },
 
-	setQuota: function(used, total) {
+    computeQuotaPercent: function(used, total) {
+        var percent = (used * 100 / total).toFixed(0);
+        return percent;    
+    },
 
+	computeQuotaInfo: function(used, total) {
         var percent = (used * 100 / total).toFixed(0);
         var infoPercent = percent + "% (" + this.bytesToSize(used, 0) + " / " + this.bytesToSize(total, 0) + ")";
-
-        this.quotaPercent = percent; 
-        this.quotaInfo = infoPercent;
-
+        // console.log(infoPercent);
+        return infoPercent;    
     },
 
 	ready: function() {
-        this.getFolders("INBOX","",false);
-        var that = this;
-        Shared.refreshFolders = function() {
-            that.getFolders("INBOX","",true);
-        }
-
-        setInterval(Shared.refreshFolders, 3 * 60000);
+        // if (this.autoLoad) {
+        //     console.log("autoLoad");
+        //     this.getFolders("INBOX","",this.ignoreCache);
+            // var that = this;
+            // Shared.refreshFolders = function() {
+            //     that.getFolders("INBOX","",true);
+            // }
+            // setInterval(Shared.refreshFolders, 3 * 60000);
+        // }
 	},
 
 	menuFoldersSelect: function(e) {
-		e.stopPropagation();
-		console.log("menuFoldersSelect");
+		// e.stopPropagation();
+		// console.log("menuFoldersSelect");
+        //this.refreshFolders = true;
 	},
 
 	folderSelect: function(e) {
-		var selectedMenuItem = e.detail.selected;
-
-        console.log(this.openFolder);
-
-		var selectedFolder = this.folders[selectedMenuItem];
-		this.fire(this.openFolder,{folder: selectedFolder});
+        var selectedMenuItem = e.detail.selected;
+        var selectedFolder = this.folders[selectedMenuItem];
+        if (!this.withLink) {
+            
+            console.log(this.openFolder);
+		    
+		    this.fire(this.openFolder,{folder: selectedFolder});
+        } else {
+            var app = document.querySelector('#app');
+            var route = app.baseUrl + 'mail-messages/' + selectedFolder.folderID;
+            // console.log(selectedFolder);
+            page(route);
+        }
 	},
+
+    _computeShowLoadingStyle: function(isLoadingActive) {
+        if (isLoadingActive) {
+          return '';
+        } else {
+          return 'display: none;';
+        }
+      },
 
 
 });

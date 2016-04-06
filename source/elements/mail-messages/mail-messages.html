@@ -54,6 +54,7 @@
         display: block;
         font-family: sans-serif;
         height:100%;
+        background: rgba(255, 255, 255, 0.9);
     }
 
     hidden {
@@ -260,8 +261,8 @@
 
     <paper-dialog id="dialogMoveMessages">
       <h2>Selecione uma pasta</h2>
-      <paper-dialog-scrollable>
-        <mail-folders with-title="false" with-badges="false" only-main-folders="false" open-folder="evt-move-selected-messages"></mail-folders>
+      <paper-dialog-scrollable style="min-height: 300px;">
+        <mail-folders id="moveMessagesMailFolders" auto-load-from-cache="true" with-title="false" exclude-folder="{{folderId}}" with-badges="false" only-main-folders="false" with-link="false" open-folder="evt-move-selected-messages"></mail-folders>
       </paper-dialog-scrollable>
       <div class="buttons">
         <paper-button dialog-dismiss>Cancelar</paper-button>
@@ -290,7 +291,7 @@
               </template>
               <template is="dom-if" if="[[!item.isFolder]]">
 
-                 <mail-thread folderid="{{item.folderID}}" msgid='{{item.msgID}}' subject="{{item.subject}}" fromemail="{{item.fromemail}}" from="{{item.from}}" date="{{item.date}}" bodyresume="{{item.bodyresume}}" route="{{item.route}}" unread="{{item.unread}}" has-attachments="{{item.hasAttachments}}" starred="{{item.starred}}" on-open-message="openMessage" on-starred-message="starredMessage" data-thread-index$="{{item.index}}" selected="{{_isSelected(item.msgID)}}"></mail-thread>
+                 <mail-thread folderid="{{item.folderID}}" msgid='{{item.msgID}}' subject="{{item.subject}}" fromemail="{{item.fromemail}}" from="{{item.from}}" date="{{item.date}}" bodyresume="{{item.bodyresume}}" route="{{item.route}}" unread="{{item.unread}}" archived="{{item.archived}}" has-attachments="{{item.hasAttachments}}" starred="{{item.starred}}" on-open-message="openMessage" on-starred-message="starredMessage" data-thread-index$="{{item.index}}" selected="{{_isSelected(item.msgID)}}"></mail-thread>
 
               </template>
             </div>

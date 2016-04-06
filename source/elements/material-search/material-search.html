@@ -18,7 +18,7 @@
 
 <link rel="import" href="../profile-img/profile-img.html">
 <link rel="import" href="../mail-messages/mail-messages.html">
-<link rel="import" href="../contacts/contact-list.html">
+<link rel="import" href="../contact-list/contact-list.html">
 
 
 <dom-module id="material-search">
@@ -38,12 +38,6 @@
     display: block;
   }
 
-  paper_tabs {
-/*    color: rgb(255, 255, 255);
-    box-shadow: rgba(0, 0, 0, 0.2) 0px 3px 2px;
-    background-color: white;*/
-  }
-
   paper-menu {
     margin-left: 0;
     margin-right: 0;
@@ -55,13 +49,6 @@
     background-color: white;
     color: #000;
   }
-  paper-tab {
-/*    color: #000;*/
-  }
-
-  selectionBar {
-    background-color: #000;
-  }
 
   input {
     border: none;
@@ -72,12 +59,22 @@
     color: #000;
   }
 
-  @media (min-width: 600px) {
-    /*paper-menu {
-      max-width: 50%;
-      margin: 0 auto;
-      max-height: 50vh;
-    }*/
+  paper-menu {
+    margin-left: 0;
+    margin-right: 0;
+    max-height: 300px;
+    overflow: auto;
+    z-index: 1;
+    @apply(--layout-flex);
+    @apply(--layout-vertical);
+  }
+
+  contact-list { background: none; }
+
+  #searchTabs {
+    background-attachment: fixed;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
   }
 
   :host {
@@ -86,27 +83,51 @@
     };
   }
 
-/*  .avatar {
-    display: inline-block;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    overflow: hidden;
-    background: #ccc;
+  paper-spinner.blue {
+    --paper-spinner-layer-1-color: var(--paper-light-blue-500);
+    --paper-spinner-layer-2-color: var(--paper-light-blue-500);
+    --paper-spinner-layer-3-color: var(--paper-light-blue-500);
+    --paper-spinner-layer-4-color: var(--paper-light-blue-500);
   }
 
+  #loadingSearchArea {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    margin-left: 50%;
+  }
 
-  paper-item iron-icon {
-    margin-right: 24px !important;
-  }*/
+  .refresh {
+    background-color:#fff;
+    border-radius:50%;
+
+  }
+  .refreshSpinner {
+    padding:5px;
+    width:22px;
+    height:22px
+  }
+  .refreshShadow {
+    width:32px;
+    height:32px;
+    border-radius:50%;
+    margin:0 auto;
+    margin-bottom: -38px;
+    border-color:#fff;
+    border-style: solid;
+    border-width: 3px;
+    position: absolute;
+    z-index: 100;
+    margin-left: 50%;
+    margin-top: 200px;
+  }
+
 </style>
 <template>
   <paper-header-panel mode="standard" class="fit">
 
-
     <paper-toolbar id="core_toolbar" class="medium-tall">
       <paper-icon-button icon="arrow-back" id="paper_icon_button" on-tap="toggle"></paper-icon-button>
-      <input id="searchbox" placeholder="Procurar" class="flex" value="{{searchValue::change}}" on-keyup="doSearch">
+      <input id="searchbox" placeholder="Procurar" class="flex" value="{{searchValue::change}}">
       <div class="mdl-layout-spacer"></div>
       <paper-icon-button icon="av:mic" on-tap="getSpeechInput"></paper-icon-button>
       <div class="bottom fit" horizontal layout>
@@ -117,20 +138,34 @@
             <!-- <paper-tab id="paper_tab" inline flex center-center horizontal layout active><iron-icon icon="icons:event"></iron-icon>&nbsp;Agenda</paper-tab> -->
         </paper-tabs>
       </div>
+      
     </paper-toolbar>
+
+    <paper-material id='loadingSearchArea' class="refreshShadow" elevation="2" style$="[[_computeShowLoadingStyle(isLoading)]]">
+      <paper-spinner class="refresh refreshSpinner blue" active></paper-spinner>
+    </paper-material>
+
+    <paper-menu on-iron-activate="onSelect" elevation="1">
+      <template is="dom-repeat" items="{{previousSearches}}">
+        <paper-item class="relative" data-value$="{{item}}">
+          <iron-icon icon="history"></iron-icon><span>{{item}}</span>
+          <paper-ripple></paper-ripple>
+        </paper-item>
+      </template>
+    </paper-menu>
 
     <neon-animated-pages style="" id="searchTabs" class="fit" selected="{{activeTab}}" entry-animation="fade-in-animation" exit-animation="fade-out-animation" on-neon-animation-finish="_onPageChange">
 
         <neon-animatable>
-          <mail-messages id="mailSearch" folder-id="INBOX" search="{{searchValue}}" toolbar-hidden="1"></mail-messages>
+          <mail-messages id="mailSearch" folder-id="INBOX" is-loading="{{isLoading}}" toolbar-hidden="1"></mail-messages>
         </neon-animatable>
 
         <neon-animatable> 
-          <contact-list id="contactListPersonal" search="{{searchValue}}" toolbar-hidden="1"></contact-list>
+          <contact-list id="contactListPersonal" selection-enabled="0" is-loading="{{isLoading}}" signals="0" previous-searches="{{previousSearches}}"></contact-list>
         </neon-animatable>
 
         <neon-animatable>
-          <contact-list id="contactListGeneral"  search="{{searchValue}}" personal-contacts="{{personalContacts}}" toolbar-hidden="1"></contact-list>
+          <contact-list id="contactListGeneral" selection-enabled="0" is-loading="{{isLoading}}" personal-contacts="0" previous-searches="{{previousSearches}}" signals="0"></contact-list>
         </neon-animatable>
 
     </neon-animated-pages>

@@ -50,6 +50,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   </style>
   <template>
+
+    <template is="dom-if" if="{{!isLoading}}">
       <template is="dom-if" if="{{_isPrimary(items)}}">
         <paper-fab-speed-dial id="paperFabDial">
         <template is="dom-repeat" items="{{items}}">
@@ -63,7 +65,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <paper-fab icon="{{item.iconClass}}" title="{{item.title}}" data-route="{{item.route}}" class="blue" on-tap="_clickMenuFabItem"></paper-fab>
         </template>
       </template>
-
+    </template>
       <iron-signals on-iron-signal-menufab-items="_updateItems"></iron-signals>
 
       
@@ -81,6 +83,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           type: Array, 
           value: [],
           reflectAttribute: true
+        },
+        isLoading: {
+          type: Number,
+          value: false,
         },
       },
 

@@ -28,9 +28,12 @@
     //ELEMENTS
     elements:                                     "js/elements.js",
     AppPageBehavior:                              "elements/AppPageBehavior.js",
+    SharedBehavior:                               "elements/SharedBehavior.js",
     home:                                         "elements/home-view/home-view.js",
     expressoLogin:                                "elements/expresso-login/expresso-login.js",
-    mailDetail:                                   "elements/mail-detail/mail-detail.js",
+    mailDetail:                                   "elements/mail-detail/mail-detail.js", 
+    mailRecipient:                                "elements/mail-recipient/mail-recipient.js",
+    mailCreate:                                   "elements/mail-create/mail-create.js",
     mailFolders:                                  "elements/mail-folders/mail-folders.js",
     mailMessages:                                 "elements/mail-messages/mail-messages.js",
     mailThread:                                   "elements/mail-thread/mail-thread.js",
@@ -38,9 +41,12 @@
 
     materialSearch:                               "elements/material-search/material-search.js",
     profileImg:                                   "elements/profile-img/profile-img.js",
-    contactList:                                  "elements/contacts/contact-list.js",
-    contactEdit:                                  "elements/contacts/contact-edit.js",
-    contactCard:                                  "elements/contacts/contact-card.js",
+    
+    contactList:                                  "elements/contact-list/contact-list.js",
+    contactEdit:                                  "elements/contact-edit/contact-edit.js",
+    contactCard:                                  "elements/contact-card/contact-card.js",
+    contactsApi:                                  "elements/contacts-api.js",
+
     eventsList:                                   "elements/calendar/events-list.js",
     eventsMonth:                                  "elements/calendar/events-month.js",
 

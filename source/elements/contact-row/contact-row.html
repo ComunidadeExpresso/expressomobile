@@ -12,6 +12,7 @@
       cursor: pointer;
       padding: 16px 22px;
       border-bottom: 1px solid #DDD;
+      background: rgba(255, 255, 255, 0.9);
     }
     .item:hover {
       background-color: var(--google-grey-100);
@@ -149,6 +150,12 @@
         value: '',
       },
 
+      selectionEnabled: {
+        type: Number,
+        value: true,
+        reflectToAttribute: true
+      },
+
       selected: {
         type: Boolean,
         value: false,
@@ -208,8 +215,10 @@
 
     _onSelectItem: function(e) {
 
-      console.log("onSelectItem");
-      
+      if (this.selectionEnabled) {
+
+        console.log("onSelectItem");
+
       // if (Polymer.dom(e).localTarget === this.$.profileimage) {
         e.stopPropagation();
         this.selected = !this.selected;
@@ -221,6 +230,8 @@
         } else {
           this.fire('evt-unselect-item',{eventData: data});
         }
+
+      }
 
       // }
     },

@@ -28,53 +28,51 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <dom-module is="menu-tabs">
   <template>
     <style>
-      :root {
-        /* custom CSS property */
-        --paper-tabs-selection-bar-color: blue;
+  :root {
+    /* custom CSS property */
+    --paper-tabs-selection-bar-color: blue;
 
-        /* custom CSS mixin */
-        --paper-tabs: {
-            color: var(--default-primary-color); /* variable defined in default-theme.html */
-            font-size: 20px;
-        } 
-      }
-      paper-toolbar { 
-        background-color: #FFF; 
-      }
-      neon-animated-pages {
-        padding: 0px;
-        height: 100%;
-      }
-      paper-tabs[align-bottom] {
-        box-shadow: 0px -2px 6px rgba(0, 0, 0, 0.15);
-        position: fixed;
-        margin-top: -48px;
-        width: 255px;
-        background: white;
-      }
+    /* custom CSS mixin */
+    --paper-tabs: {
+        color: var(--default-primary-color); /* variable defined in default-theme.html */
+        font-size: 20px;
+    } 
+  }
+  paper-toolbar { 
+    background-color: #FFF; 
+  }
+  neon-animated-pages {
+    padding: 0px;
+    height: 100%;
+  }
+  paper-tabs[align-bottom] {
+    box-shadow: 0px -2px 6px rgba(0, 0, 0, 0.15);
+    position: fixed;
+    margin-top: -48px;
+    width: 255px;
+    background: white;
+  }
 
-      #chatDesktop {
-        margin-bottom: 48px;
-      }
+  #chatDesktop {
+    margin-bottom: 48px;
+  }
 
-      #scrollerMenu { 
-        margin: 0px; 
-        height: 100%; 
-        margin-bottom: 48px;
-      }
+  #scrollerMenu { 
+    margin: 0px; 
+    height: 100%; 
+    margin-bottom: 48px;
+  }
 
-      #drawerToolbar { 
-      background-color: #FFF; 
-    }
+  #drawerToolbar { 
+  background-color: #FFF; 
+}
 
-    .menu-logo {
-      width: 200px;
-      height: 40px;
-      background: url("../../imgs/logo_expresso.png") no-repeat scroll center center;
-      background-size: 150px 40px;
-    }
-
-
+.menu-logo {
+  width: 200px;
+  height: 40px;
+  background: url("../../imgs/logo_expresso.png") no-repeat scroll center center;
+  background-size: 150px 40px;
+}
 
 #drawerPanel:not([narrow]) paper-scroll-header-panel .scroll-content {
   padding: 30px 0;
@@ -139,18 +137,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   margin: 0px !important; 
 }
 
-paper-button.custom {
-  width: 100%;
-    --paper-button-ink-color: var(--paper-indigo-a200);
-    /* These could also be individually defined for each of the
-      specific css classes, but we'll just do it once as an example */
-    --paper-button-flat-keyboard-focus: {
-      background-color: var(--paper-indigo-a200);
-      color: white !important;
-    };
-    --paper-button-raised-keyboard-focus: {
-      background-color: var(--paper-indigo-a200) !important;
-      color: white !important;
+  paper-button.custom {
+    width: 100%;
+      --paper-button-ink-color: var(--paper-indigo-a200);
+      /* These could also be individually defined for each of the
+        specific css classes, but we'll just do it once as an example */
+      --paper-button-flat-keyboard-focus: {
+        background-color: var(--paper-indigo-a200);
+        color: white !important;
+      };
+      --paper-button-raised-keyboard-focus: {
+        background-color: var(--paper-indigo-a200) !important;
+        color: white !important;
     };
   }
   paper-button.custom:hover {
@@ -164,7 +162,6 @@ paper-button.custom {
       color: white !important;
     };
   }
-
 
   /* Need to position the badge to look like a text superscript */
   .badge_container > paper-badge {
@@ -204,10 +201,10 @@ paper-button.custom {
     font-size: 12px;
     margin-bottom: 20px;
   }
-    a {
-      text-decoration: none;
-      color: #000;
-    }
+  a {
+    text-decoration: none;
+    color: #000;
+  }
   </style>
       <neon-animated-pages class="flex" selected="{{selected}}" entry-animation="slide-from-left-animation" exit-animation="fade-out-animation">
         <neon-animatable id="drawerPanel">
@@ -219,8 +216,7 @@ paper-button.custom {
           <paper-header-panel mode="scroll" drawer>
             <paper-toolbar id="navheader" class="tall">
 
-              <iron-image id="coverimage" placeholder="{{cardImage}}"
-                          sizing="cover" preload fade class="fit"></iron-image>
+              <iron-image id="coverimage" placeholder="{{cardImage}}" sizing="cover" preload fade class="fit"></iron-image>
               
               <profile-img class="middle profile" id="userProfilePicture" email="{{profile.contactMails.0}}" letter="{{profile.contactFullName.0}}" auto-load="true"></profile-img>
               <paper-icon-button class="top" icon="settings" style='float: right;'> </paper-icon-button>
@@ -229,8 +225,6 @@ paper-button.custom {
                 <span>{{profile.contactFullName}}</span>
                 <span>{{profile.contactMails.0}}</span>
               </div>
-              
-              
               
             </paper-toolbar>
 
@@ -263,10 +257,8 @@ paper-button.custom {
                 </a>
               </paper-menu>
 
+              <mail-folders refresh-folders="{{refreshFolders}}"></mail-folders>
 
-              <mail-folders></mail-folders>
-
-        
               <div class="menu-footer">
                 <div class="login-company-logo animation-scale-fadein"></div>
                 <div class="version">Versão 2.0</div>

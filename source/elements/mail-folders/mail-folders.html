@@ -14,187 +14,179 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../../bower_components/paper-menu-button/paper-menu-button.html">
 <link rel="import" href="../../bower_components/paper-badge/paper-badge.html">
+<link rel="import" href="../../bower_components/paper-styles/color.html">
 <link rel="import" href="../../bower_components/paper-progress/paper-progress.html">
-<link rel="import" href="../../bower_components/neon-animation/neon-animated-pages.html">
+<!-- <link rel="import" href="../../bower_components/neon-animation/neon-animated-pages.html">
 <link rel="import" href="../../bower_components/neon-animation/neon-animatable.html">
 <link rel="import" href="../../bower_components/neon-animation/animations/slide-from-left-animation.html">
 <link rel="import" href="../../bower_components/neon-animation/animations/slide-from-right-animation.html">
 <link rel="import" href="../../bower_components/neon-animation/animations/fade-out-animation.html">
 <link rel="import" href="../../bower_components/neon-animation/animations/slide-up-animation.html">
 <link rel="import" href="../../bower_components/neon-animation/animations/slide-down-animation.html">
-
+ -->
 <dom-module is="mail-folders">
   <template>
     <style>
-      :root {
-        /* custom CSS property */
-        --paper-tabs-selection-bar-color: blue;
+    :root {
 
-        /* custom CSS mixin */
-        --paper-tabs: {
-            color: var(--default-primary-color); /* variable defined in default-theme.html */
-            font-size: 20px;
-        } 
-      }
-      paper-toolbar { 
-        background-color: #FFF; 
-      }
-      neon-animated-pages {
-        padding: 0px;
-        height: 100%;
-      }
-      paper-tabs[align-bottom] {
-        box-shadow: 0px -2px 6px rgba(0, 0, 0, 0.15);
-        position: fixed;
-        margin-top: -48px;
-        width: 255px;
-        background: white;
-      }
-
-      #chatDesktop {
-        margin-bottom: 48px;
-      }
-
-      #scrollerMenu { 
-        margin: 0px; 
-        height: 100%; 
-        margin-bottom: 48px;
-      }
-
-      #drawerToolbar { 
+    }
+    paper-toolbar { 
       background-color: #FFF; 
     }
 
+    .separator {
+      padding: 16px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #aaa;
+      width: 100%;
+      border-top: 1px solid #e0e0e0;
+    }
+
+    #menuFolders {
+      width: 100%;
+      margin: 0px !important; 
+    }
+
+    paper-button.custom {
+      width: 100%;
+        --paper-button-ink-color: var(--paper-indigo-a200);
+        /* These could also be individually defined for each of the
+          specific css classes, but we'll just do it once as an example */
+        --paper-button-flat-keyboard-focus: {
+          background-color: var(--paper-indigo-a200);
+          color: white !important;
+        };
+        --paper-button-raised-keyboard-focus: {
+          background-color: var(--paper-indigo-a200) !important;
+          color: white !important;
+        };
+    }
+    paper-button.custom:hover {
+      background-color: var(--paper-indigo-400);
+    }
+    paper-button.indigo {
+      background-color: var(--paper-indigo-500);
+      color: white;
+      --paper-button-raised-keyboard-focus: {
+        background-color: var(--paper-indigo-a200) !important;
+        color: white !important;
+      };
+    }
 
 
-#drawerPanel:not([narrow]) paper-scroll-header-panel .scroll-content {
-  padding: 30px 0;
-  background-color: #fafafa;
-}
+    /* Need to position the badge to look like a text superscript */
+    .badge_container > paper-badge {
+      --paper-badge-margin-left: 20px;
+      --paper-badge-margin-bottom: 0px;
+    }
 
-#drawerPanel[narrow][selected="drawer"] .fade-on-drawer-open {
-  opacity: 0;
-}
+    .menu_folders {
+      position: absolute;
+      margin-left: 165px;
+      margin-top: -20px;
+    }  
+    #mainMenu {
+      margin: 0px !important;
+      padding: 0px !important;
+    }
+    .homeMenu{
+      @apply(--layout-flex);
+      @apply(--layout-vertical);
+    }
+    
+    #foldersTitle #topBar {
+      margin: 0px;
+      padding: 0px !important;
+    }
 
-.fade-on-drawer-open {
-  transition: opacity 300ms ease-in-out;
-}
-
-#drawerPanel paper-header-panel {
-  /*background: #fafafa;*/
-  box-shadow: 1px 0 1px rgba(0, 0, 0, 0.1);
-  color: #757575 !important;
-}
-
-.separator {
-  padding: 16px;
-  font-size: 14px;
-  font-weight: 500;
-  color: #aaa;
-  width: 100%;
-  border-top: 1px solid #e0e0e0;
-}
-
-#drawerPanel paper-header-panel paper-menu {
-  margin: 16px 0 0 0;
-}
-
-
-#navheader {
-  font-size: inherit;
-  color: white;
-  flex-shrink: 0;
-}
-
-#navheader iron-image {
-  background-blend-mode: multiply;
-  background-repeat: no-repeat;
-  background-color: #999;
-  background-size: cover;
-}
-
-#navheader img.profile {
-  border-radius: 50%;
-  width: 64px;
-  height: 64px;
-  margin-bottom: 20px;
-}
-
-#coverimage {
-  height: 192px;
-  top: 0;
-}
-
-#menuFolders {
-  width: 100%;
-  margin: 0px !important; 
-}
-
-paper-button.custom {
-  width: 100%;
-    --paper-button-ink-color: var(--paper-indigo-a200);
-    /* These could also be individually defined for each of the
-      specific css classes, but we'll just do it once as an example */
-    --paper-button-flat-keyboard-focus: {
-      background-color: var(--paper-indigo-a200);
-      color: white !important;
-    };
-    --paper-button-raised-keyboard-focus: {
-      background-color: var(--paper-indigo-a200) !important;
-      color: white !important;
-    };
-  }
-  paper-button.custom:hover {
-    background-color: var(--paper-indigo-400);
-  }
-   paper-button.indigo {
-    background-color: var(--paper-indigo-500);
-    color: white;
-    --paper-button-raised-keyboard-focus: {
-      background-color: var(--paper-indigo-a200) !important;
-      color: white !important;
-    };
-  }
-
-
-  /* Need to position the badge to look like a text superscript */
-  .badge_container > paper-badge {
-    --paper-badge-margin-left: 20px;
-    --paper-badge-margin-bottom: 0px;
-  }
-
-  .menu_folders {
-    position: absolute;
-    margin-left: 165px;
-    margin-top: -20px;
-  }  
-  #mainMenu {
-    margin: 0px !important;
-    padding: 0px !important;
-  }
-  .homeMenu{
-    @apply(--layout-flex);
-    @apply(--layout-vertical);
-  }
-  
-  #foldersTitle #topBar {
-    margin: 0px;
-    padding: 0px !important;
-  }
-
-  a {
+    a {
       text-decoration: none;
       color: #000;
     }
+
+    paper-spinner.blue {
+      --paper-spinner-layer-1-color: var(--paper-light-blue-500);
+      --paper-spinner-layer-2-color: var(--paper-light-blue-500);
+      --paper-spinner-layer-3-color: var(--paper-light-blue-500);
+      --paper-spinner-layer-4-color: var(--paper-light-blue-500);
+    }
+
+    #loadingFoldersArea {
+      margin-top: 10px;
+      margin-bottom: 10px;
+      margin-left: 50%;
+    }
+
+    .refresh {
+      background-color:#fff;
+      border-radius:50%;
+
+    }
+    .refreshSpinner {
+      padding:5px;
+      width:22px;
+      height:22px
+    }
+
+    .scaleAway {
+      -webkit-animation:scaleAway .5s;
+      -moz-animation:scaleAway .5s;
+      -o-animation:scaleAway .5s;
+      animation:scaleAway .5s
+    }
+    .refreshShadow {
+      width:32px;
+      height:32px;
+      border-radius:50%;
+      margin:0 auto;
+      margin-bottom: -38px;
+      border-color:#fff;
+      border-style: solid;
+      border-width: 3px;
+      position: absolute;
+      z-index: 100;
+      margin-left: 50%;
+      margin-top: 200px;
+    }
+    @-webkit-keyframes scaleAway {
+      0% {transform:scale(1)}
+      100% {transform:scale(0)}
+    }
+    @-moz-keyframes scaleAway {
+      0% {transform:scale(1)}
+      100% {transform:scale(0)}
+    }
+    @-o-keyframes scaleAway {
+      0% {transform:scale(1)}
+      100% {transform:scale(0)}
+    }
+    @keyframes scaleAway {
+      0% {transform:scale(1)}
+      100% {transform:scale(0)}
+    }
+
+    .blue {
+      --paper-progress-active-color: var(--paper-light-blue-500);
+      --paper-progress-secondary-color: var(--paper-light-blue-100);
+    }
+    .red {
+      --paper-progress-active-color: var(--paper-red-500);
+      --paper-progress-secondary-color: var(--paper-red-100);
+    }
+    .green {
+      --paper-progress-active-color: var(--paper-light-green-500);
+      --paper-progress-secondary-color: var(--paper-light-green-100);
+    }
   </style>
 
-   
+  <!-- <iron-signals on-iron-signal-mail-folders-refresh="_refreshFolders"></iron-signals> -->
 
   <div class="homeMenu">
       <template is="dom-if" if="{{withTitle}}">
       <paper-toolbar id="foldersTitle">
         <div class="separator" class="top fit">
-          <paper-menu-button on-tap="menuFoldersSelect" class="menu_folders" horizontal-align="right" horizontal-offset="20" vertical-align="top" vertical-offset="50">
+          <paper-menu-button class="menu_folders">
             <paper-icon-button icon="more-vert" class="dropdown-trigger"></paper-icon-button>
             <paper-menu class="dropdown-content">
               <paper-item><iron-icon icon="create-new-folder" item-icon></iron-icon>Adicionar Pasta</paper-item>
@@ -203,13 +195,16 @@ paper-button.custom {
           </paper-menu-button>
           Minhas Pastas
         </div>
-        <paper-progress id="quota_used" class="bottom fit" value="{{quotaPercent}}"></paper-progress>
+        <paper-progress id="quota_used" class="bottom fit" value="{{diskSizeUsed}}" min="0" max="{{diskSizeLimit}}" class="red"></paper-progress>
         <paper-tooltip for="quota_used" offset="0">{{quotaInfo}}</paper-tooltip>
       </paper-toolbar>
       </template>
+      <paper-material id='loadingFoldersArea' class="refreshShadow" elevation="2" style$="[[_computeShowLoadingStyle(isLoading)]]">
+        <paper-spinner class="refresh refreshSpinner blue" active></paper-spinner>
+      </paper-material>
+
       <paper-menu id="menuFolders" selected="0" selectable="paper-icon-item" on-iron-activate="folderSelect">    
         <template is="dom-repeat" items="{{folders}}">
-          <a data-route="mailmessages" href="{{baseUrl}}mail-messages/{{item.folderID}}"> 
           <paper-icon-item role="menuitem">
             <iron-icon icon="{{item.folderIcon}}" item-icon></iron-icon>
             <div class="badge_container">
@@ -222,7 +217,6 @@ paper-button.custom {
                 <!-- <iron-icon icon="navigate-next"></iron-icon> -->
             </div>
           </paper-icon-item>
-          </a>
         </template>
       </paper-menu>
       

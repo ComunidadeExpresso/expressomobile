@@ -24,14 +24,33 @@ var ContactsListCollection = Backbone.Collection.extend({
         this._functions = {};
     },
 
-    getContactByID: function(contactID) {
-        var retVal = false;
-        for (var i in this.models) {
-            if (this.models[i].get('contactID') == contactID) {
-                retVal = this.models[i];
-            }
+    getContact: function(pContactType,pContactID, ignoreCache) {
+        var that = this;
+        that._data = {};
+
+        var thatModel = ContactModel;
+        var data = this._data;
+
+        Shared.api.resource('Catalog/Contacts').params({
+            contactID: pContactID,
+            contactType: pContactType
+        });
+
+        if (ignoreCache) {
+            Shared.api.ignoreCache(ignoreCache);
         }
-        return retVal;
+
+        Shared.api.done(function(result) {
+
+            if (that._functions.done)
+                that._functions.done(result.contacts);
+        })
+        .fail(function(error) {
+            if (that._functions.fail)
+                that._functions.fail(error);
+        })
+
+        return that;
     },
 
     getContacts: function(pSearch, pContactType, ignoreCache) {
@@ -49,9 +68,6 @@ var ContactsListCollection = Backbone.Collection.extend({
             });
 
         if (ignoreCache) {
-            // console.log("search: " + pSearch);
-            // console.log("contactType:" + pContactType);
-            // console.log("ignoreCache");
             Shared.api.ignoreCache(ignoreCache);
         }
 

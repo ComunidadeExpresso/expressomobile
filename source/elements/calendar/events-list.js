@@ -68,6 +68,11 @@ Polymer({
         type: String,
         value: '',
       },
+
+      autoLoad: {
+            type: Number,
+            value: false,
+        },
      
     },
 
@@ -87,7 +92,10 @@ Polymer({
 
     ready: function() {
 
-      this._addNextMonths(12);
+      if (this.autoLoad) {
+        this._addNextMonths(12);
+      }
+     
 
     },
 

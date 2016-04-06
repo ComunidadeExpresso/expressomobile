@@ -64,11 +64,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <!-- <link rel="import" href="../app-page.html"> -->
 <link rel="import" href="../mail-messages/mail-messages.html">
-<link rel="import" href="../contacts/contact-list.html">
+<link rel="import" href="../mail-create/mail-create.html">
 <link rel="import" href="../calendar/events-list.html">
 <link rel="import" href="../expresso-login/expresso-login.html">
-<link rel="import" href="../contacts/contact-card.html">
-<link rel="import" href="../contacts/contact-edit.html">
+
+<link rel="import" href="../contact-list/contact-list.html">
+<link rel="import" href="../contact-card/contact-card.html">
+<link rel="import" href="../contact-edit/contact-edit.html">
 
 <link rel="import" href="../material-search/material-search.html">
 
@@ -116,20 +118,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       @apply(--layout-flex);
       @apply(--layout-vertical);
       max-width: 1000px;
-
     }
 
     .inherit {
       color: inherit;
       background-color: inherit;
     }
-  
 
-
-
-
-
-      paper-spinner.blue {
+    paper-spinner.blue {
       --paper-spinner-layer-1-color: var(--paper-light-blue-500);
       --paper-spinner-layer-2-color: var(--paper-light-blue-500);
       --paper-spinner-layer-3-color: var(--paper-light-blue-500);
@@ -175,7 +171,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       border-style: solid;
       border-width: 3px;
       position: absolute;
-      z-index: 1000;
+      z-index: 100;
       margin-left: 50%;
       margin-top: 200px;
     }
@@ -196,34 +192,47 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       100% {transform:scale(0)}
     }
 
+
+    #appHeaderLayout {
+      display: block;
+      background-attachment: fixed;
+      background-size: 100% 100%;
+      background-repeat: no-repeat;
+    }
+/*    #appHeader {
+      color: white;
+      --app-header-background-rear-layer: {
+
+      };
+    }*/
+
   </style>
   <template>
+
+  <iron-signals on-iron-signal-logout="_logoutUser"></iron-signals>
 
   <iron-signals on-iron-signal-page-title="_pageTitle"></iron-signals>
   <iron-signals on-iron-signal-back-button="_backButtonChange"></iron-signals>
   <iron-signals on-iron-signal-refresh-button="_refreshButtonChange"></iron-signals>
   <iron-signals on-iron-signal-page-loading="_isLoading"></iron-signals>
+  <iron-signals on-iron-signal-update-background-image="_updateBackgroundImage"></iron-signals>
   
   <template is="dom-if" if="{{!isLogged}}"> 
     <expresso-login></expresso-login>
   </template>
 
-  <template is="dom-if" if="{{isLogged}}"> 
-
-    <material-search active="{{searchActive}}" narrow="true" search=""></material-search>
+    <material-search active="{{searchActive}}" search=""></material-search>
 
     <app-scrollpos-control selected="{{route}}"></app-scrollpos-control>
 
     <app-drawer-layout style="height:100%;">
       <app-drawer drawer-width="288px" responsive-width="1280px">
-        <menu-tabs></menu-tabs>
+        <menu-tabs refresh-folders="{{refreshFolders}}"></menu-tabs>
       </app-drawer>
 
-
-
-      <app-header-layout has-scrolling-region>
+      <app-header-layout id="appHeaderLayout" has-scrolling-region>
         
-        <app-header condenses fixed effects="resize-title blend-background waterfall">
+        <app-header id="appHeader" condenses fixed effects="resize-title waterfall blend-background">
           <app-toolbar>
             <paper-icon-button icon="menu" drawer-toggle></paper-icon-button>
             <template is="dom-if" if="{{backButtonEnabled}}">
@@ -234,14 +243,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               <paper-icon-button icon="refresh" on-tap="refreshButtonClicked"></paper-icon-button>
             </template>
             <a href="{{baseUrl}}search" class="inherit"><paper-icon-button icon="search"></paper-icon-button></a>
-            <paper-menu-button horizontal-align="right" horizontal-offset="20" vertical-align="top" vertical-offset="60">
-              <paper-icon-button icon="more-vert" class="dropdown-trigger"></paper-icon-button>
-              <paper-menu class="dropdown-content">
-                <template is="dom-repeat" items="{{subMenuItems}}">
-                  <paper-item><iron-icon icon="{{item.iconClass}}" item-icon></iron-icon>{{item.title}}</paper-item>
-                </template>
-              </paper-menu>
-            </paper-menu-button>
+            <template is="dom-if" if="{{subMenuItems.length}}">
+              <paper-menu-button horizontal-align="right" horizontal-offset="20" vertical-align="top" vertical-offset="60">
+                <paper-icon-button icon="more-vert" class="dropdown-trigger"></paper-icon-button>
+                <paper-menu class="dropdown-content">
+                  <template is="dom-repeat" items="{{subMenuItems}}">
+                    <paper-item><iron-icon icon="{{item.iconClass}}" item-icon></iron-icon>{{item.title}}</paper-item>
+                  </template>
+                </paper-menu>
+              </paper-menu-button>
+            </template>
             <!-- <paper-icon-button icon="more-vert"></paper-icon-button> -->
           </app-toolbar>
           <app-toolbar class="tall">
@@ -249,46 +260,41 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           </app-toolbar>
         </app-header>
 
-        
-
         <div id="mainPageContent" style="height:100%; padding-top: 0px;">
 
           <paper-material id='loadingArea' class="refreshShadow" elevation="2" style$="[[_computeShowLoadingNextPageStyle(isLoading)]]">
             <paper-spinner class="refresh refreshSpinner blue" active></paper-spinner>
           </paper-material>
           
-          <neon-animated-pages style="height: 140%;" id="homePages" attr-for-selected="data-route" selected="{{route}}" entry-animation="fade-in-animation" exit-animation="fade-out-animation">
+          <neon-animated-pages style="height: 100%;" id="homePages" attr-for-selected="data-route" selected="{{route}}" entry-animation="fade-in-animation" exit-animation="fade-out-animation">
 
             <neon-animatable data-route="mail-messages">
               <mail-messages id="mailMessages" folder-id="{{currentFolderId}}"></mail-messages>
             </neon-animatable>
 
             <neon-animatable data-route="mail-create">
-              NOVA MENSAGEM. <br>
-              action: {{params.action}}<br>
-              folderid: {{params.folderid}}<br>
-              msgid: {{params.msgid}} <br> 
-              emails: {{params.emails}}
+              <mail-create id="mailCreate" action="{{params.action}}" folder-id="{{params.folderid}}" msg-id="{{params.msgid}}" emails="{{params.emails}}"></mail-create>
+              
             </neon-animatable>
 
             <neon-animatable data-route="mail-detail">
               <mail-detail id="mailDetail"></mail-detail>
             </neon-animatable>
-
+<!-- 
             <neon-animatable data-route="mail-move">
               MOVER MENSAGEM.
-            </neon-animatable>
+            </neon-animatable> -->
 
             <neon-animatable data-route="contact-list"> 
-               <contact-list id="contactList"></contact-list>
+               <contact-list id="contactList" signals="1"></contact-list>
             </neon-animatable>
 
             <neon-animatable data-route="contact-detail"> 
-               <contact-card id="contactCard" contact-id="[[currentContact.contactID]]" name="[[currentContact.contactFullName]]" email="[[currentContact.contactMails.0]]" phones="[[currentContact.contactPhones]]" notes="[[currentContact.contactNotes]]" persona-contact="{{currentContact.personalContact}}"></contact-card>
+               <contact-card id="contactCard"></contact-card>
             </neon-animatable>
 
-            <neon-animatable data-route="contact-create"> 
-              <contact-edit id="contactEdit"></contact-edit>
+            <neon-animatable data-route="contact-edit"> 
+              <contact-edit id="contactEdit" is-edition="true"></contact-edit>
             </neon-animatable>
 
             <neon-animatable data-route="events-list"> 
@@ -302,11 +308,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         
       </app-header-layout>
     </app-drawer-layout>
-    <menu-fab items="{{menuItems}}"></menu-fab>
-    
-    </template>    
-
-    
+    <menu-fab items="{{menuItems}}" is-loading="{{isLoading}}"></menu-fab>    
 
     <toast-er type="warning" heat="middle" style="z-index: 100000;"></toast-er>
   </template>

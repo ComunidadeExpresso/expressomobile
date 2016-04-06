@@ -178,6 +178,7 @@ gulp.task('browser-sync-www',false, function() {
 var paths =  {
     css:            ['./source/css/styles.css' ,'./source/css/*.css'],
     js:             ['./source/js/**/*.js', './source/js/templates/**/*.html','./source/elements/**/*.js'],
+    fixed_js:       ['./source/js/config.js', './source/js/elements.js','./source/platform.js'],
     polymer_html:   ['./source/elements/**/*.html'],
 };
 
@@ -215,12 +216,20 @@ function notifyLiveReload(event) {
   });
 }
 
+function copyFixedJS(evt) {
+    var folder = buildFolder;
+    gulp.src(['source/js/elements.js']).pipe(gulp.dest(folder + '/js/'));
+    gulp.src(['source/js/config.js']).pipe(gulp.dest(folder + '/js/'));
+    gulp.src(['source/js/platform.js']).pipe(gulp.dest(folder + '/js/'));
+    notifyLiveReload(evt);
+}
+
 gulp.task('watch-source', function() {
   gulp.watch(paths.js, notifyLiveReload);
 });
 
-gulp.task('watch-source', function() {
-  gulp.watch(paths.js, notifyLiveReload);
+gulp.task('watch-fixed-js', function() {
+  gulp.watch(paths.fixed_js, copyFixedJS);
 });
 
 
@@ -236,7 +245,7 @@ gulp.task('watch', false, function() {
 });
 
 gulp.task('serve', 'Starts a local server on the folder (source).',['browser-sync-source', 'livereload' , 'watch-source', 'connect']);
-gulp.task('serve-www', 'Starts a local server on the build folder (www).',['browser-sync-www', 'livereload', 'watch', 'connect']);
+gulp.task('serve-www', 'Starts a local server on the build folder (www).',['browser-sync-www', 'livereload', 'watch','watch-fixed-js', 'connect']);
 
 
 

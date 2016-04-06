@@ -23,6 +23,7 @@ var AppPageBehavior =  {
       },
       subMenuItems: {
         type: Array,
+        value: [],
         value: [{iconClass: "social:person-add", route: "contact-create",title: "Novo Contato"},{iconClass: "social:person-add", route: "contact-create",title: "Novo Contato"}],
       },
       menuItems: {
@@ -43,6 +44,8 @@ var AppPageBehavior =  {
       isLoading: {
         type: Number, 
         value: false,
+        notify: true,
+        reflectAttribute: true,
       },
       
       backButtonEnabled: {
@@ -89,6 +92,7 @@ var AppPageBehavior =  {
     },
 
     setLoading: function(value) {
+      this.isLoading = value;
       this.fire('iron-signal', {
         name: 'page-loading',
         data: {
@@ -116,15 +120,18 @@ var AppPageBehavior =  {
       });
     },
 
-    getRandomCardBackground: function(folderPrefix) {
-      var number = Math.floor((Math.random() * 12) + 1);
-      var image = 'bg-' + number + '.jpg';
-      return folderPrefix + image;
-    },
-
     setMenuItems: function(menuItems) {
       this.fire('iron-signal', {
         name: 'menufab-items',
+        data: {
+          items: menuItems,
+        }
+      });
+    },
+
+    updateBackgroundImage: function(menuItems) {
+      this.fire('iron-signal', {
+        name: 'update-background-image',
         data: {
           items: menuItems,
         }
@@ -139,6 +146,12 @@ var AppPageBehavior =  {
           subtitle: Psubtitle,
         }
       });
+    },
+    
+    _decodeHTMLEntities: function(val) {
+      var t = document.createElement('textarea');
+      t.innerHTML = val;
+      return t.textContent;
     },
 
     setupToolbar: function(Ptitle,Psubtitle,backButtonEnabled,refreshButtonEnabled,refreshButtonSignal) {

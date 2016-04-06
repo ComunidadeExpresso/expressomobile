@@ -376,6 +376,14 @@ Shared.api.getLocalStorageValue("expresso", function(expressoValue) {
 
 		}
 
+		if (currentRequest.resource == "/Catalog/ContactDelete") {
+			filterRequests.push(this.createRequest("/Catalog/Contacts",{ contactType: 1 }));
+		}
+
+		if (currentRequest.resource == "/Catalog/ContactAdd") {
+			filterRequests.push(this.createRequest("/Catalog/Contacts",{ contactType: 1 }));
+		}
+
 		if (currentRequest.resource == "/Preferences/ChangeUserPreferences") {
 			filterRequests.push(this.createRequest("/Preferences/UserPreferences",{}));
 			filterRequests.push(this.createRequest("/Preferences/ChangeUserPreferences",{}));

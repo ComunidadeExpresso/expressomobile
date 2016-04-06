@@ -1,8 +1,6 @@
 
 
 import $ from 'jquery';
-// import _ from 'underscore';
-// import Backbone from 'backbone';
 import Shared from 'shared';
 import jquery_migrate from 'jquery_migrate';
 import jqueryui from 'jqueryui';
@@ -13,38 +11,33 @@ import linkify from 'linkify';
 import im from 'im';
 import page from 'page';
 import AppPageBehavior from 'AppPageBehavior';
+import SharedBehavior from 'SharedBehavior';
 
 Polymer({
       is: 'home-view',
       properties: {
 
         behaviors: [
-          AppPageBehavior
+          AppPageBehavior,
+          SharedBehavior,
         ],
-
-        // pageTitle: {
-        //   type: String,
-        //   value: ''
-        // },
-
-        // pageSubTitle: {
-        //   type: String,
-        //   value: ''
-        // },
 
         currentFolderId: {
           type: String,
           value: 'INBOX'
         },
 
-        // menuItems: {
-        //   type: Array,
-        //   value: [{iconClass: "create", route: "mail-create",title: "Escrever Email"}],
-        // },
-
         searchActive: {
           type: Number,
           value: false
+        },
+
+        refreshFolders: {
+          type: Number,
+          value: false,
+          // notify: true,
+          // reflectAttribute: true,
+          observer: 'refreshFoldersChanged',
         },
 
         isLogged: {
@@ -54,13 +47,27 @@ Polymer({
 
       },
 
+      listeners: {
+        'evt-click-menu-fab-item': 'clickFabMenu',
+        'evt-open-folder': '_openFolder',
+        'evt-create-message': '_createMessage',
+        'evt-open-message': '_openMessage',
+        'evt-open-contacts': '_openContacts',
+        'evt-open-contact-detail' : '_openContactDetail',
+        'evt-open-contact-edit' : '_openContactEdit',
+        'evt-toolbar-search': '_openSearch',
+        'user-has-logged-in': '_userLoggedIn',
+        'user-has-logged-out': '_userLoggedOut',
+      },
+
       ready: function() {
         var that = this;
         var isLoggedFunction = function(isLogged) {
           if (isLogged) {
             that.loginToIm();
+            that.refreshMailFolders();
+            that.updateExpressoVersion();
           }
-          
         };
         this.isLoggedIn(isLoggedFunction);
       },
@@ -82,6 +89,9 @@ Polymer({
       },
 
       _isLoading: function(event,data) {
+        if (data.enabled) {
+          this.$.appHeaderLayout.style.backgroundImage = 'none';
+        }
         this.isLoading = data.enabled;
       },
 
@@ -108,17 +118,7 @@ Polymer({
 
       /* END - AppPageBehavior Signals */
 
-
-      listeners: {
-        'evt-click-menu-fab-item': 'clickFabMenu',
-        'evt-open-folder': '_openFolder',
-        'evt-open-message': '_openMessage',
-        'evt-open-contacts': '_openContacts',
-        'evt-open-contact-detail' : '_openContactDetail',
-        'evt-toolbar-search': '_openSearch',
-        'user-has-logged-in': '_userLoggedIn',
-        'user-has-logged-out': '_userLoggedOut',
-      },
+      
 
       clickFabMenu: function(e) {
         e.stopPropagation();
@@ -149,14 +149,11 @@ Polymer({
         
       },
 
-      
-
-
-
       _userLoggedIn: function(e) {
         console.log('_userLoggedIn');
         this.isLogged = true;
         this.loginToIm();
+        this.refreshMailFolders();
         this.updateExpressoVersion();
         page(this.baseUrl + 'mail-messages/INBOX');
       },
@@ -164,6 +161,17 @@ Polymer({
         console.log('_userLoggedOut');
         this.isLogged = false;
         $("#chatDesktop").empty();
+      },
+
+      refreshFoldersChanged: function(value) {
+          //console.log('refreshFoldersChanged');
+          if (value == true) {
+              this.refreshFolders = false;
+          }
+      },
+
+      refreshMailFolders: function() {
+        this.refreshFolders = true;
       },
 
       loginToIm: function() {
@@ -178,29 +186,17 @@ Polymer({
               var im_userName = resultChat.D;
               var im_password = resultChat.E + "==";
 
-             // if (Shared.isDesktop()) {
-
-                  $("#chatDesktop").im({
-                      "resource": "JABBER_IM_PR",
-                      "url": Shared.im_url,
-                      "domain": Shared.im_domain,
-                      "username": im_userName,
-                      "password": im_password,
-                      "debug": false,
-                      "soundPath": "libs/messenger/",
-                      "height": $("#chatContactsWindow").height() - $(".chat-title").height() - 30,
-                      "minimizeZone": "minimizedWindows",
-                  });
-
-              // } else {
-              //     Shared.im.resource("EXPRESSO_MOBILE").url(Shared.im_url).domain(Shared.im_domain);
-
-              //     Shared.im
-              //         .username(im_userName)
-              //         .password(im_password)
-              //         .connect();
-              // }
-
+              $("#chatDesktop").im({
+                  "resource": "JABBER_IM_PR",
+                  "url": Shared.im_url,
+                  "domain": Shared.im_domain,
+                  "username": im_userName,
+                  "password": im_password,
+                  "debug": false,
+                  "soundPath": "libs/messenger/",
+                  "height": $("#chatContactsWindow").height() - $(".chat-title").height() - 30,
+                  "minimizeZone": "minimizedWindows",
+              });
 
           }).execute();
 
@@ -232,6 +228,19 @@ Polymer({
         }
       },
 
+      closeSearch: function() {
+        if (this.searchActive) {
+          this.searchActive = false;
+        }
+      },
+
+      _createMessage: function(e) {
+        if (this.isLogged) {
+          var mailCreate = this.$.mailCreate;
+          mailCreate.refresh();
+        }
+      },
+
       _openFolder: function(e) { 
         if (this.isLogged) {
           var folder = e.detail.folder;
@@ -251,28 +260,51 @@ Polymer({
 
           mailDetail.loadMessage();
         }
-        //this.currentFolderId = folder.folderID;
-        //this.loadFolder(folder.folderID);
+      },
+
+      _updateBackgroundImage: function() {
+
+        var number = Math.floor((Math.random() * 12) + 1);
+        var image = 'bkg_' + number + '.jpg';
+
+        // var card = Shared.getRandomCardBackground('../../imgs/paper-card-backgrounds/');
+        this.$.appHeaderLayout.style.backgroundImage = 'url(../../imgs/material_backgrounds/' + image + ')';
+        //this.cardImage = card;
       },
 
 
       _openContacts: function() {
         var contactList = document.querySelector('#contactList');
-        contactList.ignoreCache = false;
-        contactList.reloadContent();
+        contactList.reloadContent(false);
       },
 
       _openContactDetail: function(e) { 
-        var folderid = e.detail.contactType;
-        var msgid = e.detail.contactId;
 
-        var mailDetail = document.querySelector('#contactDetail');
-        mailDetail.folder = folderid;
-        mailDetail.msg = msgid;
+        // console.log("_openContactDetail");
+        // console.log(e.detail);
 
-        mailDetail.loadMessage();
-        //this.currentFolderId = folder.folderID;
-        //this.loadFolder(folder.folderID);
+        this.closeSearch();
+
+        var contactCard = this.$.contactCard;
+
+        contactCard.contactType = e.detail.contactType;
+        contactCard.contactId = e.detail.contactId;
+        contactCard.refresh();
+
+      },
+
+      _openContactEdit: function(e) { 
+
+        console.log("_openContactEdit");
+
+        this.closeSearch();
+
+        var contactCard = this.$.contactEdit;
+
+        contactCard.contactType = e.detail.contactType;
+        contactCard.contactId = e.detail.contactId;
+        contactCard.refresh();
+
       },
 
       loadFolder: function(folderId) {
@@ -280,24 +312,10 @@ Polymer({
         // console.log(this.$.mailMessages);
         var mailMessages = document.querySelector('#mailMessages');
         mailMessages.folderId = folderId;
-
-        // mailMessages.folderId = folderId;
         mailMessages.reloadFirstPage(false);
       },
 
-      _onTapSearchButton: function(e) {
-        e.stopPropagation();
-        // console.log("evt-search-view");
-        this.fire('evt-search-view', {view: this});
-      },
 
-      _onTapRefreshButton: function(e) {
-
-        e.stopPropagation();
-        console.log("Toolbar Refresh");
-        this.fire('evt-toolbar-refresh');
-
-      },
 
       isLoggedIn: function(callback) {
         var that = this;
@@ -327,49 +345,53 @@ Polymer({
 
       },
 
-      logoutUser: function(forceLogout) {
+      _logoutUser: function(forceLogout) {
 
-            $("#mainAppPageContent").empty();
+        // $("#mainAppPageContent").empty();
 
-            if (forceLogout == undefined) {
-                forceLogout = true;
+        // if (forceLogout == undefined) {
+        //     forceLogout = true;
+        // }
+
+        // Shared.forceLogout = forceLogout;
+
+        var that = this;
+
+        var sucessFunction = function (result) { 
+
+        };
+
+        var errorFunction = function (error) { 
+          that.handleErrors(error);
+        };
+
+
+        Shared.api.resource('Logout').done(sucessFunction).fail(errorFunction).execute();
+
+        Shared.api.getLocalStorageValue("expresso", function(expressoValue) {
+
+            var isPhoneGap = Shared.api.phoneGap();
+
+            expressoValue.auth = "";
+            expressoValue.profile = "";
+            expressoValue.username = "";
+            expressoValue.password = "";
+            expressoValue.phoneGap = isPhoneGap;
+            expressoValue.serverAPI = "";
+
+            if (Shared.isAndroid()) {
+                Shared.service.disableTimer();
+                Shared.service.stopService();
             }
 
-            Shared.forceLogout = forceLogout;
+            Shared.api.setLocalStorageValue("expresso", expressoValue);
 
-            Shared.api.resource('Logout')
-            .done(function(result) {
+            that._userLoggedOut();
 
-            })
-            .fail(function(error) {
-
-                Shared.handleErrors(error);
-
-            })
-            .execute();
-
-            Shared.api.getLocalStorageValue("expresso", function(expressoValue) {
-
-                var isPhoneGap = Shared.api.phoneGap();
-
-                expressoValue.auth = "";
-                expressoValue.profile = "";
-                expressoValue.username = "";
-                expressoValue.password = "";
-                expressoValue.phoneGap = isPhoneGap;
-                expressoValue.serverAPI = "";
-
-                if (Shared.isAndroid()) {
-                    Shared.service.disableTimer();
-                    Shared.service.stopService();
-                }
-
-                Shared.api.setLocalStorageValue("expresso", expressoValue);
-
-            });
-
-            Shared.router.navigate('Login', true);
+        });
 
         },
+
+
 
     });

@@ -54,7 +54,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <link rel="import" href="../../bower_components/toast-er/toast-er.html">
 
-
 <!--
 
 Prover uma interface de Login para o Expresso, utilizando a API do Expresso.
@@ -72,14 +71,20 @@ Example:
 
   <template>
     <style>
+
       :host {
         display: block;
-        box-sizing: border-box;
-        background: #EFEFEF;
-        margin: 0px;
-        padding: 0px;
+        margin: 0;
+        background: rgba(255, 255, 255, 0.9);
+        color: #757575;
+        z-index: 1001;
         width: 100%;
         height: 100%;
+        position: fixed;
+      }
+
+      :host([isLogged]) {
+        display: none;
       }
 
       paper-button {
@@ -98,8 +103,6 @@ Example:
       }
 
       .login-area {
-/*        width: 300px;
-        margin: 10px;*/
         left: 50%;
         top: 40%;
         min-width: 250px;
@@ -150,14 +153,6 @@ Example:
         width: 100%;
       }
 
-
-      .animation-fadein {
-        animation: fadein 2s;
-        -moz-animation: fadein 2s; /* Firefox */
-        -webkit-animation: fadein 2s; /* Safari and Chrome */
-        -o-animation: fadein 2s; /* Opera */
-      }
-
       .animation-falling {
         animation: falling 1s;
         -moz-animation: falling 1s; /* Firefox */
@@ -170,13 +165,6 @@ Example:
         -moz-animation: scaleFadein 1s; /* Firefox */
         -webkit-animation: scaleFadein 1s; /* Safari and Chrome */
         -o-animation: scaleFadein 1s; /* Opera */
-      }
-
-      .animation-big-scale {
-        animation: bigScale 2s;
-        -moz-animation: bigScale 2s; /* Firefox */
-        -webkit-animation: bigScale 2s; /* Safari and Chrome */
-        -o-animation: bigScale 2s; /* Opera */
       }
 
       /* FALLING */
@@ -245,42 +233,6 @@ Example:
           }
       }
 
-      /* FADE IN */
-      @keyframes fadein {
-          from {
-              opacity:0;
-          }
-          to {
-              opacity:1;
-          }
-      }
-      @-moz-keyframes fadein { /* Firefox */
-          from {
-              opacity:0;
-          }
-          to {
-              opacity:1;
-          }
-      }
-      @-webkit-keyframes fadein { /* Safari and Chrome */
-          from {
-              opacity:0;
-          }
-          to {
-              opacity:1;
-          }
-      }
-      @-o-keyframes fadein { /* Opera */
-          from {
-              opacity:0;
-          }
-          to {
-              opacity: 1;
-          }
-      }
-
-
-
       /* SCALE */
       @keyframes scaleFadein {
           from {
@@ -336,20 +288,6 @@ Example:
               -ms-transform: scale(1,1); /* IE 9 */
               -webkit-transform: scale(1,1); /* Safari */
               transform: scale(1,1); /* Standard syntax */
-          }
-      }
-
-
-      @-webkit-keyframes bigScale { /* Safari and Chrome */
-          from {
-              -ms-transform: scale(1,1); /* IE 9 */
-              -webkit-transform: scale(1,1); /* Safari */
-              transform: scale(1,1); /* Standard syntax */
-          }
-          to {
-              -ms-transform: scale(20,20); /* IE 9 */
-              -webkit-transform: scale(20,20); /* Safari */
-              transform: scale(20,20); /* Standard syntax */
           }
       }
   
