@@ -1,0 +1,267 @@
+
+<link rel="import" href="./evt-calendar-day-base.html">
+<link rel="import" href="./evt-calendar-day-box.html">
+<link rel="import" href="./evt-calendar-list.html">
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<!-- <script src="../../bower_components/moment/min/moment.min.js"></script> -->
+
+<dom-module id="evt-calendar-month">
+  <template>
+    <style is="custom-style"> 
+		:host {
+			display: block;
+		}
+		.relative {	position: relative; }
+		.flex {	@apply(--layout-flex); }
+		.fit { @apply(--layout-fit); }
+		.vertical { @apply(--layout-vertical); }
+		.horizontal {	@apply(--layout-horizontal); }
+		.hidden { display: none; }
+
+
+		.weekDayAbreviation {
+			text-align: center;
+			color: var(--paper-indigo-500);
+			margin-bottom: 15px;
+		}
+
+		.card-container {
+	      position: relative;
+	      width: 720px;
+	      margin: 40px auto 40px;
+	    }
+
+		paper-card {
+	      padding: 0px;
+	      width: 100%;
+	      height: 100%;
+	      sizing: border-box;
+
+	    }
+
+	    @media (max-width: 720px) {
+	      .card-container {
+	        width: 100%;
+	        margin: 0px 0 0;
+	      }
+	    }
+	    paper-toolbar { 
+		    background-color: #FFF; 
+		    color: var(--default-primary-color);
+		}
+
+		paper-toolbar .title { text-align: center; }
+	
+		.monthImgWrapper { 
+			height:100%;
+			width: 100%;
+		}
+		#imgWrapper {
+		    height: 250px;
+		}
+
+		.month_bg_1  { background: url('../../imgs/material_backgrounds/bkg_1.jpg') center / cover; }
+	    .month_bg_2  { background: url('../../imgs/material_backgrounds/bkg_2.jpg') center / cover; }
+	    .month_bg_3  { background: url('../../imgs/material_backgrounds/bkg_3.jpg') center / cover; }
+	    .month_bg_4  { background: url('../../imgs/material_backgrounds/bkg_4.jpg') center / cover; }
+	    .month_bg_5  { background: url('../../imgs/material_backgrounds/bkg_5.jpg') center / cover; }
+	    .month_bg_6  { background: url('../../imgs/material_backgrounds/bkg_6.jpg') center / cover; }
+	    .month_bg_7  { background: url('../../imgs/material_backgrounds/bkg_7.jpg') center / cover; }
+	    .month_bg_8  { background: url('../../imgs/material_backgrounds/bkg_8.jpg') center / cover; }
+	    .month_bg_9  { background: url('../../imgs/material_backgrounds/bkg_9.jpg') center / cover; }
+	    .month_bg_10 { background: url('../../imgs/material_backgrounds/bkg_10.jpg') center / cover; }
+	    .month_bg_11 { background: url('../../imgs/material_backgrounds/bkg_11.jpg') center / cover; }
+	    .month_bg_12 { background: url('../../imgs/material_backgrounds/bkg_12.jpg') center / cover; }
+
+	</style>
+
+	<paper-toolbar>
+		<paper-icon-button icon="chevron-left" on-tap="monthBack"></paper-icon-button>
+		<div class="title">{{formatMonth(curDate)}}</div>
+		<paper-icon-button icon="chevron-right" on-tap="monthForward"></paper-icon-button>
+		<div flex></div>
+		<paper-icon-button icon="today" on-tap="todayTapped"></paper-icon-button>
+	</paper-toolbar>
+	<div id="cardMonthContainer" class="card-container">
+          <paper-card>
+          	<div id="imgWrapper">
+          		<div class$="{{monthCssClass}}"></div> 
+			</div>
+          	
+            <div class="card-content">
+			
+				<div class="horizontal flex">
+	            	<template is="dom-repeat" items="{{weekDaysAbreviations}}" as="day">
+						<div class="flex weekDayAbreviation">
+							<span class="weekDayAbreviation">{{day}}</span>
+						</div> 
+					</template>
+				</div>
+				<template is="dom-repeat" items="{{weeksToDisplay()}}" as="week">
+					<div class="horizontal flex">
+						
+						<template is="dom-repeat" items="{{weekDays}}" as="day">
+							<div class="flex" style="text-align: center;">
+								<evt-calendar-day-box id="dayBox{{_computeDayIndex(dates,day,week)}}" class="" date="{{_computeDateForIndex(dates,day,week)}}" cur-date="{{curDate}}" events="{{events}}"></evt-calendar-day-box>
+							</div>
+						</template>
+						
+					</div>
+				</template>
+			</div>
+		</paper-card>
+
+		<!-- <evt-calendar-list events="{{events}}" date="{{curDate}}" header="{{header}}"></evt-calendar-list> -->
+
+	</div>
+  </template>
+
+  <script>
+
+	Polymer({
+		is: 'evt-calendar-month',
+
+		properties: {
+	        curDate: {
+	            type: Object,
+	            value: undefined,
+	            notify: true,
+	            reflectToAttribute: true,
+	        },
+	        events: {
+	            type: Array,
+	            value: [],
+	            reflectToAttribute: true, 
+	            notify: true
+	        },
+	        weekDaysAbreviations: {
+	            type: Array,
+	            value: ['D','S','T','Q','Q','S','S'],
+	        },
+	        weekDays: {
+	            type: Array,
+	            value: [0,1,2,3,4,5,6],
+
+	        },
+	        dates: {
+	            type: Array,
+	            value: [],
+	            computed:'_computeDates(curDate)',
+	        },
+	        monthCssClass: {
+	            type: String,
+	            value: '',
+	            notify: true,
+	            computed:'_computeMonthCssClass(curDate)',
+	        },
+	        maxWeeks: {
+	            type: Number,
+	            value: 6,
+	        },
+
+      	},
+
+      	listeners: {
+      		'evt-calendar-day-box-tapped': 'dayBoxTapped',
+      	},
+
+		ready: function() {
+
+		},
+
+		todayTapped: function() {
+			var newDate = moment();
+			this.fire('evt-calendar-day-change',{ curDate: newDate });
+		},
+		// Date navigation
+		monthBack: function() {
+			var newDate = moment(this.curDate).subtract(1, 'month');
+			this.fire('evt-calendar-day-change',{ curDate: newDate });
+		},
+		monthForward: function() {
+			var newDate = moment(this.curDate).add(1, 'month');
+			this.fire('evt-calendar-day-change',{ curDate: newDate });
+		},
+		
+		_computeDayIndex: function(dates,day,week) {
+			return day + week * 7;
+		},
+		_computeDateForIndex: function(dates,day,week) {
+			var index = this._computeDayIndex(dates,day,week);
+			return this.dates[index];
+		},
+		firstDateInWeek: function(week,curDate) {
+			var monthFirstDay = moment(curDate).startOf('month');
+			return moment(monthFirstDay).startOf('week').add(week, 'week');
+		},
+		firstDateInCalendar: function(curDate) {
+			return moment(curDate).startOf('month').startOf('week');
+		},
+		lastDateInCalendar: function(curDate) {
+			return moment(curDate).endOf('month').endOf('week');
+		},
+		weeksToDisplay: function() {
+			var curDate = this.curDate;
+			var nw = this.lastDateInCalendar(curDate).diff(this.firstDateInCalendar(curDate), 'weeks') + 1;
+			return Object.keys(new Int8Array(nw)).map(Number);
+		},
+		dayBoxForWeekDay: function(week, day) {
+			if (week < 0 || week >= MAX_WEEKS || day < 0 || day > 6)
+				return;
+			return this.shadowRoot.querySelector('#dayBox' + (day + 7 * week));
+		},
+		dayBoxForDate: function(date) {
+			var refDate = moment(date).startOf('day');
+			if (refDate < this.firstDateInCalendar(this.curDate) || refDate > this.lastDateInCalendar(this.curDate))
+				return;
+			var week = Math.floor(refDate.diff(this.firstDateInCalendar(this.curDate), 'days') / 7);
+			if (week >= MAX_WEEKS) return null;
+			var day = Math.floor(refDate.diff(this.firstDateInWeek(week,curDate), 'd'));
+			return this.dayBoxForWeekDay(week, day);
+		},
+		dateForWeekDay: function(week, day,curDate) {
+			return this.firstDateInWeek(week,curDate).add(day, 'd');
+		},
+
+		_computeDates: function(curDate) {
+			if (!moment.isMoment(curDate))
+				curDate = moment(curDate);
+			var MAX_WEEKS = this.maxWeeks;
+
+			var newDates = [];
+			for (var w = 0; w < MAX_WEEKS; w++) {
+				for (var d = 0; d < 7; d++) {
+					newDates[w*7 + d] = this.dateForWeekDay(w, d,curDate);
+				}
+			}
+			return newDates;
+		},
+		dayBoxTapped: function(event, day, sender) {
+			event.preventDefault();
+			this.curDate = moment(event.detail.date); 
+
+			this.fire('evt-calendar-day-selected',{ curDate : this.curDate} );
+		},
+		formatMonth: function(date) {
+			return moment(date).format('MMMM, YYYY').toUpperCase();
+		},
+		eventsForDate: function(events, date) {
+			// console.log('eventsFor called');
+			var ar = [];
+			for (var i = 0; i < events.length; i++) {
+				if (events[i].start.isSame(date, 'd')) {
+					ar.push(events[i]);
+				}
+			}
+		}, 
+
+		_computeMonthCssClass: function(date) {
+			var month = moment(date).format('M');
+			var image = 'monthImgWrapper month_bg_' + month;
+	      return image;
+	    },
+	});
+
+  </script>
+</dom-module>

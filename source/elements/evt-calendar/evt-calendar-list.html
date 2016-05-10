@@ -1,0 +1,304 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="./evt-calendar-day-base.html">
+
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../bower_components/iron-icons/social-icons.html">
+<link rel="import" href="../../bower_components/iron-list/iron-list.html">
+<link rel="import" href="../../bower_components/paper-styles/paper-styles.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/iron-selector/iron-selector.html">
+<link rel="import" href="../../bower_components/iron-menu-behavior/iron-menu-behavior.html">
+
+<link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../bower_components/paper-dialog-scrollable/paper-dialog-scrollable.html">
+<link rel="import" href="../../bower_components/paper-styles/typography.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../bower_components/neon-animation/neon-animated-pages.html">
+<link rel="import" href="../../bower_components/neon-animation/neon-animatable.html">
+<link rel="import" href="../../bower_components/neon-animation/animations/slide-from-left-animation.html">
+<link rel="import" href="../../bower_components/neon-animation/animations/slide-from-right-animation.html">
+<link rel="import" href="../../bower_components/neon-animation/animations/fade-out-animation.html">
+<link rel="import" href="../../bower_components/neon-animation/animations/slide-up-animation.html">
+<link rel="import" href="../../bower_components/neon-animation/animations/slide-down-animation.html">
+<link rel="import" href="../../bower_components/paper-spinner/paper-spinner.html"> 
+<link rel="import" href="../../bower_components/neon-animation/neon-animations.html">
+
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../../bower_components/paper-menu/paper-menu.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../bower_components/iron-form/iron-form.html">
+
+<link rel="import" href="../profile-img/profile-img.html">
+
+<dom-module id="evt-calendar-list">
+  <template>
+    <style>
+    	.eventList {
+			overflow: scroll;
+		}
+		.eventListItem {
+			background-color: white;
+			color: dimgray;
+			border-bottom: 1px solid lightslategrey;
+			padding-bottom: 15px;
+			text-align: center;
+		}
+		.eventDate {
+			font-weight: bold;
+		}
+		.header {
+			background-color: grey;
+			color: white;
+		}
+
+
+
+
+	    #itemsListContainer {
+/*      @apply(--layout-fit);
+      @apply(--layout-vertical);*/
+    }
+
+    #selectedItemsList,
+    #itemsList {
+      @apply(--layout-flex);
+    }
+    #itemsList{
+      @apply(--layout-vertical);
+    }
+    .item {
+      @apply(--layout-horizontal);
+      cursor: pointer;
+      padding: 16px 22px;
+      border-bottom: 1px solid #DDD;
+    }
+    .item:hover {
+      background-color: var(--google-grey-100);
+    }
+    .item:focus,
+    .item.selected:focus {
+      outline: 0;
+    }
+    .item.selected .star {
+      color: var(--paper-blue-600);
+    }
+    .item.selected {
+      background-color: var(--google-grey-100);
+    }
+
+    .pad {
+      @apply(--layout-flex);
+      @apply(--layout-vertical);
+      padding: 0 16px;
+    }
+    .pad.small {
+      padding: 10px;
+    }
+    .primary {
+      font-size: 12px;
+      line-height: 12px;
+    }
+    .secondary {
+      font-size: 10px;
+      line-height: 12px;
+    }
+    .dim {
+      color: gray;
+    }
+
+    #starredView {
+      width: 200px;
+      border-left: 1px solid #ddd;
+      background: rgba(255, 255, 255, 0.9);
+    }
+    paper-item {
+      white-space: nowrap;
+      cursor: pointer;
+      position: relative;
+    }
+    paper-item:focus {
+      outline: 0;
+      background-color: #ddd;
+    }
+    paper-item:hover::after {
+      content: "－";
+      width: 16px;
+      height: 16px;
+      display: block;
+      border-radius: 50% 50%;
+      background-color: var(--google-red-300);
+      margin-left: 10px;
+      line-height: 16px;
+      text-align: center;
+      color: white;
+      font-weight: bold;
+      text-decoration: none;
+      position: absolute;
+      right: 15px;
+      top: calc(50% - 8px);
+    }
+    .noSelection {
+      color: #999;
+      margin-left: 10px;
+      line-height: 50px;
+    }
+    .twoColumns {
+      @apply(--layout-flex);
+      @apply(--layout-horizontal);
+      overflow: hidden;
+    }
+
+    paper-menu {
+      @apply(--layout-horizontal);
+      overflow: hidden;
+      width: 100%;
+    }
+
+
+		.card-container {
+	      position: relative;
+	      width: 720px; 
+	      margin: 150px auto 40px;
+	    }
+
+		paper-card {
+	      padding: 16px;
+	      width: 100%;
+	      height: 100%;
+	      sizing: border-box;
+	    }
+
+	    @media (max-width: 720px) {
+	      .card-container-list {
+	        width: 100%;
+	        margin: 0px 0 0;
+	      }
+	    }
+    </style>
+
+	<div id="itemsListContainer">
+
+	    <div class="card-container-list">
+	    <paper-card>
+	      <div class="card-content">
+
+          <div class="fit">
+            <div class="horizontal">
+              <template is="dom-repeat" items="{{myEvents}}">
+
+                <paper-material elevation="1" id="event{{item.eventID}}" class="flex event" style="{{_computeEventStyle(item,date)}}" on-tap="eventTapped"><b>{{item.eventName}}</b> {{formatTimes(item)}}</paper-material>
+
+              </template>
+            </div>
+          </div>
+	        
+	      <template is="dom-repeat" items="{{myEvents}}">
+
+	        <paper-item tabindex="0" class="eventItem">
+	          <profile-img id="profileimgSelected" class="small" letter="{{formatEventDay(item)}}"></profile-img>
+	          <div class="pad small">
+	            <div class="primary name">{{item.eventName}}</div>
+	            <div class="secondary dim name">{{formatEventTimes(item)}}</div>
+	          </div>
+	          <paper-ripple></paper-ripple>
+	        </paper-item>
+
+	      </template>
+
+	       </div>
+	      </paper-card>
+	   </div> 
+
+    </div>
+
+  </template>
+
+  <script>
+    Polymer({
+		is: 'evt-calendar-list',
+
+		behaviors: [
+			// CalendarDayBaseBehavior,
+		],
+
+		properties: {
+      header: {
+          type: Boolean,
+          value: true,
+          reflectToAttribute: true,
+          notify: true
+      },
+      date: {
+          type: Object,
+          value: undefined,
+          observer: 'dateChanged',
+      },
+      events: {
+            type: Array,
+            value: [],
+            reflectToAttribute: true,
+            observer: 'eventsChanged',
+      },
+      myEvents: {
+            type: Array,
+            value: [],
+            reflectToAttribute: true,
+            notify: true,
+      },
+  	},
+
+    eventsForMonth: function (events, date) {
+      if (events == undefined) {
+        return;
+      }
+      if (typeof this.date === 'undefined' || !this.date || !this.events || ! this.events.length) {
+        this.myEvents = [];
+        this.monthEvents = [];
+        return;
+      }
+
+      this.myEvents = (function(d) { 
+        return events.filter(function(el, idx, ar) {
+
+          var startOfMonth = moment(d).startOf('month');
+          var endOfMonth = moment(d).endOf('month');
+
+          var retVal = true;
+          if (el.start.isBefore(startOfMonth)) {
+            retVal = false;
+          }
+          if (el.start.isAfter(endOfMonth)) {
+            retVal = false;
+          }
+
+          return retVal;
+        });
+      })(date);
+
+    },
+
+    dateChanged: function (newVal, oldVal) {
+      this.eventsForMonth(this.events,newVal);
+    },
+
+    eventsChanged: function(newVal, oldVal) {
+      this.eventsForMonth(newVal,this.date);
+    },
+
+    formatEventDay: function(event) {
+      return moment(event.start).format('D');
+    },
+
+    formatEventDate: function(event) {
+			return moment(event.start).format('ddd, MMM D');
+		},
+		formatEventTimes: function(event) {
+			return moment(event.start).format('h:mma') + ' até ' + moment(event.end).format('h:mma');
+		}
+		
+	});
+  </script>
+</dom-module>

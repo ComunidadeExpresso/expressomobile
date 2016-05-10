@@ -1,0 +1,194 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../bower_components/paper-styles/paper-styles.html">
+<link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/paper-dialog-scrollable/paper-dialog-scrollable.html">
+<link rel="import" href="../../bower_components/paper-styles/typography.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../../bower_components/paper-menu/paper-menu.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../../bower_components/iron-form/iron-form.html">
+
+<link rel="import" href="../profile-img/profile-img.html">
+
+<dom-module id="event-card">
+  <style>
+
+    .card-container {
+      position: relative;
+      width: 720px;
+      margin: 300px auto 40px;
+    }
+    profile-img {
+      position: absolute;
+      margin-top: -63px;
+      margin-left: -64px;
+    }
+
+    paper-card {
+      padding: 16px 0 16px 100px;
+      width: 100%;
+      height: 100%;
+      sizing: border-box;
+    }
+
+    @media (max-width: 720px) {
+      .card-container {
+        width: 100%;
+        margin: 150px 0 0;
+      }
+    }
+
+    .row-title {
+      position: relative;
+      margin-left: -150px;
+      margin-right: 10px;
+      text-align: right;
+      width: 150px;
+      max-width: 150px;
+      color: #3F51B5;
+      font-size: 12px;
+
+    }
+
+  </style>
+  <template>
+
+    <template is="dom-if" if="{{!isLoading}}">
+      <div class="card-container">
+          <paper-card heading="{{curEvent.eventName}}">
+            <div class="card-content">
+
+                <paper-icon-item>
+                    <div class="row-title">Descrição:</div>
+                    <paper-item-body two-line>
+                      <div>{{curEvent.eventDescription}}</div>
+                      <div secondary></div>
+                      <paper-ripple></paper-ripple>
+                    </paper-item-body>
+                </paper-icon-item>
+
+                <paper-icon-item>
+                    <div class="row-title">Início:</div>
+                    <paper-item-body two-line>
+                      <div>{{formatDate(curEvent.eventStartDate)}}</div>
+                      <div secondary></div>
+                      <paper-ripple></paper-ripple>
+                    </paper-item-body>
+                </paper-icon-item>
+
+                <paper-icon-item>
+                    <div class="row-title">Término:</div>
+                    <paper-item-body two-line>
+                      <div>{{formatDate(curEvent.eventEndDate)}}</div>
+                      <div secondary></div>
+                      <paper-ripple></paper-ripple>
+                    </paper-item-body>
+                </paper-icon-item>
+
+                <paper-icon-item>
+                    <div class="row-title">Categoria:</div>
+                    <paper-item-body two-line>
+                      <div>{{curEvent.eventCategoryID}}</div>
+                      <div secondary></div>
+                      <paper-ripple></paper-ripple>
+                    </paper-item-body>
+                </paper-icon-item>
+
+                <paper-icon-item>
+                    <div class="row-title">Tipo:</div>
+                    <paper-item-body two-line>
+                      <div>{{curEvent.eventType}}</div>
+                      <div secondary></div>
+                      <paper-ripple></paper-ripple>
+                    </paper-item-body>
+                </paper-icon-item>
+
+                <paper-icon-item>
+                    <div class="row-title">Prioridade:</div>
+                    <paper-item-body two-line>
+                      <div>{{curEventPriority}}</div>
+                      <div secondary></div>
+                      <paper-ripple></paper-ripple>
+                    </paper-item-body>
+                </paper-icon-item>
+
+                <paper-icon-item>
+                    <div class="row-title">Localização:</div>
+                    <paper-item-body two-line>
+                      <div>{{curEvent.eventLocation}}</div>
+                      <div secondary></div>
+                      <paper-ripple></paper-ripple>
+                    </paper-item-body>
+                </paper-icon-item>
+
+                <!-- <paper-icon-item>
+                    <paper-item-body two-line>
+                      <div>eventAllDay: {{curEvent.eventAllDay}}</div>
+                      <div secondary></div>
+                      <paper-ripple></paper-ripple>
+                    </paper-item-body>
+                </paper-icon-item> -->
+    
+                <paper-icon-item>
+                    <div class="row-title">Criado por:</div>
+                    <paper-item-body two-line>
+                      <div>{{curEvent.eventOwner}}</div>
+                      <div secondary></div>
+                      <paper-ripple></paper-ripple>
+                    </paper-item-body>
+                </paper-icon-item>
+
+                <paper-icon-item>
+                    <iron-icon icon="description" item-icon></iron-icon>
+                    <paper-item-body two-line>
+                      <div>eventOwnerIsParticipant: {{curEvent.eventOwnerIsParticipant}}</div>
+                      <div secondary></div>
+                      <paper-ripple></paper-ripple>
+                    </paper-item-body>
+                </paper-icon-item>
+
+                <paper-icon-item>
+                    <iron-icon icon="description" item-icon></iron-icon>
+                    <paper-item-body two-line>
+                      <div>eventParticipants: {{curEvent.eventParticipants}}</div>
+                      <div secondary></div>
+                      <paper-ripple></paper-ripple>
+                    </paper-item-body>
+                </paper-icon-item>
+
+                <paper-icon-item>
+                    <iron-icon icon="description" item-icon></iron-icon>
+                    <paper-item-body two-line>
+                      <div>eventParticipantsLdap: {{curEvent.eventParticipantsLdap}}</div>
+                      <div secondary></div>
+                      <paper-ripple></paper-ripple>
+                    </paper-item-body>
+                </paper-icon-item>
+
+                <contact-list id="contactListParticipants" selection-enabled="0" is-loading="{{isLoading}}" personal-contacts="0" previous-searches="{{previousSearches}}" signals="0"></contact-list>
+
+                <!-- <contact-row contact-id="1" name="Jair Gonçalves" email="pereira.jair@celepar.pr.gov.br" is-contact="1" letter="J" selection-enabled="0"></contact-row> -->
+
+                
+              
+            </div>
+            <div class="card-actions">
+              <template is="dom-if" if="[[personalContact]]">
+                <paper-icon-button icon="icons:delete" on-tap="deleteContact"></paper-icon-button>
+              </template>
+            </div>
+          </paper-card>
+
+      </div>
+    </template>
+  </template>
+
+</dom-module>

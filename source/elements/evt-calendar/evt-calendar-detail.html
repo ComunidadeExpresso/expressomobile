@@ -1,0 +1,223 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+
+
+<dom-module id="evt-calendar-detail">
+  <template>
+   	<style>
+		:host {
+
+		}
+
+		.relative {	position: relative; }
+		.flex {	@apply(--layout-flex); }
+		.fit { @apply(--layout-fit); }
+		.vertical { @apply(--layout-vertical); }
+		.horizontal {	@apply(--layout-horizontal); }
+		.hidden { display: none; }
+
+		.card-container {
+	      position: relative;
+	      width: 720px;
+	      margin: 40px auto 40px;
+	    }
+
+		paper-card {
+	      padding: 0px;
+	      width: 100%;
+	      height: 100%;
+	      sizing: border-box;
+
+	    }
+
+	    @media (max-width: 720px) {
+	      .card-container {
+	        width: 100%;
+	        margin: 0px 0 0;
+	      }
+	    }
+	    paper-toolbar { 
+		    background-color: #FFF; 
+		    color: var(--default-primary-color);
+		}
+	
+		.monthImgWrapper { 
+			height:100%;
+			width: 100%;
+		}
+		#imgWrapper {
+		    height: 250px;
+		}
+
+		.month_bg_1  { background: url('../../imgs/material_backgrounds/bkg_1.jpg') center / cover; }
+	    .month_bg_2  { background: url('../../imgs/material_backgrounds/bkg_2.jpg') center / cover; }
+	    .month_bg_3  { background: url('../../imgs/material_backgrounds/bkg_3.jpg') center / cover; }
+	    .month_bg_4  { background: url('../../imgs/material_backgrounds/bkg_4.jpg') center / cover; }
+	    .month_bg_5  { background: url('../../imgs/material_backgrounds/bkg_5.jpg') center / cover; }
+	    .month_bg_6  { background: url('../../imgs/material_backgrounds/bkg_6.jpg') center / cover; }
+	    .month_bg_7  { background: url('../../imgs/material_backgrounds/bkg_7.jpg') center / cover; }
+	    .month_bg_8  { background: url('../../imgs/material_backgrounds/bkg_8.jpg') center / cover; }
+	    .month_bg_9  { background: url('../../imgs/material_backgrounds/bkg_9.jpg') center / cover; }
+	    .month_bg_10 { background: url('../../imgs/material_backgrounds/bkg_10.jpg') center / cover; }
+	    .month_bg_11 { background: url('../../imgs/material_backgrounds/bkg_11.jpg') center / cover; }
+	    .month_bg_12 { background: url('../../imgs/material_backgrounds/bkg_12.jpg') center / cover; }
+
+	</style>
+
+	<div class="card-container">
+        <paper-card heading="{{curEvent.eventName}}">  	
+        	<div id="imgWrapper">
+	      		<div class$="{{monthCssClass}}"></div>
+			</div>
+            <div class="card-content">
+            	<paper-icon-item>
+	                <iron-icon icon="today" item-icon></iron-icon>
+	                <paper-item-body two-line>
+	                  <div>{{formatDate(curEvent.eventStartDate)}} - {{formatDate(curEvent.eventEndDate)}}</div>
+	                  <div secondary></div>
+	                  <paper-ripple></paper-ripple>
+	                </paper-item-body>
+	            </paper-icon-item>
+
+	            <paper-icon-item>
+	                <iron-icon icon="description" item-icon></iron-icon>
+	                <paper-item-body two-line>
+	                  <div>{{curEvent.eventDescription}}</div>
+	                  <div secondary></div>
+	                  <paper-ripple></paper-ripple>
+	                </paper-item-body>
+	            </paper-icon-item>
+
+	            <paper-icon-item>
+	                <iron-icon icon="description" item-icon></iron-icon>
+	                <paper-item-body two-line>
+	                  <div>Categoria: {{curEvent.eventCategoryID}}</div>
+	                  <div secondary></div>
+	                  <paper-ripple></paper-ripple>
+	                </paper-item-body>
+	            </paper-icon-item>
+
+	            <paper-icon-item>
+	                <iron-icon icon="description" item-icon></iron-icon>
+	                <paper-item-body two-line>
+	                  <div>eventAllDay: {{curEvent.eventAllDay}}</div>
+	                  <div secondary></div>
+	                  <paper-ripple></paper-ripple>
+	                </paper-item-body>
+	            </paper-icon-item>
+	
+				<paper-icon-item>
+	                <iron-icon icon="description" item-icon></iron-icon>
+	                <paper-item-body two-line>
+	                  <div>eventOwner: {{curEvent.eventOwner}}</div>
+	                  <div secondary></div>
+	                  <paper-ripple></paper-ripple>
+	                </paper-item-body>
+	            </paper-icon-item>
+
+	          	<paper-icon-item>
+	                <iron-icon icon="description" item-icon></iron-icon>
+	                <paper-item-body two-line>
+	                  <div>eventOwnerIsParticipant: {{curEvent.eventOwnerIsParticipant}}</div>
+	                  <div secondary></div>
+	                  <paper-ripple></paper-ripple>
+	                </paper-item-body>
+	            </paper-icon-item>
+
+	            <paper-icon-item>
+	                <iron-icon icon="description" item-icon></iron-icon>
+	                <paper-item-body two-line>
+	                  <div>eventParticipants: {{curEvent.eventParticipants}}</div>
+	                  <div secondary></div>
+	                  <paper-ripple></paper-ripple>
+	                </paper-item-body>
+	            </paper-icon-item>
+
+	            <paper-icon-item>
+	                <iron-icon icon="description" item-icon></iron-icon>
+	                <paper-item-body two-line>
+	                  <div>eventParticipantsLdap: {{curEvent.eventParticipantsLdap}}</div>
+	                  <div secondary></div>
+	                  <paper-ripple></paper-ripple>
+	                </paper-item-body>
+	            </paper-icon-item>
+
+	            <paper-icon-item>
+	                <iron-icon icon="description" item-icon></iron-icon>
+	                <paper-item-body two-line>
+	                  <div>eventType: {{curEvent.eventType}}</div>
+	                  <div secondary></div>
+	                  <paper-ripple></paper-ripple>
+	                </paper-item-body>
+	            </paper-icon-item>
+
+	            <paper-icon-item>
+	                <iron-icon icon="description" item-icon></iron-icon>
+	                <paper-item-body two-line>
+	                  <div>eventPriority: {{curEvent.eventPriority}}</div>
+	                  <div secondary></div>
+	                  <paper-ripple></paper-ripple>
+	                </paper-item-body>
+	            </paper-icon-item>
+
+	            <paper-icon-item>
+	                <iron-icon icon="description" item-icon></iron-icon>
+	                <paper-item-body two-line>
+	                  <div>eventLocation: {{curEvent.eventLocation}}</div>
+	                  <div secondary></div>
+	                  <paper-ripple></paper-ripple>
+	                </paper-item-body>
+	            </paper-icon-item>
+
+			</div>
+		</paper-card>
+	</div>
+
+  </template>
+
+  <script>
+    Polymer({
+		is: 'evt-calendar-detail',
+
+		properties: {
+			eventID: {
+				type: String,
+	            value: '',
+			},
+	        curEvent: {
+				type: Object,
+				value: {},
+	        },
+	        monthCssClass: {
+	            type: String,
+	            value: '',
+	            notify: true,
+	            computed:'_computeMonthCssClass(curEvent)',
+	        },
+      	},
+
+      	_computeMonthCssClass: function(curEvent) {
+			var month = moment(curEvent.start).format('M');
+			var image = 'monthImgWrapper month_bg_' + month;
+	      return image;
+	    },
+
+	    formatDate: function(date) {
+			return moment(date).format('DD/MM/YYYY h:mm a');
+		},
+
+	    formatTimes: function(curEvent) {
+			var start = curEvent.start;
+			var end = curEvent.end;
+
+			if ((moment(this.date).isSame(start, 'd')) && (moment(this.date).isSame(end, 'd'))) {
+				return curEvent.start.format('h:mm a') + ' - ' + curEvent.end.format('h:mm a');
+			} else {	
+				return curEvent.start.format('DD/MM/YYYY h:mm a') + ' - ' + curEvent.end.format('DD/MM/YYYY h:mm a');
+			}
+
+		},
+		
+	});
+  </script>
+</dom-module>

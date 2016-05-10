@@ -1,0 +1,166 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../../bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="../../bower_components/paper-tabs/paper-tab.html">
+<link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../bower_components/neon-animation/neon-animated-pages.html">
+<link rel="import" href="../../bower_components/neon-animation/neon-animatable.html">
+<link rel="import" href="../../bower_components/neon-animation/animations/fade-out-animation.html">
+<link rel="import" href="../../bower_components/neon-animation/animations/fade-in-animation.html">
+
+<link rel="import" href="./evt-calendar-week.html">
+<link rel="import" href="./evt-calendar-list.html">
+<link rel="import" href="./evt-calendar-day.html"> 
+<link rel="import" href="./evt-calendar-month.html">
+<link rel="import" href="./evt-calendar-detail.html">
+
+<dom-module id="evt-calendar">
+  <template>
+    <style>
+    	:root {
+		    --paper-tabs-selection-bar-color: blue;
+
+		    --paper-tabs: {
+		        color: var(--default-primary-color); /* variable defined in default-theme.html */
+		        font-size: 20px;
+		    } 
+		}
+		:host {
+			background-position: center center;
+			background-repeat: no-repeat;
+			background-size: cover;
+			display: block;
+			height: 100%;
+		}
+		paper-toolbar { 
+		    background-color: #FFF; 
+		    color: var(--default-primary-color); 
+		}
+		neon-animated-pages { padding: 0px;  height: 100%; }
+		neon-animatable 	{ padding: 0px;  height: 100%; }
+
+    </style>
+
+	<neon-animated-pages class="flex" selected="{{selectedPage}}" entry-animation="fade-in-animation" exit-animation="fade-out-animation">
+		<neon-animatable>
+		    <template is="dom-if" if="{{header}}">
+				<div class="horizontal center justified header">
+					<div class="flex"></div>
+					<paper-toolbar class="small">
+						<paper-tabs selected="{{selected}}" on-tap="_selectedView" class="bottom self-end">
+					      	<paper-tab><iron-icon icon="apps"></iron-icon></paper-tab>
+					      	<paper-tab><iron-icon icon="view-week"></iron-icon></paper-tab>
+					      	<paper-tab><iron-icon icon="view-day"></iron-icon></paper-tab>
+					      	<!-- <paper-tab><iron-icon icon="view-list"></iron-icon></paper-tab> -->
+					    </paper-tabs>
+					</paper-toolbar>
+				</div>
+			</template>
+			<neon-animated-pages class="flex" selected="{{selected}}" entry-animation="fade-in-animation" exit-animation="fade-out-animation">
+		        <neon-animatable>
+		        	<evt-calendar-month id="calMonth" cur-date="{{curDate}}" events="{{events}}" header="{{header}}"></evt-calendar-month>
+		    	</neon-animatable>
+		        <neon-animatable> 
+		        	<evt-calendar-week id="calWeek" cur-date="{{curDate}}" class="flex" events="{{events}}" header="{{header}}"></evt-calendar-week>
+		        </neon-animatable>
+		        <neon-animatable>
+		        	<evt-calendar-day date="{{curDate}}" cur-event="{{curEvent}}" events="{{events}}" header="{{header}}" scroll show-title="false" start-hour="{{startHour}}"></evt-calendar-day>
+		    	</neon-animatable>
+		    </neon-animated-pages>
+		</neon-animatable>
+		<neon-animatable> 
+	    	<evt-calendar-detail id="evtDetail" cur-event="{{curEvent}}" class="flex"></evt-calendar-detail>
+	    </neon-animatable>
+	</neon-animated-pages>
+
+
+  </template>
+
+  <script>
+    Polymer({
+		is: 'evt-calendar',
+
+		properties: {
+			selectedPage: {
+				type: Number,
+				value: 0,
+				notify: true,
+			},
+	        selected: {
+				type: Number,
+				value: 0,
+				notify: true,
+			},
+			curEvent: {
+	            type: Object,
+	            value: {},
+	            // notify: true,
+	            // reflectToAttribute: true,
+	            // observer: 'curEventChanged',
+	        },
+	        curDate: {
+	            type: Object,
+	            value: {},
+	            notify: true,
+	            reflectToAttribute: true,
+	        },
+	        events: {
+	            type: Array,
+	            value: [],
+	            reflectToAttribute: true, 
+	            observer: 'eventsChanged',
+	        },
+	        header: {
+	            type: Boolean,
+	            value: true,
+	        },
+	        startHour: {
+	            type: Number,
+	            value: 0,
+	        },
+      	},
+      	ready: function() {
+			this.events = [];
+			this.selectedPage = 0;
+			this.curDate = moment();
+		},
+		curEventChanged: function() {
+			// console.log('curEventChanged');
+			// console.log(this.curEvent);
+			// this.selectedPage = 1;
+		},
+		_selectedView: function(e,detail) {
+			this.fire('evt-calendar-switch-page',{ curDate: this.curDate, selected: this.selected });
+		},
+		eventsChanged: function() {
+			//Validate events (N.B. stops on first invalid event)
+			for (var i = 0; i < this.events.length; i++) {
+				var ev = this.events[i];
+				// Each events must have a start & stop.
+				if (!ev.start || !ev.end) {
+					this.asyncFire('event-calendar-error', 'Each event must have a start and end.');
+					this.async(function() {
+						this.events.splice(i, 1);
+					});
+					break;
+				}
+				// Make sure each start and stop is a moment or moment-compatible.
+				if (!moment.isMoment(ev.start))
+					ev.start = moment(ev.start);
+				if (!moment.isMoment(ev.end))
+					ev.end = moment(ev.end);
+				// Ensure the start < end.
+				if (ev.end < ev.start) {
+					this.asyncFire('event-calendar-error', 'event.start must precede event.end');
+					this.async(function() {
+						this.events.splice(i, 1);
+					}, i);
+					break;
+				}
+			}
+		},
+		
+	});
+  </script>
+</dom-module>

@@ -1,0 +1,114 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="./evt-calendar-day.html">
+
+
+<dom-module id="evt-calendar-week">
+  <template>
+   	<style>
+		:host {
+			display: block;
+			height: 100%;
+			overflow-y: scroll;
+			border: 0px solid black;
+		}
+
+		paper-toolbar { 
+		    background-color: #FFF; 
+		    color: var(--default-primary-color);
+		}
+
+		paper-toolbar .title { text-align: center; }
+
+		.relative {	position: relative; }
+		.flex {	@apply(--layout-flex); }
+		.fit { @apply(--layout-fit); }
+		.vertical { @apply(--layout-vertical); }
+		.horizontal {	@apply(--layout-horizontal); }
+		.hidden { display: none; }
+
+	</style>
+
+	<div class="fit">
+		<paper-toolbar>
+			<paper-icon-button icon="chevron-left" on-tap="weekBack"></paper-icon-button>
+			<div class="title">{{weekTitle}}</div>
+			<paper-icon-button icon="chevron-right" on-tap="weekForward"></paper-icon-button>
+			<div flex></div>
+			<paper-icon-button icon="today" on-tap="todayTapped"></paper-icon-button>
+		</paper-toolbar>
+		<div class="horizontal">
+			<template is="dom-repeat" items="{{days}}">
+				<evt-calendar-day class="flex" date="{{item.date}}" events="{{events}}" startHour="{{startHour}}" nohours="{{_computeShowHours(item.index)}}"></evt-calendar-day>
+			</template>
+		</div>
+	</div>
+  </template>
+
+  <script>
+    Polymer({
+		is: 'evt-calendar-week',
+
+		properties: {
+	        curDate: {
+	            type: Object,
+	            value: {},
+	            observer: 'curDateChanged',
+	        },
+	        events: {
+				type: Array,
+				value: [],
+	        },
+	        startHour: {
+	              type: Number,
+	              value: 0,
+	        },
+	        days: {
+	              type: Array,
+	              value: [],
+	              notify: true,
+	        },
+	        weekTitle: {
+	        	type: String,
+	            value: '',
+	            notify: true,
+	            reflectToAttribute: true,
+	        }
+      	},
+
+		curDateChanged: function(oldVal, newVal) {
+			var newDays = [];
+			
+			var startDate = moment(this.curDate).startOf('week');
+			for (i = 0; i < 7; i++) {
+				var item = { index: i, date: moment(startDate).startOf('d').add(i, 'd') };
+				newDays.push(item);
+			}
+			this.days = newDays;
+
+			this.weekTitle = 'Dia ' + this.days[0].date.format('D/M/YYYY') + ' à ' + this.days[6].date.format('D/M/YYYY');
+		},
+		_computeShowHours: function(index) {
+			if (index == 0) {
+				return false;
+			} else {
+				return true;
+			}
+		},
+
+		todayTapped: function() {
+			var newDate = moment();
+			this.fire('evt-calendar-day-change',{ curDate: newDate });
+		},
+		weekBack: function() {
+			var newDate = moment(this.curDate).subtract(1, 'week');
+			this.fire('evt-calendar-day-change',{ curDate: newDate });
+		},
+		weekForward: function() {
+			var newDate = moment(this.curDate).add(1, 'week');
+			this.fire('evt-calendar-day-change',{ curDate: newDate });
+		},
+	});
+  </script>
+</dom-module>
+

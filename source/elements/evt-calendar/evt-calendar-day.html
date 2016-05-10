@@ -1,0 +1,252 @@
+
+<link rel="import" href="./evt-calendar-day-base.html">
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<!-- <script src="../../bower_components/moment/min/moment.min.js"></script> -->
+
+<dom-module id="evt-calendar-day">
+  <template>
+    <style>
+    	:host {
+			display: block;
+			height: 100%;
+			background-color: #FFF;
+		}
+		.scroll {
+			overflow-y: scroll;
+		}
+		.noscroll {
+			overflow-y: hidden;
+		}
+		.backgroundGrid {
+			border-bottom: 1px dashed lightgrey;
+			border-right: 1px dashed lightgrey;
+			text-align: left;
+			min-height: 31px;
+			max-height: 31px;
+		}
+
+		.event {
+			border: 1px solid white;
+			border-radius: 5px;
+			background-color: var(--paper-indigo-100);
+			top: 0;
+			left: 0;
+			position: relative;
+			overflow: hidden;
+			padding-left: 5px;
+			padding-top: 5px;
+			font-size: 12px;
+
+		}
+
+		.dayTitle {
+			background-color: #EFEFEF; 
+			color: var(--default-primary-color);
+			height: 40px;
+			text-align: center;
+			padding: 16px;
+		}
+
+		.hour {
+			position: relative;
+			top: 20px;
+			font-size: 10px;
+			text-align: right;
+			min-height: 22px;
+			padding: 5px;
+		}
+
+		paper-toolbar { 
+		    background-color: #FFF; 
+		    color: var(--default-primary-color);
+		}
+		paper-toolbar .title { text-align: center; }
+
+		.relative {	position: relative; }
+		.flex { @apply(--layout-flex); }
+		.fit { @apply(--layout-fit); }
+		.vertical { @apply(--layout-vertical); }
+		.horizontal { @apply(--layout-horizontal); }
+		.hidden { display: none; }
+
+    </style>
+    <div class="vertical">
+    	<template is="dom-if" if="{{showTitle}}">
+    		<div class="dayTitle">{{formatDate(date)}}</div>
+    	</template>
+    	<template is="dom-if" if="{{!showTitle}}">
+    		<paper-toolbar>
+	    		<paper-icon-button icon="chevron-left" on-tap="dayBack"></paper-icon-button>
+				<div class="title">{{formatDate(date)}}</div>
+				<paper-icon-button icon="chevron-right" on-tap="dayForward"></paper-icon-button>
+				<div flex></div>
+				<paper-icon-button icon="today" on-tap="todayTapped"></paper-icon-button>
+			</paper-toolbar>
+    	</template>
+    	<div>
+		    <div class="horizontal vertical relative noscroll">
+				<div class="horizontal flex">
+					<div class="vertical">
+						<template is="dom-repeat" items="{{hours}}">
+							<div id="hour{{item.value}}" class="flex hour" hidden$="{{nohours}}">{{item.label}}</div>
+						</template>
+					</div>
+					<div class="vertical flex relative">
+						<template is="dom-repeat" items="{{hours}}">
+							<div id="gridRow{{item.value}}" class="flex backgroundGrid"></div>
+						</template>
+						<div class="fit">
+							<div class="horizontal">
+								<template is="dom-repeat" items="{{myEvents}}">
+									<paper-material elevation="1" id="event{{item.eventID}}" class="flex event" style="{{_computeEventStyle(item,date)}}" data-event="{{item}}" on-tap="eventTapped"><b>{{item.eventName}}</b> <br>{{formatTimes(item)}}</paper-material>
+								</template>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+  </template>
+
+  <script>
+
+	Polymer({
+		is: 'evt-calendar-day',
+
+		behaviors: [
+			CalendarDayBaseBehavior,
+		],
+
+		properties: {
+			curEvent: {
+	            type: Object,
+	            value: {},
+	            notify: true,
+	        },
+	        date: {
+	            type: Object,
+	            value: {},
+	            notify: true,
+	        },
+	        hours: {
+	            type: Array,
+	            value: [],
+	        },
+	        startHour: {
+	            type: Number,
+	            value: 0,
+	        },
+	        scroll: {
+	            type: Boolean,
+	            value: true,
+	        },
+	        showTitle: {
+	        	type: Number,
+	            value: true,
+	        },
+	        nohours: {
+	            type: Boolean,
+	            value: false,
+	            reflectToAttribute: true,
+	            notify: true,
+	        },
+      	},
+
+      	ready: function() {
+			var hours = [];
+			var m = moment();
+			for (var i = this.startHour; i < 24; i++) {
+				m.hour(i);
+				hours.push({value: i, label: m.format('ha') });
+			}
+			this.hours = hours;
+		},
+
+      	formatDate: function(date) {
+			if (date) {
+				return moment(date).format('ddd, MMM D').toUpperCase();
+			}
+		},
+
+		formatTimes: function(curEvent) {
+
+			var start = curEvent.start;
+			var end = curEvent.end;
+
+			if ((moment(this.date).isSame(start, 'd')) && (moment(this.date).isSame(end, 'd'))) {
+				return curEvent.start.format('h:mm a') + ' - ' + curEvent.end.format('h:mm a');
+			} else {	
+				return curEvent.start.format('DD/MM/YYYY h:mm a') + ' - ' + curEvent.end.format('DD/MM/YYYY h:mm a');
+			}
+
+		},
+
+		_computePropMinutes: function(minutes,rowHeight) {
+			return (rowHeight / 60 * minutes);
+		},
+		_computeEventStyle: function(curEvent,curDate) {
+
+			var start = curEvent.start;
+			var end = curEvent.end;
+
+			var rowHeight = 31;
+			var padding = 5;
+
+			var topHour = start.hour();
+			if (topHour < this.startHour) topHour = this.startHour;
+			var botHour = end.hour();
+
+			if (moment(this.date).isSame(start, 'd')) {
+				if (!moment(start).isSame(end, 'd')) {
+					botHour = 23;
+				}
+			}
+			if (moment(this.date).isSame(end, 'd')) {
+				if (!moment(start).isSame(end, 'd')) {
+					topHour = 0;
+				}
+			}
+
+			if ((!moment(this.date).isSame(end, 'd')) && (!moment(this.date).isSame(start, 'd'))) {
+				topHour = 0; 
+				botHour = 23;
+			}
+			
+			var topMin = this._computePropMinutes(start.minutes(),rowHeight);
+			var botMin = this._computePropMinutes(end.minutes(),rowHeight);
+			
+			var top =  15 + topMin + (((topHour + 1) * rowHeight) - padding);
+			var bottom =  15 + botMin + (((botHour + 1) * rowHeight) - (padding));
+
+			var height = bottom - top;
+ 
+			return ' top:' +  top + 'px; height: ' + height + 'px;';
+
+		}, 
+		eventTapped: function(event, detail, sender) {
+			// console.log('eventTapped');
+			var curEvent = event.target.dataEvent;
+			this.fire('evt-calendar-event-selected', { curEvent: curEvent });
+		},
+
+		todayTapped: function() {
+			// this.date = moment();
+			var newDate = moment();
+			this.fire('evt-calendar-day-change',{ curDate: newDate });
+		},
+
+		dayBack: function() {
+			// This syntax, by assigning a new object to the bound property, forces
+			// updates and change events.
+			var newDate = moment(this.date).subtract(1, 'day');
+			this.fire('evt-calendar-day-change',{ curDate: newDate });
+		},
+		dayForward: function() {
+			var newDate = moment(this.date).add(1, 'day');
+			this.fire('evt-calendar-day-change',{ curDate: newDate });
+		},
+	});
+  </script>
+</dom-module>

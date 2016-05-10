@@ -1,0 +1,81 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<dom-module id="evt-calendar-day-base">
+  <template>
+    <style>
+    </style>
+  </template>
+  <script>
+var CalendarDayBaseBehavior = {
+
+		properties: {
+	        date: {
+	            type: Object,
+	            value: undefined,
+	            observer: 'dateChanged',
+	        },
+	        events: {
+	              type: Array,
+	              value: [],
+	              reflectToAttribute: true,
+	              observer: 'eventsChanged',
+	        },
+	        myEvents: {
+	        	type: Array,
+              	value: [],
+              	reflectToAttribute: true,
+              	notify: true,
+	        },
+	        // monthEvents: {
+	        // 	type: Array,
+         //      	value: [],
+         //      	reflectToAttribute: true,
+         //      	notify: true,
+	        // }
+      	},
+		
+		ready: function() {
+			this.events = [];
+			this.myEvents = [];
+			// this.monthEvents = [];
+		},
+		eventsForDate: function (events, date) {
+			if (events == undefined) {
+				return;
+			}
+			if (typeof this.date === 'undefined' || !this.date || !this.events || ! this.events.length) {
+				this.myEvents = [];
+				// this.monthEvents = [];
+				return;
+			}
+
+			this.myEvents = (function(d) { 
+				return events.filter(function(el, idx, ar) {
+
+					var range = moment.range(el.start,el.end);
+					var retVal = false;
+					if (moment(el.start).isSame(d, 'd')) {
+						retVal = true;
+					}
+					if (range.contains(d)) {
+						retVal = true;
+					}
+
+					return retVal;
+				});
+			})(date);
+
+
+		},
+
+		eventsChanged: function(newVal, oldVal) {
+			this.eventsForDate(newVal,this.date);
+		},
+		dateChanged: function (newVal, oldVal) {
+			this.eventsForDate(this.events,newVal);
+		}
+};
+  </script>
+</dom-module>
+
+

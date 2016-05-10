@@ -1,0 +1,127 @@
+
+<link rel="import" href="./evt-calendar-day-base.html">
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<!-- <script src="../../bower_components/moment/min/moment.min.js"></script> -->
+
+<dom-module id="evt-calendar-day-box">
+  <template>
+    <style>
+	paper-button.custom {
+
+		min-width: 0px;
+		border-radius: 50px;
+		min-width: 40px;
+	    min-height: 40px;
+	    max-height: 40px;
+	    max-width: 40px;
+		--paper-button-ink-color: var(--paper-pink-a200);
+		/* These could also be individually defined for each of the
+		  specific css classes, but we'll just do it once as an example */
+		--paper-button-flat-keyboard-focus: {
+		  background-color: var(--paper-pink-a200);
+		  color: white !important;
+		};
+		--paper-button-raised-keyboard-focus: {
+		  background-color: var(--paper-pink-a200) !important;
+		  color: white !important;
+		};
+	}
+	paper-button.custom:hover {
+		background-color: var(--paper-indigo-100);
+	}
+	paper-button.dayBoxToday {
+		color: var(--paper-pink-a200);
+
+	}
+	paper-button.dayBoxNotThisMonth {
+		color: lightgrey;
+	}
+	paper-button.dayBoxCurrent {
+		background-color: var(--paper-indigo-500);
+		color: white;
+		--paper-button-raised-keyboard-focus: {
+		  background-color: var(--paper-pink-a200) !important;
+		  color: white !important;
+		};
+	}
+	paper-badge {
+		--paper-badge-margin-left: 30px;
+		--paper-badge-margin-bottom: 0px;
+	}
+	</style>
+	<paper-material elevation="0" class="day">
+		<div>
+			<paper-button on-tap="dayBoxTapped" class$="{{classForDay}}"><span id="dayBoxDay{{formatDate(date)}}">{{formatDate(date)}}</span></paper-button>
+		  <template is="dom-if" if="{{myEvents.length}}">
+		     <paper-badge for="dayBoxDay{{formatDate(date)}}" label="{{myEvents.length}}"></paper-badge>
+		  </template>
+		</div>
+	</paper-material>
+  </template>
+
+  <script>
+    Polymer({
+		is: 'evt-calendar-day-box',
+
+		behaviors: [
+			CalendarDayBaseBehavior,
+		],
+
+		properties: {
+			date: {
+	            type: Object,
+	            value: undefined,
+	            notify: true,
+	            reflectToAttribute: true,
+	        },
+	        curDate: {
+	            type: Object,
+	            value: undefined,
+	            notify: true,
+	            reflectToAttribute: true,
+	            observer: 'curDateChanged',
+	        },
+	        classForDay: {
+	            type: String,
+	            value: '',
+	            notify: true,
+	            computed: '_computeClassFor(date,curDate)',
+	        },
+      	},
+		
+		_computeClassFor: function(date,curDate) {
+			var cl = 'custom ';
+
+			var startOfMonth = moment(curDate).startOf('month');
+			var endOfMonth = moment(curDate).endOf('month');
+
+			if (this.date.isBefore(startOfMonth)) {
+				cl += ' dayBoxNotThisMonth';
+			}
+			if (this.date.isAfter(endOfMonth)) {
+				cl += ' dayBoxNotThisMonth';
+			}
+
+			if (this.date.isSame(moment(), 'd'))
+				cl += ' dayBoxToday';
+			if (this.date.isSame(curDate)) 
+				cl += ' dayBoxCurrent';
+			return cl;
+		},
+		formatDate: function(date) {
+			if (date) return date.date();
+		},
+		curDateChanged: function(newVal, oldVal) {
+			if (!oldVal) return;
+			if (!oldVal.isSame(newVal, 'M')) {
+				this.eventsChanged();
+			}
+		},
+		dayBoxTapped: function(day) {
+			this.fire('evt-calendar-day-box-tapped',{ date: this.date });
+		},
+		
+	});
+  </script>
+</dom-module>
