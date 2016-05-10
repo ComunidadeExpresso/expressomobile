@@ -1,7 +1,7 @@
 import _ from 'underscore';
 import Backbone from 'backbone';
 import Shared from 'shared';
-import ContactModel from 'ContactModel';
+// import ContactModel from 'ContactModel';
 var DetailsContactCollection = Backbone.Collection.extend({
     model: ContactModel,
     _data: {},

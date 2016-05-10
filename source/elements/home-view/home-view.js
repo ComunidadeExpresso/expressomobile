@@ -55,6 +55,8 @@ Polymer({
         'evt-open-contacts': '_openContacts',
         'evt-open-contact-detail' : '_openContactDetail',
         'evt-open-contact-edit' : '_openContactEdit',
+        'evt-open-events-list' : '_openEventsList',
+        'evt-open-event-edit' : '_openEventEdit',
         'evt-toolbar-search': '_openSearch',
         'user-has-logged-in': '_userLoggedIn',
         'user-has-logged-out': '_userLoggedOut',
@@ -307,6 +309,42 @@ Polymer({
 
       },
 
+      _openEventsList: function(e) {
+        var eventsList = this.$.eventsList;
+        console.log('_openEventsList');
+        console.log(e.detail);
+
+        if (e.detail.curDate != undefined) {
+          eventsList.curDate = moment(e.detail.curDate,["DD-MM-YYYY"]);
+        } else {
+          eventsList.curDate = moment();
+        }
+        if (e.detail.eventID != undefined) {
+          eventsList.eventID = e.detail.eventID;
+        } else {
+          eventsList.eventID = '';
+        }
+        if (e.detail.selected != undefined) {
+          eventsList.selected = e.detail.selected;
+        } else {
+          eventsList.selected = 0;
+        }
+        if (e.detail.selectedPage != undefined) {
+          eventsList.selectedPage = e.detail.selectedPage;
+        } else {
+          eventsList.selectedPage = 0;
+        }
+        eventsList.refresh();
+      },
+
+      _openEventEdit: function(e) {
+        var eventCard = this.$.eventCard;
+        console.log('_openEventEdit');
+        console.log(e.detail);
+        eventCard.eventID = e.detail.eventID;
+        eventCard.refresh();
+      },
+
       loadFolder: function(folderId) {
         this.currentFolderId = folderId;
         // console.log(this.$.mailMessages);
@@ -314,7 +352,6 @@ Polymer({
         mailMessages.folderId = folderId;
         mailMessages.reloadFirstPage(false);
       },
-
 
 
       isLoggedIn: function(callback) {

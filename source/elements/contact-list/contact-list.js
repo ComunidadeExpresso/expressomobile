@@ -102,6 +102,11 @@ Polymer({
         value: '',
       },
 
+      contactIds: {
+        type: Array,
+        value: ["83173","83176"],
+      },
+
       cardHelp: {
         type: String,
         value: '',
@@ -353,6 +358,37 @@ Polymer({
       }
     },
 
+
+    getContactRowObject: function(currentIndex,item) {
+      var attrs = {};
+      var hasImagePicture = true;
+
+      //PERFORMANCE ISSUE
+      //ONLY DON'T LOAD PICTURES FROM GENERAL CONTACTS THAT DOESN'T HAVE.
+      if (!this.personalContacts) {
+          if (item["contactHasImagePicture"] == 0) {
+            hasImagePicture = false;
+          }
+      }
+
+      if (this.personalContacts) {
+        attrs["personalContact"] = true;
+        attrs["contactID"] = item["contactID"]; 
+      } else {
+        attrs["personalContact"] = false;
+        attrs["contactID"] = item["contactUIDNumber"]; 
+      }
+
+      attrs["isContact"] = true;
+      attrs["index"] = currentIndex;
+      
+      attrs["contactFullName"] = item["contactFullName"]; 
+      attrs["contactMail"] = item["contactMails"][0];
+      attrs["contactHasImagePicture"] = hasImagePicture;
+
+      return attrs;
+    },
+
     getContacts: function(pSearch,ptype,ignorecache,callBack) {
 
       this.searchMustBeMoreSpecific = false;
@@ -405,33 +441,9 @@ Polymer({
             arr_items.push(data);
           }
 
-          var attrs = {};
           currentIndex = currentIndex + 1;
 
-          var hasImagePicture = true;
-
-          //PERFORMANCE ISSUE
-          //ONLY DON'T LOAD PICTURES FROM GENERAL CONTACTS THAT DOESN'T HAVE.
-          if (!that.personalContacts) {
-              if (item["contactHasImagePicture"] == 0) {
-                hasImagePicture = false;
-              }
-          }
-
-          if (that.personalContacts) {
-            attrs["personalContact"] = true;
-            attrs["contactID"] = item["contactID"]; 
-          } else {
-            attrs["personalContact"] = false;
-            attrs["contactID"] = item["contactUIDNumber"]; 
-          }
-
-          attrs["isContact"] = true;
-          attrs["index"] = currentIndex;
-          
-          attrs["contactFullName"] = item["contactFullName"]; 
-          attrs["contactMail"] = item["contactMails"][0];
-          attrs["contactHasImagePicture"] = hasImagePicture;
+          var attrs = that.getContactRowObject(currentIndex,item);
 
           arr_items.push(attrs);
 

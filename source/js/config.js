@@ -47,14 +47,15 @@
     contactCard:                                  "elements/contact-card/contact-card.js",
     contactsApi:                                  "elements/contacts-api.js",
 
+    eventsApi:                                    "elements/events-api.js",
     eventsList:                                   "elements/calendar/events-list.js",
-    eventsMonth:                                  "elements/calendar/events-month.js",
+    eventCard:                                    "elements/calendar/event-card.js",
 
 
     //MODELS
     EventCategoryModel:                           "js/models/EventCategoryModel.js",
     EventModel:                                   "js/models/EventModel.js",
-    ContactModel:                                 "js/models/ContactModel.js",
+    // ContactModel:                                 "js/models/ContactModel.js",
     // ContextMenuModel:                             "js/models/ContextMenuModel.js",
     ExpressoModel:                                "js/models/ExpressoModel.js",
     // MenuItemModel:                                "js/models/MenuItemModel.js",
@@ -68,7 +69,7 @@
     EventCategoriesCollection:                    "js/collections/EventCategoriesCollection.js",
     EventsListCollection:                         "js/collections/EventsListCollection.js",
     ContactsListCollection:                       "js/collections/ContactsListCollection.js",
-    DetailsContactCollection:                     "js/collections/DetailsContactCollection.js",
+    // DetailsContactCollection:                     "js/collections/DetailsContactCollection.js",
     // ContextMenuCollection:                        "js/collections/ContextMenuCollection.js",
     ExpressoCollection:                           "js/collections/ExpressoCollection.js",
     // MenuItemsCollection:                          "js/collections/MenuItemsCollection.js",
@@ -92,6 +93,7 @@
     jquery:                                       "bower_components/jquery/dist/jquery.min.js",
     jquery_migrate:                               "bower_components/jquery-migrate/jquery-migrate.min.js",
     moment:                                       "bower_components/momentjs/moment.js",
+    momentRange:                                  "bower_components/moment-range/dist/moment-range.min.js",
     localstorage:                                 "bower_components/backbone.browserStorage/backbone.browserStorage.js",
     jqueryui:                                     "bower_components/jquery-ui/jquery-ui.min.js",
     material:                                     "bower_components/material-design-lite/material.js",

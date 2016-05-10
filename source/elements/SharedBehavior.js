@@ -1,6 +1,7 @@
 
 
 import page from 'page';
+import Shared from 'shared';
 
 var SharedBehavior =  {
     properties: {
@@ -81,6 +82,33 @@ var SharedBehavior =  {
 
         return strAccentsOut;
     },
+
+    isLoggedIn: function(callback) {
+      var that = this;
+      Shared.api.getLocalStorageValue("expresso",function(expressoValue) {
+        if (expressoValue != null) {
+          var authValue = expressoValue.auth;
+
+          if (authValue != null) {
+            Shared.api.auth(authValue);
+          }
+
+          Shared.profile = expressoValue.profile;
+
+        }
+
+        if ((Shared.api.auth())) { 
+          that.isLogged = true;
+        } else {
+          that.isLogged = false;
+        }
+
+        callback(that.isLogged);
+
+      });
+
+    },
+
 
 };
 

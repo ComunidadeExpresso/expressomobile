@@ -24,5 +24,6 @@ import contactEdit from 'contactEdit';
 import contactCard from 'contactCard';
 
 //events
+import eventsApi from 'eventsApi';
 import eventsList from 'eventsList';
-import evetnsMonth from 'eventsMonth';
+import eventCard from 'eventCard';

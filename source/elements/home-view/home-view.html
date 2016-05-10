@@ -65,12 +65,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <!-- <link rel="import" href="../app-page.html"> -->
 <link rel="import" href="../mail-messages/mail-messages.html">
 <link rel="import" href="../mail-create/mail-create.html">
+<link rel="import" href="../calendar/event-card.html">
 <link rel="import" href="../calendar/events-list.html">
 <link rel="import" href="../expresso-login/expresso-login.html">
 
 <link rel="import" href="../contact-list/contact-list.html">
 <link rel="import" href="../contact-card/contact-card.html">
 <link rel="import" href="../contact-edit/contact-edit.html">
+
+<link rel="import" href="../evt-calendar/evt-calendar.html">
 
 <link rel="import" href="../material-search/material-search.html">
 
@@ -283,7 +286,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <!-- 
             <neon-animatable data-route="mail-move">
               MOVER MENSAGEM.
-            </neon-animatable> -->
+            </neon-animatable> --> 
 
             <neon-animatable data-route="contact-list"> 
                <contact-list id="contactList" signals="1"></contact-list>
@@ -292,13 +295,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <neon-animatable data-route="contact-detail"> 
                <contact-card id="contactCard"></contact-card>
             </neon-animatable>
-
+ 
             <neon-animatable data-route="contact-edit"> 
               <contact-edit id="contactEdit" is-edition="true"></contact-edit>
             </neon-animatable>
 
             <neon-animatable data-route="events-list"> 
                <events-list id="eventsList"></events-list>
+            </neon-animatable>
+
+            <neon-animatable data-route="event-detail"> 
+               <event-card id="eventCard"></event-card>
             </neon-animatable>
 
           </neon-animated-pages>

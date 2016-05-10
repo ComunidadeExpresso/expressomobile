@@ -29,100 +29,19 @@
 <link rel="import" href="../../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../../bower_components/iron-form/iron-form.html">
 
-<link rel="import" href="../profile-img/profile-img.html">
-<link rel="import" href="../swipeable-item.html">
+
 <link rel="import" href="../menu-fab.html">
 
-<link rel="import" href="./events-month.html">
+<link rel="import" href="../evt-calendar/evt-calendar.html">
 
 <dom-module id="events-list">
   <style>
-    :host {
-        @apply(--layout-fit);
-        @apply(--layout-vertical);
-        @apply(--paper-font-common-base);
-        display: block;
-        font-family: sans-serif;
-    }
-
-    #itemsListContainer {
-      @apply(--layout-fit);
-      @apply(--layout-vertical);
-    }
-
-    #selectedItemsList,
-    #itemsList {
-      @apply(--layout-flex);
-    }
-    #itemsList{
-      @apply(--layout-vertical);
-    }
-
-    .item {
-      position: relative !important;
-      /*padding: 0px 0px;*/
-      border-bottom: 1px solid #DDD;
-      height: 200px;
-    }
-
-    .eventItem {
-      position: relative !important;
-      /*padding: 0px 0px;*/
-      border-bottom: 1px solid #DDD;
-    }
-
-    #loadingArea {
-      margin-top: 20px;
-      margin-bottom: 10px;
-      margin-left: 50%;
-    }
-
+  
   </style>
   <template>  
-  
-    <div id="itemsListContainer">
-        <!-- <div id='loadingArea' class="layout flex center" hidden$="[[!isLoading]]"><paper-spinner class="blue" alt="Carregando..." active></paper-spinner></div> -->
-      <iron-list id="itemsList" items="[[months]]" on-scroll="onScroll">
-      <!-- <template is="dom-repeat" items="[[months]]"> -->
-      <template>
-        <div>
-          <template is="dom-if" if="[[item.isMonth]]">
+  	<iron-signals on-iron-signal-events-list-refresh="_signalRefresh"></iron-signals>
 
-            
-            <events-month month="{{item.month}}" year="{{item.year}}" is-loading="{{item.isLoading}}" is-month="{{item.isMonth}}" event-data="{{item.eventData}}" class="item"></events-month>
-
-<!--             <div class="create-card-content">
-              <div id="event-list">
- -->
-                
-
-<!--               </div>
-            </div> -->
-          </template>
-          
-          <template is="dom-if" if="[[item.isLoading]]">
-            <div id='loadingArea' class="layout flex center"><paper-spinner class="blue" alt="Carregando..." active></paper-spinner></div>
-          </template>
-          
-          
-
-          <template is="dom-if" if="[[!item.isMonth]]">
-            <paper-item tabindex="0" class="eventItem">
-              <profile-img id="profileimgSelected" class="small" letter="[[item.eventData.eventDay]]"></profile-img>
-              <div class="pad small">
-                <div class="primary name">&nbsp;[[_decodeHTMLEntities(item.eventData.eventName)]]</div>
-                <div class="secondary dim name"></div>
-              </div>
-              <paper-ripple></paper-ripple>
-            </paper-item>
-          </template>
-
-
-        </div>
-      </template>
-      </iron-list>
-    </div>
-        
+    <evt-calendar id="eventCalendar" cur-date="{{curDate}}" cur-event="{{curEvent}}" events="{{events}}" selected="{{selected}}" selected-page="{{selectedPage}}"></evt-calendar>
   </template>
   <script>
   

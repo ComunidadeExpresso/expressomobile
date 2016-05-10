@@ -127,6 +127,9 @@ gulp.task('vulcanize','Minify Polymer Elements into a index.html and index.js on
             stripExcludes: false,
             inlineScripts: false
         }))
+        .on( "error", function( err ) {
+            console.log( err );
+        })
         .pipe(crisper({
             scriptInHead: false, 
             onlySplit: false
@@ -138,13 +141,13 @@ gulp.task('build', 'Create a new build on the build folder.', [ 'copy:build','mi
 
 
 gulp.task('connect', false, function() {
-    connect.server({});
+  connect.server({ port: 8000 });
 });
 
 
 gulp.task('browser-sync-source',false, function() {
 
-    var proxyOptions = url.parse('http://127.0.0.1:8000/source/api/dispatch.php');
+    var proxyOptions = url.parse('http://127.0.0.1:8888/source/api/dispatch.php');
     proxyOptions.route = '/api';
     proxyOptions.method = 'POST';
 
@@ -159,20 +162,24 @@ gulp.task('browser-sync-source',false, function() {
 });
 
 gulp.task('browser-sync-www',false, function() {
-    var proxyOptions = url.parse('http://127.0.0.1:8000/www/api/dispatch.php');
+    var proxyOptions = url.parse('http://127.0.0.1:8888/www/api/dispatch.php');
     proxyOptions.route = '/api';
     proxyOptions.method = 'POST';
 
-    browserSync({
-        open: true,
-        port: 3000,
-        server: {
-            index: "index.html",
-            baseDir: "./www/",
-            middleware: [proxy(proxyOptions)]
-        }
-    });
-});
+      // connect.server({}, function (){
+        browserSync({
+            open: true,
+            port: 3000,
+            server: {
+                index: "index.html",
+                baseDir: "./www/",
+                middleware: [proxy(proxyOptions)]
+            }
+        });
+      // });
+
+    
+}); 
 
 
 var paths =  {

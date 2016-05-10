@@ -2,6 +2,8 @@
 import $ from 'jquery';
 // import  from 'jqueryui';
 import _ from 'underscore';
+import moment from 'moment';
+import momentRange from 'momentRange';
 import Backbone from 'backbone';
 import Shared from 'Shared';
 import HomeView from 'HomeView';
@@ -213,8 +215,22 @@ var initialize = function(){
 
         page('/events-list', function(data) {
           app.route = 'events-list';
-
+          var params =  { };
+          app.fire('evt-open-events-list',params);
         });
+
+        page('/events-list/:curDate/:selected', function(data) {
+          app.route = 'events-list';
+          var params = { curDate: data.params.curDate, selected: data.params.selected, selectedPage: 0 };
+          app.fire('evt-open-events-list',params);
+        });
+
+        page('/event/:eventID', function(data) {
+          app.route = 'event-detail';
+          var params = { eventID: data.params.eventID, selectedPage: 1 };
+          app.fire('evt-open-event-edit',params);
+        });
+
 
         // 404
         page('*', function() {

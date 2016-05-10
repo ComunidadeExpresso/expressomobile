@@ -1,8 +1,8 @@
 import _ from 'underscore';
 import Backbone from 'backbone';
 import Shared from 'shared';
-import ContactModel from 'ContactModel';
-import DetailsContactCollection from 'DetailsContactCollection';
+// import ContactModel from 'ContactModel';
+// import DetailsContactCollection from 'DetailsContactCollection';
 
 
 var EventModel = Backbone.Model.extend({
@@ -21,7 +21,7 @@ var EventModel = Backbone.Model.extend({
         eventCategoryID: '',
         eventDateEnd: '',
         eventDateStart: '',
-        eventDescription: '',
+        eventDescription: '', 
         eventOwner: '',
         eventOwnerIsParticipant: '',
         eventPriority: '',
@@ -93,36 +93,36 @@ var EventModel = Backbone.Model.extend({
 
         var pContactID = JSON.stringify(listUidNumbers);
 
-        var detailsContactCollection = new DetailsContactCollection();
-        detailsContactCollection.done(function(data) {
-                that.set({
-                    eventParticipantsLdap: data.models
-                });
+        // var detailsContactCollection = new DetailsContactCollection();
+        // detailsContactCollection.done(function(data) {
+        //         that.set({
+        //             eventParticipantsLdap: data.models
+        //         });
 
-                if (that.done)
-                    that.done(that)
-            })
-            .fail(function(error) {
-                if (that.fail)
-                    that.fail(error);
-            }).getGeneralContactDetails(pContactID);
+        //         if (that.done)
+        //             that.done(that)
+        //     })
+        //     .fail(function(error) {
+        //         if (that.fail)
+        //             that.fail(error);
+        //     }).getGeneralContactDetails(pContactID);
     },
 
     getEventOwner: function(callback) {
         var that = this;
 
-        var detailsContactCollection = new DetailsContactCollection();
-        detailsContactCollection.done(function(data) {
-                that.set({
-                    eventOwner: data.models[0]
-                });
-                that.getEventParticipants();
-            })
-            .fail(function(error) {
+        // var detailsContactCollection = new DetailsContactCollection();
+        // detailsContactCollection.done(function(data) {
+        //         that.set({
+        //             eventOwner: data.models[0]
+        //         });
+        //         that.getEventParticipants();
+        //     })
+        //     .fail(function(error) {
 
-                if (that.fail)
-                    that.fail(error);
-            }).getGeneralContactDetails(this.get('eventOwner'));
+        //         if (that.fail)
+        //             that.fail(error);
+        //     }).getGeneralContactDetails(this.get('eventOwner'));
     },
 
     saveEvent: function(params) {

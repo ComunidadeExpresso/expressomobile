@@ -174,9 +174,7 @@ Polymer({
       .search(pSearch)
       .done(function(response) { 
 
-        var currentIndex  = 0;
         var arr_items     = [];
-        var lastLetter    = '';
 
         for (var i in response) {
           var item = reponse[i];
