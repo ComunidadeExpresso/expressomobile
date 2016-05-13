@@ -39,7 +39,7 @@ public class MainActivity extends CordovaActivity
         super.onCreate(savedInstanceState);
         //setContentView(R.layout.activity_main);
         super.init();
-        this.registerForContextMenu(this.appView);
+        // this.registerForContextMenu(this.appView);
         
         CookieSyncManager.createInstance(this);
         CookieManager cookieManager = CookieManager.getInstance();

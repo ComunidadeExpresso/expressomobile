@@ -20,7 +20,6 @@ define([
 
     render: function(){
 
-
       var collection = new ServersCollection();
 
       var that = this;

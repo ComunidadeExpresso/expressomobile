@@ -1,0 +1,16 @@
+<h2 class="ellipsis50">Resultados Por P&aacute;gina</h2>
+<article id="wrapperDetail" class="container">
+	<div id="scrollerDetail">
+		<div id="detailList">
+			<ul>
+				<% _.each(possibleValues, function(value){ %>
+				<li value="<%=value%>" <% if (resultsperpage == value) { %>class="selected"<% } %>>
+					<a href="#" class="detailListItemLink">
+						<h3><%=value%></h3>
+					</a>
+				</li>
+				<% }); %>
+			</ul>
+		</div>
+  	</div>
+</article>

@@ -1,0 +1,84 @@
+<div  class="container">
+  <% if (!Shared.isBuiltInExpresso()) { %><div class="product-logo-menu"></div><% } %>
+
+  <div id="personalInfo">
+    <div id="userPicture" class="userPicture shadow"></div>
+    <div class="personalData">
+      <span id="userName" class="name ellipsis14" style="margin-bottom: 8px;"><% if (!_.isNull(user.contactFullName)) { %><%=user.contactFullName%><% } %></span>
+      <% if (Shared.userHasModule("mail")) { %>
+      <span id="userEmail" class="email ellipsis14" style="margin-bottom: 8px;"><% if (!_.isNull(user.contactMails[0])) { %><%=user.contactMails[0]%><% } %></span>
+      <div id="quota">
+        
+        <div class="bar"> 
+          <div id="usedQuota" class="usedQuota" style="width: 0%;"></div>
+          <span id="textQuota">Sem Quota</span>
+        </div>
+
+      </div>
+      <% } %>
+    </div>
+  </div>
+
+  <dl>
+
+    <% if (Shared.automaticLoginAccounts.accounts.length >= 2) { %>
+
+    <dt>Alterar Conta</dt>
+    <dd>
+      <ul id="mainMenu">
+      <% _.each(Shared.automaticLoginAccounts.accounts, function(account){ %>
+      <% if (Shared.forceAutomaticLoginInAccountName != account.accountName) { %>
+        <li class="account">
+          <a class="menuLink" href="/Switch/<%=account.accountName%>">
+            <span><%=account.accountName%></span>
+            <div class="userPicture icon"></div>
+          </a>
+        </li>
+      <% } %>
+      <% }); %>
+      </ul>
+    </dd>
+    <% } %>
+
+    
+    <dt<% if (Shared.isBuiltInExpresso()) { %> style="display: none;"<% } %>>Menu</dt>
+    <dd <% if (Shared.isBuiltInExpresso()) { %> style="display: none;"<% } %>>
+      <ul id="mainMenu">
+        <% _.each(menuItems, function(menuItem){ %>
+          <li class="<%=menuItem.get("menuClass")%>">
+            <a href="<%=menuItem.get("menuRoute")%>" class="menuLink">
+              <span><% if (menuItem.get("menuHasBadge")) { %><div id="badge_<%=menuItem.get("menuClass")%>" class="badge badge-chat hidden"></div><% } %><%=menuItem.get("menuTitle")%></span>
+              <div class="icon <%=menuItem.get("menuIconClass")%>"></div>
+            </a>
+          </li>
+        <% }); %>
+      </ul>
+    </dd>
+
+    <% if (Shared.userHasModule("mail")) { %>
+    <dt>Minhas Pastas</dt>
+    <dd>
+      <ul id="mainMenu">
+      
+          <li class="add-folder">
+            <a href="/Mail/AddFolder/INBOX#" class="menuLink">
+              <span>Adicionar Pasta</span>
+              <div class="icon icon-add-folder"></div>
+            </a>
+          </li>
+      </ul>
+    </dd>
+    <dd>
+      <ul id="myFolders">
+        
+      </ul>
+    </dd>
+    
+    <% } %>
+    <div class="menu-footer">
+      Desenvolvido por:<br><br>
+      <div class="company-logo"></div>
+    </div>
+  </dl>
+
+</div>

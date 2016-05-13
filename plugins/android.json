@@ -9,15 +9,7 @@
                 "parents": {
                     "/*": [
                         {
-                            "xml": "<feature name=\"Camera\"><param name=\"android-package\" value=\"org.apache.cordova.camera.CameraLauncher\" /></feature>",
-                            "count": 1
-                        },
-                        {
-                            "xml": "<feature name=\"NetworkStatus\"><param name=\"android-package\" value=\"org.apache.cordova.networkinformation.NetworkManager\" /></feature>",
-                            "count": 1
-                        },
-                        {
-                            "xml": "<feature name=\"BackgroundServicePlugin\"><param name=\"android-package\" value=\"com.phonegap.plugins.backgroundservice.BackgroundServicePlugin\" /></feature>",
+                            "xml": "<feature name=\"ExpressoPlugin\"><param name=\"android-package\" value=\"com.phonegap.plugins.expresso.ExpressoPlugin\" /></feature>",
                             "count": 1
                         },
                         {
@@ -25,7 +17,19 @@
                             "count": 1
                         },
                         {
-                            "xml": "<feature name=\"ExpressoPlugin\"><param name=\"android-package\" value=\"com.phonegap.plugins.expresso.ExpressoPlugin\" /></feature>",
+                            "xml": "<feature name=\"NetworkStatus\"><param name=\"android-package\" value=\"org.apache.cordova.networkinformation.NetworkManager\" /></feature>",
+                            "count": 1
+                        },
+                        {
+                            "xml": "<feature name=\"Whitelist\"><param name=\"android-package\" value=\"org.apache.cordova.whitelist.WhitelistPlugin\" /><param name=\"onload\" value=\"true\" /></feature>",
+                            "count": 1
+                        },
+                        {
+                            "xml": "<feature name=\"Camera\"><param name=\"android-package\" value=\"org.apache.cordova.camera.CameraLauncher\" /></feature>",
+                            "count": 1
+                        },
+                        {
+                            "xml": "<feature name=\"BackgroundServicePlugin\"><param name=\"android-package\" value=\"com.red_folder.phonegap.plugin.backgroundservice.BackgroundServicePlugin\" /></feature>",
                             "count": 1
                         }
                     ]
@@ -33,16 +37,6 @@
             },
             "AndroidManifest.xml": {
                 "parents": {
-                    "/*": [
-                        {
-                            "xml": "<uses-permission android:name=\"android.permission.WRITE_EXTERNAL_STORAGE\" />",
-                            "count": 1
-                        },
-                        {
-                            "xml": "<uses-permission android:name=\"android.permission.ACCESS_NETWORK_STATE\" />",
-                            "count": 1
-                        }
-                    ],
                     "/manifest": [
                         {
                             "xml": "<uses-permission android:name=\"android.permission.RECEIVE_BOOT_COMPLETED\" />",
@@ -51,7 +45,17 @@
                     ],
                     "/manifest/application": [
                         {
-                            "xml": "<receiver android:name=\"com.phonegap.plugins.backgroundservice.BootReceiver\"><intent-filter><action android:name=\"android.intent.action.BOOT_COMPLETED\" /></intent-filter></receiver>",
+                            "xml": "<receiver android:name=\"com.red_folder.phonegap.plugin.backgroundservice.BootReceiver\"><intent-filter><action android:name=\"android.intent.action.BOOT_COMPLETED\" /></intent-filter></receiver>",
+                            "count": 1
+                        }
+                    ],
+                    "/*": [
+                        {
+                            "xml": "<uses-permission android:name=\"android.permission.ACCESS_NETWORK_STATE\" />",
+                            "count": 1
+                        },
+                        {
+                            "xml": "<uses-permission android:name=\"android.permission.WRITE_EXTERNAL_STORAGE\" />",
                             "count": 1
                         }
                     ]
@@ -60,21 +64,31 @@
         }
     },
     "installed_plugins": {
-        "org.apache.cordova.camera": {
+        "com.raynetcrm.janiczek.fork.externalfileutil": {
             "PACKAGE_NAME": "com.celepar.expresso"
         },
-        "org.apache.cordova.network-information": {
-            "PACKAGE_NAME": "com.celepar.expresso"
-        },
-        "com.phonegap.plugins.backgroundservice": {
+        "com.phonegap.plugins.expresso": {
             "PACKAGE_NAME": "com.celepar.expresso"
         },
         "com.phonegap.plugins.webintent": {
             "PACKAGE_NAME": "com.celepar.expresso"
         },
-        "com.phonegap.plugins.expresso": {
+        "org.apache.cordova.network-information": {
+            "PACKAGE_NAME": "com.celepar.expresso"
+        },
+        "cordova-plugin-whitelist": {
+            "PACKAGE_NAME": "com.celepar.expresso"
+        },
+        "cordova-plugin-camera": {
+            "PACKAGE_NAME": "com.celepar.expresso"
+        },
+        "com.red_folder.phonegap.plugin.backgroundservice": {
             "PACKAGE_NAME": "com.celepar.expresso"
         }
     },
-    "dependent_plugins": {}
+    "dependent_plugins": {
+        "cordova-plugin-compat": {
+            "PACKAGE_NAME": "com.celepar.expresso"
+        }
+    }
 }

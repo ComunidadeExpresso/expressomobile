@@ -34,7 +34,7 @@ then
 	if [ "$2" = "run" ]
 	then
 		echo "EXPRESSO - ANDROID - RUN"
-		./hookgs/gen_dist.sh
+		./hooks/gen_dist.sh
 		cordova run android
 	fi
 
@@ -62,7 +62,12 @@ then
 		echo "EXPRESSO - ANDROID - RELEASE"
 		cordova build android --release
 		mkdir ./releases/android/$EXTRA
-		cp -R ./platforms/android/ant-build/com.celepar.expresso.MainActivity-release.apk ./releases/android/$EXTRA/Expresso.apk
+		cp -R ./platforms/android/build/outputs/apk/android-release-unsigned.apk ./releases/android/$EXTRA/Expresso-unaligned.apk
+
+		jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore ./platforms/android/celepar_expresso_keystore ./releases/android/$EXTRA/Expresso-unaligned.apk celepar
+		rm ./releases/android/$EXTRA/Expresso.apk
+
+		/projeto/frameworks/android-sdk-mac_x86/build-tools/21.1.2/zipalign  -v 4 ./releases/android/$EXTRA/Expresso-unaligned.apk ./releases/android/$EXTRA/Expresso.apk
 
 		echo "ARQUIVO APK DA RELEASE $EXTRA NA PASTA:"
 		echo "./releases/android/$EXTRA/Expresso.apk"

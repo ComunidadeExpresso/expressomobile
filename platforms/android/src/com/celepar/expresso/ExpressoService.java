@@ -28,7 +28,7 @@ import com.celepar.expresso.MainActivity;
 import java.util.ArrayList;
 import org.json.JSONArray;
 
-import com.phonegap.plugins.backgroundservice.BackgroundService;
+import com.red_folder.phonegap.plugin.backgroundservice.BackgroundService;
 
 public class ExpressoService extends BackgroundService {
 	

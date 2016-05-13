@@ -655,8 +655,9 @@ Shared.deviceReady = function() {
           }, false);
 
           var serviceName = 'com.celepar.expresso.ExpressoService';
-          var factory = cordova.require('com.phonegap.plugins.backgroundservice.BackgroundService')
-          Shared.service.service = factory.create(serviceName);
+          var className = 'ExpressoService';
+          var factory = cordova.require('com.red_folder.phonegap.plugin.backgroundservice.BackgroundService')
+          Shared.service.service = factory.create(serviceName,className);
 
           window.plugins = {};
           window.plugins.webintent = cordova.require('com.phonegap.plugins.webintent.WebIntent');
@@ -668,6 +669,11 @@ Shared.deviceReady = function() {
           // Shared.router.navigate("Login",{ trigger: true });
 
           if (window.plugins != undefined) {
+
+            console.log('window.plugins');
+            console.log(window.plugins);
+
+            console.log(window.plugins.expresso);
 
           if (window.plugins.expresso != undefined) {
 
@@ -771,7 +777,7 @@ Shared.deviceReady = function() {
               // console.log(error);
             });
 
-
+        
           } else {
             //SEM WEBINTENT
           }
@@ -779,6 +785,8 @@ Shared.deviceReady = function() {
           } else {
             //SEM PLUGINS
           }
+
+          
 
       }
 };

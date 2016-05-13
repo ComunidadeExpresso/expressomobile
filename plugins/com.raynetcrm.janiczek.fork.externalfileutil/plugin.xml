@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    id="com.raynetcrm.janiczek.fork.externalfileutil"
+    version="1.0.0">
+
+	<name>ExternalFileUtil</name>
+	<description>Plugin for opening documents in an external program on the iOS device.</description>
+	<license>MIT</license>
+
+	<engines>
+		<engine name="cordova" version=">=3.0.0" />
+	</engines>
+
+	<js-module src="www/ExternalFileUtil.js" name="ExternalFileUtil">
+		<clobbers target="window.ExternalFileUtil" />
+	</js-module>
+
+	<!-- iOS -->
+	<platform name="ios">
+		<config-file target="config.xml" parent="/*">
+			<feature name="ExternalFileUtil">
+				<param name="ios-package" value="ExternalFileUtil" />
+			</feature>
+		</config-file>
+		<source-file src="src/ios/CDVExternalFileUtil.m" />
+		<header-file src="src/ios/CDVExternalFileUtil.h" />
+		<source-file src="src/ios/NSData+Base64.m" />
+		<header-file src="src/ios/NSData+Base64.h" />
+	</platform>
+
+</plugin>

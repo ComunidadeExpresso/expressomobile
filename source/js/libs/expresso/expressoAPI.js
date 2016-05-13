@@ -941,7 +941,7 @@ define([
 
 			var conf = this.conf();
 
-			_debug = false;
+			_debug = true;
 
 			if (_debug) {
 				console.log('ExpressoAPI - Execute:' + this.resource());

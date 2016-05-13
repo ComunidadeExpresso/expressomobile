@@ -11,11 +11,19 @@
                         {
                             "xml": "true",
                             "count": 1
+                        },
+                        {
+                            "xml": true,
+                            "count": 1
                         }
                     ],
                     "CoreLocation.framework": [
                         {
                             "xml": "false",
+                            "count": 1
+                        },
+                        {
+                            "xml": false,
                             "count": 1
                         }
                     ],
@@ -23,11 +31,19 @@
                         {
                             "xml": "false",
                             "count": 2
+                        },
+                        {
+                            "xml": false,
+                            "count": 2
                         }
                     ],
                     "AssetsLibrary.framework": [
                         {
                             "xml": "false",
+                            "count": 1
+                        },
+                        {
+                            "xml": false,
                             "count": 1
                         }
                     ],
@@ -35,11 +51,21 @@
                         {
                             "xml": "false",
                             "count": 1
+                        },
+                        {
+                            "xml": false,
+                            "count": 1
                         }
                     ],
                     "SystemConfiguration.framework": [
                         {
                             "xml": "true",
+                            "count": 1
+                        }
+                    ],
+                    "AVFoundation.framework": [
+                        {
+                            "xml": false,
                             "count": 1
                         }
                     ]
@@ -49,19 +75,19 @@
                 "parents": {
                     "/*": [
                         {
-                            "xml": "<feature name=\"Camera\"><param name=\"ios-package\" value=\"CDVCamera\" /></feature>",
-                            "count": 1
-                        },
-                        {
-                            "xml": "<preference name=\"CameraUsesGeolocation\" value=\"false\" />",
-                            "count": 1
-                        },
-                        {
                             "xml": "<feature name=\"NetworkStatus\"><param name=\"ios-package\" value=\"CDVConnection\" /></feature>",
                             "count": 1
                         },
                         {
                             "xml": "<feature name=\"ExternalFileUtil\"><param name=\"ios-package\" value=\"CDVExternalFileUtil\" /></feature>",
+                            "count": 1
+                        },
+                        {
+                            "xml": "<feature name=\"Camera\"><param name=\"ios-package\" value=\"CDVCamera\" /></feature>",
+                            "count": 1
+                        },
+                        {
+                            "xml": "<preference name=\"CameraUsesGeolocation\" value=\"false\" />",
                             "count": 1
                         }
                     ]
@@ -80,15 +106,25 @@
         }
     },
     "installed_plugins": {
-        "org.apache.cordova.camera": {
-            "PACKAGE_NAME": "com.celepar.expresso"
-        },
         "org.apache.cordova.network-information": {
             "PACKAGE_NAME": "com.celepar.expresso"
         },
         "ExternalFileUtil": {
             "PACKAGE_NAME": "com.celepar.expresso"
+        },
+        "cordova-plugin-whitelist": {
+            "PACKAGE_NAME": "com.celepar.pr.gov.br.Expresso"
+        },
+        "cordova-plugin-camera": {
+            "PACKAGE_NAME": "com.celepar.pr.gov.br.Expresso"
+        },
+        "com.red_folder.phonegap.plugin.backgroundservice": {
+            "PACKAGE_NAME": "com.celepar.pr.gov.br.Expresso"
         }
     },
-    "dependent_plugins": {}
+    "dependent_plugins": {
+        "cordova-plugin-compat": {
+            "PACKAGE_NAME": "com.celepar.pr.gov.br.Expresso"
+        }
+    }
 }

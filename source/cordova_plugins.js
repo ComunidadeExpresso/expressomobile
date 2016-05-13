@@ -1,6 +1,25 @@
 cordova.define('cordova/plugin_list', function(require, exports, module) {
 module.exports = [
     {
+        "file": "plugins/com.raynetcrm.janiczek.fork.externalfileutil/www/ExternalFileUtil.js",
+        "id": "com.raynetcrm.janiczek.fork.externalfileutil.ExternalFileUtil",
+        "clobbers": [
+            "window.ExternalFileUtil"
+        ]
+    },
+    {
+        "file": "plugins/com.phonegap.plugins.backgroundservice/www/backgroundservice.js",
+        "id": "com.phonegap.plugins.backgroundservice.BackgroundService"
+    },
+    {
+        "file": "plugins/com.phonegap.plugins.expresso/www/ExpressoPlugin.js",
+        "id": "com.phonegap.plugins.expresso.ExpressoPlugin"
+    },
+    {
+        "file": "plugins/com.phonegap.plugins.webintent/www/webintent.js",
+        "id": "com.phonegap.plugins.webintent.WebIntent"
+    },
+    {
         "file": "plugins/org.apache.cordova.camera/www/CameraConstants.js",
         "id": "org.apache.cordova.camera.Camera",
         "clobbers": [
@@ -42,28 +61,18 @@ module.exports = [
         "clobbers": [
             "Connection"
         ]
-    },
-    {
-        "file": "plugins/com.phonegap.plugins.backgroundservice/www/backgroundservice.js",
-        "id": "com.phonegap.plugins.backgroundservice.BackgroundService"
-    },
-    {
-        "file": "plugins/com.phonegap.plugins.webintent/www/webintent.js",
-        "id": "com.phonegap.plugins.webintent.WebIntent"
-    },
-    {
-        "file": "plugins/com.phonegap.plugins.expresso/www/ExpressoPlugin.js",
-        "id": "com.phonegap.plugins.expresso.ExpressoPlugin"
     }
 ];
 module.exports.metadata = 
 // TOP OF METADATA
 {
+    "com.raynetcrm.janiczek.fork.externalfileutil": "1.0.0",
+    "com.phonegap.plugins.backgroundservice": "2.0.0",
+    "com.phonegap.plugins.expresso": "2.0.0",
+    "com.phonegap.plugins.webintent": "2.0.0",
     "org.apache.cordova.camera": "0.3.6",
     "org.apache.cordova.network-information": "0.2.15",
-    "com.phonegap.plugins.backgroundservice": "2.0.0",
-    "com.phonegap.plugins.webintent": "2.0.0",
-    "com.phonegap.plugins.expresso": "2.0.0"
+    "cordova-plugin-whitelist": "1.2.2"
 }
 // BOTTOM OF METADATA
 });

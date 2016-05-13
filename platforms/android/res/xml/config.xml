@@ -1,21 +1,26 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget android-packageName="com.celepar.expresso" id="com.celepar.pr.gov.br.Expresso" ios-CFBundleIdentifier="com.celepar.pr.gov.br.Expresso" ios-CFBundleVersion="1.2" version="1.2" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget android-packageName="com.celepar.expresso" android-versionCode="72" id="com.celepar.pr.gov.br.Expresso" ios-CFBundleIdentifier="com.celepar.pr.gov.br.Expresso" ios-CFBundleVersion="1.2" version="1.2" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <preference name="loglevel" value="DEBUG" />
-    <feature name="Camera">
-        <param name="android-package" value="org.apache.cordova.camera.CameraLauncher" />
-    </feature>
-    <feature name="NetworkStatus">
-        <param name="android-package" value="org.apache.cordova.networkinformation.NetworkManager" />
-    </feature>
-    <feature name="BackgroundServicePlugin">
-        <param name="android-package" value="com.phonegap.plugins.backgroundservice.BackgroundServicePlugin" />
+    <feature name="ExpressoPlugin">
+        <param name="android-package" value="com.phonegap.plugins.expresso.ExpressoPlugin" />
     </feature>
     <feature name="WebIntentPlugin">
         <param name="android-package" value="com.phonegap.plugins.webintent.WebIntent" />
     </feature>
-    <feature name="ExpressoPlugin">
-        <param name="android-package" value="com.phonegap.plugins.expresso.ExpressoPlugin" />
+    <feature name="NetworkStatus">
+        <param name="android-package" value="org.apache.cordova.networkinformation.NetworkManager" />
     </feature>
+    <feature name="Whitelist">
+        <param name="android-package" value="org.apache.cordova.whitelist.WhitelistPlugin" />
+        <param name="onload" value="true" />
+    </feature>
+    <feature name="Camera">
+        <param name="android-package" value="org.apache.cordova.camera.CameraLauncher" />
+    </feature>
+    <feature name="BackgroundServicePlugin">
+        <param name="android-package" value="com.red_folder.phonegap.plugin.backgroundservice.BackgroundServicePlugin" />
+    </feature>
+    <allow-intent href="market:*" />
     <content src="index_android.html" />
     <name>Expresso</name>
     <description>
@@ -25,6 +30,19 @@
             Expresso Mobile
         </author>
     <access origin="*" />
+    <allow-navigation href="*" />
+    <allow-navigation href="http://*/*" />
+    <allow-navigation href="http://api.expressolivre.org/*" />
+    <allow-navigation href="http://api.expresso.pr.gov.br/*" />
+    <allow-intent href="http://*/*" />
+    <allow-intent href="http://api.expressolivre.org/*" />
+    <allow-intent href="http://api.expresso.pr.gov.br/*" />
+    <allow-intent href="https://*/*" />
+    <allow-intent href="tel:*" />
+    <allow-intent href="sms:*" />
+    <allow-intent href="mailto:*" />
+    <allow-intent href="geo:*" />
+    <allow-intent href="*" />
     <preference name="AllowInlineMediaPlayback" value="false" />
     <preference name="AutoHideSplashScreen" value="true" />
     <preference name="BackupWebStorage" value="local" />

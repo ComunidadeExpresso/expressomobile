@@ -47,6 +47,7 @@ define([
       this.$el.html(homeTemplate);
       this.$el.css("width","100%");
       this.$el.css("height","100%");
+      
       $("#mainAppPageContent").empty().append(this.$el);
 
       var that = this;

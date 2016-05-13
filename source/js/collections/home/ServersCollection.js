@@ -48,6 +48,7 @@ define([
           .params({})
           .done(function(result){
 
+
             for (var i in result.servers) {
               var currentModel = new ServerModel(result.servers[i]);
               that.add(currentModel);
